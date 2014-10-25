@@ -14,21 +14,9 @@
  * limitations under the License.
  */
 
-apply plugin: 'com.android.application'
+package com.tcity.android.ui;
 
-dependencies {
-    compile 'org.jetbrains:annotations:13.0'
-}
+public interface ProjectsReceiver {
 
-android {
-    compileSdkVersion 19
-    buildToolsVersion '21.0.1'
-
-    defaultConfig {
-        applicationId "com.tcity.android"
-        minSdkVersion 15
-        targetSdkVersion 19
-        versionCode 1
-        versionName "1.0"
-    }
+    public void receive(); // TODO
 }

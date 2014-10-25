@@ -14,21 +14,13 @@
  * limitations under the License.
  */
 
-apply plugin: 'com.android.application'
+package com.tcity.android.service;
 
-dependencies {
-    compile 'org.jetbrains:annotations:13.0'
-}
+import com.tcity.android.ui.ProjectsReceiver;
 
-android {
-    compileSdkVersion 19
-    buildToolsVersion '21.0.1'
+import org.jetbrains.annotations.NotNull;
 
-    defaultConfig {
-        applicationId "com.tcity.android"
-        minSdkVersion 15
-        targetSdkVersion 19
-        versionCode 1
-        versionName "1.0"
-    }
+public interface DataService {
+
+    public void requestProjects(@NotNull ProjectsReceiver receiver);
 }
