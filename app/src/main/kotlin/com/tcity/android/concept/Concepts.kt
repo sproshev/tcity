@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
-package com.tcity.android.model
+package com.tcity.android.concept
+
+public val rootProjectId: String = "_Root"
 
 public data class Project(public val id: String, public val name: String, public val parentId: String)

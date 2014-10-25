@@ -16,12 +16,13 @@
 
 package com.tcity.android.parser
 
-import com.tcity.android.model.Project
+import com.tcity.android.concept.Project
 import java.io.IOException
 import java.io.InputStream
 import android.util.JsonReader
 import java.io.InputStreamReader
 import java.util.ArrayList
+import com.tcity.android.concept.rootProjectId
 
 [throws(javaClass<IOException>())]
 public fun parseProjects(stream: InputStream): List<Project> {
@@ -86,6 +87,10 @@ private fun readProject(reader: JsonReader): Project {
     }
 
     reader.endObject()
+
+    if (id == rootProjectId) {
+        parentId = rootProjectId
+    }
 
     if (id == null) {
         throw IOException("Invalid project json: \"id\" is absent.")

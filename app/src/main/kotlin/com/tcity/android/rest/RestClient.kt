@@ -24,20 +24,26 @@ import org.apache.http.client.methods.HttpGet
 import org.apache.http.HttpResponse
 import java.net.URI
 import java.io.IOException
+import android.util.Base64
 
 private val restPrefix = "/httpAuth/app/rest/"
 
-private val connectionTimeout = 5000;
+private val connectionTimeout = 5000
 private val httpClient = DefaultHttpClient(calculateHttpParams())
 
-public fun getProjectsUrl(): String = restPrefix + "projects"
+[throws(javaClass<IOException>())]
+private fun loadProjects(): HttpResponse {
+    return load("host" + restPrefix + "projects")
+}
 
 [throws(javaClass<IOException>())]
-public fun executeGet(path: String): HttpResponse {
+public fun load(path: String): HttpResponse {
     val request = HttpGet()
+    val encodedCredentials = Base64.encodeToString("user:password".toByteArray(), Base64.NO_WRAP)
 
-    request.setURI(URI.create(path))
+    request.addHeader("Authorization", "Basic " + encodedCredentials)
     request.addHeader("Accept", "application/json")
+    request.setURI(URI.create(path))
 
     return httpClient.execute(request)
 }

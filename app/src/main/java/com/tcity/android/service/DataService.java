@@ -16,11 +16,45 @@
 
 package com.tcity.android.service;
 
+import android.app.Service;
+import android.content.Intent;
+import android.os.IBinder;
+
 import com.tcity.android.ui.ProjectsReceiver;
 
 import org.jetbrains.annotations.NotNull;
 
-public interface DataService {
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
-    public void requestProjects(@NotNull ProjectsReceiver receiver);
+public class DataService extends Service {
+
+    @NotNull
+    private final ExecutorService myExecutorService = Executors.newSingleThreadExecutor();
+
+    @NotNull
+    private final Binder myBinder = new Binder();
+
+    @Override
+    public IBinder onBind(@NotNull Intent intent) {
+        return myBinder;
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        myExecutorService.shutdown();
+    }
+
+    public void loadProjects(@NotNull ProjectsReceiver receiver) {
+        myExecutorService.submit(new ProjectsLoaderRunnable(receiver));
+    }
+
+    public class Binder extends android.os.Binder {
+
+        @NotNull
+        public DataService getService() {
+            return DataService.this;
+        }
+    }
 }

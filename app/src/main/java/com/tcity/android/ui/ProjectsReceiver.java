@@ -16,7 +16,7 @@
 
 package com.tcity.android.ui;
 
-import com.tcity.android.model.Project;
+import com.tcity.android.concept.Project;
 
 import org.jetbrains.annotations.NotNull;
 
