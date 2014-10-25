@@ -16,4 +16,4 @@
 
 package com.tcity.android.model
 
-public data class ProjectShort(public val id: String, public val name: String, public val parentId: String)
+public data class Project(public val id: String, public val name: String, public val parentId: String)

@@ -23,9 +23,24 @@ import org.apache.http.params.HttpConnectionParams
 import org.apache.http.client.methods.HttpGet
 import org.apache.http.HttpResponse
 import java.net.URI
+import java.io.IOException
+
+private val restPrefix = "/httpAuth/app/rest/"
 
 private val connectionTimeout = 5000;
 private val httpClient = DefaultHttpClient(calculateHttpParams())
+
+public fun getProjectsUrl(): String = restPrefix + "projects"
+
+[throws(javaClass<IOException>())]
+public fun executeGet(path: String): HttpResponse {
+    val request = HttpGet()
+
+    request.setURI(URI.create(path))
+    request.addHeader("Accept", "application/json")
+
+    return httpClient.execute(request)
+}
 
 private fun calculateHttpParams(): HttpParams {
     val httpParams = BasicHttpParams()
@@ -34,13 +49,4 @@ private fun calculateHttpParams(): HttpParams {
     HttpConnectionParams.setSoTimeout(httpParams, connectionTimeout)
 
     return httpParams
-}
-
-public fun executeGet(path: String): HttpResponse {
-    val request = HttpGet()
-
-    request.setURI(URI.create(path))
-    request.addHeader("Accept", "application/json")
-
-    return httpClient.execute(request)
 }

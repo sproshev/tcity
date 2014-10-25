@@ -16,7 +16,7 @@
 
 package com.tcity.android.ui;
 
-import com.tcity.android.model.ProjectShort;
+import com.tcity.android.model.Project;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -24,5 +24,7 @@ import java.util.List;
 
 public interface ProjectsReceiver {
 
-    public void receive(@NotNull List<ProjectShort> projects);
+    public void receive(@NotNull List<Project> projects);
+
+    public void receive(@NotNull Exception e);
 }

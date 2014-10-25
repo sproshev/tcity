@@ -20,10 +20,14 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
 
+import com.tcity.android.parser.ParserPackage;
+import com.tcity.android.rest.RestPackage;
 import com.tcity.android.ui.ProjectsReceiver;
 
+import org.apache.http.HttpResponse;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -61,16 +65,30 @@ public class DataServiceImpl extends Service implements DataService {
     private static class LoadProjectsTask implements Runnable {
 
         @NotNull
-        private final ProjectsReceiver myProjectsReceiver;
+        private final ProjectsReceiver myReceiver;
 
-        private LoadProjectsTask(@NotNull ProjectsReceiver projectsReceiver) {
-            myProjectsReceiver = projectsReceiver;
+        private LoadProjectsTask(@NotNull ProjectsReceiver receiver) {
+            myReceiver = receiver;
         }
 
         @Override
         public void run() {
-            // TODO
-            // check receiver
+            try {
+                HttpResponse httpResponse = RestPackage.executeGet(RestPackage.getProjectsUrl());
+
+                // TODO check status
+                // TODO check receiver
+
+                myReceiver.receive(
+                        ParserPackage.parseProjects(
+                                httpResponse.getEntity().getContent()
+                        )
+                );
+            } catch (IOException e) {
+                // TODO check receiver
+
+                myReceiver.receive(e);
+            }
         }
     }
 }
