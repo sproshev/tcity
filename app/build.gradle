@@ -14,10 +14,23 @@
  * limitations under the License.
  */
 
+buildscript {
+    ext.kt_version = '0.9.206'
+
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kt_version"
+    }
+}
+
 apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
 
 dependencies {
-    compile 'org.jetbrains:annotations:13.0'
+    compile "org.jetbrains.kotlin:kotlin-stdlib:$kt_version"
 }
 
 android {
@@ -30,5 +43,9 @@ android {
         targetSdkVersion 19
         versionCode 1
         versionName "1.0"
+    }
+
+    sourceSets {
+        main.java.srcDirs += 'src/main/kotlin'
     }
 }

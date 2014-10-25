@@ -1,0 +1,46 @@
+/*
+ * Copyright 2014 Semyon Proshev
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.tcity.android.rest
+
+import org.apache.http.impl.client.DefaultHttpClient
+import org.apache.http.params.HttpParams
+import org.apache.http.params.BasicHttpParams
+import org.apache.http.params.HttpConnectionParams
+import org.apache.http.client.methods.HttpGet
+import org.apache.http.HttpResponse
+import java.net.URI
+
+private val connectionTimeout = 5000;
+private val httpClient = DefaultHttpClient(calculateHttpParams())
+
+private fun calculateHttpParams(): HttpParams {
+    val httpParams = BasicHttpParams()
+
+    HttpConnectionParams.setConnectionTimeout(httpParams, connectionTimeout)
+    HttpConnectionParams.setSoTimeout(httpParams, connectionTimeout)
+
+    return httpParams
+}
+
+public fun executeGet(path: String): HttpResponse {
+    val request = HttpGet()
+
+    request.setURI(URI.create(path))
+    request.addHeader("Accept", "application/json")
+
+    return httpClient.execute(request)
+}

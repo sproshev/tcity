@@ -14,15 +14,6 @@
  * limitations under the License.
  */
 
-package com.tcity.android.ui;
+package com.tcity.android.model
 
-import com.tcity.android.model.ProjectShort;
-
-import org.jetbrains.annotations.NotNull;
-
-import java.util.List;
-
-public interface ProjectsReceiver {
-
-    public void receive(@NotNull List<ProjectShort> projects);
-}
+public data class ProjectShort(public val id: String, public val name: String, public val parentId: String)
