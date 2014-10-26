@@ -23,6 +23,7 @@ import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
+import android.view.Menu;
 import android.view.View;
 import android.widget.ArrayAdapter;
 
@@ -91,6 +92,13 @@ public class MainActivity extends ListActivity implements ProjectsReceiver, View
             unbindService(myConnection);
             myDataService = null;
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+
+        return super.onCreateOptionsMenu(menu);
     }
 
     /* LIFECYCLE - END */
