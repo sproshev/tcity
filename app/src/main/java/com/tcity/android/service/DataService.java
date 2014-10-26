@@ -35,9 +35,17 @@ public class DataService extends Service {
     @NotNull
     private final Binder myBinder = new Binder();
 
+    /* LIFECYCLE - BEGIN */
+
     @Override
     public IBinder onBind(@NotNull Intent intent) {
         return myBinder;
+    }
+
+    @Override
+    public boolean onUnbind(Intent intent) {
+        // TODO extract receiver and cancel all his tasks
+        return super.onUnbind(intent);
     }
 
     @Override
@@ -45,6 +53,8 @@ public class DataService extends Service {
         super.onDestroy();
         myExecutorService.shutdown();
     }
+
+    /* LIFECYCLE - END */
 
     public void loadProjects(@NotNull ProjectsReceiver receiver) {
         myExecutorService.submit(new ProjectsLoaderRunnable(receiver));

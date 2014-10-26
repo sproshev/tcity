@@ -31,6 +31,7 @@ import com.tcity.android.concept.Project;
 import com.tcity.android.service.DataService;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -39,9 +40,15 @@ public class MainActivity extends Activity implements ProjectsReceiver, View.OnC
     @NotNull
     private ServiceConnection myConnection;
 
+    @Nullable
+    private DataService myDataService = null;
+
+    /* LIFECYCLE - BEGIN */
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_main);
 
         Button button = (Button) findViewById(R.id.button_main);
@@ -49,38 +56,52 @@ public class MainActivity extends Activity implements ProjectsReceiver, View.OnC
 
         myConnection = new ServiceConnection() {
             public void onServiceConnected(ComponentName name, IBinder binder) {
-                ((DataService.Binder) binder).getService().loadProjects(MainActivity.this);
+                myDataService = ((DataService.Binder) binder).getService();
             }
 
             public void onServiceDisconnected(ComponentName name) {
+                myDataService = null;
             }
         };
     }
 
     @Override
-    public void receive(@NotNull List<Project> projects) {
-        Log.d("TAG", Integer.toString(projects.size()));
-        unbindService(myConnection);
-    }
+    protected void onStart() {
+        super.onStart();
 
-    @Override
-    public void receive(@NotNull Exception e) {
-        Log.d("TAG", e.getMessage());
-        unbindService(myConnection);
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        unbindService(myConnection);
-    }
-
-    @Override
-    public void onClick(@NotNull View v) {
         bindService(
                 new Intent(this, DataService.class),
                 myConnection,
                 BIND_AUTO_CREATE
         );
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+
+        if (myDataService != null) {
+            unbindService(myConnection);
+            myDataService = null;
+        }
+    }
+
+    /* LIFECYCLE - END */
+
+    @Override
+    public void receive(@NotNull List<Project> projects) {
+        Log.d("TAG", Integer.toString(projects.size()));
+    }
+
+    @Override
+    public void receive(@NotNull Exception e) {
+        Log.d("TAG", e.getMessage());
+    }
+
+    @Override
+    public void onClick(@NotNull View v) {
+        if (myDataService != null) {
+            myDataService.loadProjects(this);
+        }
     }
 }

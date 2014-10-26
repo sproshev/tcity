@@ -50,7 +50,7 @@ public fun parseProjects(stream: InputStream): List<Project> {
     if (result != null) {
         return result!!
     } else {
-        throw IOException("Invalid projects json: \"projects\" is absent.")
+        throw IOException("Invalid projects json: \"project\" is absent.")
     }
 }
 
