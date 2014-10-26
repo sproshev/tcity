@@ -16,7 +16,7 @@
 
 package com.tcity.android.ui;
 
-import android.app.Activity;
+import android.app.ListActivity;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
@@ -24,7 +24,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
+import android.widget.ArrayAdapter;
 
 import com.tcity.android.R;
 import com.tcity.android.concept.Project;
@@ -35,7 +35,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-public class MainActivity extends Activity implements ProjectsReceiver, View.OnClickListener {
+public class MainActivity extends ListActivity implements ProjectsReceiver, View.OnClickListener {
 
     @NotNull
     private ServiceConnection myConnection;
@@ -49,10 +49,17 @@ public class MainActivity extends Activity implements ProjectsReceiver, View.OnC
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_main);
+        String[] values = new String[]
+                {"A", "B", "C", "D", "E", "F"};
 
-        Button button = (Button) findViewById(R.id.button_main);
-        button.setOnClickListener(this);
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(
+                this,
+                R.layout.listitem_project,
+                R.id.listitem_project_name,
+                values
+        );
+
+        setListAdapter(adapter);
 
         myConnection = new ServiceConnection() {
             public void onServiceConnected(ComponentName name, IBinder binder) {
