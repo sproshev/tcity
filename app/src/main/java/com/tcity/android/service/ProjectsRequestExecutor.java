@@ -30,35 +30,53 @@ class ProjectsRequestExecutor implements Runnable {
     @NotNull
     private final ProjectsRequest myRequest;
 
+    private boolean isTerminated = false;
+
     ProjectsRequestExecutor(@NotNull ProjectsRequest request) {
         myRequest = request;
     }
 
     @Override
     public void run() {
+        if (!isTerminated) {
+            return;
+        }
+
         try {
             HttpResponse response = RestPackage.loadProjects();
 
-            if (!ok(response)) {
-                myRequest.receive(
+            if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
+                checkAndSendException(
                         new IOException(
                                 calculateExceptionMessage(response)
                         )
                 );
             } else {
-                myRequest.receive(
-                        ParserPackage.parseProjects(
-                                response.getEntity().getContent()
-                        )
-                );
+                checkAndSendProjects(response);
             }
         } catch (IOException e) {
+            checkAndSendException(e);
+        }
+    }
+
+    public void terminate() {
+        isTerminated = true;
+    }
+
+    private void checkAndSendException(@NotNull Exception e) {
+        if (!isTerminated) {
             myRequest.receive(e);
         }
     }
 
-    private boolean ok(@NotNull HttpResponse response) {
-        return response.getStatusLine().getStatusCode() == HttpStatus.SC_OK;
+    private void checkAndSendProjects(@NotNull HttpResponse response) throws IOException {
+        if (!isTerminated) {
+            myRequest.receive(
+                    ParserPackage.parseProjects(
+                            response.getEntity().getContent()
+                    )
+            );
+        }
     }
 
     @NotNull

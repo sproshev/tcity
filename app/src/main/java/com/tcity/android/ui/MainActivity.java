@@ -30,13 +30,14 @@ import android.widget.ArrayAdapter;
 import com.tcity.android.R;
 import com.tcity.android.concept.Project;
 import com.tcity.android.service.DataService;
+import com.tcity.android.service.ProjectsRequest;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
+import java.util.Collection;
 
-public class MainActivity extends ListActivity implements ProjectsReceiver, View.OnClickListener {
+public class MainActivity extends ListActivity implements ProjectsRequest, View.OnClickListener {
 
     @NotNull
     private ServiceConnection myConnection;
@@ -104,7 +105,12 @@ public class MainActivity extends ListActivity implements ProjectsReceiver, View
     /* LIFECYCLE - END */
 
     @Override
-    public void receive(@NotNull List<Project> projects) {
+    public int getId() {
+        return 0;
+    }
+
+    @Override
+    public void receive(@NotNull Collection<Project> projects) {
         Log.d("TAG", Integer.toString(projects.size()));
     }
 
@@ -116,7 +122,7 @@ public class MainActivity extends ListActivity implements ProjectsReceiver, View
     @Override
     public void onClick(@NotNull View v) {
         if (myDataService != null) {
-            myDataService.loadProjects(this);
+            myDataService.addProjectsRequest(this);
         }
     }
 }

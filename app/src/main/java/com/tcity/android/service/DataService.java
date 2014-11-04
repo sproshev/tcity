@@ -19,6 +19,7 @@ package com.tcity.android.service;
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
+import android.util.SparseArray;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -33,6 +34,9 @@ public class DataService extends Service {
     @NotNull
     private Binder myBinder;
 
+    @NotNull
+    private SparseArray<ProjectsRequestExecutor> myExecutors;
+
     /* LIFECYCLE - BEGIN */
 
     @Override
@@ -40,6 +44,7 @@ public class DataService extends Service {
         super.onCreate();
         myExecutorService = Executors.newSingleThreadExecutor();
         myBinder = new Binder();
+        myExecutors = new SparseArray<>();
     }
 
     @Override
@@ -55,8 +60,22 @@ public class DataService extends Service {
 
     /* LIFECYCLE - END */
 
-    public void loadProjects(@NotNull ProjectsRequest request) {
-        myExecutorService.submit(new ProjectsRequestExecutor(request));
+    public void addProjectsRequest(@NotNull ProjectsRequest request) {
+        ProjectsRequestExecutor executor = new ProjectsRequestExecutor(request);
+
+        myExecutors.put(getProjectsRequestKey(request), executor);
+        myExecutorService.submit(executor);
+    }
+
+    public void removeProjectsRequest(@NotNull ProjectsRequest request) {
+        int key = getProjectsRequestKey(request);
+
+        myExecutors.get(key).terminate();
+        myExecutors.remove(key);
+    }
+
+    private int getProjectsRequestKey(@NotNull ProjectsRequest request) {
+        return request.getId();
     }
 
     public class Binder extends android.os.Binder {
