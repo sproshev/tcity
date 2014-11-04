@@ -30,7 +30,7 @@ import android.widget.ArrayAdapter;
 import com.tcity.android.R;
 import com.tcity.android.concept.Project;
 import com.tcity.android.service.DataRequest;
-import com.tcity.android.service.DataService;
+import com.tcity.android.service.RemoteStorage;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -43,7 +43,7 @@ public class MainActivity extends ListActivity implements DataRequest<Project>, 
     private ServiceConnection myConnection;
 
     @Nullable
-    private DataService myDataService = null;
+    private RemoteStorage myRemoteStorage = null;
 
     /* LIFECYCLE - BEGIN */
 
@@ -65,11 +65,11 @@ public class MainActivity extends ListActivity implements DataRequest<Project>, 
 
         myConnection = new ServiceConnection() {
             public void onServiceConnected(ComponentName name, IBinder binder) {
-                myDataService = ((DataService.Binder) binder).getService();
+                myRemoteStorage = ((RemoteStorage.Binder) binder).getService();
             }
 
             public void onServiceDisconnected(ComponentName name) {
-                myDataService = null;
+                myRemoteStorage = null;
             }
         };
     }
@@ -79,7 +79,7 @@ public class MainActivity extends ListActivity implements DataRequest<Project>, 
         super.onStart();
 
         bindService(
-                new Intent(this, DataService.class),
+                new Intent(this, RemoteStorage.class),
                 myConnection,
                 BIND_AUTO_CREATE
         );
@@ -89,9 +89,9 @@ public class MainActivity extends ListActivity implements DataRequest<Project>, 
     protected void onStop() {
         super.onStop();
 
-        if (myDataService != null) {
+        if (myRemoteStorage != null) {
             unbindService(myConnection);
-            myDataService = null;
+            myRemoteStorage = null;
         }
     }
 
@@ -121,8 +121,8 @@ public class MainActivity extends ListActivity implements DataRequest<Project>, 
 
     @Override
     public void onClick(@NotNull View v) {
-        if (myDataService != null) {
-            myDataService.addProjectsRequest(this);
+        if (myRemoteStorage != null) {
+            myRemoteStorage.addProjectsRequest(this);
         }
     }
 }

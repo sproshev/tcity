@@ -34,7 +34,7 @@ import java.util.Collection;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class DataService extends Service implements Storage {
+public class RemoteStorage extends Service implements Storage {
 
     @NotNull
     private ExecutorService myExecutorService;
@@ -43,7 +43,7 @@ public class DataService extends Service implements Storage {
     private Binder myBinder;
 
     @NotNull
-    private SparseArray<DataRequestExecutor<?>> myExecutors;
+    private SparseArray<RemoteStorageRequestExecutor<?>> myExecutors;
 
     @NotNull
     private DataLoader myProjectsLoader = new DataLoader() {
@@ -87,7 +87,7 @@ public class DataService extends Service implements Storage {
     /* LIFECYCLE - END */
 
     public void addProjectsRequest(@NotNull DataRequest<Project> request) {
-        DataRequestExecutor<Project> executor = new DataRequestExecutor<>(request, myProjectsLoader, myProjectsParser);
+        RemoteStorageRequestExecutor<Project> executor = new RemoteStorageRequestExecutor<>(request, myProjectsLoader, myProjectsParser);
 
         myExecutors.put(getRequestKey(request), executor);
         myExecutorService.submit(executor);
@@ -107,8 +107,8 @@ public class DataService extends Service implements Storage {
     public class Binder extends android.os.Binder {
 
         @NotNull
-        public DataService getService() {
-            return DataService.this;
+        public RemoteStorage getService() {
+            return RemoteStorage.this;
         }
     }
 }

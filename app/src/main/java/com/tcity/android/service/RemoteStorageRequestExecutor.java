@@ -22,7 +22,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 
-class DataRequestExecutor<T> implements Runnable {
+class RemoteStorageRequestExecutor<T> implements Runnable {
 
     @NotNull
     private final DataRequest<T> myRequest;
@@ -35,7 +35,7 @@ class DataRequestExecutor<T> implements Runnable {
 
     private boolean isTerminated = false;
 
-    DataRequestExecutor(@NotNull DataRequest<T> request, @NotNull DataLoader loader, @NotNull DataParser<T> parser) {
+    RemoteStorageRequestExecutor(@NotNull DataRequest<T> request, @NotNull DataLoader loader, @NotNull DataParser<T> parser) {
         myRequest = request;
         myLoader = loader;
         myParser = parser;

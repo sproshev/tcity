@@ -27,10 +27,10 @@ import com.tcity.android.concept.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class DataServiceRequestExecutor implements Storage {
+public class MainStorage implements Storage {
 
     @Nullable
-    private static DataServiceRequestExecutor INSTANCE;
+    private static MainStorage INSTANCE;
 
     @NotNull
     private final Context myContext;
@@ -42,17 +42,17 @@ public class DataServiceRequestExecutor implements Storage {
     private final ServiceConnection myConnection;
 
     @Nullable
-    private DataService myService;
+    private RemoteStorage myService;
 
-    private DataServiceRequestExecutor(@NotNull Context context) {
+    private MainStorage(@NotNull Context context) {
         myContext = context.getApplicationContext();
         myConnection = new ServiceConnection();
     }
 
     @NotNull
-    public static DataServiceRequestExecutor getInstance(@NotNull Context context) {
+    public static MainStorage getInstance(@NotNull Context context) {
         if (INSTANCE == null) {
-            INSTANCE = new DataServiceRequestExecutor(context);
+            INSTANCE = new MainStorage(context);
         }
 
         return INSTANCE;
@@ -66,7 +66,7 @@ public class DataServiceRequestExecutor implements Storage {
             myProjectsRequests.put(getRequestKey(request), request);
 
             myContext.bindService(
-                    new Intent(myContext, DataService.class),
+                    new Intent(myContext, RemoteStorage.class),
                     myConnection,
                     Context.BIND_AUTO_CREATE
             );
@@ -115,7 +115,7 @@ public class DataServiceRequestExecutor implements Storage {
     private class ServiceConnection implements android.content.ServiceConnection {
 
         public void onServiceConnected(ComponentName name, IBinder binder) {
-            myService = ((DataService.Binder) binder).getService();
+            myService = ((RemoteStorage.Binder) binder).getService();
 
             executeAllRequests();
         }
