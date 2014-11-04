@@ -22,10 +22,12 @@ import android.content.Intent;
 import android.os.IBinder;
 import android.util.SparseArray;
 
+import com.tcity.android.concept.Project;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class DataServiceRequestExecutor {
+public class DataServiceRequestExecutor implements Storage {
 
     @Nullable
     private static DataServiceRequestExecutor INSTANCE;
@@ -34,7 +36,7 @@ public class DataServiceRequestExecutor {
     private final Context myContext;
 
     @NotNull
-    private final SparseArray<Request<DataService>> myRequests = new SparseArray<>();
+    private final SparseArray<DataRequest<Project>> myProjectsRequests = new SparseArray<>();
 
     @NotNull
     private final ServiceConnection myConnection;
@@ -56,22 +58,28 @@ public class DataServiceRequestExecutor {
         return INSTANCE;
     }
 
-    public void addRequest(@NotNull Request<DataService> request) {
+    @Override
+    public void addProjectsRequest(@NotNull DataRequest<Project> request) {
         if (myService != null) {
-            request.receive(myService);
+            myService.addProjectsRequest(request);
         } else {
+            myProjectsRequests.put(getRequestKey(request), request);
+
             myContext.bindService(
                     new Intent(myContext, DataService.class),
                     myConnection,
                     Context.BIND_AUTO_CREATE
             );
-
-            myRequests.put(getRequestKey(request), request);
         }
     }
 
-    public void removeRequest(@NotNull Request<DataService> request) {
-        myRequests.remove(getRequestKey(request));
+    @Override
+    public void removeProjectsRequest(@NotNull DataRequest<Project> request) {
+        if (myService != null) {
+            myService.removeProjectsRequest(request);
+        } else {
+            myProjectsRequests.remove(getRequestKey(request));
+        }
     }
 
     public void onTrimMemory() {
@@ -80,19 +88,19 @@ public class DataServiceRequestExecutor {
     }
 
     private void executeAllRequests() {
-        while (myRequests.size() != 0 && myService != null) {
-            for (int index = 0; index < myRequests.size(); index++) {
-                if (!executeRequest(myRequests.valueAt(index))) {
+        while (myProjectsRequests.size() != 0 && myService != null) {
+            for (int index = 0; index < myProjectsRequests.size(); index++) {
+                if (!executeProjectsRequest(myProjectsRequests.valueAt(index))) {
                     break;
                 }
             }
         }
     }
 
-    private boolean executeRequest(@NotNull Request<DataService> request) {
+    private boolean executeProjectsRequest(@NotNull DataRequest<Project> request) {
         if (myService != null) {
-            request.receive(myService);
-            myRequests.remove(getRequestKey(request));
+            myService.addProjectsRequest(request);
+            myProjectsRequests.remove(getRequestKey(request));
 
             return true;
         } else {

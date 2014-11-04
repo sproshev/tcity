@@ -34,7 +34,7 @@ import java.util.Collection;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class DataService extends Service {
+public class DataService extends Service implements Storage {
 
     @NotNull
     private ExecutorService myExecutorService;

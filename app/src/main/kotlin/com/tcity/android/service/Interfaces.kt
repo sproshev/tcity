@@ -19,6 +19,7 @@ package com.tcity.android.service
 import java.io.InputStream
 import java.io.IOException
 import org.apache.http.HttpResponse
+import com.tcity.android.concept.Project
 
 public trait Request<T> {
 
@@ -30,6 +31,13 @@ public trait Request<T> {
 public trait DataRequest<T> : Request<Collection<T>> {
 
     public fun receive(e: Exception)
+}
+
+public trait Storage {
+
+    public fun addProjectsRequest(request: DataRequest<Project>)
+
+    public fun removeProjectsRequest(request: DataRequest<Project>)
 }
 
 trait DataParser<T> {
