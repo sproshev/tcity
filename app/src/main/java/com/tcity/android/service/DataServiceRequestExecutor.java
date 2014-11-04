@@ -34,7 +34,7 @@ public class DataServiceRequestExecutor {
     private final Context myContext;
 
     @NotNull
-    private final SparseArray<DataServiceRequest> myRequests = new SparseArray<>();
+    private final SparseArray<Request<DataService>> myRequests = new SparseArray<>();
 
     @NotNull
     private final ServiceConnection myConnection;
@@ -56,7 +56,7 @@ public class DataServiceRequestExecutor {
         return INSTANCE;
     }
 
-    public void addRequest(@NotNull DataServiceRequest request) {
+    public void addRequest(@NotNull Request<DataService> request) {
         if (myService != null) {
             request.receive(myService);
         } else {
@@ -70,7 +70,7 @@ public class DataServiceRequestExecutor {
         }
     }
 
-    public void removeRequest(@NotNull DataServiceRequest request) {
+    public void removeRequest(@NotNull Request<DataService> request) {
         myRequests.remove(getRequestKey(request));
     }
 
@@ -89,7 +89,7 @@ public class DataServiceRequestExecutor {
         }
     }
 
-    private boolean executeRequest(@NotNull DataServiceRequest request) {
+    private boolean executeRequest(@NotNull Request<DataService> request) {
         if (myService != null) {
             request.receive(myService);
             myRequests.remove(getRequestKey(request));
@@ -100,7 +100,7 @@ public class DataServiceRequestExecutor {
         }
     }
 
-    private int getRequestKey(@NotNull DataServiceRequest request) {
+    private int getRequestKey(@NotNull Request<?> request) {
         return request.getId();
     }
 

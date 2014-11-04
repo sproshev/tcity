@@ -21,8 +21,16 @@ import android.content.Intent;
 import android.os.IBinder;
 import android.util.SparseArray;
 
+import com.tcity.android.concept.Project;
+import com.tcity.android.parser.ParserPackage;
+import com.tcity.android.rest.RestPackage;
+
+import org.apache.http.HttpResponse;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Collection;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -35,7 +43,25 @@ public class DataService extends Service {
     private Binder myBinder;
 
     @NotNull
-    private SparseArray<ProjectsRequestExecutor> myExecutors;
+    private SparseArray<DataRequestExecutor<?>> myExecutors;
+
+    @NotNull
+    private DataLoader myProjectsLoader = new DataLoader() {
+        @NotNull
+        @Override
+        public HttpResponse load() throws IOException {
+            return RestPackage.loadProjects();
+        }
+    };
+
+    @NotNull
+    private DataParser<Project> myProjectsParser = new DataParser<Project>() {
+        @NotNull
+        @Override
+        public Collection<Project> parse(@NotNull InputStream stream) throws IOException {
+            return ParserPackage.parseProjects(stream);
+        }
+    };
 
     /* LIFECYCLE - BEGIN */
 
@@ -60,21 +86,21 @@ public class DataService extends Service {
 
     /* LIFECYCLE - END */
 
-    public void addProjectsRequest(@NotNull ProjectsRequest request) {
-        ProjectsRequestExecutor executor = new ProjectsRequestExecutor(request);
+    public void addProjectsRequest(@NotNull DataRequest<Project> request) {
+        DataRequestExecutor<Project> executor = new DataRequestExecutor<>(request, myProjectsLoader, myProjectsParser);
 
-        myExecutors.put(getProjectsRequestKey(request), executor);
+        myExecutors.put(getRequestKey(request), executor);
         myExecutorService.submit(executor);
     }
 
-    public void removeProjectsRequest(@NotNull ProjectsRequest request) {
-        int key = getProjectsRequestKey(request);
+    public void removeProjectsRequest(@NotNull DataRequest<Project> request) {
+        int key = getRequestKey(request);
 
         myExecutors.get(key).terminate();
         myExecutors.remove(key);
     }
 
-    private int getProjectsRequestKey(@NotNull ProjectsRequest request) {
+    private int getRequestKey(@NotNull Request<?> request) {
         return request.getId();
     }
 

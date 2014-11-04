@@ -16,24 +16,29 @@
 
 package com.tcity.android.service;
 
-import com.tcity.android.parser.ParserPackage;
-import com.tcity.android.rest.RestPackage;
-
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 
-class ProjectsRequestExecutor implements Runnable {
+class DataRequestExecutor<T> implements Runnable {
 
     @NotNull
-    private final ProjectsRequest myRequest;
+    private final DataRequest<T> myRequest;
+
+    @NotNull
+    private final DataLoader myLoader;
+
+    @NotNull
+    private final DataParser<T> myParser;
 
     private boolean isTerminated = false;
 
-    ProjectsRequestExecutor(@NotNull ProjectsRequest request) {
+    DataRequestExecutor(@NotNull DataRequest<T> request, @NotNull DataLoader loader, @NotNull DataParser<T> parser) {
         myRequest = request;
+        myLoader = loader;
+        myParser = parser;
     }
 
     @Override
@@ -43,7 +48,7 @@ class ProjectsRequestExecutor implements Runnable {
         }
 
         try {
-            HttpResponse response = RestPackage.loadProjects();
+            HttpResponse response = myLoader.load();
 
             if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
                 checkAndSendException(
@@ -72,7 +77,7 @@ class ProjectsRequestExecutor implements Runnable {
     private void checkAndSendProjects(@NotNull HttpResponse response) throws IOException {
         if (!isTerminated) {
             myRequest.receive(
-                    ParserPackage.parseProjects(
+                    myParser.parse(
                             response.getEntity().getContent()
                     )
             );

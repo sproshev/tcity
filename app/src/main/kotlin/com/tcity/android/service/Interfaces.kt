@@ -14,19 +14,32 @@
  * limitations under the License.
  */
 
-package com.tcity.android.service;
+package com.tcity.android.service
 
-import com.tcity.android.concept.Project;
+import java.io.InputStream
+import java.io.IOException
+import org.apache.http.HttpResponse
 
-import org.jetbrains.annotations.NotNull;
+public trait Request<T> {
 
-import java.util.Collection;
+    public fun getId(): Int
 
-public interface ProjectsRequest {
+    public fun receive(t: T)
+}
 
-    public int getId();
+public trait DataRequest<T> : Request<Collection<T>> {
 
-    public void receive(@NotNull Collection<Project> projects);
+    public fun receive(e: Exception)
+}
 
-    public void receive(@NotNull Exception e);
+trait DataParser<T> {
+
+    throws(javaClass<IOException>())
+    public fun parse(stream: InputStream): Collection<T>
+}
+
+trait DataLoader {
+
+    throws(javaClass<IOException>())
+    public fun load(): HttpResponse
 }
