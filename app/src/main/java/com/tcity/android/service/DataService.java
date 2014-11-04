@@ -20,8 +20,6 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
 
-import com.tcity.android.ui.ProjectsReceiver;
-
 import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.ExecutorService;
@@ -30,22 +28,23 @@ import java.util.concurrent.Executors;
 public class DataService extends Service {
 
     @NotNull
-    private final ExecutorService myExecutorService = Executors.newSingleThreadExecutor();
+    private ExecutorService myExecutorService;
 
     @NotNull
-    private final Binder myBinder = new Binder();
+    private Binder myBinder;
 
     /* LIFECYCLE - BEGIN */
 
     @Override
-    public IBinder onBind(@NotNull Intent intent) {
-        return myBinder;
+    public void onCreate() {
+        super.onCreate();
+        myExecutorService = Executors.newSingleThreadExecutor();
+        myBinder = new Binder();
     }
 
     @Override
-    public boolean onUnbind(Intent intent) {
-        // TODO extract receiver and cancel all his tasks
-        return super.onUnbind(intent);
+    public IBinder onBind(@NotNull Intent intent) {
+        return myBinder;
     }
 
     @Override
@@ -56,8 +55,8 @@ public class DataService extends Service {
 
     /* LIFECYCLE - END */
 
-    public void loadProjects(@NotNull ProjectsReceiver receiver) {
-        myExecutorService.submit(new ProjectsLoaderRunnable(receiver));
+    public void loadProjects(@NotNull ProjectsRequest request) {
+        myExecutorService.submit(new ProjectsRequestExecutor(request));
     }
 
     public class Binder extends android.os.Binder {

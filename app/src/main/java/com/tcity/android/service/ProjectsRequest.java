@@ -14,17 +14,19 @@
  * limitations under the License.
  */
 
-package com.tcity.android.ui;
+package com.tcity.android.service;
 
 import com.tcity.android.concept.Project;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.util.List;
+import java.util.Collection;
 
-public interface ProjectsReceiver {
+public interface ProjectsRequest {
 
-    public void receive(@NotNull List<Project> projects);
+    public int getId();
+
+    public void receive(@NotNull Collection<Project> projects);
 
     public void receive(@NotNull Exception e);
 }

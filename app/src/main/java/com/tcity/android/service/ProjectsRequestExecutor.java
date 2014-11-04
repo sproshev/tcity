@@ -18,7 +18,6 @@ package com.tcity.android.service;
 
 import com.tcity.android.parser.ParserPackage;
 import com.tcity.android.rest.RestPackage;
-import com.tcity.android.ui.ProjectsReceiver;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -26,13 +25,13 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 
-class ProjectsLoaderRunnable implements Runnable {
+class ProjectsRequestExecutor implements Runnable {
 
     @NotNull
-    private final ProjectsReceiver myReceiver;
+    private final ProjectsRequest myRequest;
 
-    ProjectsLoaderRunnable(@NotNull ProjectsReceiver receiver) {
-        myReceiver = receiver;
+    ProjectsRequestExecutor(@NotNull ProjectsRequest request) {
+        myRequest = request;
     }
 
     @Override
@@ -40,27 +39,25 @@ class ProjectsLoaderRunnable implements Runnable {
         try {
             HttpResponse response = RestPackage.loadProjects();
 
-            // TODO check receiver
-
-            if (!isOk(response)) {
-                myReceiver.receive(
+            if (!ok(response)) {
+                myRequest.receive(
                         new IOException(
                                 calculateExceptionMessage(response)
                         )
                 );
             } else {
-                myReceiver.receive(
+                myRequest.receive(
                         ParserPackage.parseProjects(
                                 response.getEntity().getContent()
                         )
                 );
             }
         } catch (IOException e) {
-            myReceiver.receive(e);
+            myRequest.receive(e);
         }
     }
 
-    private boolean isOk(@NotNull HttpResponse response) {
+    private boolean ok(@NotNull HttpResponse response) {
         return response.getStatusLine().getStatusCode() == HttpStatus.SC_OK;
     }
 
