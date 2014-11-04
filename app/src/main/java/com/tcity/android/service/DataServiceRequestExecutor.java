@@ -19,17 +19,16 @@ package com.tcity.android.service;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.os.IBinder;
 import android.util.SparseArray;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class DataServiceHolder {
+public class DataServiceRequestExecutor {
 
     @Nullable
-    private static DataServiceHolder INSTANCE;
+    private static DataServiceRequestExecutor INSTANCE;
 
     @NotNull
     private final Context myContext;
@@ -43,26 +42,15 @@ public class DataServiceHolder {
     @Nullable
     private DataService myService;
 
-    private DataServiceHolder(@NotNull Context context) {
+    private DataServiceRequestExecutor(@NotNull Context context) {
         myContext = context.getApplicationContext();
-
-        myConnection = new ServiceConnection() {
-            public void onServiceConnected(ComponentName name, IBinder binder) {
-                myService = ((DataService.Binder) binder).getService();
-
-                executeAllRequests();
-            }
-
-            public void onServiceDisconnected(ComponentName name) {
-                myService = null;
-            }
-        };
+        myConnection = new ServiceConnection();
     }
 
     @NotNull
-    public static DataServiceHolder getInstance(@NotNull Context context) {
+    public static DataServiceRequestExecutor getInstance(@NotNull Context context) {
         if (INSTANCE == null) {
-            INSTANCE = new DataServiceHolder(context);
+            INSTANCE = new DataServiceRequestExecutor(context);
         }
 
         return INSTANCE;
@@ -114,5 +102,18 @@ public class DataServiceHolder {
 
     private int getRequestKey(@NotNull DataServiceRequest request) {
         return request.getId();
+    }
+
+    private class ServiceConnection implements android.content.ServiceConnection {
+
+        public void onServiceConnected(ComponentName name, IBinder binder) {
+            myService = ((DataService.Binder) binder).getService();
+
+            executeAllRequests();
+        }
+
+        public void onServiceDisconnected(ComponentName name) {
+            myService = null;
+        }
     }
 }
