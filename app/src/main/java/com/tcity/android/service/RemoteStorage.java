@@ -46,7 +46,7 @@ public class RemoteStorage extends Service implements Storage {
     private SparseArray<RemoteStorageRequestExecutor<?>> myExecutors;
 
     @NotNull
-    private DataLoader myProjectsLoader = new DataLoader() {
+    private HttpLoader myProjectsLoader = new HttpLoader() {
         @NotNull
         @Override
         public HttpResponse load() throws IOException {
@@ -55,10 +55,10 @@ public class RemoteStorage extends Service implements Storage {
     };
 
     @NotNull
-    private DataParser<Project> myProjectsParser = new DataParser<Project>() {
+    private Parser<Collection<? extends Project>> myProjectsParser = new Parser<Collection<? extends Project>>() {
         @NotNull
         @Override
-        public Collection<Project> parse(@NotNull InputStream stream) throws IOException {
+        public Collection<? extends Project> parse(@NotNull InputStream stream) throws IOException {
             return ParserPackage.parseProjects(stream);
         }
     };
@@ -86,14 +86,14 @@ public class RemoteStorage extends Service implements Storage {
 
     /* LIFECYCLE - END */
 
-    public void addProjectsRequest(@NotNull DataRequest<Project> request) {
-        RemoteStorageRequestExecutor<Project> executor = new RemoteStorageRequestExecutor<>(request, myProjectsLoader, myProjectsParser);
+    public void addProjectsRequest(@NotNull Request<Collection<? extends Project>> request) {
+        RemoteStorageRequestExecutor<Collection<? extends Project>> executor = new RemoteStorageRequestExecutor<>(request, myProjectsLoader, myProjectsParser);
 
         myExecutors.put(getRequestKey(request), executor);
         myExecutorService.submit(executor);
     }
 
-    public void removeProjectsRequest(@NotNull DataRequest<Project> request) {
+    public void removeProjectsRequest(@NotNull Request<Collection<? extends Project>> request) {
         int key = getRequestKey(request);
 
         myExecutors.get(key).terminate();

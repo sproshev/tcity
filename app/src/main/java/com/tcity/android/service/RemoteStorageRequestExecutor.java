@@ -25,17 +25,17 @@ import java.io.IOException;
 class RemoteStorageRequestExecutor<T> implements Runnable {
 
     @NotNull
-    private final DataRequest<T> myRequest;
+    private final Request<T> myRequest;
 
     @NotNull
-    private final DataLoader myLoader;
+    private final HttpLoader myLoader;
 
     @NotNull
-    private final DataParser<T> myParser;
+    private final Parser<T> myParser;
 
     private boolean isTerminated = false;
 
-    RemoteStorageRequestExecutor(@NotNull DataRequest<T> request, @NotNull DataLoader loader, @NotNull DataParser<T> parser) {
+    RemoteStorageRequestExecutor(@NotNull Request<T> request, @NotNull HttpLoader loader, @NotNull Parser<T> parser) {
         myRequest = request;
         myLoader = loader;
         myParser = parser;
@@ -44,24 +44,24 @@ class RemoteStorageRequestExecutor<T> implements Runnable {
     @Override
     public void run() {
         if (!isTerminated) {
-            return;
-        }
+            try {
+                HttpResponse response = myLoader.load();
 
-        try {
-            HttpResponse response = myLoader.load();
-
-            if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
-                checkAndSendException(
-                        new IOException(
-                                calculateExceptionMessage(response)
-                        )
-                );
-            } else {
-                checkAndSendProjects(response);
+                if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
+                    checkAndSendException(
+                            new IOException(
+                                    calculateExceptionMessage(response)
+                            )
+                    );
+                } else {
+                    checkAndSendProjects(response);
+                }
+            } catch (IOException e) {
+                checkAndSendException(e);
             }
-        } catch (IOException e) {
-            checkAndSendException(e);
         }
+
+        // TODO say 'complete' to remote storage
     }
 
     public void terminate() {
