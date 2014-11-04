@@ -27,6 +27,8 @@ import com.tcity.android.concept.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Collection;
+
 public class MainStorage implements Storage {
 
     @Nullable
@@ -36,13 +38,21 @@ public class MainStorage implements Storage {
     private final Context myContext;
 
     @NotNull
-    private final SparseArray<DataRequest<Project>> myProjectsRequests = new SparseArray<>();
-
-    @NotNull
     private final ServiceConnection myConnection;
 
+    @NotNull
+    private final SparseArray<RequestTransmitter<?>> myTransmitters = new SparseArray<>();
+
     @Nullable
-    private RemoteStorage myService;
+    private RemoteStorage myRemoteStorage;
+
+    @NotNull
+    private final Callable<Collection<? extends Project>> myProjectsCallable = new Callable<Collection<? extends Project>>() {
+        @Override
+        public void call(@NotNull RemoteStorage remoteStorage, @NotNull Request<Collection<? extends Project>> request) {
+            remoteStorage.addProjectsRequest(request);
+        }
+    };
 
     private MainStorage(@NotNull Context context) {
         myContext = context.getApplicationContext();
@@ -59,11 +69,27 @@ public class MainStorage implements Storage {
     }
 
     @Override
-    public void addProjectsRequest(@NotNull DataRequest<Project> request) {
-        if (myService != null) {
-            myService.addProjectsRequest(request);
+    public void addProjectsRequest(@NotNull Request<Collection<? extends Project>> request) {
+        addRequest(request, myProjectsCallable);
+    }
+
+    @Override
+    public void removeProjectsRequest(@NotNull Request<Collection<? extends Project>> request) {
+        if (myRemoteStorage != null) {
+            myRemoteStorage.removeProjectsRequest(request);
         } else {
-            myProjectsRequests.put(getRequestKey(request), request);
+            myTransmitters.remove(getRequestKey(request));
+        }
+    }
+
+    private <T> void addRequest(@NotNull Request<T> request, @NotNull Callable<T> callable) {
+        if (myRemoteStorage != null) {
+            callable.call(myRemoteStorage, request);
+        } else {
+            myTransmitters.put(
+                    getRequestKey(request),
+                    new RequestTransmitter<>(request, callable)
+            );
 
             myContext.bindService(
                     new Intent(myContext, RemoteStorage.class),
@@ -73,38 +99,20 @@ public class MainStorage implements Storage {
         }
     }
 
-    @Override
-    public void removeProjectsRequest(@NotNull DataRequest<Project> request) {
-        if (myService != null) {
-            myService.removeProjectsRequest(request);
-        } else {
-            myProjectsRequests.remove(getRequestKey(request));
-        }
-    }
-
     public void onTrimMemory() {
-        myService = null;
+        myRemoteStorage = null;
         myContext.unbindService(myConnection);
     }
 
-    private void executeAllRequests() {
-        while (myProjectsRequests.size() != 0 && myService != null) {
-            for (int index = 0; index < myProjectsRequests.size(); index++) {
-                if (!executeProjectsRequest(myProjectsRequests.valueAt(index))) {
+    private void sendAllRequests() {
+        while (myTransmitters.size() != 0 && myRemoteStorage != null) {
+            for (int index = 0; index < myTransmitters.size(); index++) {
+                RequestTransmitter<?> transmitter = myTransmitters.valueAt(index);
+
+                if (!transmitter.transmit()) {
                     break;
                 }
             }
-        }
-    }
-
-    private boolean executeProjectsRequest(@NotNull DataRequest<Project> request) {
-        if (myService != null) {
-            myService.addProjectsRequest(request);
-            myProjectsRequests.remove(getRequestKey(request));
-
-            return true;
-        } else {
-            return false;
         }
     }
 
@@ -115,13 +123,43 @@ public class MainStorage implements Storage {
     private class ServiceConnection implements android.content.ServiceConnection {
 
         public void onServiceConnected(ComponentName name, IBinder binder) {
-            myService = ((RemoteStorage.Binder) binder).getService();
+            myRemoteStorage = ((RemoteStorage.Binder) binder).getService();
 
-            executeAllRequests();
+            sendAllRequests();
         }
 
         public void onServiceDisconnected(ComponentName name) {
-            myService = null;
+            myRemoteStorage = null;
         }
+    }
+
+    private class RequestTransmitter<T> {
+
+        @NotNull
+        private final Request<T> myRequest;
+
+        @NotNull
+        private final Callable<T> myCallable;
+
+        private RequestTransmitter(@NotNull Request<T> request, @NotNull Callable<T> callable) {
+            myRequest = request;
+            myCallable = callable;
+        }
+
+        public boolean transmit() {
+            if (myRemoteStorage != null) {
+                myCallable.call(myRemoteStorage, myRequest);
+                myTransmitters.remove(getRequestKey(myRequest));
+
+                return true;
+            } else {
+                return false;
+            }
+        }
+    }
+
+    private static interface Callable<T> {
+
+        public void call(@NotNull RemoteStorage remoteStorage, @NotNull Request<T> request);
     }
 }

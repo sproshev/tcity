@@ -26,27 +26,24 @@ public trait Request<T> {
     public fun getId(): Int
 
     public fun receive(t: T)
-}
-
-public trait DataRequest<T> : Request<Collection<T>> {
 
     public fun receive(e: Exception)
 }
 
 public trait Storage {
 
-    public fun addProjectsRequest(request: DataRequest<Project>)
+    public fun addProjectsRequest(request: Request<Collection<Project>>)
 
-    public fun removeProjectsRequest(request: DataRequest<Project>)
+    public fun removeProjectsRequest(request: Request<Collection<Project>>)
 }
 
-trait DataParser<T> {
+trait Parser<T> {
 
     throws(javaClass<IOException>())
-    public fun parse(stream: InputStream): Collection<T>
+    public fun parse(stream: InputStream): T
 }
 
-trait DataLoader {
+trait HttpLoader {
 
     throws(javaClass<IOException>())
     public fun load(): HttpResponse
