@@ -87,7 +87,11 @@ public class RemoteStorage extends Service implements Storage {
     /* LIFECYCLE - END */
 
     public void addProjectsRequest(@NotNull Request<Collection<? extends Project>> request) {
-        RemoteStorageRequestExecutor<Collection<? extends Project>> executor = new RemoteStorageRequestExecutor<>(request, myProjectsLoader, myProjectsParser);
+        RemoteStorageRequestExecutor<Collection<? extends Project>> executor = new RemoteStorageRequestExecutor<>(
+                new ProxyRequest<>(request),
+                myProjectsLoader,
+                myProjectsParser
+        );
 
         myExecutors.put(getRequestKey(request), executor);
         myExecutorService.submit(executor);
@@ -96,8 +100,12 @@ public class RemoteStorage extends Service implements Storage {
     public void removeProjectsRequest(@NotNull Request<Collection<? extends Project>> request) {
         int key = getRequestKey(request);
 
-        myExecutors.get(key).terminate();
-        myExecutors.remove(key);
+        RemoteStorageRequestExecutor<?> executor = myExecutors.get(key);
+
+        if (executor != null) {
+            executor.terminate();
+            myExecutors.remove(key);
+        }
     }
 
     private int getRequestKey(@NotNull Request<?> request) {
@@ -109,6 +117,33 @@ public class RemoteStorage extends Service implements Storage {
         @NotNull
         public RemoteStorage getService() {
             return RemoteStorage.this;
+        }
+    }
+
+    private class ProxyRequest<T> implements Request<T> {
+
+        @NotNull
+        private final Request<T> myOriginalRequest;
+
+        private ProxyRequest(@NotNull Request<T> originalRequest) {
+            myOriginalRequest = originalRequest;
+        }
+
+        @Override
+        public int getId() {
+            return myOriginalRequest.getId();
+        }
+
+        @Override
+        public void receive(T t) {
+            myExecutors.remove(getId());
+            myOriginalRequest.receive(t);
+        }
+
+        @Override
+        public void receive(@NotNull Exception e) {
+            myExecutors.remove(getId());
+            myOriginalRequest.receive(e);
         }
     }
 }

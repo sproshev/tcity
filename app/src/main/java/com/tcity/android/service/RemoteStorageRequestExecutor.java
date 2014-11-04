@@ -35,7 +35,9 @@ class RemoteStorageRequestExecutor<T> implements Runnable {
 
     private boolean isTerminated = false;
 
-    RemoteStorageRequestExecutor(@NotNull Request<T> request, @NotNull HttpLoader loader, @NotNull Parser<T> parser) {
+    RemoteStorageRequestExecutor(@NotNull Request<T> request,
+                                 @NotNull HttpLoader loader,
+                                 @NotNull Parser<T> parser) {
         myRequest = request;
         myLoader = loader;
         myParser = parser;
@@ -60,8 +62,6 @@ class RemoteStorageRequestExecutor<T> implements Runnable {
                 checkAndSendException(e);
             }
         }
-
-        // TODO say 'complete' to remote storage
     }
 
     public void terminate() {
