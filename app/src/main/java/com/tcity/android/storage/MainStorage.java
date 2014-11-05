@@ -28,11 +28,15 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class MainStorage implements Storage {
 
     @Nullable
     private static MainStorage INSTANCE;
+
+    @NotNull
+    private final AtomicInteger myLastId = new AtomicInteger(-1);
 
     @NotNull
     private final Context myContext;
@@ -67,6 +71,10 @@ public class MainStorage implements Storage {
         }
 
         return INSTANCE;
+    }
+
+    public int createId() {
+        return myLastId.addAndGet(1);
     }
 
     @Override

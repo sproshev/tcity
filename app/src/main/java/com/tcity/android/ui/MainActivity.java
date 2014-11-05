@@ -37,7 +37,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
     @NotNull
     private MainStorage myStorage;
 
-    private int myLastProjectsRequestId = Integer.MIN_VALUE;
+    private int myLastProjectsRequestId;
 
     /* LIFECYCLE - BEGIN */
 
@@ -78,7 +78,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 
     @Override
     public void onClick(@NotNull View v) {
-        myLastProjectsRequestId++;
+        myLastProjectsRequestId = myStorage.createId();
         myStorage.addProjectsRequest(new ProjectsRequest(myLastProjectsRequestId));
     }
 
