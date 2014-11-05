@@ -16,34 +16,28 @@
 
 package com.tcity.android.ui;
 
-import android.app.ListActivity;
-import android.content.ComponentName;
-import android.content.Intent;
-import android.content.ServiceConnection;
+import android.app.Activity;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
-import android.widget.ArrayAdapter;
+import android.widget.Button;
 
 import com.tcity.android.R;
 import com.tcity.android.concept.Project;
-import com.tcity.android.service.DataRequest;
-import com.tcity.android.service.RemoteStorage;
+import com.tcity.android.storage.MainStorage;
+import com.tcity.android.storage.Request;
 
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 
-public class MainActivity extends ListActivity implements DataRequest<Project>, View.OnClickListener {
+public class MainActivity extends Activity implements View.OnClickListener {
 
     @NotNull
-    private ServiceConnection myConnection;
+    private MainStorage myStorage;
 
-    @Nullable
-    private RemoteStorage myRemoteStorage = null;
+    private int myLastProjectsRequestId = Integer.MIN_VALUE;
 
     /* LIFECYCLE - BEGIN */
 
@@ -51,10 +45,13 @@ public class MainActivity extends ListActivity implements DataRequest<Project>, 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        setContentView(R.layout.activity_main);
+
+        /*
         String[] values = new String[]
                 {"A", "B", "C", "D", "E", "F"};
 
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(
                 this,
                 R.layout.listitem_project,
                 R.id.listitem_project_name,
@@ -62,37 +59,12 @@ public class MainActivity extends ListActivity implements DataRequest<Project>, 
         );
 
         setListAdapter(adapter);
+        */
 
-        myConnection = new ServiceConnection() {
-            public void onServiceConnected(ComponentName name, IBinder binder) {
-                myRemoteStorage = ((RemoteStorage.Binder) binder).getService();
-            }
+        Button button = (Button) findViewById(R.id.button_main);
+        button.setOnClickListener(this);
 
-            public void onServiceDisconnected(ComponentName name) {
-                myRemoteStorage = null;
-            }
-        };
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-
-        bindService(
-                new Intent(this, RemoteStorage.class),
-                myConnection,
-                BIND_AUTO_CREATE
-        );
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-
-        if (myRemoteStorage != null) {
-            unbindService(myConnection);
-            myRemoteStorage = null;
-        }
+        myStorage = MainStorage.getInstance(this);
     }
 
     @Override
@@ -105,24 +77,36 @@ public class MainActivity extends ListActivity implements DataRequest<Project>, 
     /* LIFECYCLE - END */
 
     @Override
-    public int getId() {
-        return 0;
-    }
-
-    @Override
-    public void receive(@NotNull Collection<? extends Project> projects) {
-        Log.d("TAG", Integer.toString(projects.size()));
-    }
-
-    @Override
-    public void receive(@NotNull Exception e) {
-        Log.d("TAG", e.getMessage());
-    }
-
-    @Override
     public void onClick(@NotNull View v) {
-        if (myRemoteStorage != null) {
-            myRemoteStorage.addProjectsRequest(this);
+        myLastProjectsRequestId++;
+        myStorage.addProjectsRequest(new ProjectsRequest(myLastProjectsRequestId));
+    }
+
+    private class ProjectsRequest implements Request<Collection<? extends Project>> {
+
+        private final int myId;
+
+        private ProjectsRequest(int id) {
+            myId = id;
+        }
+
+        @Override
+        public int getId() {
+            return myId;
+        }
+
+        @Override
+        public void receive(Collection<? extends Project> projects) {
+            if (myId == myLastProjectsRequestId) {
+                Log.d("TAG", Integer.toString(projects.size()));
+            }
+        }
+
+        @Override
+        public void receive(@NotNull Exception e) {
+            if (myId == myLastProjectsRequestId) {
+                Log.d("TAG", e.getMessage());
+            }
         }
     }
 }

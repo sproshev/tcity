@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.tcity.android.service;
+package com.tcity.android.storage;
 
 import android.app.Service;
 import android.content.Intent;

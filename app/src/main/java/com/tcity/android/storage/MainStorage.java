@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.tcity.android.service;
+package com.tcity.android.storage;
 
 import android.content.ComponentName;
 import android.content.Context;
@@ -49,7 +49,8 @@ public class MainStorage implements Storage {
     @NotNull
     private final Callable<Collection<? extends Project>> myProjectsCallable = new Callable<Collection<? extends Project>>() {
         @Override
-        public void call(@NotNull RemoteStorage remoteStorage, @NotNull Request<Collection<? extends Project>> request) {
+        public void call(@NotNull RemoteStorage remoteStorage,
+                         @NotNull Request<Collection<? extends Project>> request) {
             remoteStorage.addProjectsRequest(request);
         }
     };
