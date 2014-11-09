@@ -16,6 +16,6 @@
   -->
 
 <resources>
-    <string name="imagebutton_project_follow_desc">Follow project</string>
-    <string name="imagebutton_project_options_desc">Project options</string>
+    <string name="imagebutton_follow_desc">Follow</string>
+    <string name="imagebutton_options_desc">Options</string>
 </resources>
