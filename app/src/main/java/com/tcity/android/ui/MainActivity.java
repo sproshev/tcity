@@ -20,8 +20,8 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
-import android.view.View;
-import android.widget.Button;
+import android.widget.ListView;
+import android.widget.SimpleAdapter;
 
 import com.tcity.android.R;
 import com.tcity.android.concept.Project;
@@ -29,42 +29,60 @@ import com.tcity.android.storage.MainStorage;
 import com.tcity.android.storage.Request;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-public class MainActivity extends Activity implements View.OnClickListener {
+public class MainActivity extends Activity {
+
+    @NotNull
+    private static final String FOLLOW_KEY = "follow";
+
+    @NotNull
+    private static final String NAME_KEY = "name";
+
+    @NotNull
+    private static final String[] FROM = new String[]{FOLLOW_KEY, NAME_KEY};
+
+    @NotNull
+    private static final int[] TO = new int[]{R.id.imagebutton_follow, R.id.list_item_name};
+
+    @NotNull
+    private static final String PR_LOG_TAG = ProjectsRequest.class.getCanonicalName();
+
+    @NotNull
+    private static final String LOG_TAG = MainActivity.class.getCanonicalName();
 
     @NotNull
     private MainStorage myStorage;
 
     private int myLastProjectsRequestId;
 
+    @NotNull
+    private List<Map<String, Object>> myAllProjects;
+
+    @NotNull
+    private SimpleAdapter myAllProjectsAdapter;
+
     /* LIFECYCLE - BEGIN */
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.activity_main);
 
-        /*
-        String[] values = new String[]
-                {"A", "B", "C", "D", "E", "F"};
-
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(
-                this,
-                R.layout.listitem_project,
-                R.id.listitem_project_name,
-                values
-        );
-
-        setListAdapter(adapter);
-        */
-
-        Button button = (Button) findViewById(R.id.button_main);
-        button.setOnClickListener(this);
-
+        myAllProjects = new ArrayList<>();
+        myAllProjectsAdapter = new SimpleAdapter(this, myAllProjects, R.layout.list_item_concept, FROM, TO);
         myStorage = MainStorage.getInstance(this);
+
+        ListView allProjectsListView = (ListView) findViewById(R.id.listview_all_projects);
+        allProjectsListView.setAdapter(myAllProjectsAdapter);
+
+        loadAllData();
     }
 
     @Override
@@ -76,10 +94,23 @@ public class MainActivity extends Activity implements View.OnClickListener {
 
     /* LIFECYCLE - END */
 
-    @Override
-    public void onClick(@NotNull View v) {
+    private void loadAllData() {
+        Log.d(LOG_TAG, "Loading has been started");
+
+        loadProjects();
+
+        // TODO
+    }
+
+    private void loadProjects() {
         myLastProjectsRequestId = myStorage.createId();
+
         myStorage.addProjectsRequest(new ProjectsRequest(myLastProjectsRequestId));
+
+        Log.d(
+                LOG_TAG,
+                "Projects loading has been started: [id: " + myLastProjectsRequestId + "]"
+        );
     }
 
     private class ProjectsRequest implements Request<Collection<? extends Project>> {
@@ -96,16 +127,47 @@ public class MainActivity extends Activity implements View.OnClickListener {
         }
 
         @Override
-        public void receive(Collection<? extends Project> projects) {
+        public void receive(@NotNull Collection<? extends Project> projects) {
+            Log.d(
+                    PR_LOG_TAG,
+                    "Projects have been received: [" +
+                            "id: " + myId +
+                            ", " +
+                            "lastId: " + myLastProjectsRequestId +
+                            ", " +
+                            "size: " + projects.size() +
+                            "]"
+            );
+
             if (myId == myLastProjectsRequestId) {
-                Log.d("TAG", Integer.toString(projects.size()));
+                myAllProjects.clear();
+
+                for (Project project : projects) {
+                    Map<String, Object> map = new HashMap<>();
+
+                    map.put(FOLLOW_KEY, android.R.drawable.star_off); // TODO
+                    map.put(NAME_KEY, project.getName());
+
+                    myAllProjects.add(map);
+                }
+
+                // TODO discuss
+
+                runOnUiThread(
+                        new Runnable() {
+                            @Override
+                            public void run() {
+                                myAllProjectsAdapter.notifyDataSetChanged();
+                            }
+                        }
+                );
             }
         }
 
         @Override
         public void receive(@NotNull Exception e) {
             if (myId == myLastProjectsRequestId) {
-                Log.d("TAG", e.getMessage());
+                // TODO
             }
         }
     }
