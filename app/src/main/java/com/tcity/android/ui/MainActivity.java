@@ -21,7 +21,6 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.widget.ListView;
-import android.widget.SimpleAdapter;
 
 import com.tcity.android.R;
 import com.tcity.android.concept.Project;
@@ -40,18 +39,6 @@ import java.util.Map;
 public class MainActivity extends Activity {
 
     @NotNull
-    private static final String FOLLOW_KEY = "follow";
-
-    @NotNull
-    private static final String NAME_KEY = "name";
-
-    @NotNull
-    private static final String[] FROM = new String[]{FOLLOW_KEY, NAME_KEY};
-
-    @NotNull
-    private static final int[] TO = new int[]{R.id.imagebutton_follow, R.id.list_item_name};
-
-    @NotNull
     private static final String PR_LOG_TAG = ProjectsRequest.class.getCanonicalName();
 
     @NotNull
@@ -63,10 +50,10 @@ public class MainActivity extends Activity {
     private int myLastProjectsRequestId;
 
     @NotNull
-    private List<Map<String, Object>> myAllProjects;
+    private List<Map<String, Object>> myData;
 
     @NotNull
-    private SimpleAdapter myAllProjectsAdapter;
+    private MainActivityAdapter myAdapter;
 
     /* LIFECYCLE - BEGIN */
 
@@ -75,12 +62,12 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        myAllProjects = new ArrayList<>();
-        myAllProjectsAdapter = new SimpleAdapter(this, myAllProjects, R.layout.list_item_concept, FROM, TO);
+        myData = new ArrayList<>();
+        myAdapter = new MainActivityAdapter(this, myData);
         myStorage = MainStorage.getInstance(this);
 
-        ListView allProjectsListView = (ListView) findViewById(R.id.listview_all_projects);
-        allProjectsListView.setAdapter(myAllProjectsAdapter);
+        ListView overview = (ListView) findViewById(R.id.overview_list);
+        overview.setAdapter(myAdapter);
 
         loadAllData();
     }
@@ -140,15 +127,21 @@ public class MainActivity extends Activity {
             );
 
             if (myId == myLastProjectsRequestId) {
-                myAllProjects.clear();
+                myData.clear();
+
+                Map<String, Object> projectsSeparatorMap = new HashMap<>();
+                projectsSeparatorMap.put(MainActivityAdapter.SEPARATOR_TEXT_KEY, "Projects");
+                projectsSeparatorMap.put(MainActivityAdapter.TYPE_KEY, MainActivityAdapter.SEPARATOR_ITEM);
+                myData.add(projectsSeparatorMap);
 
                 for (Project project : projects) {
                     Map<String, Object> map = new HashMap<>();
 
-                    map.put(FOLLOW_KEY, android.R.drawable.star_off); // TODO
-                    map.put(NAME_KEY, project.getName());
+                    map.put(MainActivityAdapter.CONCEPT_FOLLOW_KEY, android.R.drawable.star_off); // TODO
+                    map.put(MainActivityAdapter.CONCEPT_NAME_KEY, project.getName());
+                    map.put(MainActivityAdapter.TYPE_KEY, MainActivityAdapter.CONCEPT_ITEM);
 
-                    myAllProjects.add(map);
+                    myData.add(map);
                 }
 
                 // TODO discuss
@@ -157,7 +150,7 @@ public class MainActivity extends Activity {
                         new Runnable() {
                             @Override
                             public void run() {
-                                myAllProjectsAdapter.notifyDataSetChanged();
+                                myAdapter.notifyDataSetChanged();
                             }
                         }
                 );
@@ -167,6 +160,8 @@ public class MainActivity extends Activity {
         @Override
         public void receive(@NotNull Exception e) {
             if (myId == myLastProjectsRequestId) {
+                Log.w(PR_LOG_TAG, e.getMessage());
+
                 // TODO
             }
         }
