@@ -28,7 +28,7 @@
         android:theme="@style/android:Theme.Holo.Light.DarkActionBar">
 
         <service
-            android:name=".storage.RemoteStorage"
+            android:name=".storage.Storage"
             android:enabled="true"
             android:exported="false"/>
 
