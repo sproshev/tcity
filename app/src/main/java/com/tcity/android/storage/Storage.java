@@ -21,23 +21,17 @@ import android.content.Intent;
 import android.os.IBinder;
 
 import com.tcity.android.concept.Project;
-import com.tcity.android.parser.ParserPackage;
-import com.tcity.android.rest.RestPackage;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
-import org.apache.http.StatusLine;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.IOException;
 import java.util.Collection;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class Storage extends Service {
+public class Storage extends Service implements OnProjectsLoadListener {
 
     @NotNull
     private ExecutorService myExecutorService;
@@ -99,11 +93,12 @@ public class Storage extends Service {
             myProjectsRequests.add(request);
 
             myProjectsLoaderSubmitted.set(true);
-            myExecutorService.submit(new ProjectsLoader());
+            myExecutorService.submit(new ProjectsLoader(this));
         }
     }
 
-    private void onProjectsLoadingComplete(@NotNull Collection<Project> projects) {
+    @Override
+    public void receiveProjects(@NotNull Collection<Project> projects) {
         myProjectsCache = projects;
         myProjectsLoaderSubmitted.set(false);
 
@@ -112,7 +107,8 @@ public class Storage extends Service {
         }
     }
 
-    private void onProjectsLoadingException(@NotNull Exception e) {
+    @Override
+    public void receiveProjectsException(@NotNull Exception e) {
         myProjectsLoaderSubmitted.set(false);
 
         while (!myProjectsRequests.isEmpty()) {
@@ -128,30 +124,4 @@ public class Storage extends Service {
         }
     }
 
-    private class ProjectsLoader implements Runnable {
-
-        @Override
-        public void run() {
-            try {
-                HttpResponse response = RestPackage.loadProjects();
-                StatusLine statusLine = response.getStatusLine();
-
-                if (statusLine.getStatusCode() != HttpStatus.SC_OK) {
-                    onProjectsLoadingException(
-                            new IOException(
-                                    statusLine.getStatusCode() + " " + statusLine.getReasonPhrase()
-                            )
-                    );
-                } else {
-                    onProjectsLoadingComplete(
-                            ParserPackage.parseProjects(
-                                    response.getEntity().getContent()
-                            )
-                    );
-                }
-            } catch (IOException e) {
-                onProjectsLoadingException(e);
-            }
-        }
-    }
 }
