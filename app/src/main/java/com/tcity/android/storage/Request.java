@@ -19,38 +19,59 @@ package com.tcity.android.storage;
 import android.os.AsyncTask;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Request<T> {
 
     @NotNull
-    private final AsyncTask<T, Void, Void> myOnSuccessTask;
+    private final TaskFactory<T> myTaskFactory;
 
     @NotNull
-    private final AsyncTask<Exception, Void, Void> myOnExceptionTask;
+    private final AtomicBoolean myIsInvalid = new AtomicBoolean();
 
-    private boolean myIsCancelled = false;
+    @Nullable
+    private AsyncTask<Void, Void, Void> myOnSuccessTask = null;
 
-    public Request(@NotNull AsyncTask<T, Void, Void> onSuccessTask,
-                   @NotNull AsyncTask<Exception, Void, Void> onExceptionTask) {
-        myOnSuccessTask = onSuccessTask;
-        myOnExceptionTask = onExceptionTask;
+    @Nullable
+    private AsyncTask<Void, Void, Void> myOnExceptionTask = null;
+
+    public Request(@NotNull TaskFactory<T> taskFactory) {
+        myTaskFactory = taskFactory;
     }
 
     public void receive(@NotNull T data) {
-        if (!myIsCancelled) {
-            myOnSuccessTask.execute(data);
+        if (!myIsInvalid.get()) {
+            myIsInvalid.set(true);
+            myOnSuccessTask = myTaskFactory.createOnSuccessTask(data);
+
+            if (myOnSuccessTask != null) {
+                myOnSuccessTask.execute();
+            }
         }
     }
 
     public void receive(@NotNull Exception e) {
-        if (!myIsCancelled) {
-            myOnExceptionTask.execute(e);
+        if (!myIsInvalid.get()) {
+            myIsInvalid.set(true);
+            myOnExceptionTask = myTaskFactory.createOnExceptionTask(e);
+
+            if (myOnExceptionTask != null) {
+                myOnExceptionTask.execute();
+            }
         }
     }
 
     public void cancel() {
-        myIsCancelled = true;
-        myOnSuccessTask.cancel(true);
-        myOnExceptionTask.cancel(true);
+        myIsInvalid.set(true);
+
+        if (myOnSuccessTask != null) {
+            myOnSuccessTask.cancel(true);
+        }
+
+        if (myOnExceptionTask != null) {
+            myOnExceptionTask.cancel(true);
+        }
     }
 }

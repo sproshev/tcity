@@ -17,6 +17,7 @@
 package com.tcity.android.ui;
 
 import android.app.Activity;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -24,8 +25,9 @@ import android.widget.ListView;
 
 import com.tcity.android.R;
 import com.tcity.android.concept.Project;
-import com.tcity.android.storage.MainStorage;
 import com.tcity.android.storage.Request;
+import com.tcity.android.storage.StorageDriver;
+import com.tcity.android.storage.TaskFactory;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -39,21 +41,19 @@ import java.util.Map;
 public class MainActivity extends Activity {
 
     @NotNull
-    private static final String PR_LOG_TAG = ProjectsRequest.class.getCanonicalName();
-
-    @NotNull
     private static final String LOG_TAG = MainActivity.class.getCanonicalName();
-
-    @NotNull
-    private MainStorage myStorage;
-
-    private int myLastProjectsRequestId;
 
     @NotNull
     private List<Map<String, Object>> myData;
 
     @NotNull
     private MainActivityAdapter myAdapter;
+
+    @Nullable
+    private Request<Collection<Project>> myLastProjectsRequest;
+
+    @NotNull
+    private StorageDriver myStorageDriver;
 
     /* LIFECYCLE - BEGIN */
 
@@ -64,7 +64,8 @@ public class MainActivity extends Activity {
 
         myData = new ArrayList<>();
         myAdapter = new MainActivityAdapter(this, myData);
-        myStorage = MainStorage.getInstance(this);
+        myLastProjectsRequest = null;
+        myStorageDriver = StorageDriver.getInstance(this);
 
         ListView overview = (ListView) findViewById(R.id.overview_list);
         overview.setAdapter(myAdapter);
@@ -90,80 +91,97 @@ public class MainActivity extends Activity {
     }
 
     private void loadProjects() {
-        myLastProjectsRequestId = myStorage.createId();
+        if (myLastProjectsRequest != null) {
+            myLastProjectsRequest.cancel();
 
-        myStorage.addProjectsRequest(new ProjectsRequest(myLastProjectsRequestId));
+            Log.d(
+                    LOG_TAG,
+                    "Previous projects request has been cancelled"
+            );
+        }
+
+        myLastProjectsRequest = new Request<>(new ProjectsTaskFactory());
+
+        myStorageDriver.addProjectsRequest(myLastProjectsRequest);
 
         Log.d(
                 LOG_TAG,
-                "Projects loading has been started: [id: " + myLastProjectsRequestId + "]"
+                "Projects request has been sent"
         );
     }
 
-    private class ProjectsRequest implements Request<Collection<? extends Project>> {
+    private class OnProjectsSuccessTask extends AsyncTask<Void, Void, Void> {
 
-        private final int myId;
+        @NotNull
+        private final Collection<Project> myProjects;
 
-        private ProjectsRequest(int id) {
-            myId = id;
+        private OnProjectsSuccessTask(@NotNull Collection<Project> projects) {
+            myProjects = projects;
         }
 
         @Override
-        public int getId() {
-            return myId;
-        }
-
-        @Override
-        public void receive(@NotNull Collection<? extends Project> projects) {
+        protected Void doInBackground(@NotNull Void... params) {
             Log.d(
-                    PR_LOG_TAG,
-                    "Projects have been received: [" +
-                            "id: " + myId +
-                            ", " +
-                            "lastId: " + myLastProjectsRequestId +
-                            ", " +
-                            "size: " + projects.size() +
-                            "]"
+                    LOG_TAG,
+                    "Projects have been received: [size: " + myProjects.size() + "]"
             );
 
-            if (myId == myLastProjectsRequestId) {
-                myData.clear();
+            myData.clear();
 
-                Map<String, Object> projectsSeparatorMap = new HashMap<>();
-                projectsSeparatorMap.put(MainActivityAdapter.SEPARATOR_TEXT_KEY, "Projects");
-                projectsSeparatorMap.put(MainActivityAdapter.TYPE_KEY, MainActivityAdapter.SEPARATOR_ITEM);
-                myData.add(projectsSeparatorMap);
+            Map<String, Object> separatorMap = new HashMap<>();
 
-                for (Project project : projects) {
-                    Map<String, Object> map = new HashMap<>();
+            separatorMap.put(MainActivityAdapter.SEPARATOR_TEXT_KEY, "Projects");
+            separatorMap.put(MainActivityAdapter.TYPE_KEY, MainActivityAdapter.SEPARATOR_ITEM);
 
-                    map.put(MainActivityAdapter.CONCEPT_FOLLOW_KEY, android.R.drawable.star_off); // TODO
-                    map.put(MainActivityAdapter.CONCEPT_NAME_KEY, project.getName());
-                    map.put(MainActivityAdapter.TYPE_KEY, MainActivityAdapter.CONCEPT_ITEM);
+            myData.add(separatorMap);
 
-                    myData.add(map);
-                }
+            for (Project project : myProjects) {
+                Map<String, Object> map = new HashMap<>();
 
-                // TODO discuss
+                map.put(MainActivityAdapter.CONCEPT_FOLLOW_KEY, android.R.drawable.star_off); // TODO
+                map.put(MainActivityAdapter.CONCEPT_NAME_KEY, project.getName());
+                map.put(MainActivityAdapter.TYPE_KEY, MainActivityAdapter.CONCEPT_ITEM);
 
-                runOnUiThread(
-                        new Runnable() {
-                            @Override
-                            public void run() {
-                                myAdapter.notifyDataSetChanged();
-                            }
-                        }
-                );
+                myData.add(map);
             }
+
+            return null;
         }
 
         @Override
-        public void receive(@NotNull Exception e) {
-            if (myId == myLastProjectsRequestId) {
-                Log.w(PR_LOG_TAG, e.getMessage());
+        protected void onPostExecute(@NotNull Void aVoid) {
+            myAdapter.notifyDataSetChanged();
+        }
+    }
 
-                // TODO
-            }
+    private class OnProjectsExceptionTask extends AsyncTask<Void, Void, Void> {
+
+        @NotNull
+        private final Exception myException;
+
+        OnProjectsExceptionTask(@NotNull Exception e) {
+            myException = e;
+        }
+
+        @Override
+        protected Void doInBackground(@NotNull Void... params) {
+            Log.w(LOG_TAG, myException.getMessage());
+
+            return null;
+        }
+    }
+
+    private class ProjectsTaskFactory implements TaskFactory<Collection<Project>> {
+        @Nullable
+        @Override
+        public AsyncTask<Void, Void, Void> createOnSuccessTask(@NotNull Collection<Project> projects) {
+            return new OnProjectsSuccessTask(projects);
+        }
+
+        @Nullable
+        @Override
+        public AsyncTask<Void, Void, Void> createOnExceptionTask(@NotNull Exception e) {
+            return new OnProjectsExceptionTask(e);
         }
     }
 }
