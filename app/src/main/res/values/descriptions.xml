@@ -16,6 +16,7 @@
   -->
 
 <resources>
-    <string name="concept_item_follow_desc">Follow</string>
+    <string name="concept_item_watch_desc">Watch</string>
+    <string name="concept_item_unwatch_desc">Unwatch</string>
     <string name="concept_item_options_desc">Options</string>
 </resources>

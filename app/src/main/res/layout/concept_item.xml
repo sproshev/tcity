@@ -22,15 +22,15 @@
               android:orientation="horizontal">
 
     <ImageButton
-        android:id="@+id/concept_item_follow"
+        android:id="@+id/concept_item_watch"
 
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="center_vertical"
-        android:layout_margin="@dimen/concept_item_follow_margin"
+        android:layout_margin="@dimen/concept_item_watch_margin"
 
         android:background="@null"
-        android:contentDescription="@string/concept_item_follow_desc"/>
+        android:contentDescription="@string/concept_item_watch_desc"/>
 
     <TextView
         android:id="@+id/concept_item_name"
@@ -49,7 +49,7 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="center_vertical"
-        android:layout_margin="@dimen/concept_item_follow_margin"
+        android:layout_margin="@dimen/concept_item_options_margin"
 
         android:background="@null"
         android:contentDescription="@string/concept_item_options_desc"
