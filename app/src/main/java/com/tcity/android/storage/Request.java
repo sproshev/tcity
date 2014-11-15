@@ -56,4 +56,8 @@ public class Request<T> {
     public void cancel() {
         myIsCancelledOrReceived.set(true);
     }
+
+    public boolean isCancelledOrReceived() {
+        return myIsCancelledOrReceived.get();
+    }
 }

@@ -26,6 +26,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -78,6 +79,14 @@ public class Storage extends Service {
 
     @Override
     public void onTrimMemory(int level) {
+        Iterator<Request<Collection<Project>>> projectsRequestIterator = myProjectsRequests.iterator();
+
+        while (projectsRequestIterator.hasNext()) {
+            if (projectsRequestIterator.next().isCancelledOrReceived()) {
+                projectsRequestIterator.remove();
+            }
+        }
+
         if (myProjectsRequests.isEmpty()) {
             myProjectsCache = null;
         }
