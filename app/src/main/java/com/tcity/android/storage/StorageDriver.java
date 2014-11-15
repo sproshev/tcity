@@ -30,6 +30,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Collection;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+// TODO discuss
+
 public class StorageDriver {
 
     @Nullable
@@ -44,6 +46,9 @@ public class StorageDriver {
     @NotNull
     private final ConcurrentLinkedQueue<Request<Collection<Project>>> myProjectsRequests;
 
+    @NotNull
+    private StorageDriverQueueTask myQueueTask;
+
     @Nullable
     private Storage myStorage;
 
@@ -52,6 +57,8 @@ public class StorageDriver {
         myConnection = new ServiceConnection();
 
         myProjectsRequests = new ConcurrentLinkedQueue<>();
+
+        myQueueTask = new StorageDriverQueueTask(myProjectsRequests);
     }
 
     @NotNull
@@ -73,9 +80,10 @@ public class StorageDriver {
         }
     }
 
-    public void release() {
-        myContext.unbindService(myConnection);
+    public void close() {
+        myQueueTask.cancel(true);
         myStorage = null;
+        myContext.unbindService(myConnection);
     }
 
     private void bindService() {
@@ -86,30 +94,30 @@ public class StorageDriver {
         );
     }
 
+    private void runQueueTask() {
+        AsyncTask.Status status = myQueueTask.getStatus();
+
+        if (status.equals(AsyncTask.Status.RUNNING)) {
+            return;
+        }
+
+        if (status.equals(AsyncTask.Status.FINISHED) || myQueueTask.isCancelled()) {
+            myQueueTask = new StorageDriverQueueTask(myProjectsRequests);
+        }
+
+        myQueueTask.execute(myStorage);
+    }
+
     private class ServiceConnection implements android.content.ServiceConnection {
 
         public void onServiceConnected(ComponentName name, IBinder binder) {
             myStorage = ((Storage.Binder) binder).getService();
 
-            AsyncTask.execute(new SenderRunnable());
+            runQueueTask();
         }
 
         public void onServiceDisconnected(ComponentName name) {
             myStorage = null;
-        }
-    }
-
-    private class SenderRunnable implements Runnable {
-
-        @Override
-        public void run() {
-            while (!myProjectsRequests.isEmpty() && myStorage != null) {
-                Request<Collection<Project>> projectsRequest = myProjectsRequests.poll();
-
-                if (projectsRequest != null) {
-                    myStorage.addProjectsRequest(projectsRequest);
-                }
-            }
         }
     }
 }
