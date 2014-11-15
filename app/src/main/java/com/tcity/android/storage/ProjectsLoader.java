@@ -16,6 +16,7 @@
 
 package com.tcity.android.storage;
 
+import com.tcity.android.concept.Project;
 import com.tcity.android.parser.ParserPackage;
 import com.tcity.android.rest.RestPackage;
 
@@ -25,14 +26,15 @@ import org.apache.http.StatusLine;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
+import java.util.Collection;
 
 class ProjectsLoader implements Runnable {
 
     @NotNull
-    private final OnProjectsLoadListener myListener;
+    private final Receiver<Collection<Project>> myReceiver;
 
-    ProjectsLoader(@NotNull OnProjectsLoadListener listener) {
-        myListener = listener;
+    ProjectsLoader(@NotNull Receiver<Collection<Project>> receiver) {
+        myReceiver = receiver;
     }
 
     @Override
@@ -42,20 +44,20 @@ class ProjectsLoader implements Runnable {
             StatusLine statusLine = response.getStatusLine();
 
             if (statusLine.getStatusCode() != HttpStatus.SC_OK) {
-                myListener.receiveProjectsException(
+                myReceiver.receive(
                         new IOException(
                                 statusLine.getStatusCode() + " " + statusLine.getReasonPhrase()
                         )
                 );
             } else {
-                myListener.receiveProjects(
+                myReceiver.receive(
                         ParserPackage.parseProjects(
                                 response.getEntity().getContent()
                         )
                 );
             }
         } catch (IOException e) {
-            myListener.receiveProjectsException(e);
+            myReceiver.receive(e);
         }
     }
 }

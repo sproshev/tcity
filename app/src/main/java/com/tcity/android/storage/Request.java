@@ -16,8 +16,6 @@
 
 package com.tcity.android.storage;
 
-import android.os.AsyncTask;
-
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -26,52 +24,36 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class Request<T> {
 
     @NotNull
-    private final TaskFactory<T> myTaskFactory;
-
-    @NotNull
-    private final AtomicBoolean myIsInvalid = new AtomicBoolean();
+    private final AtomicBoolean myIsCancelledOrReceived = new AtomicBoolean();
 
     @Nullable
-    private AsyncTask<Void, Void, Void> myOnSuccessTask = null;
+    private Receiver<T> myReceiver = null;
 
-    @Nullable
-    private AsyncTask<Void, Void, Void> myOnExceptionTask = null;
-
-    public Request(@NotNull TaskFactory<T> taskFactory) {
-        myTaskFactory = taskFactory;
+    public Request(@Nullable Receiver<T> receiver) {
+        myReceiver = receiver;
     }
 
     public void receive(@NotNull T data) {
-        if (!myIsInvalid.get()) {
-            myIsInvalid.set(true);
-            myOnSuccessTask = myTaskFactory.createOnSuccessTask(data);
+        if (!myIsCancelledOrReceived.get()) {
+            myIsCancelledOrReceived.set(true);
 
-            if (myOnSuccessTask != null) {
-                myOnSuccessTask.execute();
+            if (myReceiver != null) {
+                myReceiver.receive(data);
             }
         }
     }
 
     public void receive(@NotNull Exception e) {
-        if (!myIsInvalid.get()) {
-            myIsInvalid.set(true);
-            myOnExceptionTask = myTaskFactory.createOnExceptionTask(e);
+        if (!myIsCancelledOrReceived.get()) {
+            myIsCancelledOrReceived.set(true);
 
-            if (myOnExceptionTask != null) {
-                myOnExceptionTask.execute();
+            if (myReceiver != null) {
+                myReceiver.receive(e);
             }
         }
     }
 
     public void cancel() {
-        myIsInvalid.set(true);
-
-        if (myOnSuccessTask != null) {
-            myOnSuccessTask.cancel(true);
-        }
-
-        if (myOnExceptionTask != null) {
-            myOnExceptionTask.cancel(true);
-        }
+        myIsCancelledOrReceived.set(true);
     }
 }

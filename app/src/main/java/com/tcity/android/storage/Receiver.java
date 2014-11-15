@@ -16,16 +16,11 @@
 
 package com.tcity.android.storage;
 
-import android.os.AsyncTask;
-
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-public interface TaskFactory<T> {
+public interface Receiver<T> {
 
-    @Nullable
-    AsyncTask<Void, Void, Void> createOnSuccessTask(@NotNull T t);
+    void receive(@NotNull T t);
 
-    @Nullable
-    AsyncTask<Void, Void, Void> createOnExceptionTask(@NotNull Exception e);
+    void receive(@NotNull Exception e);
 }
