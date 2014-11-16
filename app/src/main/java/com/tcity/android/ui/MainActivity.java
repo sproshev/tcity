@@ -59,6 +59,10 @@ public class MainActivity extends Activity {
         if (myLastProjectsRequest != null) {
             myLastProjectsRequest.invalidate();
         }
+
+        if (isTaskRoot()) {
+            myStorageDriver.close();
+        }
     }
 
     /* LIFECYCLE - END */
