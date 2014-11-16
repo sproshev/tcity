@@ -20,6 +20,8 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
 
+import com.tcity.android.Receiver;
+import com.tcity.android.Request;
 import com.tcity.android.concept.Project;
 
 import org.jetbrains.annotations.NotNull;
@@ -71,7 +73,7 @@ public class Storage extends Service {
         super.onDestroy();
 
         if (myProjectsLoaderRequest != null) {
-            myProjectsLoaderRequest.cancel();
+            myProjectsLoaderRequest.invalidate();
         }
 
         myExecutorService.shutdown();
@@ -85,7 +87,7 @@ public class Storage extends Service {
     /* LIFECYCLE - END */
 
     public void addProjectsRequest(@NotNull Request<Collection<Project>> request) {
-        if (myProjectsLoaderRequest != null && !myProjectsLoaderRequest.isCancelledOrExecuted()) {
+        if (myProjectsLoaderRequest != null && myProjectsLoaderRequest.isValid()) {
             myProjectsRequests.add(request);
             return;
         }
@@ -104,7 +106,7 @@ public class Storage extends Service {
         Iterator<Request<Collection<Project>>> iterator = myProjectsRequests.iterator();
 
         while (iterator.hasNext()) {
-            if (iterator.next().isCancelledOrExecuted()) {
+            if (!iterator.next().isValid()) {
                 iterator.remove();
             }
         }
@@ -116,6 +118,8 @@ public class Storage extends Service {
 
     public class Binder extends android.os.Binder {
 
+        // TODO WeakReference?
+
         @NotNull
         public Storage getService() {
             return Storage.this;
@@ -123,6 +127,8 @@ public class Storage extends Service {
     }
 
     private class ProjectsReceiver extends Receiver<Collection<Project>> {
+
+        // TODO WeakReference?
 
         @Override
         public void handleResult(@NotNull Collection<Project> projects) {

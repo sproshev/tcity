@@ -22,6 +22,7 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.IBinder;
 
+import com.tcity.android.Request;
 import com.tcity.android.concept.Project;
 
 import org.jetbrains.annotations.NotNull;
@@ -109,6 +110,8 @@ public class StorageDriver {
     }
 
     private class ServiceConnection implements android.content.ServiceConnection {
+
+        // TODO WeakReference?
 
         public void onServiceConnected(ComponentName name, IBinder binder) {
             myStorage = ((Storage.Binder) binder).getService();

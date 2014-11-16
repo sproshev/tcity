@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.tcity.android.storage;
+package com.tcity.android;
 
 import android.os.Handler;
 import android.os.Message;
@@ -26,6 +26,7 @@ public abstract class Receiver<T> extends Handler {
     private static final int RESULT = 0;
     private static final int EXCEPTION = 1;
 
+    @SuppressWarnings("unchecked")
     @Override
     public final void handleMessage(@NotNull Message msg) {
         switch (msg.what) {

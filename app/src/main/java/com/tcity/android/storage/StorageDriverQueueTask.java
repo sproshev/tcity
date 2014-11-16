@@ -18,6 +18,7 @@ package com.tcity.android.storage;
 
 import android.os.AsyncTask;
 
+import com.tcity.android.Request;
 import com.tcity.android.concept.Project;
 
 import org.jetbrains.annotations.NotNull;

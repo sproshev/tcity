@@ -16,6 +16,7 @@
 
 package com.tcity.android.storage;
 
+import com.tcity.android.Request;
 import com.tcity.android.concept.Project;
 import com.tcity.android.parser.ParserPackage;
 import com.tcity.android.rest.RestPackage;
@@ -39,7 +40,7 @@ class ProjectsLoader implements Runnable {
 
     @Override
     public void run() {
-        if (myRequest.isCancelledOrExecuted()) {
+        if (!myRequest.isValid()) {
             return;
         }
 
@@ -54,7 +55,7 @@ class ProjectsLoader implements Runnable {
                         )
                 );
             } else {
-                if (myRequest.isCancelledOrExecuted()) {
+                if (!myRequest.isValid()) {
                     return;
                 }
 
