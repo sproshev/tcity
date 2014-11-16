@@ -30,7 +30,6 @@ import java.util.Iterator;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Storage extends Service {
 
@@ -40,17 +39,14 @@ public class Storage extends Service {
     @NotNull
     private Binder myBinder;
 
-    @NotNull
-    private AtomicBoolean myProjectsLoaderSubmitted;
-
-    @NotNull
-    private ConcurrentLinkedQueue<Request<Collection<Project>>> myProjectsRequests;
+    @Nullable
+    private Request<Collection<Project>> myProjectsLoaderRequest;
 
     @Nullable
     private Collection<Project> myProjectsCache;
 
     @NotNull
-    private ProjectsReceiver myProjectsReceiver;
+    private ConcurrentLinkedQueue<Request<Collection<Project>>> myProjectsRequests;
 
     /* LIFECYCLE - BEGIN */
 
@@ -60,10 +56,9 @@ public class Storage extends Service {
         myExecutorService = Executors.newSingleThreadExecutor();
         myBinder = new Binder();
 
-        myProjectsLoaderSubmitted = new AtomicBoolean();
-        myProjectsRequests = new ConcurrentLinkedQueue<>();
+        myProjectsLoaderRequest = null;
         myProjectsCache = null;
-        myProjectsReceiver = new ProjectsReceiver();
+        myProjectsRequests = new ConcurrentLinkedQueue<>();
     }
 
     @Override
@@ -74,39 +69,48 @@ public class Storage extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
+
+        if (myProjectsLoaderRequest != null) {
+            myProjectsLoaderRequest.cancel();
+        }
+
         myExecutorService.shutdown();
     }
 
     @Override
     public void onTrimMemory(int level) {
-        Iterator<Request<Collection<Project>>> projectsRequestIterator = myProjectsRequests.iterator();
-
-        while (projectsRequestIterator.hasNext()) {
-            if (projectsRequestIterator.next().isCancelledOrReceived()) {
-                projectsRequestIterator.remove();
-            }
-        }
-
-        if (myProjectsRequests.isEmpty()) {
-            myProjectsCache = null;
-        }
+        trimProjects();
     }
 
     /* LIFECYCLE - END */
 
     public void addProjectsRequest(@NotNull Request<Collection<Project>> request) {
-        if (myProjectsLoaderSubmitted.get()) {
+        if (myProjectsLoaderRequest != null && !myProjectsLoaderRequest.isCancelledOrExecuted()) {
             myProjectsRequests.add(request);
             return;
         }
 
         if (myProjectsCache != null) {
-            request.receive(myProjectsCache);
+            request.sendResult(myProjectsCache);
         } else {
             myProjectsRequests.add(request);
 
-            myProjectsLoaderSubmitted.set(true);
-            myExecutorService.submit(new ProjectsLoader(myProjectsReceiver));
+            myProjectsLoaderRequest = new Request<>(new ProjectsReceiver());
+            myExecutorService.submit(new ProjectsLoader(myProjectsLoaderRequest));
+        }
+    }
+
+    private void trimProjects() {
+        Iterator<Request<Collection<Project>>> iterator = myProjectsRequests.iterator();
+
+        while (iterator.hasNext()) {
+            if (iterator.next().isCancelledOrExecuted()) {
+                iterator.remove();
+            }
+        }
+
+        if (myProjectsRequests.isEmpty()) {
+            myProjectsCache = null;
         }
     }
 
@@ -118,24 +122,21 @@ public class Storage extends Service {
         }
     }
 
-    private class ProjectsReceiver implements Receiver<Collection<Project>> {
+    private class ProjectsReceiver extends Receiver<Collection<Project>> {
 
         @Override
-        public void receive(@NotNull Collection<Project> projects) {
+        public void receiveResult(@NotNull Collection<Project> projects) {
             myProjectsCache = projects;
-            myProjectsLoaderSubmitted.set(false);
 
             while (!myProjectsRequests.isEmpty()) {
-                myProjectsRequests.poll().receive(projects);
+                myProjectsRequests.poll().sendResult(projects); // TODO maybe make async
             }
         }
 
         @Override
-        public void receive(@NotNull Exception e) {
-            myProjectsLoaderSubmitted.set(false);
-
+        public void receiveException(@NotNull Exception e) {
             while (!myProjectsRequests.isEmpty()) {
-                myProjectsRequests.poll().receive(e);
+                myProjectsRequests.poll().sendException(e); // TODO maybe make async
             }
         }
     }

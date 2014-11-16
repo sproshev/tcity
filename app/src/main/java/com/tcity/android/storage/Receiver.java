@@ -16,11 +16,28 @@
 
 package com.tcity.android.storage;
 
+import android.os.Handler;
+import android.os.Message;
+
 import org.jetbrains.annotations.NotNull;
 
-public interface Receiver<T> {
+public abstract class Receiver<T> extends Handler {
 
-    void receive(@NotNull T t);
+    public static final int RESULT = 0;
+    public static final int EXCEPTION = 1;
 
-    void receive(@NotNull Exception e);
+    @Override
+    public abstract void handleMessage(@NotNull Message msg);
+
+    public void receiveResult(@NotNull T t) {
+        sendMessage(
+                obtainMessage(RESULT, t)
+        );
+    }
+
+    public void receiveException(@NotNull Exception e) {
+        sendMessage(
+                obtainMessage(EXCEPTION, e)
+        );
+    }
 }
