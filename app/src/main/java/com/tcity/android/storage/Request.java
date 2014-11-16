@@ -24,40 +24,40 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class Request<T> {
 
     @NotNull
-    private final AtomicBoolean myIsCancelledOrReceived = new AtomicBoolean();
+    private final AtomicBoolean myIsCancelledOrExecuted = new AtomicBoolean();
 
     @Nullable
-    private Receiver<T> myReceiver = null;
+    private final Receiver<T> myReceiver;
 
     public Request(@Nullable Receiver<T> receiver) {
         myReceiver = receiver;
     }
 
-    public void receive(@NotNull T data) {
-        if (!myIsCancelledOrReceived.get()) {
-            myIsCancelledOrReceived.set(true);
+    public void sendResult(@NotNull T data) {
+        if (!myIsCancelledOrExecuted.get()) {
+            myIsCancelledOrExecuted.set(true);
 
             if (myReceiver != null) {
-                myReceiver.receive(data);
+                myReceiver.receiveResult(data);
             }
         }
     }
 
-    public void receive(@NotNull Exception e) {
-        if (!myIsCancelledOrReceived.get()) {
-            myIsCancelledOrReceived.set(true);
+    public void sendException(@NotNull Exception e) {
+        if (!myIsCancelledOrExecuted.get()) {
+            myIsCancelledOrExecuted.set(true);
 
             if (myReceiver != null) {
-                myReceiver.receive(e);
+                myReceiver.receiveException(e);
             }
         }
     }
 
     public void cancel() {
-        myIsCancelledOrReceived.set(true);
+        myIsCancelledOrExecuted.set(true);
     }
 
-    public boolean isCancelledOrReceived() {
-        return myIsCancelledOrReceived.get();
+    public boolean isCancelledOrExecuted() {
+        return myIsCancelledOrExecuted.get();
     }
 }

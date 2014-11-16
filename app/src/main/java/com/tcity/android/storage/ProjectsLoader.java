@@ -31,33 +31,41 @@ import java.util.Collection;
 class ProjectsLoader implements Runnable {
 
     @NotNull
-    private final Receiver<Collection<Project>> myReceiver;
+    private final Request<Collection<Project>> myRequest;
 
-    ProjectsLoader(@NotNull Receiver<Collection<Project>> receiver) {
-        myReceiver = receiver;
+    ProjectsLoader(@NotNull Request<Collection<Project>> request) {
+        myRequest = request;
     }
 
     @Override
     public void run() {
+        if (myRequest.isCancelledOrExecuted()) {
+            return;
+        }
+
         try {
             HttpResponse response = RestPackage.loadProjects();
             StatusLine statusLine = response.getStatusLine();
 
             if (statusLine.getStatusCode() != HttpStatus.SC_OK) {
-                myReceiver.receive(
+                myRequest.sendException(
                         new IOException(
                                 statusLine.getStatusCode() + " " + statusLine.getReasonPhrase()
                         )
                 );
             } else {
-                myReceiver.receive(
+                if (myRequest.isCancelledOrExecuted()) {
+                    return;
+                }
+
+                myRequest.sendResult(
                         ParserPackage.parseProjects(
                                 response.getEntity().getContent()
                         )
                 );
             }
         } catch (IOException e) {
-            myReceiver.receive(e);
+            myRequest.sendException(e);
         }
     }
 }
