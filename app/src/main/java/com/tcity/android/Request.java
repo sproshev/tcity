@@ -24,7 +24,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class Request<T> {
 
     @NotNull
-    private final AtomicBoolean myIsValid = new AtomicBoolean();
+    private final AtomicBoolean myIsValid = new AtomicBoolean(true);
 
     @NotNull
     private final WeakReference<Receiver<T>> myReceiverWeakReference;
