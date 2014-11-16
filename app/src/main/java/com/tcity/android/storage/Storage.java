@@ -18,7 +18,10 @@ package com.tcity.android.storage;
 
 import android.app.Service;
 import android.content.Intent;
+import android.os.HandlerThread;
 import android.os.IBinder;
+import android.os.Looper;
+import android.os.Process;
 
 import com.tcity.android.Receiver;
 import com.tcity.android.Request;
@@ -41,6 +44,9 @@ public class Storage extends Service {
     @NotNull
     private Binder myBinder;
 
+    @NotNull
+    private Looper myReceiversLooper;
+
     @Nullable
     private Request<Collection<Project>> myProjectsLoaderRequest;
 
@@ -57,6 +63,11 @@ public class Storage extends Service {
         super.onCreate();
         myExecutorService = Executors.newSingleThreadExecutor();
         myBinder = new Binder();
+
+        HandlerThread thread = new HandlerThread("StorageReceivers", Process.THREAD_PRIORITY_BACKGROUND);
+        thread.start();
+
+        myReceiversLooper = thread.getLooper();
 
         myProjectsLoaderRequest = null;
         myProjectsCache = null;
@@ -129,6 +140,10 @@ public class Storage extends Service {
     private class ProjectsReceiver extends Receiver<Collection<Project>> {
 
         // TODO WeakReference?
+
+        private ProjectsReceiver() {
+            super(myReceiversLooper);
+        }
 
         @Override
         public void handleResult(@NotNull Collection<Project> projects) {

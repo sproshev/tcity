@@ -17,6 +17,7 @@
 package com.tcity.android;
 
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 
 import org.jetbrains.annotations.NotNull;
@@ -25,6 +26,13 @@ public abstract class Receiver<T> extends Handler {
 
     private static final int RESULT = 0;
     private static final int EXCEPTION = 1;
+
+    protected Receiver() {
+    }
+
+    protected Receiver(@NotNull Looper looper) {
+        super(looper);
+    }
 
     @SuppressWarnings("unchecked")
     @Override
