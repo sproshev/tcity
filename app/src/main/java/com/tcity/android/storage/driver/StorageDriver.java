@@ -40,24 +40,24 @@ public class StorageDriver {
     private final Context myContext;
 
     @NotNull
-    private final Connection myConnection;
+    private final StorageConnection myConnection;
 
     @NotNull
     private final ConcurrentLinkedQueue<Request<Collection<Project>>> myProjectsRequests;
 
     @NotNull
-    private Sender mySender;
+    private SendQueueTask myQueueTask;
 
     @Nullable
     private Storage myStorage = null;
 
     private StorageDriver(@NotNull Context context) {
         myContext = context.getApplicationContext();
-        myConnection = new Connection(this);
+        myConnection = new StorageConnection(this);
 
         myProjectsRequests = new ConcurrentLinkedQueue<>();
 
-        mySender = new Sender(this);
+        myQueueTask = new SendQueueTask(this);
     }
 
     @NotNull
@@ -80,7 +80,7 @@ public class StorageDriver {
     }
 
     public void close() {
-        mySender.cancel(true);
+        myQueueTask.cancel(true);
         myStorage = null;
         myContext.unbindService(myConnection);
     }
@@ -112,16 +112,16 @@ public class StorageDriver {
     }
 
     private void executeSender() {
-        AsyncTask.Status status = mySender.getStatus();
+        AsyncTask.Status status = myQueueTask.getStatus();
 
         if (status.equals(AsyncTask.Status.RUNNING)) {
             return;
         }
 
-        if (status.equals(AsyncTask.Status.FINISHED) || mySender.isCancelled()) {
-            mySender = new Sender(this);
+        if (status.equals(AsyncTask.Status.FINISHED) || myQueueTask.isCancelled()) {
+            myQueueTask = new SendQueueTask(this);
         }
 
-        mySender.execute();
+        myQueueTask.execute();
     }
 }

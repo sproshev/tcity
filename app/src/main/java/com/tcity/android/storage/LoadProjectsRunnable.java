@@ -29,12 +29,12 @@ import org.jetbrains.annotations.NotNull;
 import java.io.IOException;
 import java.util.Collection;
 
-class ProjectsLoader implements Runnable {
+class LoadProjectsRunnable implements Runnable {
 
     @NotNull
     private final Request<Collection<Project>> myRequest;
 
-    ProjectsLoader(@NotNull Request<Collection<Project>> request) {
+    LoadProjectsRunnable(@NotNull Request<Collection<Project>> request) {
         myRequest = request;
     }
 

@@ -18,10 +18,12 @@ package com.tcity.android.storage;
 
 import android.app.Service;
 import android.content.Intent;
+import android.os.Handler;
+import android.os.HandlerThread;
 import android.os.IBinder;
 import android.os.Looper;
+import android.os.Process;
 
-import com.tcity.android.Receiver;
 import com.tcity.android.Request;
 import com.tcity.android.concept.Project;
 
@@ -30,20 +32,19 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 public class Storage extends Service {
 
     @NotNull
-    private ExecutorService myExecutorService;
+    private HandlerThread myBackgroundThread;
 
     @NotNull
-    private Binder myBinder;
+    private Handler myBackgroundHandler;
 
     @NotNull
-    private Looper myReceiversLooper;
+    private StorageBinder myBinder;
 
     @Nullable
     private Request<Collection<Project>> myProjectsLoaderRequest;
@@ -54,19 +55,24 @@ public class Storage extends Service {
     @NotNull
     private ConcurrentLinkedQueue<Request<Collection<Project>>> myProjectsRequests;
 
+    @NotNull
+    private StorageProjectsReceiver myProjectsReceiver;
+
     /* LIFECYCLE - BEGIN */
 
     @Override
     public void onCreate() {
         super.onCreate();
-        myExecutorService = Executors.newSingleThreadExecutor();
-        myBinder = new Binder();
+        myBackgroundThread = new HandlerThread("StorageBackground", Process.THREAD_PRIORITY_BACKGROUND);
+        myBackgroundThread.start();
+        myBackgroundHandler = new Handler(myBackgroundThread.getLooper());
 
-        myReceiversLooper = Looper.myLooper();
+        myBinder = new StorageBinder(this);
 
         myProjectsLoaderRequest = null;
         myProjectsCache = null;
         myProjectsRequests = new ConcurrentLinkedQueue<>();
+        myProjectsReceiver = new StorageProjectsReceiver(this);
     }
 
     @Override
@@ -82,7 +88,7 @@ public class Storage extends Service {
             myProjectsLoaderRequest.invalidate();
         }
 
-        myExecutorService.shutdown();
+        myBackgroundThread.quit();
     }
 
     @Override
@@ -103,9 +109,23 @@ public class Storage extends Service {
         } else {
             myProjectsRequests.add(request);
 
-            myProjectsLoaderRequest = new Request<>(new ProjectsReceiver());
-            myExecutorService.submit(new ProjectsLoader(myProjectsLoaderRequest));
+            myProjectsLoaderRequest = new Request<>(myProjectsReceiver);
+            myBackgroundHandler.post(new LoadProjectsRunnable(myProjectsLoaderRequest));
         }
+    }
+
+    @NotNull
+    Looper getLooper() {
+        return myBackgroundHandler.getLooper();
+    }
+
+    void setProjectsCache(@Nullable Collection<Project> projects) {
+        myProjectsCache = projects;
+    }
+
+    @NotNull
+    Queue<Request<Collection<Project>>> getProjectsRequests() {
+        return myProjectsRequests;
     }
 
     private void trimProjects() {
@@ -121,40 +141,4 @@ public class Storage extends Service {
             myProjectsCache = null;
         }
     }
-
-    public class Binder extends android.os.Binder {
-
-        // TODO WeakReference?
-
-        @NotNull
-        public Storage getService() {
-            return Storage.this;
-        }
-    }
-
-    private class ProjectsReceiver extends Receiver<Collection<Project>> {
-
-        // TODO WeakReference?
-
-        private ProjectsReceiver() {
-            super(myReceiversLooper);
-        }
-
-        @Override
-        public void handleResult(@NotNull Collection<Project> projects) {
-            myProjectsCache = projects;
-
-            while (!myProjectsRequests.isEmpty()) {
-                myProjectsRequests.poll().sendResult(projects); // TODO maybe make async
-            }
-        }
-
-        @Override
-        public void handleException(@NotNull Exception e) {
-            while (!myProjectsRequests.isEmpty()) {
-                myProjectsRequests.poll().sendException(e); // TODO maybe make async
-            }
-        }
-    }
-
 }

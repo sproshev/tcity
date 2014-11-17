@@ -16,40 +16,40 @@
 
 package com.tcity.android.storage.driver;
 
-import android.content.ComponentName;
-import android.content.ServiceConnection;
-import android.os.IBinder;
+import android.os.AsyncTask;
 
+import com.tcity.android.Request;
+import com.tcity.android.concept.Project;
 import com.tcity.android.storage.Storage;
 
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.ref.WeakReference;
+import java.util.Collection;
+import java.util.Queue;
 
-class Connection implements ServiceConnection {
+class SendQueueTask extends AsyncTask<Void, Void, Void> {
 
     @NotNull
     private final WeakReference<StorageDriver> myDriverWeakReference;
 
-    Connection(@NotNull StorageDriver driver) {
+    SendQueueTask(@NotNull StorageDriver driver) {
         myDriverWeakReference = new WeakReference<>(driver);
     }
 
-    public void onServiceConnected(ComponentName name, IBinder binder) {
+    @Override
+    protected Void doInBackground(@NotNull Void... params) {
         StorageDriver driver = myDriverWeakReference.get();
+        Storage storage = driver == null ? null : driver.getStorage();
 
-        if (driver != null) {
-            Storage storage = ((Storage.Binder) binder).getService();
+        if (storage != null) {
+            Queue<Request<Collection<Project>>> projectsRequests = driver.getProjectsRequests();
 
-            driver.setStorage(storage);
+            while (!projectsRequests.isEmpty()) {
+                storage.addProjectsRequest(projectsRequests.poll());
+            }
         }
-    }
 
-    public void onServiceDisconnected(ComponentName name) {
-        StorageDriver driver = myDriverWeakReference.get();
-
-        if (driver != null) {
-            driver.setStorage(null);
-        }
+        return null;
     }
 }
