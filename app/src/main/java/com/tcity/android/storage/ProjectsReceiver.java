@@ -26,12 +26,12 @@ import java.lang.ref.WeakReference;
 import java.util.Collection;
 import java.util.Queue;
 
-class StorageProjectsReceiver extends Receiver<Collection<Project>> {
+class ProjectsReceiver extends Receiver<Collection<Project>> {
 
     @NotNull
     private final WeakReference<Storage> myStorageWeakReference;
 
-    StorageProjectsReceiver(@NotNull Storage storage) {
+    ProjectsReceiver(@NotNull Storage storage) {
         super(storage.getLooper());
 
         myStorageWeakReference = new WeakReference<>(storage);

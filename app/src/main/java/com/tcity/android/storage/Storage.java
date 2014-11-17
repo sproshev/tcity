@@ -44,7 +44,7 @@ public class Storage extends Service {
     private Handler myBackgroundHandler;
 
     @NotNull
-    private StorageBinder myBinder;
+    private Binder myBinder;
 
     @Nullable
     private Request<Collection<Project>> myProjectsLoaderRequest;
@@ -56,7 +56,7 @@ public class Storage extends Service {
     private ConcurrentLinkedQueue<Request<Collection<Project>>> myProjectsRequests;
 
     @NotNull
-    private StorageProjectsReceiver myProjectsReceiver;
+    private ProjectsReceiver myProjectsReceiver;
 
     /* LIFECYCLE - BEGIN */
 
@@ -67,12 +67,12 @@ public class Storage extends Service {
         myBackgroundThread.start();
         myBackgroundHandler = new Handler(myBackgroundThread.getLooper());
 
-        myBinder = new StorageBinder(this);
+        myBinder = new Binder(this);
 
         myProjectsLoaderRequest = null;
         myProjectsCache = null;
         myProjectsRequests = new ConcurrentLinkedQueue<>();
-        myProjectsReceiver = new StorageProjectsReceiver(this);
+        myProjectsReceiver = new ProjectsReceiver(this);
     }
 
     @Override

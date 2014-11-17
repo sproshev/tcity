@@ -20,8 +20,8 @@ import android.content.ComponentName;
 import android.content.ServiceConnection;
 import android.os.IBinder;
 
+import com.tcity.android.storage.Binder;
 import com.tcity.android.storage.Storage;
-import com.tcity.android.storage.StorageBinder;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -40,7 +40,7 @@ class StorageConnection implements ServiceConnection {
         StorageDriver driver = myDriverWeakReference.get();
 
         if (driver != null) {
-            Storage storage = ((StorageBinder) binder).getService();
+            Storage storage = ((Binder) binder).getService();
 
             driver.setStorage(storage);
         }

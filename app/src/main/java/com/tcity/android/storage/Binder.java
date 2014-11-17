@@ -21,12 +21,12 @@ import org.jetbrains.annotations.Nullable;
 
 import java.lang.ref.WeakReference;
 
-public class StorageBinder extends android.os.Binder {
+public class Binder extends android.os.Binder {
 
     @NotNull
     private final WeakReference<Storage> myStorageWeakReference;
 
-    StorageBinder(@NotNull Storage storage) {
+    Binder(@NotNull Storage storage) {
         myStorageWeakReference = new WeakReference<>(storage);
     }
 
