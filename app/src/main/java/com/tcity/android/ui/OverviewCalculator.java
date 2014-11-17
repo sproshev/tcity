@@ -19,7 +19,10 @@ package com.tcity.android.ui;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.tcity.android.R;
@@ -39,20 +42,47 @@ class OverviewCalculator {
     @NotNull
     private final Context myContext;
 
+    @NotNull
+    private final LayoutInflater myInflater;
+
     OverviewCalculator(@NotNull Context context) {
         myContext = context.getApplicationContext();
+        myInflater = (LayoutInflater) myContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
 
     public void updateProjects(@NotNull Collection<Project> projects,
                                @NotNull ViewReceiver receiver) {
-        LayoutInflater inflater = (LayoutInflater) myContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        ScrollView overview = (ScrollView) myInflater.inflate(R.layout.overview, null, false);
+        LinearLayout parent = (LinearLayout) overview.findViewById(R.id.overview_parent);
 
-        LinearLayout parent = (LinearLayout) inflater.inflate(R.layout.overview, null, false);
+        parent.addView(createSeparatorView(R.string.projects, parent));
 
-        TextView tv = (TextView) inflater.inflate(R.layout.separator_item, parent, false);
-        tv.setText("ABC");
-        parent.addView(tv);
+        for (Project project : projects) {
+            parent.addView(createProjectView(project, parent));
+        }
 
-        receiver.handleResult(parent);
+        receiver.handleResult(overview);
+    }
+
+    @NotNull
+    private TextView createSeparatorView(int text, @NotNull ViewGroup parent) {
+        TextView result = (TextView) myInflater.inflate(R.layout.separator_item, parent, false);
+
+        result.setText(text);
+
+        return result;
+    }
+
+    @NotNull
+    private View createProjectView(@NotNull Project project, @NotNull ViewGroup parent) {
+        View result = myInflater.inflate(R.layout.concept_item, parent, false);
+
+        TextView name = (TextView) result.findViewById(R.id.concept_item_name);
+        name.setText(project.getName());
+
+        ImageButton watch = (ImageButton) result.findViewById(R.id.concept_item_watch);
+        watch.setImageResource(android.R.drawable.star_off);
+
+        return result;
     }
 }
