@@ -18,10 +18,8 @@ package com.tcity.android.storage;
 
 import android.app.Service;
 import android.content.Intent;
-import android.os.HandlerThread;
 import android.os.IBinder;
 import android.os.Looper;
-import android.os.Process;
 
 import com.tcity.android.Receiver;
 import com.tcity.android.Request;
@@ -64,10 +62,7 @@ public class Storage extends Service {
         myExecutorService = Executors.newSingleThreadExecutor();
         myBinder = new Binder();
 
-        HandlerThread thread = new HandlerThread("StorageReceivers", Process.THREAD_PRIORITY_BACKGROUND);
-        thread.start();
-
-        myReceiversLooper = thread.getLooper();
+        myReceiversLooper = Looper.myLooper();
 
         myProjectsLoaderRequest = null;
         myProjectsCache = null;
