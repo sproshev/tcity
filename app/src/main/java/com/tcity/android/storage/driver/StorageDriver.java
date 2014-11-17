@@ -14,24 +14,22 @@
  * limitations under the License.
  */
 
-package com.tcity.android.storage;
+package com.tcity.android.storage.driver;
 
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
-import android.os.IBinder;
 
 import com.tcity.android.Request;
 import com.tcity.android.concept.Project;
+import com.tcity.android.storage.Storage;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
+import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
-
-// TODO discuss
 
 public class StorageDriver {
 
@@ -42,24 +40,24 @@ public class StorageDriver {
     private final Context myContext;
 
     @NotNull
-    private final ServiceConnection myConnection;
+    private final Connection myConnection;
 
     @NotNull
     private final ConcurrentLinkedQueue<Request<Collection<Project>>> myProjectsRequests;
 
     @NotNull
-    private StorageDriverQueueTask myQueueTask;
+    private Sender mySender;
 
     @Nullable
-    private Storage myStorage;
+    private Storage myStorage = null;
 
     private StorageDriver(@NotNull Context context) {
         myContext = context.getApplicationContext();
-        myConnection = new ServiceConnection();
+        myConnection = new Connection(this);
 
         myProjectsRequests = new ConcurrentLinkedQueue<>();
 
-        myQueueTask = new StorageDriverQueueTask(myProjectsRequests);
+        mySender = new Sender(this);
     }
 
     @NotNull
@@ -82,9 +80,27 @@ public class StorageDriver {
     }
 
     public void close() {
-        myQueueTask.cancel(true);
+        mySender.cancel(true);
         myStorage = null;
         myContext.unbindService(myConnection);
+    }
+
+    @Nullable
+    Storage getStorage() {
+        return myStorage;
+    }
+
+    void setStorage(@Nullable Storage storage) {
+        myStorage = storage;
+
+        if (myStorage != null) {
+            executeSender();
+        }
+    }
+
+    @NotNull
+    Queue<Request<Collection<Project>>> getProjectsRequests() {
+        return myProjectsRequests;
     }
 
     private void bindService() {
@@ -95,32 +111,17 @@ public class StorageDriver {
         );
     }
 
-    private void runQueueTask() {
-        AsyncTask.Status status = myQueueTask.getStatus();
+    private void executeSender() {
+        AsyncTask.Status status = mySender.getStatus();
 
         if (status.equals(AsyncTask.Status.RUNNING)) {
             return;
         }
 
-        if (status.equals(AsyncTask.Status.FINISHED) || myQueueTask.isCancelled()) {
-            myQueueTask = new StorageDriverQueueTask(myProjectsRequests);
+        if (status.equals(AsyncTask.Status.FINISHED) || mySender.isCancelled()) {
+            mySender = new Sender(this);
         }
 
-        myQueueTask.execute(myStorage);
-    }
-
-    private class ServiceConnection implements android.content.ServiceConnection {
-
-        // TODO WeakReference?
-
-        public void onServiceConnected(ComponentName name, IBinder binder) {
-            myStorage = ((Storage.Binder) binder).getService();
-
-            runQueueTask();
-        }
-
-        public void onServiceDisconnected(ComponentName name) {
-            myStorage = null;
-        }
+        mySender.execute();
     }
 }
