@@ -23,6 +23,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.lang.ref.WeakReference;
 import java.util.Collection;
+import java.util.Collections;
 
 class ProjectsReceiver extends Receiver<Collection<Project>> {
 
@@ -46,7 +47,7 @@ class ProjectsReceiver extends Receiver<Collection<Project>> {
             return;
         }
 
-        calculator.updateProjects(projects, receiver);
+        calculator.updateProjects(projects, Collections.<String>emptySet(), receiver); // TODO
     }
 
     @Override

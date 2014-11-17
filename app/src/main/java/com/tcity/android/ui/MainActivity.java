@@ -45,7 +45,7 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        myOverviewCalculator = new OverviewCalculator(this);
+        myOverviewCalculator = new OverviewCalculator(getLayoutInflater());
         myLastProjectsRequest = null;
         myStorageDriver = StorageDriver.getInstance(this);
 

@@ -16,23 +16,19 @@
 
 package com.tcity.android.ui;
 
-import android.content.Context;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
-import android.widget.TextView;
 
 import com.tcity.android.R;
-import com.tcity.android.Settings;
 import com.tcity.android.concept.ConceptPackage;
 import com.tcity.android.concept.Project;
 
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
+import java.util.Set;
 
 class OverviewCalculator {
 
@@ -40,77 +36,63 @@ class OverviewCalculator {
     private final LayoutInflater myInflater;
 
     @NotNull
-    private final Settings mySettings;
+    private final OverviewCache myCache;
 
-    OverviewCalculator(@NotNull Context context) {
-        Context applicationContext = context.getApplicationContext();
-
-        myInflater = (LayoutInflater) applicationContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        mySettings = Settings.getInstance(applicationContext);
+    OverviewCalculator(@NotNull LayoutInflater inflater) {
+        myInflater = inflater;
+        myCache = new OverviewCache(inflater);
     }
 
     public void updateProjects(@NotNull Collection<Project> projects,
+                               @NotNull Set<String> watchedProjectIds,
                                @NotNull ViewReceiver receiver) {
         ScrollView overview = (ScrollView) myInflater.inflate(R.layout.overview, null, false);
         LinearLayout parent = (LinearLayout) overview.findViewById(R.id.overview_parent);
 
-        addWatchedProjects(projects, parent);
-        addProjects(projects, parent);
+        int before = parent.getChildCount();
+        addWatchedProjects(projects, watchedProjectIds, parent);
+        int after = parent.getChildCount();
+
+        if (after - before == 1) {
+            parent.removeViewAt(before);
+        }
+
+        before = parent.getChildCount();
+        addProjects(projects, watchedProjectIds, parent);
+        after = parent.getChildCount();
+
+        if (after - before == 1) {
+            parent.removeViewAt(before);
+        }
 
         receiver.handleResult(overview);
     }
 
     private void addWatchedProjects(@NotNull Collection<Project> projects,
+                                    @NotNull Set<String> watchedProjectIds,
                                     @NotNull ViewGroup parent) {
-        parent.addView(createSeparatorView(R.string.watched_projects, parent));
-        boolean added = false;
+        parent.addView(myCache.getSeparatorView(R.string.watched_projects, parent));
 
         for (Project project : projects) {
-            if (!project.getId().equals(ConceptPackage.getRootProjectId()) && mySettings.isWatchedProject(project.getId())) {
-                parent.addView(createProjectView(project, parent));
-                added = true;
-            }
-        }
-
-        if (!added) {
-            parent.removeViewAt(parent.getChildCount() - 1);
-        }
-    }
-
-    private void addProjects(@NotNull Collection<Project> projects, @NotNull ViewGroup parent) {
-        parent.addView(createSeparatorView(R.string.projects, parent));
-
-        for (Project project : projects) {
-            if (!project.getId().equals(ConceptPackage.getRootProjectId())) {
-                parent.addView(createProjectView(project, parent));
+            if (!isRoot(project) && watchedProjectIds.contains(project.getId())) {
+                parent.addView(myCache.getProjectView(project, watchedProjectIds, parent));
             }
         }
     }
 
-    @NotNull
-    private TextView createSeparatorView(int text, @NotNull ViewGroup parent) {
-        TextView result = (TextView) myInflater.inflate(R.layout.separator_item, parent, false);
-
-        result.setText(text);
-
-        return result;
+    private boolean isRoot(@NotNull Project project) {
+        return project.getId().equals(ConceptPackage.getRootProjectId());
     }
 
-    @NotNull
-    private View createProjectView(@NotNull Project project, @NotNull ViewGroup parent) {
-        View result = myInflater.inflate(R.layout.concept_item, parent, false);
+    private void addProjects(@NotNull Collection<Project> projects,
+                             @NotNull Set<String> watchedProjectIds,
+                             @NotNull ViewGroup parent) {
+        parent.addView(myCache.getSeparatorView(R.string.projects, parent));
 
-        TextView name = (TextView) result.findViewById(R.id.concept_item_name);
-        name.setText(project.getName());
-
-        ImageButton watch = (ImageButton) result.findViewById(R.id.concept_item_watch);
-
-        if (mySettings.isWatchedProject(project.getId())) {
-            watch.setImageResource(android.R.drawable.star_on);
-        } else {
-            watch.setImageResource(android.R.drawable.star_off);
+        for (Project project : projects) {
+            if (!isRoot(project)) {
+                parent.addView(myCache.getProjectView(project, watchedProjectIds, parent));
+            }
         }
-
-        return result;
     }
 }
