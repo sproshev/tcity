@@ -26,28 +26,27 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.tcity.android.R;
+import com.tcity.android.Settings;
+import com.tcity.android.concept.ConceptPackage;
 import com.tcity.android.concept.Project;
 
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 
 class OverviewCalculator {
 
     @NotNull
-    private final Map<String, View> myProjectViews = new HashMap<>();
-
-    @NotNull
-    private final Context myContext;
-
-    @NotNull
     private final LayoutInflater myInflater;
 
+    @NotNull
+    private final Settings mySettings;
+
     OverviewCalculator(@NotNull Context context) {
-        myContext = context.getApplicationContext();
-        myInflater = (LayoutInflater) myContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        Context applicationContext = context.getApplicationContext();
+
+        myInflater = (LayoutInflater) applicationContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        mySettings = Settings.getInstance(applicationContext);
     }
 
     public void updateProjects(@NotNull Collection<Project> projects,
@@ -55,13 +54,37 @@ class OverviewCalculator {
         ScrollView overview = (ScrollView) myInflater.inflate(R.layout.overview, null, false);
         LinearLayout parent = (LinearLayout) overview.findViewById(R.id.overview_parent);
 
+        addWatchedProjects(projects, parent);
+        addProjects(projects, parent);
+
+        receiver.handleResult(overview);
+    }
+
+    private void addWatchedProjects(@NotNull Collection<Project> projects,
+                                    @NotNull ViewGroup parent) {
+        parent.addView(createSeparatorView(R.string.watched_projects, parent));
+        boolean added = false;
+
+        for (Project project : projects) {
+            if (!project.getId().equals(ConceptPackage.getRootProjectId()) && mySettings.isWatchedProject(project.getId())) {
+                parent.addView(createProjectView(project, parent));
+                added = true;
+            }
+        }
+
+        if (!added) {
+            parent.removeViewAt(parent.getChildCount() - 1);
+        }
+    }
+
+    private void addProjects(@NotNull Collection<Project> projects, @NotNull ViewGroup parent) {
         parent.addView(createSeparatorView(R.string.projects, parent));
 
         for (Project project : projects) {
-            parent.addView(createProjectView(project, parent));
+            if (!project.getId().equals(ConceptPackage.getRootProjectId())) {
+                parent.addView(createProjectView(project, parent));
+            }
         }
-
-        receiver.handleResult(overview);
     }
 
     @NotNull
@@ -81,7 +104,12 @@ class OverviewCalculator {
         name.setText(project.getName());
 
         ImageButton watch = (ImageButton) result.findViewById(R.id.concept_item_watch);
-        watch.setImageResource(android.R.drawable.star_off);
+
+        if (mySettings.isWatchedProject(project.getId())) {
+            watch.setImageResource(android.R.drawable.star_on);
+        } else {
+            watch.setImageResource(android.R.drawable.star_off);
+        }
 
         return result;
     }
