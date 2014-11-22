@@ -25,7 +25,7 @@ import android.content.Context
 import com.tcity.android.concept.Project
 import android.widget.ImageButton
 
-class OverviewAdapterViewUtils(context: Context, private val separators: List<String?>) {
+class OverviewAdapterViewUtils(context: Context, private val sectionNames: Map<Int, String>) {
 
     class object {
         private val WATCHED_IMAGE = android.R.drawable.star_on
@@ -43,7 +43,7 @@ class OverviewAdapterViewUtils(context: Context, private val separators: List<St
             result = convertView as TextView
         }
 
-        result.setText(separators[section])
+        result.setText(sectionNames[section])
 
         return result
     }

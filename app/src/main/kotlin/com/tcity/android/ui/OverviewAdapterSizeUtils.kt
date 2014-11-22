@@ -16,56 +16,27 @@
 
 package com.tcity.android.ui
 
-class OverviewAdapterSizeUtils(
-        public var section0DataSize: Int = 0,
-        public var section1DataSize: Int = 0,
-        public var section2DataSize: Int = 0,
-        public var section3DataSize: Int = 0,
-        public var section4DataSize: Int = 0,
-        public var section5DataSize: Int = 0
-) {
-    public val section0Size: Int
-        get() = plusOneIfNotZero(section0DataSize)
+class OverviewAdapterSizeUtils(dataSizes: Array<Int>) {
 
-    public val section1Size: Int
-        get() = plusOneIfNotZero(section1DataSize)
-
-    public val section2Size: Int
-        get() = plusOneIfNotZero(section2DataSize)
-
-    public val section3Size: Int
-        get() = plusOneIfNotZero(section3DataSize)
-
-    public val section4Size: Int
-        get() = plusOneIfNotZero(section4DataSize)
-
-    public val section5Size: Int
-        get() = plusOneIfNotZero(section5DataSize)
+    private val sectionSizes = Array<Int>(dataSizes.size, { plusOneIfNotZero(dataSizes[it]) })
 
     public val size: Int
-        get() = section0Size + section1Size + section2Size + section3Size + section4Size + section5Size
+        get() = sectionSizes.sum()
+
+    public fun setDataSize(index: Int, value: Int) {
+        sectionSizes[index] = plusOneIfNotZero(value)
+    }
 
     public fun getSectionAndIndex(position: Int): Pair<Int, Int> {
         var currentPos = position
 
-        if (currentPos < section0Size) return Pair(0, currentPos - 1)
-        currentPos -= section0Size
+        sectionSizes.indices.forEach {
+            if (currentPos < sectionSizes[it]) return Pair(it, currentPos - 1)
 
-        if (currentPos < section1Size) return Pair(1, currentPos - 1)
-        currentPos -= section1Size
+            currentPos -= sectionSizes[it]
+        }
 
-        if (currentPos < section2Size) return Pair(2, currentPos - 1)
-        currentPos -= section2Size
-
-        if (currentPos < section3Size) return Pair(3, currentPos - 1)
-        currentPos -= section3Size
-
-        if (currentPos < section4Size) return Pair(4, currentPos - 1)
-        currentPos -= section4Size
-
-        if (currentPos < section5Size) return Pair(5, currentPos - 1)
-
-        throw IllegalArgumentException() // TODO
+        throw IllegalArgumentException("Illegal position: [position: $position, size: $size]")
     }
 
     private fun plusOneIfNotZero(size: Int) = if (size == 0) 0 else size + 1
