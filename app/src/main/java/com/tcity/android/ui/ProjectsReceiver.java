@@ -16,6 +16,9 @@
 
 package com.tcity.android.ui;
 
+import android.content.Context;
+import android.widget.Toast;
+
 import com.tcity.android.Receiver;
 import com.tcity.android.concept.Project;
 
@@ -23,41 +26,36 @@ import org.jetbrains.annotations.NotNull;
 
 import java.lang.ref.WeakReference;
 import java.util.Collection;
-import java.util.Collections;
 
 class ProjectsReceiver extends Receiver<Collection<Project>> {
 
     @NotNull
-    private final WeakReference<ViewReceiver> myReceiverWeakReference;
+    private final WeakReference<Context> myContextWeakReference;
 
     @NotNull
-    private final WeakReference<OverviewCalculator> myCalculatorWeakReference;
+    private final WeakReference<OverviewAdapter> myAdapterWeakReference;
 
-    ProjectsReceiver(@NotNull ViewReceiver receiver, @NotNull OverviewCalculator calculator) {
-        myReceiverWeakReference = new WeakReference<>(receiver);
-        myCalculatorWeakReference = new WeakReference<>(calculator);
+    ProjectsReceiver(@NotNull Context context, @NotNull OverviewAdapter overviewAdapter) {
+        myContextWeakReference = new WeakReference<>(context);
+        myAdapterWeakReference = new WeakReference<>(overviewAdapter);
     }
 
     @Override
     public void handleResult(@NotNull Collection<Project> projects) {
-        ViewReceiver receiver = myReceiverWeakReference.get();
-        OverviewCalculator calculator = myCalculatorWeakReference.get();
+        OverviewAdapter adapter = myAdapterWeakReference.get();
 
-        if (receiver == null || calculator == null) {
-            return;
+        if (adapter != null) {
+            adapter.updateProjects(projects);
+            adapter.notifyDataSetChanged();
         }
-
-        calculator.updateProjects(projects, Collections.<String>emptySet(), receiver); // TODO
     }
 
     @Override
     public void handleException(@NotNull Exception e) {
-        ViewReceiver receiver = myReceiverWeakReference.get();
+        Context context = myContextWeakReference.get();
 
-        if (receiver == null) {
-            return;
+        if (context != null) {
+            Toast.makeText(context, e.getMessage(), Toast.LENGTH_LONG).show();
         }
-
-        receiver.receiveException(e);
     }
 }

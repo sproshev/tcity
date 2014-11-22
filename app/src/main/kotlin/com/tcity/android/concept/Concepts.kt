@@ -18,4 +18,10 @@ package com.tcity.android.concept
 
 public val rootProjectId: String = "_Root"
 
-public data class Project(public val id: String, public val name: String, public val parentId: String)
+public abstract class Concept(public val id: String)
+
+public class Project(id: String, public val name: String, public val parentId: String) : Concept(id)
+
+public class BuildConfiguration(id: String, public val name: String) : Concept(id)
+
+public class Build(id: String) : Concept(id)

@@ -16,7 +16,7 @@
 
 package com.tcity.android.ui;
 
-import android.app.Activity;
+import android.app.ListActivity;
 import android.os.Bundle;
 
 import com.tcity.android.Request;
@@ -27,11 +27,12 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
+import java.util.Collections;
 
-public class MainActivity extends Activity {
+public class MainActivity extends ListActivity {
 
     @NotNull
-    private OverviewCalculator myOverviewCalculator;
+    private OverviewAdapter myAdapter;
 
     @Nullable
     private Request<Collection<Project>> myLastProjectsRequest;
@@ -45,9 +46,20 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        myOverviewCalculator = new OverviewCalculator(getLayoutInflater());
+        myAdapter = new OverviewAdapter(
+                this,
+                "Projects",
+                null,
+                null,
+                Collections.<String>emptySet(),
+                Collections.<String>emptySet(),
+                Collections.<String>emptySet()
+        );
+
         myLastProjectsRequest = null;
         myStorageDriver = StorageDriver.getInstance(this);
+
+        getListView().setAdapter(myAdapter);
 
         loadData();
     }
@@ -75,7 +87,7 @@ public class MainActivity extends Activity {
         if (myLastProjectsRequest == null || !myLastProjectsRequest.isValid()) {
             myLastProjectsRequest = new Request<>(
                     new ProjectsReceiver(
-                            new ViewReceiver(this), myOverviewCalculator
+                            this, myAdapter
                     )
             );
 
