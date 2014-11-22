@@ -25,7 +25,11 @@ import android.content.Context
 import com.tcity.android.concept.Project
 import android.widget.ImageButton
 
-class OverviewAdapterViewUtils(context: Context, private val sectionNames: Map<Int, String>) {
+class OverviewAdapterViewUtils(
+        context: Context,
+        private val listener: OverviewListener,
+        private val sectionNames: Map<Int, String>
+) {
 
     class object {
         private val WATCHED_IMAGE = android.R.drawable.star_on
@@ -60,10 +64,17 @@ class OverviewAdapterViewUtils(context: Context, private val sectionNames: Map<I
         val name = result.findViewById(R.id.concept_item_name) as TextView
         name.setText(project.name)
 
+        val projectId = project.id
+
         val watch = result.findViewById(R.id.concept_item_watch) as ImageButton
+
+        watch.setOnClickListener { listener.onChangeProjectWatch(projectId) }
         watch.setImageResource(
                 if (watched) WATCHED_IMAGE else NOT_WATCHED_IMAGE
         )
+
+        val options = result.findViewById(R.id.concept_item_options)
+        options.setOnClickListener { listener.onProjectOptionsClick(projectId) }
 
         return result
     }

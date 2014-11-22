@@ -32,6 +32,7 @@ import com.tcity.android.concept.rootProjectId
 
 class OverviewAdapter(
         context: Context,
+        listener: OverviewListener,
         private val projectsSectionName: String? = null,
         private val buildConfigurationsSectionName: String? = null,
         private val buildsSectionName: String? = null,
@@ -63,7 +64,7 @@ class OverviewAdapter(
     private val builds: MutableList<Build> = ArrayList()
 
     private val sizeUtils = OverviewAdapterSizeUtils(Array<Int>(6, { 0 }))
-    private val viewUtils = OverviewAdapterViewUtils(context, getSectionNames())
+    private val viewUtils = OverviewAdapterViewUtils(context, listener, getSectionNames())
 
     public fun updateProjects(projects: Collection<Project>) {
         if (projectsSectionName != null) {

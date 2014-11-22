@@ -29,7 +29,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Collection;
 import java.util.Collections;
 
-public class MainActivity extends ListActivity {
+public class MainActivity extends ListActivity implements OverviewListener {
 
     @NotNull
     private OverviewAdapter myAdapter;
@@ -47,6 +47,7 @@ public class MainActivity extends ListActivity {
         super.onCreate(savedInstanceState);
 
         myAdapter = new OverviewAdapter(
+                this,
                 this,
                 "Projects",
                 null,
@@ -78,6 +79,36 @@ public class MainActivity extends ListActivity {
     }
 
     /* LIFECYCLE - END */
+
+    @Override
+    public void onChangeProjectWatch(@NotNull String id) {
+        // TODO
+    }
+
+    @Override
+    public void onChangeBuildConfigurationWatch(@NotNull String id) {
+        // TODO
+    }
+
+    @Override
+    public void onChangeBuildWatch(@NotNull String id) {
+        // TODO
+    }
+
+    @Override
+    public void onProjectOptionsClick(@NotNull String id) {
+        // TODO
+    }
+
+    @Override
+    public void onBuildConfigurationOptionsClick(@NotNull String id) {
+        // TODO
+    }
+
+    @Override
+    public void onBuildOptionsClick(@NotNull String id) {
+        // TODO
+    }
 
     private void loadData() {
         loadProjects();
