@@ -29,6 +29,7 @@ import android.content.Context
 import android.widget.Adapter
 import java.util.HashMap
 import com.tcity.android.concept.rootProjectId
+import com.tcity.android.R
 
 class OverviewAdapter(
         context: Context,
@@ -54,6 +55,8 @@ class OverviewAdapter(
         private val BUILD_CONFIGURATIONS_POSITION = 4
         private val BUILDS_POSITION = 5
     }
+
+    private val watchedPrefix = context.getResources().getString(R.string.watched)
 
     private val watchedBuilds: MutableList<Build> = ArrayList()
     private val watchedBuildConfigurations: MutableList<BuildConfiguration> = ArrayList()
@@ -164,20 +167,19 @@ class OverviewAdapter(
 
     private fun getSectionNames(): Map<Int, String> {
         val result = HashMap<Int, String>()
-        val watched = "Watched" // TODO
 
         if (buildsSectionName != null) {
-            result.put(WATCHED_BUILDS_POSITION, "$watched $buildsSectionName")
+            result.put(WATCHED_BUILDS_POSITION, "$watchedPrefix $buildsSectionName")
             result.put(BUILDS_POSITION, buildsSectionName)
         }
 
         if (buildConfigurationsSectionName != null) {
-            result.put(WATCHED_BUILD_CONFIGURATIONS_POSITION, "$watched $buildConfigurationsSectionName")
+            result.put(WATCHED_BUILD_CONFIGURATIONS_POSITION, "$watchedPrefix $buildConfigurationsSectionName")
             result.put(BUILD_CONFIGURATIONS_POSITION, buildConfigurationsSectionName)
         }
 
         if (projectsSectionName != null) {
-            result.put(WATCHED_PROJECTS_POSITION, "$watched $projectsSectionName")
+            result.put(WATCHED_PROJECTS_POSITION, "$watchedPrefix $projectsSectionName")
             result.put(PROJECTS_POSITION, projectsSectionName)
         }
 
