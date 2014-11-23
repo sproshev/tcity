@@ -26,7 +26,6 @@ import com.tcity.android.concept.BuildConfiguration
 import com.tcity.android.concept.Build
 import com.tcity.android.concept.Concept
 import android.content.Context
-import android.widget.Adapter
 import java.util.HashMap
 import com.tcity.android.concept.rootProjectId
 import com.tcity.android.R
@@ -43,17 +42,15 @@ class OverviewAdapter(
 ) : BaseAdapter() {
 
     class object {
-        private val SEPARATOR_ITEM = 0
-        private val PROJECT_ITEM = 1
-        private val BUILD_CONFIGURATION_ITEM = 2
-        private val BUILD_ITEM = 3
+        private val WATCHED_BUILDS_ID = 0
+        private val WATCHED_BUILD_CONFIGURATIONS_ID = 1
+        private val WATCHED_PROJECTS_ID = 2
 
-        private val WATCHED_BUILDS_POSITION = 0
-        private val WATCHED_BUILD_CONFIGURATIONS_POSITION = 1
-        private val WATCHED_PROJECTS_POSITION = 2
-        private val PROJECTS_POSITION = 3
-        private val BUILD_CONFIGURATIONS_POSITION = 4
-        private val BUILDS_POSITION = 5
+        private val PROJECTS_ID = 3
+        private val BUILD_CONFIGURATIONS_ID = 4
+        private val BUILDS_ID = 5
+
+        private val SEPARATOR_ID = 6
     }
 
     private val watchedPrefix = context.getResources().getString(R.string.watched)
@@ -78,8 +75,8 @@ class OverviewAdapter(
                     watchedProjectIds
             )
 
-            sizeUtils.setDataSize(WATCHED_PROJECTS_POSITION, watchedProjects.size)
-            sizeUtils.setDataSize(PROJECTS_POSITION, this.projects.size)
+            sizeUtils.setDataSize(WATCHED_PROJECTS_ID, watchedProjects.size)
+            sizeUtils.setDataSize(PROJECTS_ID, this.projects.size)
         }
     }
 
@@ -92,8 +89,8 @@ class OverviewAdapter(
                     watchedBuildConfigurationIds
             )
 
-            sizeUtils.setDataSize(WATCHED_BUILD_CONFIGURATIONS_POSITION, watchedBuildConfigurations.size)
-            sizeUtils.setDataSize(BUILD_CONFIGURATIONS_POSITION, this.buildConfigurations.size)
+            sizeUtils.setDataSize(WATCHED_BUILD_CONFIGURATIONS_ID, watchedBuildConfigurations.size)
+            sizeUtils.setDataSize(BUILD_CONFIGURATIONS_ID, this.buildConfigurations.size)
         }
     }
 
@@ -106,8 +103,8 @@ class OverviewAdapter(
                     watchedBuildIds
             )
 
-            sizeUtils.setDataSize(WATCHED_BUILDS_POSITION, watchedBuilds.size)
-            sizeUtils.setDataSize(BUILDS_POSITION, this.builds.size)
+            sizeUtils.setDataSize(WATCHED_BUILDS_ID, watchedBuilds.size)
+            sizeUtils.setDataSize(BUILDS_ID, this.builds.size)
         }
     }
 
@@ -115,50 +112,46 @@ class OverviewAdapter(
     override fun getItemId(position: Int) = position.toLong()
     override fun areAllItemsEnabled() = false
     override fun isEnabled(position: Int) = sizeUtils.getSectionAndIndex(position).second != -1
-    override fun getViewTypeCount() = 4
+    override fun getViewTypeCount() = 7
 
     override fun getItem(position: Int): Any? {
         val sectionAndIndex = sizeUtils.getSectionAndIndex(position)
+
+        if (isSeparator(sectionAndIndex)) return null
+
         val index = sectionAndIndex.second
 
-        if (index == -1) return null
-
         return when (sectionAndIndex.first) {
-            WATCHED_BUILDS_POSITION -> watchedBuilds[index]
-            WATCHED_BUILD_CONFIGURATIONS_POSITION -> watchedBuildConfigurations[index]
-            WATCHED_PROJECTS_POSITION -> watchedProjects[index]
-            PROJECTS_POSITION -> projects[index]
-            BUILD_CONFIGURATIONS_POSITION -> buildConfigurations[index]
-            BUILDS_POSITION -> builds[index]
+            WATCHED_BUILDS_ID -> watchedBuilds[index]
+            WATCHED_BUILD_CONFIGURATIONS_ID -> watchedBuildConfigurations[index]
+            WATCHED_PROJECTS_ID -> watchedProjects[index]
+            PROJECTS_ID -> projects[index]
+            BUILD_CONFIGURATIONS_ID -> buildConfigurations[index]
+            BUILDS_ID -> builds[index]
             else -> null
         }
     }
 
     override fun getItemViewType(position: Int): Int {
         val sectionAndIndex = sizeUtils.getSectionAndIndex(position)
-        val index = sectionAndIndex.second
 
-        if (index == -1) return SEPARATOR_ITEM
+        if (isSeparator(sectionAndIndex)) return SEPARATOR_ID
 
-        return when (sectionAndIndex.first) {
-            WATCHED_BUILDS_POSITION, BUILDS_POSITION -> BUILD_ITEM
-            WATCHED_BUILD_CONFIGURATIONS_POSITION, BUILD_CONFIGURATIONS_POSITION -> BUILD_CONFIGURATION_ITEM
-            WATCHED_PROJECTS_POSITION, PROJECTS_POSITION -> PROJECT_ITEM
-            else -> Adapter.IGNORE_ITEM_VIEW_TYPE
-        }
+        return sectionAndIndex.first
     }
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View? {
         val sectionAndIndex = sizeUtils.getSectionAndIndex(position)
+
+        if (isSeparator(sectionAndIndex)) return viewUtils.getSeparatorView(sectionAndIndex.first, convertView, parent)
+
         val index = sectionAndIndex.second
 
-        if (index == -1) return viewUtils.getSeparatorView(sectionAndIndex.first, convertView, parent)
-
         return when (sectionAndIndex.first) {
-            WATCHED_PROJECTS_POSITION -> {
+            WATCHED_PROJECTS_ID -> {
                 viewUtils.getProjectView(watchedProjects[index], true, convertView, parent)
             }
-            PROJECTS_POSITION -> {
+            PROJECTS_ID -> {
                 viewUtils.getProjectView(projects[index], false, convertView, parent)
             }
             else -> null
@@ -169,22 +162,24 @@ class OverviewAdapter(
         val result = HashMap<Int, String>()
 
         if (buildsSectionName != null) {
-            result.put(WATCHED_BUILDS_POSITION, "$watchedPrefix $buildsSectionName")
-            result.put(BUILDS_POSITION, buildsSectionName)
+            result.put(WATCHED_BUILDS_ID, "$watchedPrefix $buildsSectionName")
+            result.put(BUILDS_ID, buildsSectionName)
         }
 
         if (buildConfigurationsSectionName != null) {
-            result.put(WATCHED_BUILD_CONFIGURATIONS_POSITION, "$watchedPrefix $buildConfigurationsSectionName")
-            result.put(BUILD_CONFIGURATIONS_POSITION, buildConfigurationsSectionName)
+            result.put(WATCHED_BUILD_CONFIGURATIONS_ID, "$watchedPrefix $buildConfigurationsSectionName")
+            result.put(BUILD_CONFIGURATIONS_ID, buildConfigurationsSectionName)
         }
 
         if (projectsSectionName != null) {
-            result.put(WATCHED_PROJECTS_POSITION, "$watchedPrefix $projectsSectionName")
-            result.put(PROJECTS_POSITION, projectsSectionName)
+            result.put(WATCHED_PROJECTS_ID, "$watchedPrefix $projectsSectionName")
+            result.put(PROJECTS_ID, projectsSectionName)
         }
 
         return result
     }
+
+    private fun isSeparator(sectionAndIndex: Pair<Int, Int>) = sectionAndIndex.second == -1
 
     private fun <T : Concept> updateConcepts(
             new: Collection<T>,
