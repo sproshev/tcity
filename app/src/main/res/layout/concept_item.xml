@@ -30,7 +30,7 @@
         android:layout_margin="@dimen/concept_item_watch_margin"
 
         android:background="@null"
-        android:contentDescription="@string/concept_item_watch_desc"/>
+        android:contentDescription="@string/watch"/>
 
     <TextView
         android:id="@+id/concept_item_name"
@@ -52,7 +52,7 @@
         android:layout_margin="@dimen/concept_item_options_margin"
 
         android:background="@null"
-        android:contentDescription="@string/concept_item_options_desc"
+        android:contentDescription="@string/options"
         android:src="@android:drawable/arrow_down_float"/>
 
 </LinearLayout>

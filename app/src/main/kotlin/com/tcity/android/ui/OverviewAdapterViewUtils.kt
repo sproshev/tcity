@@ -36,30 +36,26 @@ class OverviewAdapterViewUtils(
         private val NOT_WATCHED_IMAGE = android.R.drawable.star_off
     }
 
+    private val watchDescription = context.getResources().getString(R.string.watch)
+    private val unwatchDescription = context.getResources().getString(R.string.unwatch)
+
     private val inflater = LayoutInflater.from(context)
 
     public fun getSeparatorView(section: Int, convertView: View?, parent: ViewGroup?): View {
-        val result: TextView
-
-        if (convertView == null) {
-            result = inflater.inflate(R.layout.separator_item, parent, false) as TextView
-        } else {
-            result = convertView as TextView
-        }
+        val result = createViewIfNeeded(R.layout.separator_item, convertView, parent) as TextView
 
         result.setText(sectionNames[section])
 
         return result
     }
 
-    public fun getProjectView(project: Project, watched: Boolean, convertView: View?, parent: ViewGroup?): View {
-        val result: View
-
-        if (convertView == null) {
-            result = inflater.inflate(R.layout.concept_item, parent, false)
-        } else {
-            result = convertView
-        }
+    public fun getProjectView(
+            project: Project,
+            watched: Boolean,
+            convertView: View?,
+            parent: ViewGroup?
+    ): View {
+        val result = createViewIfNeeded(R.layout.concept_item, convertView, parent)
 
         val name = result.findViewById(R.id.concept_item_name) as TextView
         name.setText(project.name)
@@ -67,8 +63,10 @@ class OverviewAdapterViewUtils(
         val projectId = project.id
 
         val watch = result.findViewById(R.id.concept_item_watch) as ImageButton
-
         watch.setOnClickListener { listener.onChangeProjectWatch(projectId) }
+        watch.setContentDescription(
+                if (watched) unwatchDescription else watchDescription
+        )
         watch.setImageResource(
                 if (watched) WATCHED_IMAGE else NOT_WATCHED_IMAGE
         )
@@ -78,4 +76,10 @@ class OverviewAdapterViewUtils(
 
         return result
     }
+
+    private fun createViewIfNeeded(
+            resource: Int,
+            convertView: View?,
+            parent: ViewGroup?
+    ) = convertView ?: inflater.inflate(resource, parent, false)
 }

@@ -192,7 +192,8 @@ class OverviewAdapter(
                 viewUtils.getProjectView(watchedProjects[index], true, convertView, parent)
             }
             PROJECTS_ID -> {
-                viewUtils.getProjectView(projects[index], false, convertView, parent)
+                val project = projects[index]
+                viewUtils.getProjectView(project, watchedProjectIds.contains(project.id), convertView, parent)
             }
             else -> null
         }
