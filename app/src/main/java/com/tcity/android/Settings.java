@@ -23,13 +23,13 @@ import android.preference.PreferenceManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.Set;
 
 public class Settings {
 
     @NotNull
-    private static final String WATCHED_PROJECTS_KEY = "watch_projects";
+    private static final String WATCHED_PROJECT_IDS_KEY = "watch_projects";
 
     @Nullable
     private static Settings INSTANCE = null;
@@ -49,31 +49,14 @@ public class Settings {
         return INSTANCE;
     }
 
-    public void watchProject(@NotNull String id) {
-        Set<String> watchedProjects = myPreferences.getStringSet(WATCHED_PROJECTS_KEY, new HashSet<String>());
-
-        if (!watchedProjects.contains(id)) {
-            watchedProjects.add(id);
-
-            SharedPreferences.Editor editor = myPreferences.edit();
-            editor.putStringSet(WATCHED_PROJECTS_KEY, watchedProjects);
-            editor.apply();
-        }
+    public void setWatchedProjectIds(@NotNull Set<String> ids) {
+        SharedPreferences.Editor editor = myPreferences.edit();
+        editor.putStringSet(WATCHED_PROJECT_IDS_KEY, ids);
+        editor.apply();
     }
 
-    public void unwatchProject(@NotNull String id) {
-        Set<String> watchedProjects = myPreferences.getStringSet(WATCHED_PROJECTS_KEY, new HashSet<String>());
-
-        if (watchedProjects.contains(id)) {
-            watchedProjects.remove(id);
-
-            SharedPreferences.Editor editor = myPreferences.edit();
-            editor.putStringSet(WATCHED_PROJECTS_KEY, watchedProjects);
-            editor.apply();
-        }
-    }
-
-    public boolean isWatchedProject(@NotNull String id) {
-        return myPreferences.getStringSet(WATCHED_PROJECTS_KEY, new HashSet<String>()).contains(id);
+    @NotNull
+    public Set<String> getWatchedProjectIds() {
+        return myPreferences.getStringSet(WATCHED_PROJECT_IDS_KEY, Collections.<String>emptySet());
     }
 }

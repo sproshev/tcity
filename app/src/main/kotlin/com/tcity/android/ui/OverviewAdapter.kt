@@ -21,7 +21,6 @@ import android.view.View
 import android.view.ViewGroup
 import com.tcity.android.concept.Project
 import java.util.ArrayList
-import java.util.Collections
 import com.tcity.android.concept.BuildConfiguration
 import com.tcity.android.concept.Build
 import com.tcity.android.concept.Concept
@@ -29,16 +28,14 @@ import android.content.Context
 import java.util.HashMap
 import com.tcity.android.concept.rootProjectId
 import com.tcity.android.R
+import java.util.HashSet
 
 class OverviewAdapter(
         context: Context,
         listener: OverviewListener,
         private val projectsSectionName: String? = null,
         private val buildConfigurationsSectionName: String? = null,
-        private val buildsSectionName: String? = null,
-        private val watchedProjectIds: Set<String> = Collections.emptySet(),
-        private val watchedBuildConfigurationIds: Set<String> = Collections.emptySet(),
-        private val watchedBuildIds: Set<String> = Collections.emptySet()
+        private val buildsSectionName: String? = null
 ) : BaseAdapter() {
 
     class object {
@@ -58,6 +55,10 @@ class OverviewAdapter(
     private val watchedBuilds: MutableList<Build> = ArrayList()
     private val watchedBuildConfigurations: MutableList<BuildConfiguration> = ArrayList()
     private val watchedProjects: MutableList<Project> = ArrayList()
+
+    private val watchedProjectIds: MutableSet<String> = HashSet()
+    private val watchedBuildConfigurationIds: MutableSet<String> = HashSet()
+    private val watchedBuildIds: MutableSet<String> = HashSet()
 
     private val projects: MutableList<Project> = ArrayList()
     private val buildConfigurations: MutableList<BuildConfiguration> = ArrayList()
@@ -80,6 +81,19 @@ class OverviewAdapter(
         }
     }
 
+    public fun updateWatchedProjectIds(watchedIds: Set<String>) {
+        if (projectsSectionName != null) {
+            updateWatchedConceptIds(
+                    watchedIds,
+                    watchedProjects,
+                    projects,
+                    watchedProjectIds
+            )
+
+            sizeUtils.setDataSize(WATCHED_PROJECTS_ID, watchedProjects.size)
+        }
+    }
+
     public fun updateBuildConfigurations(buildConfigurations: Collection<BuildConfiguration>) {
         if (buildConfigurationsSectionName != null) {
             updateConcepts(
@@ -94,6 +108,19 @@ class OverviewAdapter(
         }
     }
 
+    public fun updateWatchedBuildConfigurationIds(watchedIds: Set<String>) {
+        if (buildConfigurationsSectionName != null) {
+            updateWatchedConceptIds(
+                    watchedIds,
+                    watchedBuildConfigurations,
+                    buildConfigurations,
+                    watchedBuildConfigurationIds
+            )
+
+            sizeUtils.setDataSize(WATCHED_BUILD_CONFIGURATIONS_ID, watchedBuildConfigurations.size)
+        }
+    }
+
     public fun updateBuilds(builds: Collection<Build>) {
         if (buildsSectionName != null) {
             updateConcepts(
@@ -105,6 +132,19 @@ class OverviewAdapter(
 
             sizeUtils.setDataSize(WATCHED_BUILDS_ID, watchedBuilds.size)
             sizeUtils.setDataSize(BUILDS_ID, this.builds.size)
+        }
+    }
+
+    public fun updateWatchedBuildIds(watchedIds: Set<String>) {
+        if (buildsSectionName != null) {
+            updateWatchedConceptIds(
+                    watchedIds,
+                    watchedBuilds,
+                    builds,
+                    watchedBuildIds
+            )
+
+            sizeUtils.setDataSize(WATCHED_BUILDS_ID, watchedBuilds.size)
         }
     }
 
@@ -182,24 +222,42 @@ class OverviewAdapter(
     private fun isSeparator(sectionAndIndex: Pair<Int, Int>) = sectionAndIndex.second == -1
 
     private fun <T : Concept> updateConcepts(
-            new: Collection<T>,
-            watched: MutableList<T>,
-            all: MutableList<T>,
+            newAll: Collection<T>,
+            oldWatched: MutableList<T>,
+            oldAll: MutableList<T>,
             watchedIds: Set<String>
     ) {
-        watched.clear()
-        all.clear()
+        oldWatched.clear()
+        oldAll.clear()
 
-        new.forEach {
+        newAll.forEach {
             val conceptId = it.id
 
             if (!conceptId.equals(rootProjectId)) {
                 if (watchedIds.contains(conceptId)) {
-                    watched.add(it)
+                    oldWatched.add(it)
                 }
 
-                all.add(it)
+                oldAll.add(it)
             }
         }
+    }
+
+    private fun <T : Concept> updateWatchedConceptIds(
+            newWatchedIds: Set<String>,
+            oldWatched: MutableList<T>,
+            all: List<T>,
+            oldWatchedIds: MutableSet<String>
+    ) {
+        oldWatched.clear()
+
+        all.forEach {
+            if (newWatchedIds.contains(it.id)) {
+                oldWatched.add(it)
+            }
+        }
+
+        oldWatchedIds.clear()
+        oldWatchedIds.addAll(newWatchedIds)
     }
 }

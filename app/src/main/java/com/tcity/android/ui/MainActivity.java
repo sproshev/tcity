@@ -19,7 +19,9 @@ package com.tcity.android.ui;
 import android.app.ListActivity;
 import android.os.Bundle;
 
+import com.tcity.android.R;
 import com.tcity.android.Request;
+import com.tcity.android.Settings;
 import com.tcity.android.concept.Project;
 import com.tcity.android.storage.driver.StorageDriver;
 
@@ -27,9 +29,13 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
-import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 public class MainActivity extends ListActivity implements OverviewListener {
+
+    @NotNull
+    private Settings mySettings;
 
     @NotNull
     private OverviewAdapter myAdapter;
@@ -40,22 +46,27 @@ public class MainActivity extends ListActivity implements OverviewListener {
     @NotNull
     private StorageDriver myStorageDriver;
 
+    @NotNull
+    private final Set<String> myWatchedProjectIds = new HashSet<>();
+
     /* LIFECYCLE - BEGIN */
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        mySettings = Settings.getInstance(this);
+
+        myWatchedProjectIds.addAll(mySettings.getWatchedProjectIds());
+
         myAdapter = new OverviewAdapter(
                 this,
                 this,
-                "Projects",
-                null,
-                null,
-                Collections.<String>emptySet(),
-                Collections.<String>emptySet(),
-                Collections.<String>emptySet()
+                getResources().getString(R.string.projects),
+                getResources().getString(R.string.build_configurations),
+                getResources().getString(R.string.builds)
         );
+        myAdapter.updateWatchedProjectIds(myWatchedProjectIds);
 
         myLastProjectsRequest = null;
         myStorageDriver = StorageDriver.getInstance(this);
@@ -82,7 +93,15 @@ public class MainActivity extends ListActivity implements OverviewListener {
 
     @Override
     public void onChangeProjectWatch(@NotNull String id) {
-        // TODO
+        if (myWatchedProjectIds.contains(id)) {
+            myWatchedProjectIds.remove(id);
+        } else {
+            myWatchedProjectIds.add(id);
+        }
+
+        myAdapter.updateWatchedProjectIds(myWatchedProjectIds);
+        mySettings.setWatchedProjectIds(myWatchedProjectIds);
+        myAdapter.notifyDataSetChanged();
     }
 
     @Override
