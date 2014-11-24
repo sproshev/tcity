@@ -17,8 +17,12 @@
   -->
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:tools="http://schemas.android.com/tools"
+
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
+
+              android:minHeight="?android:attr/listPreferredItemHeight"
               android:orientation="horizontal">
 
     <ImageButton
@@ -27,10 +31,18 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="center_vertical"
-        android:layout_margin="@dimen/concept_item_watch_margin"
+
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"
+        android:paddingLeft="8dp"
+        android:paddingStart="8dp"
+        android:paddingRight="4dp"
+        android:paddingEnd="4dp"
 
         android:background="@null"
-        android:contentDescription="@string/watch"/>
+
+        tools:ignore="ContentDescription"/>
+    <!-- content description will be set dynamically -->
 
     <TextView
         android:id="@+id/concept_item_name"
@@ -38,10 +50,15 @@
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_gravity="center_vertical"
-        android:layout_margin="@dimen/concept_item_name_margin"
         android:layout_weight="1"
 
-        android:gravity="center_vertical"/>
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"
+        android:paddingLeft="4dp"
+        android:paddingRight="4dp"
+
+        android:gravity="center_vertical"
+        android:textAppearance="?android:attr/textAppearanceListItem"/>
 
     <ImageButton
         android:id="@+id/concept_item_options"
@@ -49,10 +66,16 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="center_vertical"
-        android:layout_margin="@dimen/concept_item_options_margin"
+
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"
+        android:paddingLeft="4dp"
+        android:paddingStart="4dp"
+        android:paddingRight="8dp"
+        android:paddingEnd="8dp"
 
         android:background="@null"
         android:contentDescription="@string/options"
-        android:src="@android:drawable/arrow_down_float"/>
+        android:src="@android:drawable/ic_menu_more"/>
 
 </LinearLayout>

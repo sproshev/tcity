@@ -32,8 +32,8 @@ class OverviewAdapterViewUtils(
 ) {
 
     class object {
-        private val WATCHED_IMAGE = android.R.drawable.star_on
-        private val NOT_WATCHED_IMAGE = android.R.drawable.star_off
+        private val WATCHED_IMAGE = android.R.drawable.star_big_on
+        private val NOT_WATCHED_IMAGE = android.R.drawable.star_big_off
     }
 
     private val watchDescription = context.getResources().getString(R.string.watch)
@@ -64,12 +64,14 @@ class OverviewAdapterViewUtils(
 
         val watch = result.findViewById(R.id.concept_item_watch) as ImageButton
         watch.setOnClickListener { listener.onChangeProjectWatch(projectId) }
-        watch.setContentDescription(
-                if (watched) unwatchDescription else watchDescription
-        )
-        watch.setImageResource(
-                if (watched) WATCHED_IMAGE else NOT_WATCHED_IMAGE
-        )
+
+        if (watched) {
+            watch.setContentDescription(unwatchDescription)
+            watch.setImageResource(WATCHED_IMAGE)
+        } else {
+            watch.setContentDescription(watchDescription)
+            watch.setImageResource(NOT_WATCHED_IMAGE)
+        }
 
         val options = result.findViewById(R.id.concept_item_options)
         options.setOnClickListener { listener.onProjectOptionsClick(projectId) }
