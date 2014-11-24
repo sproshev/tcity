@@ -74,7 +74,7 @@ class OverviewAdapterViewUtils(
         }
 
         val options = result.findViewById(R.id.concept_item_options)
-        options.setOnClickListener { listener.onProjectOptionsClick(projectId) }
+        options.setOnClickListener { listener.onProjectOptionsClick(projectId, options) }
 
         return result
     }

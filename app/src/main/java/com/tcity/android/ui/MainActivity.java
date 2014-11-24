@@ -17,7 +17,11 @@
 package com.tcity.android.ui;
 
 import android.app.ListActivity;
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.PopupMenu;
 
 import com.tcity.android.Application;
 import com.tcity.android.R;
@@ -107,17 +111,23 @@ public class MainActivity extends ListActivity implements OverviewListener {
     }
 
     @Override
-    public void onProjectOptionsClick(@NotNull String id) {
+    public void onProjectOptionsClick(@NotNull String id, @NotNull View anchor) {
+        PopupMenu menu = new PopupMenu(this, anchor);
+
+        menu.inflate(R.menu.menu_concept);
+
+        menu.setOnMenuItemClickListener(new ProjectMenuItemClickListener(id));
+
+        menu.show();
+    }
+
+    @Override
+    public void onBuildConfigurationOptionsClick(@NotNull String id, @NotNull View anchor) {
         // TODO
     }
 
     @Override
-    public void onBuildConfigurationOptionsClick(@NotNull String id) {
-        // TODO
-    }
-
-    @Override
-    public void onBuildOptionsClick(@NotNull String id) {
+    public void onBuildOptionsClick(@NotNull String id, @NotNull View anchor) {
         // TODO
     }
 
@@ -134,6 +144,38 @@ public class MainActivity extends ListActivity implements OverviewListener {
             );
 
             myStorageDriver.addProjectsRequest(myLastProjectsRequest);
+        }
+    }
+
+    private class ProjectMenuItemClickListener implements PopupMenu.OnMenuItemClickListener {
+
+        @NotNull
+        private final String myId;
+
+        private ProjectMenuItemClickListener(@NotNull String id) {
+            myId = id;
+        }
+
+        @Override
+        public boolean onMenuItemClick(MenuItem item) {
+            switch (item.getItemId()) {
+                case R.id.menu_share:
+                    onShareClick();
+
+                    return true;
+                case R.id.menu_details:
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
+        private void onShareClick() {
+            Intent intent = new Intent(Intent.ACTION_SEND);
+            intent.setType("text/plain");
+            intent.putExtra(Intent.EXTRA_TEXT, myId); // TODO url
+
+            startActivity(Intent.createChooser(intent, "Share"));
         }
     }
 }

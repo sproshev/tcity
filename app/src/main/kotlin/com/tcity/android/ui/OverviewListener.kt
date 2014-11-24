@@ -16,6 +16,8 @@
 
 package com.tcity.android.ui
 
+import android.view.View
+
 public trait OverviewListener {
 
     fun onChangeProjectWatch(id: String)
@@ -24,9 +26,9 @@ public trait OverviewListener {
 
     fun onChangeBuildWatch(id: String)
 
-    fun onProjectOptionsClick(id: String)
+    fun onProjectOptionsClick(id: String, anchor: View)
 
-    fun onBuildConfigurationOptionsClick(id: String)
+    fun onBuildConfigurationOptionsClick(id: String, anchor: View)
 
-    fun onBuildOptionsClick(id: String)
+    fun onBuildOptionsClick(id: String, anchor: View)
 }
