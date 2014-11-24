@@ -189,11 +189,11 @@ class OverviewAdapter(
 
         return when (sectionAndIndex.first) {
             WATCHED_PROJECTS_ID -> {
-                viewUtils.getProjectView(watchedProjects[index], true, convertView, parent)
+                viewUtils.getProjectView(convertView, parent, watchedProjects[index], true)
             }
             PROJECTS_ID -> {
                 val project = projects[index]
-                viewUtils.getProjectView(project, watchedProjectIds.contains(project.id), convertView, parent)
+                viewUtils.getProjectView(convertView, parent, project, watchedProjectIds.contains(project.id))
             }
             else -> null
         }

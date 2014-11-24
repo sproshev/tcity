@@ -42,7 +42,7 @@ class OverviewAdapterViewUtils(
     private val inflater = LayoutInflater.from(context)
 
     public fun getSeparatorView(section: Int, convertView: View?, parent: ViewGroup?): View {
-        val result = createViewIfNeeded(R.layout.separator_item, convertView, parent) as TextView
+        val result = inflateViewIfNull(convertView, R.layout.separator_item, parent) as TextView
 
         result.setText(sectionNames[section])
 
@@ -50,38 +50,55 @@ class OverviewAdapterViewUtils(
     }
 
     public fun getProjectView(
-            project: Project,
-            watched: Boolean,
             convertView: View?,
-            parent: ViewGroup?
+            parent: ViewGroup?,
+            project: Project,
+            watched: Boolean
     ): View {
-        val result = createViewIfNeeded(R.layout.concept_item, convertView, parent)
+        val result = inflateViewIfNull(convertView, R.layout.concept_item, parent)
 
-        val name = result.findViewById(R.id.concept_item_name) as TextView
-        name.setText(project.name)
-
-        val projectId = project.id
-
-        val watch = result.findViewById(R.id.concept_item_watch) as ImageButton
-        watch.setOnClickListener { listener.onChangeProjectWatch(projectId) }
-
-        if (watched) {
-            watch.setContentDescription(unwatchDescription)
-            watch.setImageResource(WATCHED_IMAGE)
-        } else {
-            watch.setContentDescription(watchDescription)
-            watch.setImageResource(NOT_WATCHED_IMAGE)
-        }
-
-        val options = result.findViewById(R.id.concept_item_options)
-        options.setOnClickListener { listener.onProjectOptionsClick(projectId, options) }
+        updateViewHolder(getOrInitProjectViewHolder(result), project, watched)
 
         return result
     }
 
-    private fun createViewIfNeeded(
+    private fun inflateViewIfNull(
+            view: View?,
             resource: Int,
-            convertView: View?,
             parent: ViewGroup?
-    ) = convertView ?: inflater.inflate(resource, parent, false)
+    ) = view ?: inflater.inflate(resource, parent, false)
+
+    private fun updateViewHolder(holder: ProjectViewHolder, project: Project, watched: Boolean) {
+        holder.name.setText(project.name)
+
+        val projectId = project.id
+
+        holder.watch.setOnClickListener { listener.onChangeProjectWatch(projectId) }
+
+        if (watched) {
+            holder.watch.setContentDescription(unwatchDescription)
+            holder.watch.setImageResource(WATCHED_IMAGE)
+        } else {
+            holder.watch.setContentDescription(watchDescription)
+            holder.watch.setImageResource(NOT_WATCHED_IMAGE)
+        }
+
+        holder.options.setOnClickListener { listener.onProjectOptionsClick(projectId, holder.options) }
+    }
+
+    private fun getOrInitProjectViewHolder(projectView: View): ProjectViewHolder {
+        if (projectView.getTag() == null) {
+            projectView.setTag(
+                    ProjectViewHolder(
+                            projectView.findViewById(R.id.concept_item_name) as TextView,
+                            projectView.findViewById(R.id.concept_item_watch) as ImageButton,
+                            projectView.findViewById(R.id.concept_item_options)
+                    )
+            )
+        }
+
+        return projectView.getTag() as ProjectViewHolder
+    }
+
+    private class ProjectViewHolder(public val name: TextView, public val watch: ImageButton, public val options: View)
 }
