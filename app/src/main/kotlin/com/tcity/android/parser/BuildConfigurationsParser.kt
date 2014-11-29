@@ -16,21 +16,19 @@
 
 package com.tcity.android.parser
 
-import com.tcity.android.concept.Project
-import java.io.IOException
+import com.tcity.android.concept.BuildConfiguration
 import java.io.InputStream
-import android.util.JsonReader
 import java.io.InputStreamReader
+import android.util.JsonReader
+import java.io.IOException
 import java.util.ArrayList
-import com.tcity.android.concept.ROOT_PROJECT_ID
 
-public class ProjectsParser : ConceptsParser<Project> {
+public class BuildConfigurationsParser : ConceptsParser<BuildConfiguration> {
 
-    throws(javaClass<IOException>())
-    override fun parse(stream: InputStream): List<Project> {
+    override fun parse(stream: InputStream): List<BuildConfiguration> {
         val reader = JsonReader(InputStreamReader(stream))
 
-        var result: List<Project>? = null
+        var result: List<BuildConfiguration>? = null
         var capacity = 10
 
         try {
@@ -39,7 +37,7 @@ public class ProjectsParser : ConceptsParser<Project> {
             while (reader.hasNext()) {
                 when (reader.nextName()) {
                     "count" -> capacity = reader.nextInt()
-                    "project" -> result = readProjects(reader, capacity)
+                    "buildType" -> result = readBuildConfigurations(reader, capacity)
                     else -> reader.skipValue()
                 }
             }
@@ -52,18 +50,18 @@ public class ProjectsParser : ConceptsParser<Project> {
         if (result != null) {
             return result!!
         } else {
-            throw IOException("Invalid projects json: \"project\" is absent")
+            throw IOException("Invalid build configurations json: \"buildType\" is absent.")
         }
     }
 
     throws(javaClass<IOException>())
-    private fun readProjects(reader: JsonReader, capacity: Int): List<Project> {
-        val result = ArrayList<Project>(Math.max(capacity, 0))
+    private fun readBuildConfigurations(reader: JsonReader, capacity: Int): List<BuildConfiguration> {
+        val result = ArrayList<BuildConfiguration>(Math.max(capacity, 0))
 
         reader.beginArray()
 
         while (reader.hasNext()) {
-            result.add(readProject(reader))
+            result.add(readBuildConfiguration(reader))
         }
 
         reader.endArray()
@@ -72,7 +70,7 @@ public class ProjectsParser : ConceptsParser<Project> {
     }
 
     throws(javaClass<IOException>())
-    private fun readProject(reader: JsonReader): Project {
+    private fun readBuildConfiguration(reader: JsonReader): BuildConfiguration {
         reader.beginObject()
 
         var id: String? = null
@@ -83,29 +81,25 @@ public class ProjectsParser : ConceptsParser<Project> {
             when (reader.nextName()) {
                 "id" -> id = reader.nextString()
                 "name" -> name = reader.nextString()
-                "parentProjectId" -> parentId = reader.nextString()
+                "projectId" -> parentId = reader.nextString()
                 else -> reader.skipValue()
             }
         }
 
         reader.endObject()
 
-        if (id == ROOT_PROJECT_ID) {
-            parentId = ROOT_PROJECT_ID
-        }
-
         if (id == null) {
-            throw IOException("Invalid project json: \"id\" is absent")
+            throw IOException("Invalid build configuration json: \"id\" is absent")
         }
 
         if (name == null) {
-            throw IOException("Invalid project json: \"name\" is absent")
+            throw IOException("Invalid build configuration json: \"name\" is absent")
         }
 
         if (parentId == null) {
-            throw IOException("Invalid project json: \"parentProjectId\" is absent")
+            throw IOException("Invalid build configuration json: \"projectId\" is absent")
         }
 
-        return Project(id!!, name!!, parentId!!)
+        return BuildConfiguration(id!!, name!!, parentId!!)
     }
 }
