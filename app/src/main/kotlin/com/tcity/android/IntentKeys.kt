@@ -14,14 +14,6 @@
  * limitations under the License.
  */
 
-package com.tcity.android.rest
+package com.tcity.android
 
-private val REST_PATH = "/httpAuth/app/rest/"
-
-public fun getProjectsUrl(): String = "${REST_PATH}projects"
-
-public fun getBuildConfigurationsUrl(projectId: String): String = "${REST_PATH}projects/id:$projectId/buildTypes"
-
-public fun getProjectStatusUrl(id: String): String = "${REST_PATH}projects/id:$id/status"
-
-public fun getBuildConfigurationStatusUrl(id: String): String = "${REST_PATH}buildTypes/id:$id/status"
+public val INTENT_PROJECT_ID_KEY: String = "project_id"

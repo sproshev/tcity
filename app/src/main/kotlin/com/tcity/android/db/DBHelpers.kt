@@ -65,7 +65,7 @@ public abstract class DBHelper(
 
 public class BuildDBHelper(context: Context) : DBHelper(BUILD_SCHEMA, context, "builds", 1)
 
-public class BuildDBSchemaHelper(context: Context) : DBHelper(BUILD_CONFIGURATION_SCHEMA, context, "buildconfigurations", 1)
+public class BuildConfigurationDBHelper(context: Context) : DBHelper(BUILD_CONFIGURATION_SCHEMA, context, "buildconfigurations", 1)
 
 public class ProjectDBHelper(context: Context) : DBHelper(PROJECT_SCHEMA, context, "projects", 1)
 
