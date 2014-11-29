@@ -27,10 +27,6 @@ public val PARENT_ID_COLUMN: String = "parent_id"
 public val STATUS_COLUMN: String = "status"
 public val WATCHED_COLUMN: String = "watched"
 
-public val BUILD_SCHEMA: BuildSchema = BuildSchema()
-public val BUILD_CONFIGURATION_SCHEMA: BuildConfigurationSchema = BuildConfigurationSchema()
-public val PROJECT_SCHEMA: ProjectSchema = ProjectSchema()
-
 public trait Schema {
     public val tableName: String
     public val createScript: String

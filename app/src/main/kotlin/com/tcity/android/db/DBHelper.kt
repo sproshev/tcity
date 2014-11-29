@@ -20,20 +20,14 @@ import android.database.sqlite.SQLiteOpenHelper
 import android.database.sqlite.SQLiteDatabase
 import android.content.Context
 import android.util.Log
-import com.tcity.android.concept.Concept
-import com.tcity.android.concept.Build
-import com.tcity.android.concept.BuildConfiguration
-import com.tcity.android.concept.Project
 
-public abstract class DBHelper(
-        private val schema: Schema,
-        context: Context,
-        name: String,
-        version: Int
-) : SQLiteOpenHelper(context, name, null, version) {
+public class DBHelper(
+        context: Context
+) : SQLiteOpenHelper(context, "tcity", null, 1) {
 
     class object {
         private val LOG_TAG = javaClass<DBHelper>().getSimpleName()
+        private val SCHEMAS = listOf(BuildSchema(), BuildConfigurationSchema(), ProjectSchema())
     }
 
     override fun onCreate(db: SQLiteDatabase) {
@@ -45,9 +39,11 @@ public abstract class DBHelper(
     }
 
     private fun create(db: SQLiteDatabase) {
-        db.execSQL(schema.createScript)
+        SCHEMAS.forEach {
+            db.execSQL(it.createScript)
 
-        Log.d(LOG_TAG, "DB was created [schema: ${schema.tableName}]")
+            Log.d(LOG_TAG, "Table was created [name: ${it.tableName}]")
+        }
     }
 
     private fun upgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
@@ -56,35 +52,18 @@ public abstract class DBHelper(
 
         Log.d(
                 LOG_TAG,
-                "DB was upgraded: [schema: ${schema.tableName}, oldVersion: $oldVersion, newVersion: $newVersion]"
+                "DB was upgraded: [oldVersion: $oldVersion, newVersion: $newVersion]"
         )
     }
 
     private fun drop(db: SQLiteDatabase) {
-        db.execSQL(schema.dropScript)
+        SCHEMAS.forEach {
+            db.execSQL(it.dropScript)
 
-        Log.d(LOG_TAG, "DB was dropped [schema: ${schema.tableName}]")
+            Log.d(LOG_TAG, "Table was dropped [name: ${it.tableName}]")
+        }
     }
 }
-
-public abstract class ConceptDBHelper<T : Concept>(
-        schema: ConceptSchema<T>,
-        context: Context,
-        name: String,
-        version: Int
-) : DBHelper(schema, context, name, version)
-
-public class BuildDBHelper(
-        context: Context
-) : ConceptDBHelper<Build>(BUILD_SCHEMA, context, "builds", 1)
-
-public class BuildConfigurationDBHelper(
-        context: Context
-) : ConceptDBHelper<BuildConfiguration>(BUILD_CONFIGURATION_SCHEMA, context, "buildconfigurations", 1)
-
-public class ProjectDBHelper(
-        context: Context
-) : ConceptDBHelper<Project>(PROJECT_SCHEMA, context, "projects", 1)
 
 
 
