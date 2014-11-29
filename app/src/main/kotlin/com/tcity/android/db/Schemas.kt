@@ -16,35 +16,15 @@
 
 package com.tcity.android.db
 
-import android.database.sqlite.SQLiteDatabase
-import android.util.Log
-
 public val TC_ID_COLUMN: String = "tc_id"
 public val NAME_COLUMN: String = "name"
 public val PARENT_ID_COLUMN: String = "parent_id"
 public val STATUS_COLUMN: String = "status"
 public val WATCHED_COLUMN: String = "watched"
 
-private val LOG_TAG = "SchemaUtils"
-
-public fun create(schema: Schema, db: SQLiteDatabase) {
-    db.execSQL(schema.createScript)
-    Log.d(LOG_TAG, "DB was created [schema: ${schema.tableName}]")
-}
-
-public fun upgrade(schema: Schema, db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
-    drop(schema, db)
-    create(schema, db)
-    Log.d(
-            LOG_TAG,
-            "DB was upgraded: [schema: ${schema.tableName}, oldVersion: $oldVersion, newVersion: $newVersion]"
-    )
-}
-
-private fun drop(schema: Schema, db: SQLiteDatabase) {
-    db.execSQL(schema.dropScript)
-    Log.d(LOG_TAG, "DB was dropped [schema: ${schema.tableName}]")
-}
+public val BUILD_SCHEMA: BuildSchema = BuildSchema()
+public val BUILD_CONFIGURATION_SCHEMA: BuildConfigurationSchema = BuildConfigurationSchema()
+public val PROJECT_SCHEMA: ProjectSchema = ProjectSchema()
 
 public trait Schema {
     public val tableName: String

@@ -19,6 +19,7 @@ package com.tcity.android.db
 import android.database.sqlite.SQLiteOpenHelper
 import android.database.sqlite.SQLiteDatabase
 import android.content.Context
+import android.util.Log
 
 public abstract class DBHelper(
         private val schema: Schema,
@@ -27,20 +28,46 @@ public abstract class DBHelper(
         version: Int
 ) : SQLiteOpenHelper(context, name, null, version) {
 
+    class object {
+        private val LOG_TAG = javaClass<DBHelper>().getSimpleName()
+    }
+
     override fun onCreate(db: SQLiteDatabase) {
-        create(schema, db)
+        create(db)
     }
 
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
-        upgrade(schema, db, oldVersion, newVersion)
+        upgrade(db, oldVersion, newVersion)
+    }
+
+    private fun create(db: SQLiteDatabase) {
+        db.execSQL(schema.createScript)
+
+        Log.d(LOG_TAG, "DB was created [schema: ${schema.tableName}]")
+    }
+
+    private fun upgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
+        drop(db)
+        create(db)
+
+        Log.d(
+                LOG_TAG,
+                "DB was upgraded: [schema: ${schema.tableName}, oldVersion: $oldVersion, newVersion: $newVersion]"
+        )
+    }
+
+    private fun drop(db: SQLiteDatabase) {
+        db.execSQL(schema.dropScript)
+
+        Log.d(LOG_TAG, "DB was dropped [schema: ${schema.tableName}]")
     }
 }
 
-public class BuildDBHelper(context: Context) : DBHelper(BuildSchema(), context, "builds", 1)
+public class BuildDBHelper(context: Context) : DBHelper(BUILD_SCHEMA, context, "builds", 1)
 
-public class BuildDBSchemaHelper(context: Context) : DBHelper(BuildSchema(), context, "buildconfigurations", 1)
+public class BuildDBSchemaHelper(context: Context) : DBHelper(BUILD_CONFIGURATION_SCHEMA, context, "buildconfigurations", 1)
 
-public class ProjectDBHelper(context: Context) : DBHelper(BuildSchema(), context, "projects", 1)
+public class ProjectDBHelper(context: Context) : DBHelper(PROJECT_SCHEMA, context, "projects", 1)
 
 
 
