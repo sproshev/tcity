@@ -17,7 +17,6 @@
 package com.tcity.android.service
 
 import com.tcity.android.concept.Concept
-import android.content.Context
 import com.tcity.android.Application
 import java.io.IOException
 import com.tcity.android.parser.ConceptsParser
@@ -30,40 +29,42 @@ import android.util.Log
 import com.tcity.android.concept.Status
 import org.apache.http.util.EntityUtils
 import com.tcity.android.concept.Project
-import com.tcity.android.db.ProjectDBHelper
-import android.content.Intent
 import com.tcity.android.rest.getProjectsUrl
 import com.tcity.android.parser.ProjectsParser
-import com.tcity.android.db.PROJECT_SCHEMA
 import com.tcity.android.concept.BuildConfiguration
-import com.tcity.android.db.BuildConfigurationDBHelper
-import com.tcity.android.INTENT_PROJECT_ID_KEY
 import com.tcity.android.rest.getBuildConfigurationsUrl
 import com.tcity.android.rest.getProjectStatusUrl
-import com.tcity.android.db.BUILD_CONFIGURATION_SCHEMA
 import com.tcity.android.rest.getBuildConfigurationStatusUrl
 import org.apache.http.StatusLine
-import com.tcity.android.db.ConceptDBHelper
+import com.tcity.android.parser.BuildConfigurationsParser
+import com.tcity.android.db.DBHelper
+import com.tcity.android.db.ProjectSchema
+import com.tcity.android.db.BuildConfigurationSchema
+import android.os.AsyncTask
 
 
-public abstract class ConceptsProcessor<T : Concept>(protected val preferences: Application.Preferences) {
+public abstract class ConceptsTask<T : Concept>(
+        protected val dbHelper: DBHelper,
+        protected val schema: ConceptSchema<T>,
+        protected val parser: ConceptsParser<T>,
+        protected val preferences: Application.Preferences
+) : AsyncTask<Void, Void, Void>() {
 
     class object {
-        private val LOG_TAG = javaClass<ConceptsProcessor<*>>().getSimpleName()
+        private val LOG_TAG = javaClass<ConceptsTask<*>>().getSimpleName()
     }
-
-    protected abstract val dbHelper: ConceptDBHelper<T>
-    protected abstract val parser: ConceptsParser<T>
-    protected abstract val schema: ConceptSchema<T>
 
     protected abstract fun getWatchedConceptIds(): Set<String>
     protected abstract fun getStatusUrl(conceptId: String): String
 
-    throws(javaClass<Exception>())
-    protected abstract fun run(intent: Intent)
-
     protected fun loadAndSaveConcepts(conceptsPath: String) {
-        saveConcepts(loadConcepts(conceptsPath))
+        val concepts = loadConcepts(conceptsPath)
+
+        Log.d(LOG_TAG, "Concepts were loaded: [table: ${schema.tableName}]")
+
+        saveConcepts(concepts)
+
+        Log.d(LOG_TAG, "Concepts were saved: [table: ${schema.tableName}]")
     }
 
     protected fun loadAndSaveStatuses() {
@@ -80,7 +81,7 @@ public abstract class ConceptsProcessor<T : Concept>(protected val preferences: 
         val statusLine = response.getStatusLine()
 
         if (statusLine.getStatusCode() != HttpStatus.SC_OK) {
-            throw IOException(getStatusLineExceptionMessage(statusLine))
+            throw IOException(statusLine.exceptionMessage)
         } else {
             return parser.parse(response.getEntity().getContent())
         }
@@ -107,7 +108,13 @@ public abstract class ConceptsProcessor<T : Concept>(protected val preferences: 
 
     private fun loadAndSaveStatus(conceptId: String) {
         try {
-            saveStatus(conceptId, loadStatus(conceptId))
+            val status = loadStatus(conceptId)
+
+            Log.d(LOG_TAG, "Status was loaded: [table: ${schema.tableName}, id: $conceptId, status: $status]")
+
+            saveStatus(conceptId, status)
+
+            Log.d(LOG_TAG, "Status was saved: [table: ${schema.tableName}, id: $conceptId, status: $status]")
         } catch (e: Exception) {
             Log.w(LOG_TAG, e.getMessage())
         }
@@ -123,7 +130,7 @@ public abstract class ConceptsProcessor<T : Concept>(protected val preferences: 
         val statusLine = response.getStatusLine()
 
         if (statusLine.getStatusCode() != HttpStatus.SC_OK) {
-            throw IOException(getStatusLineExceptionMessage(statusLine))
+            throw IOException(statusLine.exceptionMessage)
         } else {
             return Status.valueOf(
                     EntityUtils.toString(response.getEntity())
@@ -141,51 +148,57 @@ public abstract class ConceptsProcessor<T : Concept>(protected val preferences: 
         )
     }
 
-    private fun getStatusLineExceptionMessage(statusLine: StatusLine): String {
-        return "${statusLine.getStatusCode()} ${statusLine.getReasonPhrase()}"
-    }
+    private val StatusLine.exceptionMessage: String
+        get() = "${getStatusCode()} ${getReasonPhrase()}"
 }
 
-public class ProjectsProcessor(context: Context, preferences: Application.Preferences) : ConceptsProcessor<Project>(preferences) {
-
-    override val dbHelper = ProjectDBHelper(context)
-    override val parser = ProjectsParser()
-    override val schema = PROJECT_SCHEMA
+public class ProjectsTask(
+        dbHelper: DBHelper,
+        schema: ProjectSchema,
+        parser: ProjectsParser,
+        preferences: Application.Preferences
+) : ConceptsTask<Project>(dbHelper, schema, parser, preferences) {
 
     override fun getWatchedConceptIds() = preferences.getWatchedProjectIds()
 
     override fun getStatusUrl(conceptId: String) = getProjectStatusUrl(conceptId)
 
-    throws(javaClass<Exception>())
-    override fun run(intent: Intent) {
-        loadAndSaveConcepts(getProjectsUrl())
-        loadAndSaveStatuses()
+    override fun doInBackground(vararg params: Void?): Void? {
+        try {
+            loadAndSaveConcepts(getProjectsUrl())
+            loadAndSaveStatuses()
+
+            // TODO send
+        } catch (e: Exception) {
+            // TODO send
+        }
+
+        return null
     }
 }
 
-public class BuildConfigurationsProcessor(context: Context, preferences: Application.Preferences) : ConceptsProcessor<BuildConfiguration>(preferences) {
-
-    class object {
-        private val LOG_TAG = javaClass<BuildConfigurationsProcessor>().getSimpleName()
-    }
-
-    override val dbHelper = BuildConfigurationDBHelper(context)
-    override val parser = BuildConfigurationsParser()
-    override val schema = BUILD_CONFIGURATION_SCHEMA
+public class BuildConfigurationsTask(
+        private val projectId: String,
+        dbHelper: DBHelper,
+        schema: BuildConfigurationSchema,
+        parser: BuildConfigurationsParser,
+        preferences: Application.Preferences
+) : ConceptsTask<BuildConfiguration>(dbHelper, schema, parser, preferences) {
 
     override fun getWatchedConceptIds() = preferences.getWatchedBuildConfigurationsIds()
 
     override fun getStatusUrl(conceptId: String) = getBuildConfigurationStatusUrl(conceptId)
 
-    throws(javaClass<Exception>())
-    override fun run(intent: Intent) {
-        val projectId = intent.getStringExtra(INTENT_PROJECT_ID_KEY)
-
-        if (projectId != null) {
+    override fun doInBackground(vararg params: Void?): Void? {
+        try {
             loadAndSaveConcepts(getBuildConfigurationsUrl(projectId))
             loadAndSaveStatuses()
-        } else {
-            Log.w(LOG_TAG, "Invalid intent: \"projectId\" is absent.")
+
+            // TODO send
+        } catch (e: Exception) {
+            // TODO send
         }
+
+        return null
     }
 }
