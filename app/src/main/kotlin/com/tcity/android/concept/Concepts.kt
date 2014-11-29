@@ -18,13 +18,10 @@ package com.tcity.android.concept
 
 public val ROOT_PROJECT_ID: String = "_Root"
 
-private val DEFAULT_STATUS: Status = Status.UNKNOWN
-private val DEFAULT_WATCHED: Boolean = false
-
 public enum class Status {
     FAILURE
     SUCCESS
-    UNKNOWN
+    DEFAULT
 }
 
 public abstract class Concept(
@@ -39,22 +36,22 @@ public class Project(
         id: String,
         name: String,
         parentId: String,
-        status: Status = DEFAULT_STATUS,
-        watched: Boolean = DEFAULT_WATCHED
+        status: Status = Status.DEFAULT,
+        watched: Boolean = false
 ) : Concept(id, name, parentId, status, watched)
 
 public class BuildConfiguration(
         id: String,
         name: String,
         parentId: String,
-        status: Status = DEFAULT_STATUS,
-        watched: Boolean = DEFAULT_WATCHED
+        status: Status = Status.DEFAULT,
+        watched: Boolean = false
 ) : Concept(id, name, parentId, status, watched)
 
 public class Build(
         id: String,
         name: String,
         parentId: String,
-        status: Status = DEFAULT_STATUS,
-        watched: Boolean = DEFAULT_WATCHED
+        status: Status = Status.DEFAULT,
+        watched: Boolean = false
 ) : Concept(id, name, parentId, status, watched)

@@ -23,16 +23,11 @@
     <uses-permission android:name="android.permission.INTERNET"/>
 
     <application
-        android:name=".Application"
+        android:name=".app.Application"
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/tcity"
         android:theme="@style/android:Theme.Holo.Light.DarkActionBar">
-
-        <service
-            android:name=".storage.Storage"
-            android:enabled="true"
-            android:exported="false"/>
 
         <activity android:name=".ui.MainActivity">
             <intent-filter>

@@ -21,9 +21,7 @@ import android.database.sqlite.SQLiteDatabase
 import android.content.Context
 import android.util.Log
 
-public class DBHelper(
-        context: Context
-) : SQLiteOpenHelper(context, "tcity", null, 1) {
+public class DBHelper(context: Context) : SQLiteOpenHelper(context, "tcity", null, 1) {
 
     class object {
         private val LOG_TAG = javaClass<DBHelper>().getSimpleName()

@@ -17,10 +17,8 @@
 package com.tcity.android.service
 
 import com.tcity.android.concept.Concept
-import com.tcity.android.Application
 import java.io.IOException
 import com.tcity.android.parser.ConceptsParser
-import com.tcity.android.rest.get
 import org.apache.http.HttpStatus
 import android.database.sqlite.SQLiteException
 import com.tcity.android.db.ConceptSchema
@@ -41,13 +39,15 @@ import com.tcity.android.db.DBHelper
 import com.tcity.android.db.ProjectSchema
 import com.tcity.android.db.BuildConfigurationSchema
 import android.os.AsyncTask
+import com.tcity.android.app.Preferences
+import com.tcity.android.rest
 
 
 public abstract class ConceptsTask<T : Concept>(
         protected val dbHelper: DBHelper,
         protected val schema: ConceptSchema<T>,
         protected val parser: ConceptsParser<T>,
-        protected val preferences: Application.Preferences
+        protected val preferences: Preferences
 ) : AsyncTask<Void, Void, Void>() {
 
     class object {
@@ -73,7 +73,7 @@ public abstract class ConceptsTask<T : Concept>(
 
     throws(javaClass<IOException>())
     private fun loadConcepts(conceptsPath: String): Collection<T> {
-        val response = get(
+        val response = rest.get(
                 preferences.getUrl() + conceptsPath,
                 preferences.getAuth()
         )
@@ -122,7 +122,7 @@ public abstract class ConceptsTask<T : Concept>(
 
     throws(javaClass<IOException>())
     private fun loadStatus(conceptId: String): Status {
-        val response = get(
+        val response = rest.get(
                 preferences.getUrl() + getStatusUrl(conceptId),
                 preferences.getAuth()
         )
@@ -156,7 +156,7 @@ public class ProjectsTask(
         dbHelper: DBHelper,
         schema: ProjectSchema,
         parser: ProjectsParser,
-        preferences: Application.Preferences
+        preferences: Preferences
 ) : ConceptsTask<Project>(dbHelper, schema, parser, preferences) {
 
     override fun getWatchedConceptIds() = preferences.getWatchedProjectIds()
@@ -182,10 +182,10 @@ public class BuildConfigurationsTask(
         dbHelper: DBHelper,
         schema: BuildConfigurationSchema,
         parser: BuildConfigurationsParser,
-        preferences: Application.Preferences
+        preferences: Preferences
 ) : ConceptsTask<BuildConfiguration>(dbHelper, schema, parser, preferences) {
 
-    override fun getWatchedConceptIds() = preferences.getWatchedBuildConfigurationsIds()
+    override fun getWatchedConceptIds() = preferences.getWatchedBuildConfigurationIds()
 
     override fun getStatusUrl(conceptId: String) = getBuildConfigurationStatusUrl(conceptId)
 
