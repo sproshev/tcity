@@ -24,85 +24,87 @@ import java.io.InputStreamReader
 import java.util.ArrayList
 import com.tcity.android.concept.ROOT_PROJECT_ID
 
-[throws(javaClass<IOException>())]
-public fun parseProjects(stream: InputStream): List<Project> {
-    val reader = JsonReader(InputStreamReader(stream))
+public class ProjectsParser : ConceptsParser<Project> {
 
-    var result: List<Project>? = null
-    var capacity = 10
+    override fun parse(stream: InputStream): List<Project> {
+        val reader = JsonReader(InputStreamReader(stream))
 
-    try {
+        var result: List<Project>? = null
+        var capacity = 10
+
+        try {
+            reader.beginObject()
+
+            while (reader.hasNext()) {
+                when (reader.nextName()) {
+                    "count" -> capacity = reader.nextInt()
+                    "project" -> result = readProjects(reader, capacity)
+                    else -> reader.skipValue()
+                }
+            }
+
+            reader.endObject()
+        } finally {
+            reader.close()
+        }
+
+        if (result != null) {
+            return result!!
+        } else {
+            throw IOException("Invalid projects json: \"project\" is absent.")
+        }
+    }
+
+    throws(javaClass<IOException>())
+    private fun readProjects(reader: JsonReader, capacity: Int): List<Project> {
+        val result = ArrayList<Project>(Math.max(capacity, 0))
+
+        reader.beginArray()
+
+        while (reader.hasNext()) {
+            result.add(readProject(reader))
+        }
+
+        reader.endArray()
+
+        return result
+    }
+
+    throws(javaClass<IOException>())
+    private fun readProject(reader: JsonReader): Project {
         reader.beginObject()
+
+        var id: String? = null
+        var name: String? = null
+        var parentId: String? = null
 
         while (reader.hasNext()) {
             when (reader.nextName()) {
-                "count" -> capacity = reader.nextInt()
-                "project" -> result = readProjects(reader, capacity)
+                "id" -> id = reader.nextString()
+                "name" -> name = reader.nextString()
+                "parentProjectId" -> parentId = reader.nextString()
                 else -> reader.skipValue()
             }
         }
 
         reader.endObject()
-    } finally {
-        reader.close()
-    }
 
-    if (result != null) {
-        return result!!
-    } else {
-        throw IOException("Invalid projects json: \"project\" is absent.")
-    }
-}
-
-[throws(javaClass<IOException>())]
-private fun readProjects(reader: JsonReader, capacity: Int): List<Project> {
-    val result = ArrayList<Project>(Math.max(capacity, 0))
-
-    reader.beginArray()
-
-    while (reader.hasNext()) {
-        result.add(readProject(reader))
-    }
-
-    reader.endArray()
-
-    return result
-}
-
-[throws(javaClass<IOException>())]
-private fun readProject(reader: JsonReader): Project {
-    reader.beginObject()
-
-    var id: String? = null
-    var name: String? = null
-    var parentId: String? = null
-
-    while (reader.hasNext()) {
-        when (reader.nextName()) {
-            "id" -> id = reader.nextString()
-            "name" -> name = reader.nextString()
-            "parentProjectId" -> parentId = reader.nextString()
-            else -> reader.skipValue()
+        if (id == ROOT_PROJECT_ID) {
+            parentId = ROOT_PROJECT_ID
         }
+
+        if (id == null) {
+            throw IOException("Invalid project json: \"id\" is absent.")
+        }
+
+        if (name == null) {
+            throw IOException("Invalid project json: \"name\" is absent.")
+        }
+
+        if (parentId == null) {
+            throw IOException("Invalid project json: \"parentId\" is absent.")
+        }
+
+        return Project(id!!, name!!, parentId!!)
     }
-
-    reader.endObject()
-
-    if (id == ROOT_PROJECT_ID) {
-        parentId = ROOT_PROJECT_ID
-    }
-
-    if (id == null) {
-        throw IOException("Invalid project json: \"id\" is absent.")
-    }
-
-    if (name == null) {
-        throw IOException("Invalid project json: \"name\" is absent.")
-    }
-
-    if (parentId == null) {
-        throw IOException("Invalid project json: \"parentId\" is absent.")
-    }
-
-    return Project(id!!, name!!, parentId!!)
 }

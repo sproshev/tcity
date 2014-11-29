@@ -14,21 +14,15 @@
  * limitations under the License.
  */
 
-package com.tcity.android.service
+package com.tcity.android.parser
 
-import android.content.Context
-import com.tcity.android.Application
-import android.content.Intent
-import org.apache.http.StatusLine
+import com.tcity.android.concept.Concept
+import java.io.InputStream
+import java.io.IOException
 
-public abstract class Processor(protected val context: Context, protected val preferences: Application.Preferences) {
+public trait ConceptsParser<T : Concept> {
 
-    throws(javaClass<Exception>())
-    public abstract fun run(intent: Intent)
-
-    public fun getMessage(statusLine: StatusLine): String {
-        return "${statusLine.getStatusCode()} ${statusLine.getReasonPhrase()}"
-    }
+    throws(javaClass<IOException>())
+    public fun parse(stream: InputStream): Collection<T>
 }
-
 
