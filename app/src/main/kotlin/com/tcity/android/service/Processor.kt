@@ -14,10 +14,21 @@
  * limitations under the License.
  */
 
-package com.tcity.android.rest
+package com.tcity.android.service
 
-private val REST_PATH = "/httpAuth/app/rest/"
+import android.content.Context
+import com.tcity.android.Application
+import android.content.Intent
+import org.apache.http.StatusLine
 
-public fun getProjectsUrl(): String = "${REST_PATH}projects"
+public abstract class Processor(protected val context: Context, protected val preferences: Application.Preferences) {
 
-public fun getProjectStatusUrl(id: String): String = "${REST_PATH}projects/id:$id/status"
+    throws(javaClass<Exception>())
+    public abstract fun run(intent: Intent)
+
+    public fun getMessage(statusLine: StatusLine): String {
+        return "${statusLine.getStatusCode()} ${statusLine.getReasonPhrase()}"
+    }
+}
+
+
