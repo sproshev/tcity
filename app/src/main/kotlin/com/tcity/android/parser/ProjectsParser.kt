@@ -22,7 +22,7 @@ import java.io.InputStream
 import android.util.JsonReader
 import java.io.InputStreamReader
 import java.util.ArrayList
-import com.tcity.android.concept.rootProjectId
+import com.tcity.android.concept.ROOT_PROJECT_ID
 
 [throws(javaClass<IOException>())]
 public fun parseProjects(stream: InputStream): List<Project> {
@@ -56,7 +56,7 @@ public fun parseProjects(stream: InputStream): List<Project> {
 
 [throws(javaClass<IOException>())]
 private fun readProjects(reader: JsonReader, capacity: Int): List<Project> {
-    val result = ArrayList<Project>(Math.max(capacity, 0));
+    val result = ArrayList<Project>(Math.max(capacity, 0))
 
     reader.beginArray()
 
@@ -88,8 +88,8 @@ private fun readProject(reader: JsonReader): Project {
 
     reader.endObject()
 
-    if (id == rootProjectId) {
-        parentId = rootProjectId
+    if (id == ROOT_PROJECT_ID) {
+        parentId = ROOT_PROJECT_ID
     }
 
     if (id == null) {

@@ -16,12 +16,45 @@
 
 package com.tcity.android.concept
 
-public val rootProjectId: String = "_Root"
+public val ROOT_PROJECT_ID: String = "_Root"
 
-public abstract class Concept(public val id: String)
+private val DEFAULT_STATUS: Status = Status.UNKNOWN
+private val DEFAULT_WATCHED: Boolean = false
 
-public class Project(id: String, public val name: String, public val parentId: String) : Concept(id)
+public enum class Status {
+    FAILURE
+    SUCCESS
+    UNKNOWN
+}
 
-public class BuildConfiguration(id: String, public val name: String) : Concept(id)
+public abstract class Concept(
+        public val id: String,
+        public val name: String,
+        public val parentId: String,
+        public val status: Status,
+        public val watched: Boolean
+)
 
-public class Build(id: String) : Concept(id)
+public class Project(
+        id: String,
+        name: String,
+        parentId: String,
+        status: Status = DEFAULT_STATUS,
+        watched: Boolean = DEFAULT_WATCHED
+) : Concept(id, name, parentId, status, watched)
+
+public class BuildConfiguration(
+        id: String,
+        name: String,
+        parentId: String,
+        status: Status = DEFAULT_STATUS,
+        watched: Boolean = DEFAULT_WATCHED
+) : Concept(id, name, parentId, status, watched)
+
+public class Build(
+        id: String,
+        name: String,
+        parentId: String,
+        status: Status = DEFAULT_STATUS,
+        watched: Boolean = DEFAULT_WATCHED
+) : Concept(id, name, parentId, status, watched)

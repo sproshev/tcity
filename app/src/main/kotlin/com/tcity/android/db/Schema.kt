@@ -23,6 +23,7 @@ public val TC_ID_COLUMN: String = "tc_id"
 public val NAME_COLUMN: String = "name"
 public val PARENT_ID_COLUMN: String = "parent_id"
 public val STATUS_COLUMN: String = "status"
+public val WATCHED_COLUMN: String = "watched"
 
 private val LOG_TAG = "SchemaUtils"
 
@@ -58,7 +59,8 @@ public abstract class AbstractConceptSchema : AbstractSchema {
                 $TC_ID_COLUMN TEXT NOT NULL UNIQUE,
                 $NAME_COLUMN TEXT NOT NULL,
                 $PARENT_ID_COLUMN TEXT NOT NULL,
-                $STATUS_COLUMN TEXT NOT NULL
+                $STATUS_COLUMN TEXT NOT NULL,
+                $WATCHED_COLUMN INTEGER NOT NULL
             );
             """
     public override val dropScript: String = "DROP TABLE $tableName"
