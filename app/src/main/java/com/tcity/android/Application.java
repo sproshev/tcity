@@ -58,8 +58,10 @@ public class Application extends android.app.Application {
         @NotNull
         private final SharedPreferences myPreferences;
 
-        @Nullable
-        private Set<String> myWatchedProjectIds = null;
+        @NotNull
+        private final Set<String> myWatchedProjectIds = new HashSet<>();
+
+        private boolean myWatchedProjectIdsLoaded = false;
 
         private Preferences(@NotNull Context context) {
             myPreferences = PreferenceManager.getDefaultSharedPreferences(context);
@@ -67,17 +69,13 @@ public class Application extends android.app.Application {
 
         @NotNull
         public Set<String> getWatchedProjectIds() {
-            if (myWatchedProjectIds == null) {
-                loadWatchedProjectIds();
-            }
+            ensureWatchedProjectIdsLoaded();
 
             return Collections.unmodifiableSet(myWatchedProjectIds);
         }
 
         public void addWatchedProjectId(@NotNull String id) {
-            if (myWatchedProjectIds == null) {
-                loadWatchedProjectIds();
-            }
+            ensureWatchedProjectIdsLoaded();
 
             myWatchedProjectIds.add(id);
 
@@ -85,32 +83,40 @@ public class Application extends android.app.Application {
         }
 
         public void removeWatchedProjectId(@NotNull String id) {
-            if (myWatchedProjectIds == null) {
-                loadWatchedProjectIds();
-            }
+            ensureWatchedProjectIdsLoaded();
 
             myWatchedProjectIds.remove(id);
 
             saveSet(WATCHED_PROJECT_IDS_KEY, myWatchedProjectIds);
         }
 
-        private void loadWatchedProjectIds() {
-            myWatchedProjectIds = new HashSet<>(
+        private void ensureWatchedProjectIdsLoaded() {
+            if (!myWatchedProjectIdsLoaded) {
+                updateSet(WATCHED_PROJECT_IDS_KEY, myWatchedProjectIds);
+                myWatchedProjectIdsLoaded = true;
+            }
+        }
+
+        private void updateSet(@NotNull String key, @NotNull Set<String> set) {
+            set.clear();
+
+            set.addAll(
                     myPreferences.getStringSet(
-                            WATCHED_PROJECT_IDS_KEY,
+                            key,
                             Collections.<String>emptySet()
                     )
             );
         }
 
-        private void saveSet(@NotNull String key, @NotNull Set<String> values) {
+        private void saveSet(@NotNull String key, @NotNull Set<String> set) {
             SharedPreferences.Editor editor = myPreferences.edit();
-            editor.putStringSet(key, values);
+            editor.putStringSet(key, set);
             editor.apply();
         }
 
         private void onTrimMemory() {
-            myWatchedProjectIds = null;
+            myWatchedProjectIdsLoaded = false;
+            myWatchedProjectIds.clear();
         }
     }
 }
