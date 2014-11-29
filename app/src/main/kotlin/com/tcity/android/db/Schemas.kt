@@ -16,6 +16,11 @@
 
 package com.tcity.android.db
 
+import com.tcity.android.concept.Concept
+import com.tcity.android.concept.Build
+import com.tcity.android.concept.BuildConfiguration
+import com.tcity.android.concept.Project
+
 public val TC_ID_COLUMN: String = "tc_id"
 public val NAME_COLUMN: String = "name"
 public val PARENT_ID_COLUMN: String = "parent_id"
@@ -32,7 +37,7 @@ public trait Schema {
     public val dropScript: String
 }
 
-public abstract class ConceptSchema : Schema {
+public abstract class ConceptSchema<T : Concept> : Schema {
     public override val createScript: String =
             """
             CREATE TABLE $tableName (
@@ -46,15 +51,15 @@ public abstract class ConceptSchema : Schema {
     public override val dropScript: String = "DROP TABLE $tableName"
 }
 
-public class BuildSchema : ConceptSchema() {
+public class BuildSchema : ConceptSchema<Build>() {
     override val tableName: String = "Build"
 }
 
-public class BuildConfigurationSchema : ConceptSchema() {
+public class BuildConfigurationSchema : ConceptSchema<BuildConfiguration>() {
     override val tableName: String = "BuildConfiguration"
 }
 
-public class ProjectSchema : ConceptSchema() {
+public class ProjectSchema : ConceptSchema<Project>() {
     override val tableName: String = "Project"
 }
 

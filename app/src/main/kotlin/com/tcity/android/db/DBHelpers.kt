@@ -20,6 +20,10 @@ import android.database.sqlite.SQLiteOpenHelper
 import android.database.sqlite.SQLiteDatabase
 import android.content.Context
 import android.util.Log
+import com.tcity.android.concept.Concept
+import com.tcity.android.concept.Build
+import com.tcity.android.concept.BuildConfiguration
+import com.tcity.android.concept.Project
 
 public abstract class DBHelper(
         private val schema: Schema,
@@ -63,11 +67,24 @@ public abstract class DBHelper(
     }
 }
 
-public class BuildDBHelper(context: Context) : DBHelper(BUILD_SCHEMA, context, "builds", 1)
+public abstract class ConceptDBHelper<T : Concept>(
+        schema: ConceptSchema<T>,
+        context: Context,
+        name: String,
+        version: Int
+) : DBHelper(schema, context, name, version)
 
-public class BuildConfigurationDBHelper(context: Context) : DBHelper(BUILD_CONFIGURATION_SCHEMA, context, "buildconfigurations", 1)
+public class BuildDBHelper(
+        context: Context
+) : ConceptDBHelper<Build>(BUILD_SCHEMA, context, "builds", 1)
 
-public class ProjectDBHelper(context: Context) : DBHelper(PROJECT_SCHEMA, context, "projects", 1)
+public class BuildConfigurationDBHelper(
+        context: Context
+) : ConceptDBHelper<BuildConfiguration>(BUILD_CONFIGURATION_SCHEMA, context, "buildconfigurations", 1)
+
+public class ProjectDBHelper(
+        context: Context
+) : ConceptDBHelper<Project>(PROJECT_SCHEMA, context, "projects", 1)
 
 
 
