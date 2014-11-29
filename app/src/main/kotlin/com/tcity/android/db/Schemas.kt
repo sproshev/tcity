@@ -27,12 +27,12 @@ public val WATCHED_COLUMN: String = "watched"
 
 private val LOG_TAG = "SchemaUtils"
 
-public fun create(schema: AbstractSchema, db: SQLiteDatabase) {
+public fun create(schema: Schema, db: SQLiteDatabase) {
     db.execSQL(schema.createScript)
     Log.d(LOG_TAG, "DB was created [schema: ${schema.tableName}]")
 }
 
-public fun upgrade(schema: AbstractSchema, db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
+public fun upgrade(schema: Schema, db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
     drop(schema, db)
     create(schema, db)
     Log.d(
@@ -41,18 +41,18 @@ public fun upgrade(schema: AbstractSchema, db: SQLiteDatabase, oldVersion: Int, 
     )
 }
 
-private fun drop(schema: AbstractSchema, db: SQLiteDatabase) {
+private fun drop(schema: Schema, db: SQLiteDatabase) {
     db.execSQL(schema.dropScript)
     Log.d(LOG_TAG, "DB was dropped [schema: ${schema.tableName}]")
 }
 
-public trait AbstractSchema {
+public trait Schema {
     public val tableName: String
     public val createScript: String
     public val dropScript: String
 }
 
-public abstract class AbstractConceptSchema : AbstractSchema {
+public abstract class ConceptSchema : Schema {
     public override val createScript: String =
             """
             CREATE TABLE $tableName (
@@ -66,15 +66,15 @@ public abstract class AbstractConceptSchema : AbstractSchema {
     public override val dropScript: String = "DROP TABLE $tableName"
 }
 
-public class BuildSchema : AbstractConceptSchema() {
+public class BuildSchema : ConceptSchema() {
     override val tableName: String = "Build"
 }
 
-public class BuildConfigurationSchema : AbstractConceptSchema() {
+public class BuildConfigurationSchema : ConceptSchema() {
     override val tableName: String = "BuildConfiguration"
 }
 
-public class ProjectSchema : AbstractConceptSchema() {
+public class ProjectSchema : ConceptSchema() {
     override val tableName: String = "Project"
 }
 

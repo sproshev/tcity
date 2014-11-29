@@ -25,8 +25,8 @@ import org.apache.http.HttpResponse
 import java.net.URI
 import java.io.IOException
 
-private val connectionTimeout = 5000
-private val httpClient = DefaultHttpClient(calculateHttpParams())
+private val CONNECTION_TIMEOUT = 5000
+private val HTTP_CLIENT = DefaultHttpClient(calculateHttpParams())
 
 [throws(javaClass<IOException>())]
 public fun get(path: String, auth: String): HttpResponse {
@@ -36,14 +36,14 @@ public fun get(path: String, auth: String): HttpResponse {
     request.addHeader("Accept", "application/json")
     request.setURI(URI.create(path))
 
-    return httpClient.execute(request)
+    return HTTP_CLIENT.execute(request)
 }
 
 private fun calculateHttpParams(): HttpParams {
     val httpParams = BasicHttpParams()
 
-    HttpConnectionParams.setConnectionTimeout(httpParams, connectionTimeout)
-    HttpConnectionParams.setSoTimeout(httpParams, connectionTimeout)
+    HttpConnectionParams.setConnectionTimeout(httpParams, CONNECTION_TIMEOUT)
+    HttpConnectionParams.setSoTimeout(httpParams, CONNECTION_TIMEOUT)
 
     return httpParams
 }

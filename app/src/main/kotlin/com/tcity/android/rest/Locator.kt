@@ -16,6 +16,6 @@
 
 package com.tcity.android.rest
 
-private val restPath = "/httpAuth/app/rest/"
+private val REST_PATH = "/httpAuth/app/rest/"
 
-public fun getProjectsUrl(): String = "${restPath}projects"
+public fun getProjectsUrl(): String = "${REST_PATH}projects"

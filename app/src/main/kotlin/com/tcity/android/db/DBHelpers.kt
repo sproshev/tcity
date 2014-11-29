@@ -20,8 +20,8 @@ import android.database.sqlite.SQLiteOpenHelper
 import android.database.sqlite.SQLiteDatabase
 import android.content.Context
 
-public abstract class AbstractSchemaHelper(
-        private val schema: AbstractSchema,
+public abstract class DBHelper(
+        private val schema: Schema,
         context: Context,
         name: String,
         version: Int
@@ -36,11 +36,11 @@ public abstract class AbstractSchemaHelper(
     }
 }
 
-public class BuildSchemaHelper(context: Context) : AbstractSchemaHelper(BuildSchema(), context, "builds", 1)
+public class BuildDBHelper(context: Context) : DBHelper(BuildSchema(), context, "builds", 1)
 
-public class BuildConfigurationSchemaHelper(context: Context) : AbstractSchemaHelper(BuildSchema(), context, "buildconfigurations", 1)
+public class BuildDBSchemaHelper(context: Context) : DBHelper(BuildSchema(), context, "buildconfigurations", 1)
 
-public class ProjectSchemaHelper(context: Context) : AbstractSchemaHelper(BuildSchema(), context, "projects", 1)
+public class ProjectDBHelper(context: Context) : DBHelper(BuildSchema(), context, "projects", 1)
 
 
 
