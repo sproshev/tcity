@@ -54,5 +54,9 @@ public class Application extends android.app.Application {
         if (myPreferences != null) {
             myPreferences.onTrimMemory();
         }
+
+        if (myDBHelper != null) {
+            myDBHelper.close();
+        }
     }
 }

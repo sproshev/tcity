@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.tcity.android.service
+package com.tcity.android.ui
 
 import com.tcity.android.concept.Concept
 import java.io.IOException
@@ -47,12 +47,13 @@ import java.util.Collections
 import com.tcity.android.concept.ROOT_PROJECT_ID
 
 
-public abstract class ConceptsTask<T : Concept>(
+private abstract class ConceptsTask<T : Concept>(
         protected val dbHelper: DBHelper,
         protected val schema: ConceptSchema<T>,
+        protected val listener: TaskListener,
         protected val parser: ConceptsParser<T>,
         protected val preferences: Preferences
-) : AsyncTask<Void, Void, Void>() {
+) : AsyncTask<Void, Void, Exception?>() {
 
     class object {
         private val LOG_TAG = javaClass<ConceptsTask<*>>().getSimpleName()
@@ -71,6 +72,8 @@ public abstract class ConceptsTask<T : Concept>(
         saveConcepts(concepts)
 
         Log.d(LOG_TAG, "Concepts were saved: [table: ${schema.tableName}]")
+
+        publishProgress()
     }
 
     protected fun loadAndSaveStatuses() {
@@ -80,6 +83,16 @@ public abstract class ConceptsTask<T : Concept>(
                 saveWatched(it)
             }
         }
+
+        publishProgress()
+    }
+
+    override fun onProgressUpdate(vararg values: Void?) {
+        listener.onUpdate()
+    }
+
+    override fun onPostExecute(result: Exception?) {
+        listener.onComplete(result)
     }
 
     throws(javaClass<IOException>())
@@ -183,12 +196,13 @@ public abstract class ConceptsTask<T : Concept>(
         get() = "${getStatusCode()} ${getReasonPhrase()}"
 }
 
-public class ProjectsTask(
+private class ProjectsTask(
         dbHelper: DBHelper,
         schema: ProjectSchema,
+        listener: TaskListener,
         parser: ProjectsParser,
         preferences: Preferences
-) : ConceptsTask<Project>(dbHelper, schema, parser, preferences) {
+) : ConceptsTask<Project>(dbHelper, schema, listener, parser, preferences) {
 
     override fun getWatchedConceptIds() = preferences.getWatchedProjectIds()
 
@@ -196,42 +210,39 @@ public class ProjectsTask(
 
     override val ignoredConceptIds: Set<String> = setOf(ROOT_PROJECT_ID)
 
-    override fun doInBackground(vararg params: Void?): Void? {
+    override fun doInBackground(vararg params: Void?): Exception? {
         try {
             loadAndSaveConcepts(getProjectsUrl())
             loadAndSaveStatuses()
 
-            // TODO send
+            return null
         } catch (e: Exception) {
-            // TODO send
+            return e
         }
-
-        return null
     }
 }
 
-public class BuildConfigurationsTask(
+private class BuildConfigurationsTask(
         private val projectId: String,
         dbHelper: DBHelper,
         schema: BuildConfigurationSchema,
+        listener: TaskListener,
         parser: BuildConfigurationsParser,
         preferences: Preferences
-) : ConceptsTask<BuildConfiguration>(dbHelper, schema, parser, preferences) {
+) : ConceptsTask<BuildConfiguration>(dbHelper, schema, listener, parser, preferences) {
 
     override fun getWatchedConceptIds() = preferences.getWatchedBuildConfigurationIds()
 
     override fun getStatusUrl(conceptId: String) = getBuildConfigurationStatusUrl(conceptId)
 
-    override fun doInBackground(vararg params: Void?): Void? {
+    override fun doInBackground(vararg params: Void?): Exception? {
         try {
             loadAndSaveConcepts(getBuildConfigurationsUrl(projectId))
             loadAndSaveStatuses()
 
-            // TODO send
+            return null
         } catch (e: Exception) {
-            // TODO send
+            return e
         }
-
-        return null
     }
 }
