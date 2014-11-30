@@ -50,6 +50,9 @@ public fun Boolean.contentValues(column: String): ContentValues {
     return result
 }
 
+public val Int.booleanValue: Boolean
+    get () = this != 0
+
 private val Status.contentValue: String
     get() = toString()
 
