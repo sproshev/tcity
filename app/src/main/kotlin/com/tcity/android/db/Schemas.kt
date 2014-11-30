@@ -26,6 +26,7 @@ public val NAME_COLUMN: String = "name"
 public val PARENT_ID_COLUMN: String = "parent_id"
 public val STATUS_COLUMN: String = "status"
 public val WATCHED_COLUMN: String = "watched"
+public val ANDROID_ID_COLUMN: String = "_id"
 
 object BuildSchema : ConceptSchema<Build>("Build")
 
@@ -43,6 +44,7 @@ public abstract class ConceptSchema<T : Concept>(override val tableName: String)
     public override val createScript: String =
             """
             CREATE TABLE $tableName (
+                $ANDROID_ID_COLUMN INTEGER NOT NULL UNIQUE,
                 $TC_ID_COLUMN TEXT NOT NULL UNIQUE,
                 $NAME_COLUMN TEXT NOT NULL,
                 $PARENT_ID_COLUMN TEXT NOT NULL,

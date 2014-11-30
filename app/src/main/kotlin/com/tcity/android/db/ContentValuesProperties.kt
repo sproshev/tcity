@@ -27,8 +27,8 @@ public val Concept.contentValues: ContentValues
         result.put(TC_ID_COLUMN, id)
         result.put(NAME_COLUMN, name)
         result.put(PARENT_ID_COLUMN, parentId)
-        result.put(STATUS_COLUMN, status.toString())
-        result.put(WATCHED_COLUMN, watched)
+        result.put(STATUS_COLUMN, status.contentValue)
+        result.put(WATCHED_COLUMN, watched.contentValue)
 
         return result
     }
@@ -37,7 +37,21 @@ public val Status.contentValues: ContentValues
     get () {
         val result = ContentValues()
 
-        result.put(STATUS_COLUMN, toString())
+        result.put(STATUS_COLUMN, contentValue)
 
         return result
     }
+
+public fun Boolean.contentValues(column: String): ContentValues {
+    val result = ContentValues()
+
+    result.put(column, contentValue)
+
+    return result
+}
+
+private val Status.contentValue: String
+    get() = toString()
+
+private val Boolean.contentValue: Int
+    get() = if (this) 1 else 0

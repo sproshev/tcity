@@ -41,6 +41,10 @@ import com.tcity.android.db.BuildConfigurationSchema
 import android.os.AsyncTask
 import com.tcity.android.app.Preferences
 import com.tcity.android.rest
+import com.tcity.android.db.ANDROID_ID_COLUMN
+import com.tcity.android.db.WATCHED_COLUMN
+import java.util.Collections
+import com.tcity.android.concept.ROOT_PROJECT_ID
 
 
 public abstract class ConceptsTask<T : Concept>(
@@ -57,6 +61,8 @@ public abstract class ConceptsTask<T : Concept>(
     protected abstract fun getWatchedConceptIds(): Set<String>
     protected abstract fun getStatusUrl(conceptId: String): String
 
+    protected open val ignoredConceptIds: Set<String> = Collections.emptySet()
+
     protected fun loadAndSaveConcepts(conceptsPath: String) {
         val concepts = loadConcepts(conceptsPath)
 
@@ -68,7 +74,12 @@ public abstract class ConceptsTask<T : Concept>(
     }
 
     protected fun loadAndSaveStatuses() {
-        getWatchedConceptIds().forEach { loadAndSaveStatus(it) }
+        getWatchedConceptIds().forEach {
+            if (!ignoredConceptIds.contains(it)) {
+                loadAndSaveStatus(it)
+                saveWatched(it)
+            }
+        }
     }
 
     throws(javaClass<IOException>())
@@ -96,8 +107,18 @@ public abstract class ConceptsTask<T : Concept>(
         try {
             db.delete(schema.tableName, null, null)
 
+            var id = 0
+
             concepts.forEach {
-                db.insert(schema.tableName, null, it.contentValues)
+                if (!ignoredConceptIds.contains(it.id)) {
+                    val values = it.contentValues
+
+                    values.put(ANDROID_ID_COLUMN, id)
+
+                    db.insert(schema.tableName, null, values)
+
+                    id++
+                }
             }
 
             db.setTransactionSuccessful()
@@ -148,6 +169,16 @@ public abstract class ConceptsTask<T : Concept>(
         )
     }
 
+    throws(javaClass<SQLiteException>())
+    private fun saveWatched(conceptId: String) {
+        dbHelper.getWritableDatabase().update(
+                schema.tableName,
+                true.contentValues(WATCHED_COLUMN),
+                "id = ?",
+                array(conceptId)
+        )
+    }
+
     private val StatusLine.exceptionMessage: String
         get() = "${getStatusCode()} ${getReasonPhrase()}"
 }
@@ -162,6 +193,8 @@ public class ProjectsTask(
     override fun getWatchedConceptIds() = preferences.getWatchedProjectIds()
 
     override fun getStatusUrl(conceptId: String) = getProjectStatusUrl(conceptId)
+
+    override val ignoredConceptIds: Set<String> = setOf(ROOT_PROJECT_ID)
 
     override fun doInBackground(vararg params: Void?): Void? {
         try {
