@@ -24,7 +24,7 @@ import java.io.InputStreamReader
 import java.util.ArrayList
 import com.tcity.android.concept.ROOT_PROJECT_ID
 
-public class ProjectsParser : ConceptsParser<Project> {
+object ProjectsParser : ConceptsParser<Project> {
 
     throws(javaClass<IOException>())
     override fun parse(stream: InputStream): List<Project> {

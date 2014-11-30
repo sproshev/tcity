@@ -17,8 +17,6 @@
 package com.tcity.android.app;
 
 import com.tcity.android.db.DBHelper;
-import com.tcity.android.parser.BuildConfigurationsParser;
-import com.tcity.android.parser.ProjectsParser;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -29,7 +27,7 @@ public class Application extends android.app.Application {
     private Preferences myPreferences;
 
     @Nullable
-    private ObjectsCache myObjectsCache;
+    private DBHelper myDBHelper;
 
     @NotNull
     public Preferences getPreferences() {
@@ -42,29 +40,11 @@ public class Application extends android.app.Application {
 
     @NotNull
     public DBHelper getDBHelper() {
-        if (myObjectsCache == null) {
-            myObjectsCache = new ObjectsCache(this);
+        if (myDBHelper == null) {
+            myDBHelper = new DBHelper(this);
         }
 
-        return myObjectsCache.getDBHelper();
-    }
-
-    @NotNull
-    public BuildConfigurationsParser getBuildConfigurationsParser() {
-        if (myObjectsCache == null) {
-            myObjectsCache = new ObjectsCache(this);
-        }
-
-        return myObjectsCache.getBuildConfigurationsParser();
-    }
-
-    @NotNull
-    public ProjectsParser getProjectsParser() {
-        if (myObjectsCache == null) {
-            myObjectsCache = new ObjectsCache(this);
-        }
-
-        return myObjectsCache.getProjectsParser();
+        return myDBHelper;
     }
 
     @Override

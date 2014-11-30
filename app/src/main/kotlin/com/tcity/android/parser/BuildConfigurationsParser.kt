@@ -23,7 +23,7 @@ import android.util.JsonReader
 import java.io.IOException
 import java.util.ArrayList
 
-public class BuildConfigurationsParser : ConceptsParser<BuildConfiguration> {
+object BuildConfigurationsParser : ConceptsParser<BuildConfiguration> {
 
     override fun parse(stream: InputStream): List<BuildConfiguration> {
         val reader = JsonReader(InputStreamReader(stream))

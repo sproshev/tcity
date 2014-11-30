@@ -27,13 +27,19 @@ public val PARENT_ID_COLUMN: String = "parent_id"
 public val STATUS_COLUMN: String = "status"
 public val WATCHED_COLUMN: String = "watched"
 
+object BuildSchema : ConceptSchema<Build>("Build")
+
+object BuildConfigurationSchema : ConceptSchema<BuildConfiguration>("BuildConfiguration")
+
+object ProjectSchema : ConceptSchema<Project>("Project")
+
 public trait Schema {
     public val tableName: String
     public val createScript: String
     public val dropScript: String
 }
 
-public abstract class ConceptSchema<T : Concept> : Schema {
+public abstract class ConceptSchema<T : Concept>(override val tableName: String) : Schema {
     public override val createScript: String =
             """
             CREATE TABLE $tableName (
@@ -44,19 +50,7 @@ public abstract class ConceptSchema<T : Concept> : Schema {
                 $WATCHED_COLUMN INTEGER NOT NULL
             );
             """
-    public override val dropScript: String = "DROP TABLE $tableName"
-}
-
-public class BuildSchema : ConceptSchema<Build>() {
-    override val tableName: String = "Build"
-}
-
-public class BuildConfigurationSchema : ConceptSchema<BuildConfiguration>() {
-    override val tableName: String = "BuildConfiguration"
-}
-
-public class ProjectSchema : ConceptSchema<Project>() {
-    override val tableName: String = "Project"
+    public override val dropScript: String = "DROP TABLE IF EXISTS $tableName"
 }
 
 

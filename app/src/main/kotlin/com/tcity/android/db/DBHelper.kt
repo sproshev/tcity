@@ -25,7 +25,7 @@ public class DBHelper(context: Context) : SQLiteOpenHelper(context, "tcity", nul
 
     class object {
         private val LOG_TAG = javaClass<DBHelper>().getSimpleName()
-        private val SCHEMAS = listOf(BuildSchema(), BuildConfigurationSchema(), ProjectSchema())
+        private val SCHEMAS = listOf(BuildSchema, BuildConfigurationSchema, ProjectSchema)
     }
 
     override fun onCreate(db: SQLiteDatabase) {
