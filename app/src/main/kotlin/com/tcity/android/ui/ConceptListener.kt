@@ -22,12 +22,7 @@ private trait ConceptListener {
 
     public fun onWatchClick(id: String)
 
+    public fun onNameClick(id: String)
+
     public fun onOptionsClick(id: String, v: View)
-}
-
-private trait TaskListener {
-
-    public fun onComplete(e: Exception?)
-
-    public fun onUpdate()
 }
