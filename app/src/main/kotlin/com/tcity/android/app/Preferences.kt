@@ -37,13 +37,13 @@ public class Preferences protected (context: Context) {
     public fun getWatchedBuildConfigurationIds(): Set<String> = watchedBuildConfigurationIdsPreference.get()
     public fun getWatchedBuildIds(): Set<String> = watchedBuildIdsPreference.get()
 
-    public fun addWatchedProjectIds(id: String): Unit = watchedProjectIdsPreference.add(id)
-    public fun addWatchedBuildConfigurationIds(id: String): Unit = watchedBuildConfigurationIdsPreference.add(id)
-    public fun addWatchedBuildIds(id: String): Unit = watchedBuildIdsPreference.add(id)
+    public fun addWatchedProjectId(id: String): Unit = watchedProjectIdsPreference.add(id)
+    public fun addWatchedBuildConfigurationId(id: String): Unit = watchedBuildConfigurationIdsPreference.add(id)
+    public fun addWatchedBuildId(id: String): Unit = watchedBuildIdsPreference.add(id)
 
-    public fun removeWatchedProjectIds(id: String): Unit = watchedProjectIdsPreference.remove(id)
-    public fun removeWatchedBuildConfigurationIds(id: String): Unit = watchedBuildConfigurationIdsPreference.remove(id)
-    public fun removeWatchedBuildIds(id: String): Unit = watchedBuildIdsPreference.remove(id)
+    public fun removeWatchedProjectId(id: String): Unit = watchedProjectIdsPreference.remove(id)
+    public fun removeWatchedBuildConfigurationId(id: String): Unit = watchedBuildConfigurationIdsPreference.remove(id)
+    public fun removeWatchedBuildId(id: String): Unit = watchedBuildIdsPreference.remove(id)
 
     protected fun onTrimMemory() {
         watchedProjectIdsPreference.onTrimMemory()
