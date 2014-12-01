@@ -17,13 +17,16 @@
 package com.tcity.android.ui;
 
 import android.app.ListActivity;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
+import android.widget.PopupMenu;
 
 import com.tcity.android.R;
 import com.tcity.android.app.Application;
@@ -113,7 +116,13 @@ public class MainActivity extends ListActivity implements SwipeRefreshLayout.OnR
 
             @Override
             public void onProjectOptionsClick(@NotNull String id, @NotNull View anchor) {
+                PopupMenu menu = new PopupMenu(MainActivity.this, anchor);
 
+                menu.inflate(R.menu.menu_concept);
+
+                menu.setOnMenuItemClickListener(new ProjectMenuItemClickListener(id));
+
+                menu.show();
             }
 
             @Override
@@ -168,5 +177,37 @@ public class MainActivity extends ListActivity implements SwipeRefreshLayout.OnR
         myLayout.setRefreshing(true);
 
         AsyncTask.execute(myProjectsRunnable);
+    }
+
+    private class ProjectMenuItemClickListener implements PopupMenu.OnMenuItemClickListener {
+
+        @NotNull
+        private final String myId;
+
+        private ProjectMenuItemClickListener(@NotNull String id) {
+            myId = id;
+        }
+
+        @Override
+        public boolean onMenuItemClick(MenuItem item) {
+            switch (item.getItemId()) {
+                case R.id.menu_share:
+                    onShareClick();
+
+                    return true;
+                case R.id.menu_details:
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
+        private void onShareClick() {
+            Intent intent = new Intent(Intent.ACTION_SEND);
+            intent.setType("text/plain");
+            intent.putExtra(Intent.EXTRA_TEXT, myId); // TODO url
+
+            startActivity(Intent.createChooser(intent, "Share"));
+        }
     }
 }
