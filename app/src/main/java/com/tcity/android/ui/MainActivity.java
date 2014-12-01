@@ -17,21 +17,21 @@
 package com.tcity.android.ui;
 
 import android.app.ListActivity;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.view.View;
 
-import com.commonsware.cwac.merge.MergeAdapter;
-import com.tcity.android.R;
 import com.tcity.android.app.Application;
 import com.tcity.android.db.DbPackage;
 import com.tcity.android.db.ProjectSchema;
+import com.tcity.android.loader.LoaderPackage;
+import com.tcity.android.loader.ProjectsRunnable;
 import com.tcity.android.parser.ProjectsParser;
 
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 public class MainActivity extends ListActivity {
 
@@ -42,25 +42,13 @@ public class MainActivity extends ListActivity {
     private Application myApplication;
 
     @NotNull
-    private Cursor myProjectsCursor;
+    private OverviewListener myOverviewListener;
 
     @NotNull
-    private Cursor myWatchedProjectsCursor;
+    private OverviewEngine myOverviewEngine;
 
     @NotNull
-    private ConceptListener myProjectsListener;
-
-    @NotNull
-    private TaskListener myProjectsTaskListener;
-
-    @NotNull
-    private ConceptsCursorAdapter myProjectsAdapter;
-
-    @NotNull
-    private ConceptsCursorAdapter myWatchedProjectsAdapter;
-
-    @NotNull
-    private MergeAdapter myMainAdapter;
+    private Handler myProjectsHandler;
 
     /* LIFECYCLE - BEGIN */
 
@@ -70,72 +58,87 @@ public class MainActivity extends ListActivity {
 
         myApplication = (Application) getApplication();
 
-        SQLiteDatabase db = myApplication.getDBHelper().getReadableDatabase();
-
-        myProjectsCursor = db.query(ProjectSchema.INSTANCE$.getTableName(), null, null, null, null, null, null);
-
-        myWatchedProjectsCursor = db.query(ProjectSchema.INSTANCE$.getTableName(), null, "watched = ?", new String[]{"1"}, null, null, null);
-
-        myMainAdapter = new MergeAdapter();
-
-//        myMainAdapter.addView();
-
-        myProjectsListener = new ConceptListener() {
+        myOverviewListener = new OverviewListener() {
             @Override
-            public void onWatchClick(@NotNull String id) {
-                Log.d(LOG_TAG, id);
+            public void onProjectWatchClick(@NotNull String id) {
+                if (myApplication.getPreferences().getWatchedProjectIds().contains(id)) {
+                    myApplication.getPreferences().removeWatchedProjectId(id);
+                    myApplication.getDBHelper().getWritableDatabase().update(ProjectSchema.INSTANCE$.getTableName(), DbPackage.contentValues(false, DbPackage.getWATCHED_COLUMN()), DbPackage.getTC_ID_COLUMN() + " = ?", new String[]{id});
+                } else {
+                    myApplication.getPreferences().addWatchedProjectId(id);
+                    myApplication.getDBHelper().getWritableDatabase().update(ProjectSchema.INSTANCE$.getTableName(), DbPackage.contentValues(true, DbPackage.getWATCHED_COLUMN()), DbPackage.getTC_ID_COLUMN() + " = ?", new String[]{id});
+                }
 
-                myApplication.getPreferences().addWatchedProjectId(id);
-                myApplication.getDBHelper().getWritableDatabase().update(ProjectSchema.INSTANCE$.getTableName(), DbPackage.contentValues(true, DbPackage.getWATCHED_COLUMN()), DbPackage.getTC_ID_COLUMN() + " = ?", new String[]{id});
-
-                myProjectsCursor.requery();
-                myWatchedProjectsCursor.requery();
-
-                myMainAdapter.notifyDataSetChanged();
+                myOverviewEngine.notifyProjectsChanged();
             }
 
             @Override
-            public void onOptionsClick(@NotNull String id, @NotNull View v) {
-                Log.d(LOG_TAG, id);
+            public void onBuildConfigurationWatchClick(@NotNull String id) {
 
-                // pref and db
+            }
+
+            @Override
+            public void onBuildWatchClick(@NotNull String id) {
+
+            }
+
+            @Override
+            public void onProjectNameClick(@NotNull String id) {
+
+            }
+
+            @Override
+            public void onBuildConfigurationNameClick(@NotNull String id) {
+
+            }
+
+            @Override
+            public void onBuildNameClick(@NotNull String id) {
+
+            }
+
+            @Override
+            public void onProjectOptionsClick(@NotNull String id, @NotNull View anchor) {
+
+            }
+
+            @Override
+            public void onBuildConfigurationOptionsClick(@NotNull String id, @NotNull View anchor) {
+
+            }
+
+            @Override
+            public void onBuildOptionsClick(@NotNull String id, @NotNull View anchor) {
+
             }
         };
 
-        myProjectsTaskListener = new TaskListener() {
+        myOverviewEngine = new OverviewEngine(this, myApplication.getDBHelper(), myOverviewListener, "Projects", "Build Configurations", "Builds");
+
+        myProjectsHandler = new Handler() {
             @Override
-            public void onComplete(@Nullable Exception e) {
-                Log.d(LOG_TAG, "Complete");
+            public void handleMessage(@NotNull Message msg) {
+                super.handleMessage(msg);
 
-                myProjectsCursor.requery();
-                myProjectsAdapter.notifyDataSetChanged();
-            }
-
-            @Override
-            public void onUpdate() {
-                Log.d(LOG_TAG, "Update");
-
-                myProjectsCursor.requery();
-                myProjectsAdapter.notifyDataSetChanged();
+                if (msg.what == LoaderPackage.getERROR_CODE()) {
+                    Log.w(LOG_TAG, (Exception) msg.obj);
+                } else {
+                    myOverviewEngine.notifyProjectsChanged();
+                }
             }
         };
 
-        myProjectsAdapter = new ConceptsCursorAdapter(this, myProjectsCursor, myProjectsListener);
-        myWatchedProjectsAdapter = new ConceptsCursorAdapter(this, myWatchedProjectsCursor, myProjectsListener);
+        getListView().setAdapter(myOverviewEngine.getAdapter());
 
-        myMainAdapter.addAdapter(myWatchedProjectsAdapter);
-        myMainAdapter.addView(getLayoutInflater().inflate(R.layout.separator_item, getListView(), false));
-        myMainAdapter.addAdapter(myProjectsAdapter);
-
-        getListView().setAdapter(myMainAdapter);
-
-        new ProjectsTask(
-                myApplication.getDBHelper(),
-                ProjectSchema.INSTANCE$,
-                myProjectsTaskListener,
-                ProjectsParser.INSTANCE$,
-                myApplication.getPreferences()
-        ).execute();
+        AsyncTask.execute(
+                new ProjectsRunnable(
+                        myApplication.getDBHelper(),
+                        ProjectSchema.INSTANCE$,
+                        ProjectsParser.INSTANCE$,
+                        myApplication.getPreferences(),
+                        myProjectsHandler
+                )
+        );
     }
 
     /* LIFECYCLE - END */

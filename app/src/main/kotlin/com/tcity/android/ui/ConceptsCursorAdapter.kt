@@ -32,9 +32,8 @@ import android.widget.CursorAdapter
 
 private class ConceptsCursorAdapter(
         private val context: Context,
-        cursor: Cursor,
         private val listener: ConceptListener
-) : CursorAdapter(context, cursor) {
+) : CursorAdapter(context, null) {
 
     class object {
         private val WATCHED_IMAGE = android.R.drawable.star_big_on
@@ -63,9 +62,10 @@ private class ConceptsCursorAdapter(
     override fun bindView(view: View, context: Context?, cursor: Cursor) {
         val holder = view.getTag() as ConceptViewHolder
 
-        holder.name.setText(cursor.getString(cursor.getColumnIndex(NAME_COLUMN)))
-
         val conceptId = cursor.getString(cursor.getColumnIndex(TC_ID_COLUMN))
+
+        holder.name.setText(cursor.getString(cursor.getColumnIndex(NAME_COLUMN)))
+        holder.name.setOnClickListener { listener.onNameClick(conceptId) }
 
         holder.watch.setOnClickListener { listener.onWatchClick(conceptId) }
 

@@ -53,8 +53,8 @@ public fun Boolean.contentValues(column: String): ContentValues {
 public val Int.booleanValue: Boolean
     get () = this != 0
 
-private val Status.contentValue: String
+public val Status.contentValue: String
     get() = toString()
 
-private val Boolean.contentValue: Int
+public val Boolean.contentValue: Int
     get() = if (this) 1 else 0
