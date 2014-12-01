@@ -37,6 +37,7 @@ repositories {
 
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kt_version"
+    compile "com.android.support:support-v4:21.0.2"
     compile 'com.commonsware.cwac:merge:1.0.2'
 }
 

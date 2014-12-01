@@ -21,9 +21,11 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
 import android.view.View;
 
+import com.tcity.android.R;
 import com.tcity.android.app.Application;
 import com.tcity.android.db.DbPackage;
 import com.tcity.android.db.ProjectSchema;
@@ -33,10 +35,13 @@ import com.tcity.android.parser.ProjectsParser;
 
 import org.jetbrains.annotations.NotNull;
 
-public class MainActivity extends ListActivity {
+public class MainActivity extends ListActivity implements SwipeRefreshLayout.OnRefreshListener {
 
     @NotNull
     private static final String LOG_TAG = MainActivity.class.getSimpleName();
+
+    @NotNull
+    private SwipeRefreshLayout myLayout;
 
     @NotNull
     private Application myApplication;
@@ -50,11 +55,20 @@ public class MainActivity extends ListActivity {
     @NotNull
     private Handler myProjectsHandler;
 
+    @NotNull
+    private ProjectsRunnable myProjectsRunnable;
+
     /* LIFECYCLE - BEGIN */
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        setContentView(R.layout.overview);
+
+        myLayout = (SwipeRefreshLayout) findViewById(R.id.overview_layout);
+        myLayout.setOnRefreshListener(this);
+        myLayout.setColorSchemeResources(android.R.color.holo_blue_bright, android.R.color.holo_purple); // TODO change colors
 
         myApplication = (Application) getApplication();
 
@@ -120,6 +134,8 @@ public class MainActivity extends ListActivity {
             public void handleMessage(@NotNull Message msg) {
                 super.handleMessage(msg);
 
+                myLayout.setRefreshing(false);
+
                 if (msg.what == LoaderPackage.getERROR_CODE()) {
                     Log.w(LOG_TAG, (Exception) msg.obj);
                 } else {
@@ -130,16 +146,27 @@ public class MainActivity extends ListActivity {
 
         getListView().setAdapter(myOverviewEngine.getAdapter());
 
-        AsyncTask.execute(
-                new ProjectsRunnable(
-                        myApplication.getDBHelper(),
-                        ProjectSchema.INSTANCE$,
-                        ProjectsParser.INSTANCE$,
-                        myApplication.getPreferences(),
-                        myProjectsHandler
-                )
+        myProjectsRunnable = new ProjectsRunnable(
+                myApplication.getDBHelper(),
+                ProjectSchema.INSTANCE$,
+                ProjectsParser.INSTANCE$,
+                myApplication.getPreferences(),
+                myProjectsHandler
         );
+
+        loadAllData();
     }
 
     /* LIFECYCLE - END */
+
+    @Override
+    public void onRefresh() {
+        loadAllData();
+    }
+
+    private void loadAllData() {
+        myLayout.setRefreshing(true);
+
+        AsyncTask.execute(myProjectsRunnable);
+    }
 }
