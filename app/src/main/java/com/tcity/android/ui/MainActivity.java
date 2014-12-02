@@ -69,7 +69,13 @@ public class MainActivity extends ListActivity implements SwipeRefreshLayout.OnR
 
         myApplication = (Application) getApplication();
 
-        myOverviewEngine = new OverviewEngine(this, myApplication.getDB(), "Projects", "Build Configurations", "Builds");
+        myOverviewEngine = new OverviewEngine(
+                this,
+                myApplication.getDB(),
+                "Projects",
+                "Build Configurations",
+                "Builds"
+        );
         myOverviewEngine.setListener(new OverviewListener());
 
         myProjectsHandler = new ProjectsHandler();

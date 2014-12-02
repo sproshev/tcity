@@ -20,11 +20,13 @@ import android.content.Context
 import com.tcity.android.db.Schema
 import android.content.ContentValues
 import android.database.Cursor
+import android.database.sqlite.SQLiteException
 
 public class DB protected (context: Context) {
 
     private val dbHelper = DBHelper(context)
 
+    throws(javaClass<SQLiteException>())
     public fun update(
             schema: Schema,
             values: ContentValues,
@@ -39,6 +41,7 @@ public class DB protected (context: Context) {
         )
     }
 
+    throws(javaClass<SQLiteException>())
     public fun query(
             schema: Schema,
             columns: Array<String>? = null,
@@ -61,17 +64,22 @@ public class DB protected (context: Context) {
         )
     }
 
+    throws(javaClass<SQLiteException>())
     public fun delete(schema: Schema, whereClause: String? = null, whereArgs: Array<String>? = null): Int {
         return dbHelper.getWritableDatabase().delete(schema.tableName, whereClause, whereArgs)
     }
 
+    throws(javaClass<SQLiteException>())
     public fun insert(schema: Schema, values: ContentValues): Long {
         return dbHelper.getWritableDatabase().insert(schema.tableName, null, values)
     }
 
+    throws(javaClass<SQLiteException>())
     public fun beginTransaction(): Unit = dbHelper.getWritableDatabase().beginTransaction()
 
+    throws(javaClass<SQLiteException>())
     public fun endTransaction(): Unit = dbHelper.getWritableDatabase().endTransaction()
 
+    throws(javaClass<SQLiteException>(), javaClass<IllegalStateException>())
     public fun setTransactionSuccessful(): Unit = dbHelper.getWritableDatabase().setTransactionSuccessful()
 }

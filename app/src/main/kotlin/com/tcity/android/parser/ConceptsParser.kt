@@ -23,6 +23,6 @@ import java.io.IOException
 public trait ConceptsParser<T : Concept> {
 
     throws(javaClass<IOException>())
-    public fun parse(stream: InputStream): Collection<T>
+    fun parse(stream: InputStream): Collection<T>
 }
 

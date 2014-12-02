@@ -35,9 +35,9 @@ object BuildConfigurationSchema : ConceptSchema<BuildConfiguration>("BuildConfig
 object ProjectSchema : ConceptSchema<Project>("Project")
 
 public trait Schema {
-    public val tableName: String
-    public val createScript: String
-    public val dropScript: String
+    val tableName: String
+    val createScript: String
+    val dropScript: String
 }
 
 public abstract class ConceptSchema<T : Concept>(override val tableName: String) : Schema {

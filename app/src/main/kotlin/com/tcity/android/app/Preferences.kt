@@ -24,30 +24,30 @@ public class Preferences protected (context: Context) {
 
     private val preferences = PreferenceManager.getDefaultSharedPreferences(context)
 
-    private val watchedProjectIdsPreference = WatchedConceptIdsPreference("watched_projects", preferences)
-    private val watchedBuildConfigurationIdsPreference = WatchedConceptIdsPreference("watched_build_configurations", preferences)
-    private val watchedBuildIdsPreference = WatchedConceptIdsPreference("watched_builds", preferences)
+    private val watchedProjectIds = WatchedConceptIdsPreference("watched_projects", preferences)
+    private val watchedBuildConfigurationIds = WatchedConceptIdsPreference("watched_build_configurations", preferences)
+    private val watchedBuildIds = WatchedConceptIdsPreference("watched_builds", preferences)
 
     private val loginPreference = LoginPreference(preferences)
 
     public fun getUrl(): String = loginPreference.getUrl()
     public fun getAuth(): String = loginPreference.getAuth()
 
-    public fun getWatchedProjectIds(): Set<String> = watchedProjectIdsPreference.get()
-    public fun getWatchedBuildConfigurationIds(): Set<String> = watchedBuildConfigurationIdsPreference.get()
-    public fun getWatchedBuildIds(): Set<String> = watchedBuildIdsPreference.get()
+    public fun getWatchedProjectIds(): Set<String> = watchedProjectIds.get()
+    public fun getWatchedBuildConfigurationIds(): Set<String> = watchedBuildConfigurationIds.get()
+    public fun getWatchedBuildIds(): Set<String> = watchedBuildIds.get()
 
-    public fun addWatchedProjectId(id: String): Unit = watchedProjectIdsPreference.add(id)
-    public fun addWatchedBuildConfigurationId(id: String): Unit = watchedBuildConfigurationIdsPreference.add(id)
-    public fun addWatchedBuildId(id: String): Unit = watchedBuildIdsPreference.add(id)
+    public fun addWatchedProjectId(id: String): Unit = watchedProjectIds.add(id)
+    public fun addWatchedBuildConfigurationId(id: String): Unit = watchedBuildConfigurationIds.add(id)
+    public fun addWatchedBuildId(id: String): Unit = watchedBuildIds.add(id)
 
-    public fun removeWatchedProjectId(id: String): Unit = watchedProjectIdsPreference.remove(id)
-    public fun removeWatchedBuildConfigurationId(id: String): Unit = watchedBuildConfigurationIdsPreference.remove(id)
-    public fun removeWatchedBuildId(id: String): Unit = watchedBuildIdsPreference.remove(id)
+    public fun removeWatchedProjectId(id: String): Unit = watchedProjectIds.remove(id)
+    public fun removeWatchedBuildConfigurationId(id: String): Unit = watchedBuildConfigurationIds.remove(id)
+    public fun removeWatchedBuildId(id: String): Unit = watchedBuildIds.remove(id)
 
     protected fun onTrimMemory() {
-        watchedProjectIdsPreference.onTrimMemory()
-        watchedBuildConfigurationIdsPreference.onTrimMemory()
-        watchedBuildIdsPreference.onTrimMemory()
+        watchedProjectIds.onTrimMemory()
+        watchedBuildConfigurationIds.onTrimMemory()
+        watchedBuildIds.onTrimMemory()
     }
 }

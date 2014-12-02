@@ -33,9 +33,9 @@ import com.tcity.android.app.DB
 private class OverviewEngine(
         private val context: Context,
         private val db: DB,
-        private val projectsSectionName: String,
-        private val buildConfigurationsSectionName: String,
-        private val buildsSectionName: String
+        private val projectsSectionName: String, // TODO add parent selection
+        private val buildConfigurationsSectionName: String, // TODO add parent selection
+        private val buildsSectionName: String // TODO add parent selection
 ) {
 
     public var listener: OverviewListener? = null
@@ -164,30 +164,30 @@ private class OverviewEngine(
     }
 
     public fun notifyProjectsChanged() {
-        watchedProjectsCursor.requery()
+        watchedProjectsCursor.requery() // TODO CursorLoader
         handleHeader(watchedProjectsHeader, watchedProjectsCursor)
 
-        projectsCursor.requery()
+        projectsCursor.requery() // TODO CursorLoader
         handleHeader(projectsHeader, projectsCursor)
 
         adapter.notifyDataSetChanged()
     }
 
     public fun notifyBuildConfigurationsChanged() {
-        watchedBuildConfigurationsCursor.requery()
+        watchedBuildConfigurationsCursor.requery() // TODO CursorLoader
         handleHeader(watchedBuildConfigurationsHeader, watchedBuildConfigurationsCursor)
 
-        buildConfigurationsCursor.requery()
+        buildConfigurationsCursor.requery() // TODO CursorLoader
         handleHeader(buildConfigurationsHeader, buildConfigurationsCursor)
 
         adapter.notifyDataSetChanged()
     }
 
     public fun notifyBuildsChanged() {
-        watchedBuildsCursor.requery()
+        watchedBuildsCursor.requery() // TODO CursorLoader
         handleHeader(watchedBuildsHeader, watchedBuildsCursor)
 
-        buildsCursor.requery()
+        buildsCursor.requery() // TODO CursorLoader
         handleHeader(buildsHeader, buildsCursor)
 
         adapter.notifyDataSetChanged()
