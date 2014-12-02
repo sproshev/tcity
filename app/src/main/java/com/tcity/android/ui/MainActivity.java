@@ -20,13 +20,12 @@ import android.app.ListActivity;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.Message;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.PopupMenu;
+import android.widget.Toast;
 
 import com.tcity.android.R;
 import com.tcity.android.app.Application;
@@ -35,13 +34,11 @@ import com.tcity.android.db.ProjectSchema;
 import com.tcity.android.loader.LoaderPackage;
 import com.tcity.android.loader.ProjectsRunnable;
 import com.tcity.android.parser.ProjectsParser;
+import com.tcity.android.rest.RestPackage;
 
 import org.jetbrains.annotations.NotNull;
 
 public class MainActivity extends ListActivity implements SwipeRefreshLayout.OnRefreshListener {
-
-    @NotNull
-    private static final String LOG_TAG = MainActivity.class.getSimpleName();
 
     @NotNull
     private SwipeRefreshLayout myLayout;
@@ -75,20 +72,7 @@ public class MainActivity extends ListActivity implements SwipeRefreshLayout.OnR
         myOverviewEngine = new OverviewEngine(this, myApplication.getDB(), "Projects", "Build Configurations", "Builds");
         myOverviewEngine.setListener(new OverviewListener());
 
-        myProjectsHandler = new Handler() { // TODO disable handler onDestroy
-            @Override
-            public void handleMessage(@NotNull Message msg) {
-                super.handleMessage(msg);
-
-                myLayout.setRefreshing(false);
-
-                if (msg.what == LoaderPackage.getERROR_CODE()) {
-                    Log.w(LOG_TAG, (Exception) msg.obj); // TODO toast
-                } else {
-                    myOverviewEngine.notifyProjectsChanged();
-                }
-            }
-        };
+        myProjectsHandler = new ProjectsHandler();
 
         getListView().setAdapter(myOverviewEngine.getAdapter());
 
@@ -103,6 +87,13 @@ public class MainActivity extends ListActivity implements SwipeRefreshLayout.OnR
         loadAllData();
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        myProjectsHandler.disable();
+    }
+
     /* LIFECYCLE - END */
 
     @Override
@@ -114,38 +105,6 @@ public class MainActivity extends ListActivity implements SwipeRefreshLayout.OnR
         myLayout.setRefreshing(true);
 
         AsyncTask.execute(myProjectsRunnable);
-    }
-
-    private class ProjectMenuItemClickListener implements PopupMenu.OnMenuItemClickListener {
-
-        @NotNull
-        private final String myId;
-
-        private ProjectMenuItemClickListener(@NotNull String id) {
-            myId = id;
-        }
-
-        @Override
-        public boolean onMenuItemClick(MenuItem item) {
-            switch (item.getItemId()) {
-                case R.id.menu_share:
-                    onShareClick();
-
-                    return true;
-                case R.id.menu_details:
-                    return true;
-                default:
-                    return false;
-            }
-        }
-
-        private void onShareClick() {
-            Intent intent = new Intent(Intent.ACTION_SEND);
-            intent.setType("text/plain");
-            intent.putExtra(Intent.EXTRA_TEXT, myId); // TODO url
-
-            startActivity(Intent.createChooser(intent, "Share"));
-        }
     }
 
     private class OverviewListener implements com.tcity.android.ui.OverviewListener {
@@ -213,6 +172,74 @@ public class MainActivity extends ListActivity implements SwipeRefreshLayout.OnR
         @Override
         public void onBuildOptionsClick(@NotNull String id, @NotNull View anchor) {
             // TODO
+        }
+    }
+
+    private class ProjectMenuItemClickListener implements PopupMenu.OnMenuItemClickListener {
+
+        @NotNull
+        private final String myId;
+
+        private ProjectMenuItemClickListener(@NotNull String id) {
+            myId = id;
+        }
+
+        @Override
+        public boolean onMenuItemClick(MenuItem item) {
+            switch (item.getItemId()) {
+                case R.id.menu_share:
+                    onShareClick();
+
+                    return true;
+                case R.id.menu_details:
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
+        private void onShareClick() {
+            Intent intent = new Intent(Intent.ACTION_SEND);
+            intent.setType("text/plain");
+            intent.putExtra(
+                    Intent.EXTRA_TEXT,
+                    RestPackage.getProjectWebUrl(myId, myApplication.getPreferences())
+            );
+
+            startActivity(Intent.createChooser(intent, "Share"));
+        }
+    }
+
+    private class Handler extends android.os.Handler {
+
+        protected boolean disabled = false;
+
+        public void disable() {
+            disabled = true;
+        }
+    }
+
+    private class ProjectsHandler extends Handler {
+
+        @Override
+        public void handleMessage(@NotNull Message msg) {
+            super.handleMessage(msg);
+
+            if (disabled) {
+                return;
+            }
+
+            myLayout.setRefreshing(false);
+
+            if (msg.what == LoaderPackage.getERROR_CODE()) {
+                Toast.makeText(
+                        MainActivity.this,
+                        ((Exception) msg.obj).getMessage(),
+                        Toast.LENGTH_LONG
+                ).show();
+            } else {
+                myOverviewEngine.notifyProjectsChanged();
+            }
         }
     }
 }

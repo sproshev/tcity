@@ -16,6 +16,8 @@
 
 package com.tcity.android.rest
 
+import com.tcity.android.app.Preferences
+
 private val REST_PATH = "/httpAuth/app/rest/"
 
 public fun getProjectsUrl(): String = "${REST_PATH}projects"
@@ -25,3 +27,7 @@ public fun getBuildConfigurationsUrl(projectId: String): String = "${REST_PATH}p
 public fun getProjectStatusUrl(id: String): String = "${REST_PATH}projects/id:$id/status"
 
 public fun getBuildConfigurationStatusUrl(id: String): String = "${REST_PATH}buildTypes/id:$id/status"
+
+public fun getProjectWebUrl(id: String, preferences: Preferences): String {
+    return "${preferences.getUrl()}/project.html?projectId=$id"
+}
