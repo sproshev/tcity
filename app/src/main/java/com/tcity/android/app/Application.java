@@ -16,8 +16,6 @@
 
 package com.tcity.android.app;
 
-import com.tcity.android.db.DBHelper;
-
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -27,7 +25,7 @@ public class Application extends android.app.Application {
     private Preferences myPreferences;
 
     @Nullable
-    private DBHelper myDBHelper;
+    private DB myDB;
 
     @NotNull
     public Preferences getPreferences() {
@@ -39,12 +37,12 @@ public class Application extends android.app.Application {
     }
 
     @NotNull
-    public DBHelper getDBHelper() {
-        if (myDBHelper == null) {
-            myDBHelper = new DBHelper(this);
+    public DB getDB() {
+        if (myDB == null) {
+            myDB = new DB(this);
         }
 
-        return myDBHelper;
+        return myDB;
     }
 
     @Override
@@ -53,10 +51,6 @@ public class Application extends android.app.Application {
 
         if (myPreferences != null) {
             myPreferences.onTrimMemory();
-        }
-
-        if (myDBHelper != null) {
-            myDBHelper.close();
         }
     }
 }

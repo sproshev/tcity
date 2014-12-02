@@ -27,7 +27,6 @@ import android.database.sqlite.SQLiteException
 import com.tcity.android.db.contentValues
 import com.tcity.android.db.WATCHED_COLUMN
 import com.tcity.android.db.ConceptSchema
-import com.tcity.android.db.DBHelper
 import com.tcity.android.app.Preferences
 import com.tcity.android.db.ProjectSchema
 import com.tcity.android.concept.Project
@@ -36,9 +35,10 @@ import com.tcity.android.db.BuildConfigurationSchema
 import com.tcity.android.concept.BuildConfiguration
 import com.tcity.android.rest.getBuildConfigurationStatusUrl
 import android.os.Handler
+import com.tcity.android.app.DB
 
 public abstract class ConceptStatusesRunnable<T : Concept>(
-        protected val dbHelper: DBHelper,
+        protected val db: DB,
         protected val schema: ConceptSchema<T>,
         protected val preferences: Preferences
 ) : Runnable {
@@ -91,8 +91,8 @@ public abstract class ConceptStatusesRunnable<T : Concept>(
 
     throws(javaClass<SQLiteException>())
     private fun saveStatus(conceptId: String, status: Status) {
-        dbHelper.getWritableDatabase().update(
-                schema.tableName,
+        db.update(
+                schema,
                 status.contentValues,
                 "id = ?",
                 array(conceptId)
@@ -101,8 +101,8 @@ public abstract class ConceptStatusesRunnable<T : Concept>(
 
     throws(javaClass<SQLiteException>())
     private fun saveWatched(conceptId: String) {
-        dbHelper.getWritableDatabase().update(
-                schema.tableName,
+        db.update(
+                schema,
                 true.contentValues(WATCHED_COLUMN),
                 "id = ?",
                 array(conceptId)
@@ -111,11 +111,11 @@ public abstract class ConceptStatusesRunnable<T : Concept>(
 }
 
 public class ProjectStatusesRunnable(
-        dbHelper: DBHelper,
+        db: DB,
         schema: ProjectSchema,
         preferences: Preferences,
         private val handler: Handler? = null
-) : ConceptStatusesRunnable<Project>(dbHelper, schema, preferences) {
+) : ConceptStatusesRunnable<Project>(db, schema, preferences) {
 
     override fun getWatchedConceptIds() = preferences.getWatchedProjectIds()
 
@@ -127,11 +127,11 @@ public class ProjectStatusesRunnable(
 }
 
 public class BuildConfigurationStatusesRunnable(
-        dbHelper: DBHelper,
+        db: DB,
         schema: BuildConfigurationSchema,
         preferences: Preferences,
         private val handler: Handler? = null
-) : ConceptStatusesRunnable<BuildConfiguration>(dbHelper, schema, preferences) {
+) : ConceptStatusesRunnable<BuildConfiguration>(db, schema, preferences) {
 
     override fun getWatchedConceptIds() = preferences.getWatchedBuildConfigurationIds()
 

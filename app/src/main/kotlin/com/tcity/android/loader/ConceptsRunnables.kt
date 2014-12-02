@@ -30,7 +30,6 @@ import com.tcity.android.parser.ProjectsParser
 import com.tcity.android.concept.BuildConfiguration
 import com.tcity.android.rest.getBuildConfigurationsUrl
 import com.tcity.android.parser.BuildConfigurationsParser
-import com.tcity.android.db.DBHelper
 import com.tcity.android.db.ProjectSchema
 import com.tcity.android.db.BuildConfigurationSchema
 import com.tcity.android.app.Preferences
@@ -39,10 +38,11 @@ import com.tcity.android.db.ANDROID_ID_COLUMN
 import java.util.Collections
 import com.tcity.android.concept.ROOT_PROJECT_ID
 import android.os.Handler
+import com.tcity.android.app.DB
 
 
 public abstract class ConceptsRunnable<T : Concept>(
-        protected val dbHelper: DBHelper,
+        protected val db: DB,
         protected val schema: ConceptSchema<T>,
         protected val parser: ConceptsParser<T>,
         protected val preferences: Preferences
@@ -82,12 +82,10 @@ public abstract class ConceptsRunnable<T : Concept>(
 
     throws(javaClass<SQLiteException>())
     private fun saveConcepts(concepts: Collection<T>) {
-        val db = dbHelper.getWritableDatabase()
-
         db.beginTransaction()
 
         try {
-            db.delete(schema.tableName, null, null)
+            db.delete(schema, null, null)
 
             var id = 0
 
@@ -97,7 +95,7 @@ public abstract class ConceptsRunnable<T : Concept>(
 
                     values.put(ANDROID_ID_COLUMN, id)
 
-                    db.insert(schema.tableName, null, values)
+                    db.insert(schema, values)
 
                     id++
                 }
@@ -111,12 +109,12 @@ public abstract class ConceptsRunnable<T : Concept>(
 }
 
 public class ProjectsRunnable(
-        dbHelper: DBHelper,
+        db: DB,
         schema: ProjectSchema,
         parser: ProjectsParser,
         preferences: Preferences,
         private val handler: Handler? = null
-) : ConceptsRunnable<Project>(dbHelper, schema, parser, preferences) {
+) : ConceptsRunnable<Project>(db, schema, parser, preferences) {
 
     override val ignoredConceptIds: Set<String> = setOf(ROOT_PROJECT_ID)
 
@@ -127,12 +125,12 @@ public class ProjectsRunnable(
 
 public class BuildConfigurationsRunnable(
         private val projectId: String,
-        dbHelper: DBHelper,
+        db: DB,
         schema: BuildConfigurationSchema,
         parser: BuildConfigurationsParser,
         preferences: Preferences,
         private val handler: Handler? = null
-) : ConceptsRunnable<BuildConfiguration>(dbHelper, schema, parser, preferences) {
+) : ConceptsRunnable<BuildConfiguration>(db, schema, parser, preferences) {
 
     override fun run() {
         executeSafety({ loadAndSaveConcepts(getBuildConfigurationsUrl(projectId)) }, handler)

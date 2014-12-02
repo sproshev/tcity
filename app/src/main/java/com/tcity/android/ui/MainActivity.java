@@ -80,10 +80,10 @@ public class MainActivity extends ListActivity implements SwipeRefreshLayout.OnR
             public void onProjectWatchClick(@NotNull String id) {
                 if (myApplication.getPreferences().getWatchedProjectIds().contains(id)) {
                     myApplication.getPreferences().removeWatchedProjectId(id);
-                    myApplication.getDBHelper().getWritableDatabase().update(ProjectSchema.INSTANCE$.getTableName(), DbPackage.contentValues(false, DbPackage.getWATCHED_COLUMN()), DbPackage.getTC_ID_COLUMN() + " = ?", new String[]{id});
+                    myApplication.getDB().update(ProjectSchema.INSTANCE$, DbPackage.contentValues(false, DbPackage.getWATCHED_COLUMN()), DbPackage.getTC_ID_COLUMN() + " = ?", new String[]{id});
                 } else {
                     myApplication.getPreferences().addWatchedProjectId(id);
-                    myApplication.getDBHelper().getWritableDatabase().update(ProjectSchema.INSTANCE$.getTableName(), DbPackage.contentValues(true, DbPackage.getWATCHED_COLUMN()), DbPackage.getTC_ID_COLUMN() + " = ?", new String[]{id});
+                    myApplication.getDB().update(ProjectSchema.INSTANCE$, DbPackage.contentValues(true, DbPackage.getWATCHED_COLUMN()), DbPackage.getTC_ID_COLUMN() + " = ?", new String[]{id});
                 }
 
                 myOverviewEngine.notifyProjectsChanged();
@@ -136,7 +136,7 @@ public class MainActivity extends ListActivity implements SwipeRefreshLayout.OnR
             }
         };
 
-        myOverviewEngine = new OverviewEngine(this, myApplication.getDBHelper(), myOverviewListener, "Projects", "Build Configurations", "Builds");
+        myOverviewEngine = new OverviewEngine(this, myApplication.getDB(), myOverviewListener, "Projects", "Build Configurations", "Builds");
 
         myProjectsHandler = new Handler() {
             @Override
@@ -156,7 +156,7 @@ public class MainActivity extends ListActivity implements SwipeRefreshLayout.OnR
         getListView().setAdapter(myOverviewEngine.getAdapter());
 
         myProjectsRunnable = new ProjectsRunnable(
-                myApplication.getDBHelper(),
+                myApplication.getDB(),
                 ProjectSchema.INSTANCE$,
                 ProjectsParser.INSTANCE$,
                 myApplication.getPreferences(),

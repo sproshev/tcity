@@ -14,14 +14,17 @@
  * limitations under the License.
  */
 
-package com.tcity.android.db
+package com.tcity.android.app
 
+import android.content.Context
 import android.database.sqlite.SQLiteOpenHelper
 import android.database.sqlite.SQLiteDatabase
-import android.content.Context
+import com.tcity.android.db.BuildSchema
+import com.tcity.android.db.BuildConfigurationSchema
+import com.tcity.android.db.ProjectSchema
 import android.util.Log
 
-public class DBHelper(context: Context) : SQLiteOpenHelper(context, "tcity", null, 1) {
+private class DBHelper(context: Context) : SQLiteOpenHelper(context, "tcity", null, 1) {
 
     class object {
         private val LOG_TAG = javaClass<DBHelper>().getSimpleName()
@@ -62,6 +65,3 @@ public class DBHelper(context: Context) : SQLiteOpenHelper(context, "tcity", nul
         }
     }
 }
-
-
-
