@@ -22,7 +22,6 @@ import android.database.sqlite.SQLiteDatabase
 import com.tcity.android.db.BuildSchema
 import com.tcity.android.db.BuildConfigurationSchema
 import com.tcity.android.db.ProjectSchema
-import android.util.Log
 
 private class DBHelper(context: Context) : SQLiteOpenHelper(context, "tcity", null, 1) {
 
@@ -36,32 +35,19 @@ private class DBHelper(context: Context) : SQLiteOpenHelper(context, "tcity", nu
     }
 
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
-        upgrade(db, oldVersion, newVersion)
+        drop(db)
+        create(db)
     }
 
     private fun create(db: SQLiteDatabase) {
         SCHEMAS.forEach {
             db.execSQL(it.createScript)
-
-            Log.d(LOG_TAG, "Table was created [name: ${it.tableName}]")
         }
-    }
-
-    private fun upgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
-        drop(db)
-        create(db)
-
-        Log.d(
-                LOG_TAG,
-                "DB was upgraded: [oldVersion: $oldVersion, newVersion: $newVersion]"
-        )
     }
 
     private fun drop(db: SQLiteDatabase) {
         SCHEMAS.forEach {
             db.execSQL(it.dropScript)
-
-            Log.d(LOG_TAG, "Table was dropped [name: ${it.tableName}]")
         }
     }
 }

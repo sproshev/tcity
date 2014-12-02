@@ -59,13 +59,7 @@ public abstract class ConceptStatusesRunnable<T : Concept>(
 
     private fun loadAndSaveStatus(conceptId: String) {
         try {
-            val status = loadStatus(conceptId)
-
-            Log.d(LOG_TAG, "Status was loaded: [table: ${schema.tableName}, id: $conceptId, status: $status]")
-
-            saveStatus(conceptId, status)
-
-            Log.d(LOG_TAG, "Status was saved: [table: ${schema.tableName}, id: $conceptId, status: $status]")
+            saveStatus(conceptId, loadStatus(conceptId))
         } catch (e: Exception) {
             Log.w(LOG_TAG, e.getMessage())
         }
@@ -73,10 +67,7 @@ public abstract class ConceptStatusesRunnable<T : Concept>(
 
     throws(javaClass<IOException>())
     private fun loadStatus(conceptId: String): Status {
-        val response = rest.get(
-                preferences.getUrl() + getStatusUrl(conceptId),
-                preferences.getAuth()
-        )
+        val response = rest.get(getStatusUrl(conceptId), preferences.getAuth())
 
         val statusLine = response.getStatusLine()
 
@@ -119,7 +110,7 @@ public class ProjectStatusesRunnable(
 
     override fun getWatchedConceptIds() = preferences.getWatchedProjectIds()
 
-    override fun getStatusUrl(conceptId: String) = getProjectStatusUrl(conceptId)
+    override fun getStatusUrl(conceptId: String) = getProjectStatusUrl(conceptId, preferences)
 
     override fun run() {
         executeSafety({ loadAndSaveStatuses() }, handler)
@@ -135,7 +126,7 @@ public class BuildConfigurationStatusesRunnable(
 
     override fun getWatchedConceptIds() = preferences.getWatchedBuildConfigurationIds()
 
-    override fun getStatusUrl(conceptId: String) = getBuildConfigurationStatusUrl(conceptId)
+    override fun getStatusUrl(conceptId: String) = getBuildConfigurationStatusUrl(conceptId, preferences)
 
     override fun run() {
         executeSafety({ loadAndSaveStatuses() }, handler)

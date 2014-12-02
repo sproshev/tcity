@@ -23,7 +23,6 @@ import org.apache.http.HttpStatus
 import android.database.sqlite.SQLiteException
 import com.tcity.android.db.ConceptSchema
 import com.tcity.android.db.contentValues
-import android.util.Log
 import com.tcity.android.concept.Project
 import com.tcity.android.rest.getProjectsUrl
 import com.tcity.android.parser.ProjectsParser
@@ -55,21 +54,12 @@ public abstract class ConceptsRunnable<T : Concept>(
     protected open val ignoredConceptIds: Set<String> = Collections.emptySet()
 
     protected fun loadAndSaveConcepts(conceptsPath: String) {
-        val concepts = loadConcepts(conceptsPath)
-
-        Log.d(LOG_TAG, "Concepts were loaded: [table: ${schema.tableName}]")
-
-        saveConcepts(concepts)
-
-        Log.d(LOG_TAG, "Concepts were saved: [table: ${schema.tableName}]")
+        saveConcepts(loadConcepts(conceptsPath))
     }
 
     throws(javaClass<IOException>())
-    private fun loadConcepts(conceptsPath: String): Collection<T> {
-        val response = rest.get(
-                preferences.getUrl() + conceptsPath,
-                preferences.getAuth()
-        )
+    private fun loadConcepts(url: String): Collection<T> {
+        val response = rest.get(url, preferences.getAuth())
 
         val statusLine = response.getStatusLine()
 
@@ -119,7 +109,7 @@ public class ProjectsRunnable(
     override val ignoredConceptIds: Set<String> = setOf(ROOT_PROJECT_ID)
 
     override fun run() {
-        executeSafety({ loadAndSaveConcepts(getProjectsUrl()) }, handler)
+        executeSafety({ loadAndSaveConcepts(getProjectsUrl(preferences)) }, handler)
     }
 }
 
@@ -133,6 +123,9 @@ public class BuildConfigurationsRunnable(
 ) : ConceptsRunnable<BuildConfiguration>(db, schema, parser, preferences) {
 
     override fun run() {
-        executeSafety({ loadAndSaveConcepts(getBuildConfigurationsUrl(projectId)) }, handler)
+        executeSafety(
+                { loadAndSaveConcepts(getBuildConfigurationsUrl(projectId, preferences)) },
+                handler
+        )
     }
 }
