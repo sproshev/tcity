@@ -33,11 +33,12 @@ import com.tcity.android.app.DB
 private class OverviewEngine(
         private val context: Context,
         private val db: DB,
-        private val listener: OverviewListener,
         private val projectsSectionName: String,
         private val buildConfigurationsSectionName: String,
         private val buildsSectionName: String
 ) {
+
+    public var listener: OverviewListener? = null
 
     public val adapter: MergeAdapter = MergeAdapter()
 
@@ -73,22 +74,22 @@ private class OverviewEngine(
         val inflater = LayoutInflater.from(context)
         val watchedPrefix = context.getResources().getString(R.string.watched)
 
-        watchedBuildsHeader = inflater.inflate(R.layout.separator_item, null, false) as TextView // TODO
+        watchedBuildsHeader = inflater.inflate(R.layout.separator_item, null, false) as TextView // TODO parent
         watchedBuildsHeader.setText("$watchedPrefix $buildsSectionName")
 
-        watchedBuildConfigurationsHeader = inflater.inflate(R.layout.separator_item, null, false) as TextView // TODO
+        watchedBuildConfigurationsHeader = inflater.inflate(R.layout.separator_item, null, false) as TextView // TODO parent
         watchedBuildConfigurationsHeader.setText("$watchedPrefix $buildConfigurationsSectionName")
 
-        watchedProjectsHeader = inflater.inflate(R.layout.separator_item, null, false) as TextView // TODO
+        watchedProjectsHeader = inflater.inflate(R.layout.separator_item, null, false) as TextView // TODO parent
         watchedProjectsHeader.setText("$watchedPrefix $projectsSectionName")
 
-        buildsHeader = inflater.inflate(R.layout.separator_item, null, false) as TextView // TODO
+        buildsHeader = inflater.inflate(R.layout.separator_item, null, false) as TextView // TODO parent
         buildsHeader.setText(buildsSectionName)
 
-        buildConfigurationsHeader = inflater.inflate(R.layout.separator_item, null, false) as TextView // TODO
+        buildConfigurationsHeader = inflater.inflate(R.layout.separator_item, null, false) as TextView // TODO parent
         buildConfigurationsHeader.setText(buildConfigurationsSectionName)
 
-        projectsHeader = inflater.inflate(R.layout.separator_item, null, false) as TextView // TODO
+        projectsHeader = inflater.inflate(R.layout.separator_item, null, false) as TextView // TODO parent
         projectsHeader.setText(projectsSectionName)
 
         watchedBuildsCursor = db.query(BuildSchema, null, "$WATCHED_COLUMN = ?", array(true.contentValue.toString()), null, null, null)
@@ -100,21 +101,21 @@ private class OverviewEngine(
         buildsCursor = db.query(BuildSchema, null, null, null, null, null, null)
 
         projectListener = object : ConceptListener {
-            override fun onWatchClick(id: String) = listener.onProjectWatchClick(id)
-            override fun onNameClick(id: String) = listener.onProjectNameClick(id)
-            override fun onOptionsClick(id: String, anchor: View) = listener.onProjectOptionsClick(id, anchor)
+            override fun onWatchClick(id: String) = listener?.onProjectWatchClick(id)
+            override fun onNameClick(id: String) = listener?.onProjectNameClick(id)
+            override fun onOptionsClick(id: String, anchor: View) = listener?.onProjectOptionsClick(id, anchor)
         }
 
         buildConfigurationListener = object : ConceptListener {
-            override fun onWatchClick(id: String) = listener.onBuildConfigurationWatchClick(id)
-            override fun onNameClick(id: String) = listener.onBuildConfigurationNameClick(id)
-            override fun onOptionsClick(id: String, anchor: View) = listener.onBuildConfigurationOptionsClick(id, anchor)
+            override fun onWatchClick(id: String) = listener?.onBuildConfigurationWatchClick(id)
+            override fun onNameClick(id: String) = listener?.onBuildConfigurationNameClick(id)
+            override fun onOptionsClick(id: String, anchor: View) = listener?.onBuildConfigurationOptionsClick(id, anchor)
         }
 
         buildListener = object : ConceptListener {
-            override fun onWatchClick(id: String) = listener.onBuildWatchClick(id)
-            override fun onNameClick(id: String) = listener.onBuildNameClick(id)
-            override fun onOptionsClick(id: String, anchor: View) = listener.onBuildOptionsClick(id, anchor)
+            override fun onWatchClick(id: String) = listener?.onBuildWatchClick(id)
+            override fun onNameClick(id: String) = listener?.onBuildNameClick(id)
+            override fun onOptionsClick(id: String, anchor: View) = listener?.onBuildOptionsClick(id, anchor)
         }
 
         watchedBuildsAdapter = ConceptsCursorAdapter(context, buildListener)

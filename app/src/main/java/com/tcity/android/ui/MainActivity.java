@@ -50,9 +50,6 @@ public class MainActivity extends ListActivity implements SwipeRefreshLayout.OnR
     private Application myApplication;
 
     @NotNull
-    private OverviewListener myOverviewListener;
-
-    @NotNull
     private OverviewEngine myOverviewEngine;
 
     @NotNull
@@ -70,75 +67,15 @@ public class MainActivity extends ListActivity implements SwipeRefreshLayout.OnR
         setContentView(R.layout.overview);
 
         myLayout = (SwipeRefreshLayout) findViewById(R.id.overview_layout);
-        myLayout.setOnRefreshListener(this);
         myLayout.setColorSchemeResources(android.R.color.holo_blue_bright, android.R.color.holo_purple); // TODO change colors
+        myLayout.setOnRefreshListener(this);
 
         myApplication = (Application) getApplication();
 
-        myOverviewListener = new OverviewListener() {
-            @Override
-            public void onProjectWatchClick(@NotNull String id) {
-                if (myApplication.getPreferences().getWatchedProjectIds().contains(id)) {
-                    myApplication.getPreferences().removeWatchedProjectId(id);
-                    myApplication.getDB().update(ProjectSchema.INSTANCE$, DbPackage.contentValues(false, DbPackage.getWATCHED_COLUMN()), DbPackage.getTC_ID_COLUMN() + " = ?", new String[]{id});
-                } else {
-                    myApplication.getPreferences().addWatchedProjectId(id);
-                    myApplication.getDB().update(ProjectSchema.INSTANCE$, DbPackage.contentValues(true, DbPackage.getWATCHED_COLUMN()), DbPackage.getTC_ID_COLUMN() + " = ?", new String[]{id});
-                }
+        myOverviewEngine = new OverviewEngine(this, myApplication.getDB(), "Projects", "Build Configurations", "Builds");
+        myOverviewEngine.setListener(new OverviewListener());
 
-                myOverviewEngine.notifyProjectsChanged();
-            }
-
-            @Override
-            public void onBuildConfigurationWatchClick(@NotNull String id) {
-
-            }
-
-            @Override
-            public void onBuildWatchClick(@NotNull String id) {
-
-            }
-
-            @Override
-            public void onProjectNameClick(@NotNull String id) {
-
-            }
-
-            @Override
-            public void onBuildConfigurationNameClick(@NotNull String id) {
-
-            }
-
-            @Override
-            public void onBuildNameClick(@NotNull String id) {
-
-            }
-
-            @Override
-            public void onProjectOptionsClick(@NotNull String id, @NotNull View anchor) {
-                PopupMenu menu = new PopupMenu(MainActivity.this, anchor);
-
-                menu.inflate(R.menu.menu_concept);
-
-                menu.setOnMenuItemClickListener(new ProjectMenuItemClickListener(id));
-
-                menu.show();
-            }
-
-            @Override
-            public void onBuildConfigurationOptionsClick(@NotNull String id, @NotNull View anchor) {
-
-            }
-
-            @Override
-            public void onBuildOptionsClick(@NotNull String id, @NotNull View anchor) {
-
-            }
-        };
-
-        myOverviewEngine = new OverviewEngine(this, myApplication.getDB(), myOverviewListener, "Projects", "Build Configurations", "Builds");
-
-        myProjectsHandler = new Handler() {
+        myProjectsHandler = new Handler() { // TODO disable handler onDestroy
             @Override
             public void handleMessage(@NotNull Message msg) {
                 super.handleMessage(msg);
@@ -146,7 +83,7 @@ public class MainActivity extends ListActivity implements SwipeRefreshLayout.OnR
                 myLayout.setRefreshing(false);
 
                 if (msg.what == LoaderPackage.getERROR_CODE()) {
-                    Log.w(LOG_TAG, (Exception) msg.obj);
+                    Log.w(LOG_TAG, (Exception) msg.obj); // TODO toast
                 } else {
                     myOverviewEngine.notifyProjectsChanged();
                 }
@@ -208,6 +145,74 @@ public class MainActivity extends ListActivity implements SwipeRefreshLayout.OnR
             intent.putExtra(Intent.EXTRA_TEXT, myId); // TODO url
 
             startActivity(Intent.createChooser(intent, "Share"));
+        }
+    }
+
+    private class OverviewListener implements com.tcity.android.ui.OverviewListener {
+        @Override
+        public void onProjectWatchClick(@NotNull String id) {
+            boolean watched = myApplication.getPreferences().getWatchedProjectIds().contains(id);
+
+            if (watched) {
+                myApplication.getPreferences().removeWatchedProjectId(id);
+            } else {
+                myApplication.getPreferences().addWatchedProjectId(id);
+            }
+
+            myApplication.getDB().update(
+                    ProjectSchema.INSTANCE$,
+                    DbPackage.contentValues(!watched, DbPackage.getWATCHED_COLUMN()),
+                    DbPackage.getTC_ID_COLUMN() + " = ?",
+                    new String[]{id}
+            );
+
+            myOverviewEngine.notifyProjectsChanged();
+        }
+
+        @Override
+        public void onBuildConfigurationWatchClick(@NotNull String id) {
+            // TODO
+        }
+
+        @Override
+        public void onBuildWatchClick(@NotNull String id) {
+            // TODO
+        }
+
+        @Override
+        public void onProjectNameClick(@NotNull String id) {
+            // TODO
+        }
+
+        @Override
+        public void onBuildConfigurationNameClick(@NotNull String id) {
+            // TODO
+        }
+
+        @Override
+        public void onBuildNameClick(@NotNull String id) {
+            // TODO
+        }
+
+        @Override
+        public void onProjectOptionsClick(@NotNull String id, @NotNull View anchor) {
+            PopupMenu menu = new PopupMenu(MainActivity.this, anchor);
+
+            menu.inflate(R.menu.menu_concept);
+
+            menu.setOnMenuItemClickListener(new ProjectMenuItemClickListener(id));
+
+            menu.show();
+        }
+
+        @Override
+        public void onBuildConfigurationOptionsClick(@NotNull String id, @NotNull View anchor) {
+            // TODO
+        }
+
+        @Override
+        public void onBuildOptionsClick(@NotNull String id, @NotNull View anchor) {
+            // TODO
         }
     }
 }
