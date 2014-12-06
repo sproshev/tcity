@@ -21,10 +21,17 @@ import com.tcity.android.db.Schema
 import android.content.ContentValues
 import android.database.Cursor
 import android.database.sqlite.SQLiteException
+import com.tcity.android.db.BuildSchema
+import com.tcity.android.db.BuildConfigurationSchema
+import com.tcity.android.db.ProjectSchema
 
 public class DB protected (context: Context) {
 
-    private val dbHelper = DBHelper(context)
+    class object {
+        private val SCHEMAS = listOf(BuildSchema, BuildConfigurationSchema, ProjectSchema)
+    }
+
+    private val dbHelper = DBHelper(context, SCHEMAS)
 
     throws(javaClass<SQLiteException>())
     public fun update(

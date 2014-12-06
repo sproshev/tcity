@@ -19,16 +19,9 @@ package com.tcity.android.app
 import android.content.Context
 import android.database.sqlite.SQLiteOpenHelper
 import android.database.sqlite.SQLiteDatabase
-import com.tcity.android.db.BuildSchema
-import com.tcity.android.db.BuildConfigurationSchema
-import com.tcity.android.db.ProjectSchema
+import com.tcity.android.db.Schema
 
-private class DBHelper(context: Context) : SQLiteOpenHelper(context, "tcity", null, 1) {
-
-    class object {
-        private val LOG_TAG = javaClass<DBHelper>().getSimpleName()
-        private val SCHEMAS = listOf(BuildSchema, BuildConfigurationSchema, ProjectSchema)
-    }
+private class DBHelper(context: Context, private val schemas: Collection<Schema>) : SQLiteOpenHelper(context, null, null, 1) {
 
     override fun onCreate(db: SQLiteDatabase) {
         create(db)
@@ -40,13 +33,13 @@ private class DBHelper(context: Context) : SQLiteOpenHelper(context, "tcity", nu
     }
 
     private fun create(db: SQLiteDatabase) {
-        SCHEMAS.forEach {
+        schemas.forEach {
             db.execSQL(it.createScript)
         }
     }
 
     private fun drop(db: SQLiteDatabase) {
-        SCHEMAS.forEach {
+        schemas.forEach {
             db.execSQL(it.dropScript)
         }
     }
