@@ -23,83 +23,80 @@ import android.util.JsonReader
 import java.io.IOException
 import java.util.ArrayList
 
-object BuildConfigurationsParser : ConceptsParser<BuildConfiguration> {
+public fun parseBuildConfigurations(stream: InputStream): List<BuildConfiguration> {
+    val reader = JsonReader(InputStreamReader(stream))
 
-    override fun parse(stream: InputStream): List<BuildConfiguration> {
-        val reader = JsonReader(InputStreamReader(stream))
+    var result: List<BuildConfiguration>? = null
+    var capacity = 10
 
-        var result: List<BuildConfiguration>? = null
-        var capacity = 10
-
-        try {
-            reader.beginObject()
-
-            while (reader.hasNext()) {
-                when (reader.nextName()) {
-                    "count" -> capacity = reader.nextInt()
-                    "buildType" -> result = readBuildConfigurations(reader, capacity)
-                    else -> reader.skipValue()
-                }
-            }
-
-            reader.endObject()
-        } finally {
-            reader.close()
-        }
-
-        if (result != null) {
-            return result!!
-        } else {
-            throw IOException("Invalid build configurations json: \"buildType\" is absent.")
-        }
-    }
-
-    throws(javaClass<IOException>())
-    private fun readBuildConfigurations(reader: JsonReader, capacity: Int): List<BuildConfiguration> {
-        val result = ArrayList<BuildConfiguration>(Math.max(capacity, 0))
-
-        reader.beginArray()
-
-        while (reader.hasNext()) {
-            result.add(readBuildConfiguration(reader))
-        }
-
-        reader.endArray()
-
-        return result
-    }
-
-    throws(javaClass<IOException>())
-    private fun readBuildConfiguration(reader: JsonReader): BuildConfiguration {
+    try {
         reader.beginObject()
-
-        var id: String? = null
-        var name: String? = null
-        var parentId: String? = null
 
         while (reader.hasNext()) {
             when (reader.nextName()) {
-                "id" -> id = reader.nextString()
-                "name" -> name = reader.nextString()
-                "projectId" -> parentId = reader.nextString()
+                "count" -> capacity = reader.nextInt()
+                "buildType" -> result = parseBuildConfigurations(reader, capacity)
                 else -> reader.skipValue()
             }
         }
 
         reader.endObject()
-
-        if (id == null) {
-            throw IOException("Invalid build configuration json: \"id\" is absent")
-        }
-
-        if (name == null) {
-            throw IOException("Invalid build configuration json: \"name\" is absent")
-        }
-
-        if (parentId == null) {
-            throw IOException("Invalid build configuration json: \"projectId\" is absent")
-        }
-
-        return BuildConfiguration(id!!, name!!, parentId!!)
+    } finally {
+        reader.close()
     }
+
+    if (result != null) {
+        return result!!
+    } else {
+        throw IOException("Invalid build configurations json: \"buildType\" is absent.")
+    }
+}
+
+throws(javaClass<IOException>())
+private fun parseBuildConfigurations(reader: JsonReader, capacity: Int): List<BuildConfiguration> {
+    val result = ArrayList<BuildConfiguration>(Math.max(capacity, 0))
+
+    reader.beginArray()
+
+    while (reader.hasNext()) {
+        result.add(parseBuildConfiguration(reader))
+    }
+
+    reader.endArray()
+
+    return result
+}
+
+throws(javaClass<IOException>())
+private fun parseBuildConfiguration(reader: JsonReader): BuildConfiguration {
+    reader.beginObject()
+
+    var id: String? = null
+    var name: String? = null
+    var parentId: String? = null
+
+    while (reader.hasNext()) {
+        when (reader.nextName()) {
+            "id" -> id = reader.nextString()
+            "name" -> name = reader.nextString()
+            "projectId" -> parentId = reader.nextString()
+            else -> reader.skipValue()
+        }
+    }
+
+    reader.endObject()
+
+    if (id == null) {
+        throw IOException("Invalid build configuration json: \"id\" is absent")
+    }
+
+    if (name == null) {
+        throw IOException("Invalid build configuration json: \"name\" is absent")
+    }
+
+    if (parentId == null) {
+        throw IOException("Invalid build configuration json: \"projectId\" is absent")
+    }
+
+    return BuildConfiguration(id!!, name!!, parentId!!)
 }

@@ -18,17 +18,14 @@ package com.tcity.android.loader
 
 import com.tcity.android.concept.Concept
 import java.io.IOException
-import com.tcity.android.parser.ConceptsParser
 import org.apache.http.HttpStatus
 import android.database.sqlite.SQLiteException
 import com.tcity.android.db.ConceptSchema
 import com.tcity.android.db.contentValues
 import com.tcity.android.concept.Project
 import com.tcity.android.rest.getProjectsUrl
-import com.tcity.android.parser.ProjectsParser
 import com.tcity.android.concept.BuildConfiguration
 import com.tcity.android.rest.getBuildConfigurationsUrl
-import com.tcity.android.parser.BuildConfigurationsParser
 import com.tcity.android.db.ProjectSchema
 import com.tcity.android.db.BuildConfigurationSchema
 import com.tcity.android.app.Preferences
@@ -37,12 +34,15 @@ import com.tcity.android.db.ANDROID_ID_COLUMN
 import java.util.Collections
 import com.tcity.android.concept.ROOT_PROJECT_ID
 import com.tcity.android.app.DB
+import java.io.InputStream
+import com.tcity.android.parser.parseProjects
+import com.tcity.android.parser.parseBuildConfigurations
 
 
 public abstract class ConceptsRunnable<T : Concept>(
         protected val db: DB,
         protected val schema: ConceptSchema<T>,
-        protected val parser: ConceptsParser<T>,
+        protected val parser: (InputStream) -> Collection<T>,
         protected val preferences: Preferences
 ) : Runnable {
 
@@ -61,7 +61,7 @@ public abstract class ConceptsRunnable<T : Concept>(
         if (statusLine.getStatusCode() != HttpStatus.SC_OK) {
             throw HttpStatusException(statusLine)
         } else {
-            return parser.parse(response.getEntity().getContent())
+            return parser(response.getEntity().getContent())
         }
     }
 
@@ -97,7 +97,7 @@ public class ProjectsRunnable(
         db: DB,
         preferences: Preferences,
         private val receiver: Receiver? = null
-) : ConceptsRunnable<Project>(db, ProjectSchema, ProjectsParser, preferences) {
+) : ConceptsRunnable<Project>(db, ProjectSchema, ::parseProjects, preferences) {
 
     override val ignoredConceptIds: Set<String> = setOf(ROOT_PROJECT_ID)
 
@@ -111,7 +111,7 @@ public class BuildConfigurationsRunnable(
         db: DB,
         preferences: Preferences,
         private val receiver: Receiver? = null
-) : ConceptsRunnable<BuildConfiguration>(db, BuildConfigurationSchema, BuildConfigurationsParser, preferences) {
+) : ConceptsRunnable<BuildConfiguration>(db, BuildConfigurationSchema, ::parseBuildConfigurations, preferences) {
 
     override fun run() {
         executeSafety(
