@@ -35,6 +35,7 @@ import com.tcity.android.db.BuildConfigurationSchema
 import com.tcity.android.concept.BuildConfiguration
 import com.tcity.android.rest.getBuildConfigurationStatusUrl
 import com.tcity.android.app.DB
+import com.tcity.android.db.TC_ID_COLUMN
 
 public abstract class ConceptStatusesRunnable<T : Concept>(
         protected val db: DB,
@@ -66,7 +67,7 @@ public abstract class ConceptStatusesRunnable<T : Concept>(
 
     throws(javaClass<IOException>(), javaClass<HttpStatusException>())
     private fun loadStatus(conceptId: String): Status {
-        val response = rest.get(getStatusUrl(conceptId), preferences.getAuth())
+        val response = rest.getPlain(getStatusUrl(conceptId), preferences.getAuth())
 
         val statusLine = response.getStatusLine()
 
@@ -84,7 +85,7 @@ public abstract class ConceptStatusesRunnable<T : Concept>(
         db.update(
                 schema,
                 status.contentValues,
-                "id = ?",
+                "$TC_ID_COLUMN = ?",
                 array(conceptId)
         )
     }
@@ -94,7 +95,7 @@ public abstract class ConceptStatusesRunnable<T : Concept>(
         db.update(
                 schema,
                 true.contentValues(WATCHED_COLUMN),
-                "id = ?",
+                "$TC_ID_COLUMN = ?",
                 array(conceptId)
         )
     }

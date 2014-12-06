@@ -28,12 +28,19 @@ import java.io.IOException
 private val CONNECTION_TIMEOUT = 5000
 private val HTTP_CLIENT = DefaultHttpClient(calculateHttpParams())
 
-[throws(javaClass<IOException>())]
-public fun get(path: String, auth: String): HttpResponse {
+throws(javaClass<IOException>())
+public fun getJson(path: String, auth: String): HttpResponse = get(path, auth, "application/json")
+
+throws(javaClass<IOException>())
+public fun getPlain(path: String, auth: String): HttpResponse = get(path, auth, "text/plain")
+
+throws(javaClass<IOException>())
+private fun get(path: String, auth: String, format: String): HttpResponse {
     val request = HttpGet()
 
     request.addHeader("Authorization", "Basic " + auth)
-    request.addHeader("Accept", "application/json")
+    request.addHeader("Accept", format)
+
     request.setURI(URI.create(path))
 
     return HTTP_CLIENT.execute(request)

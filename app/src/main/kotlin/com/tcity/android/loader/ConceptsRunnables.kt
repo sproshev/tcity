@@ -54,7 +54,7 @@ public abstract class ConceptsRunnable<T : Concept>(
 
     throws(javaClass<IOException>(), javaClass<HttpStatusException>())
     private fun loadConcepts(url: String): Collection<T> {
-        val response = rest.get(url, preferences.getAuth())
+        val response = rest.getJson(url, preferences.getAuth())
 
         val statusLine = response.getStatusLine()
 
