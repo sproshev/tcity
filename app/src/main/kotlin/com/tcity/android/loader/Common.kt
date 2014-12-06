@@ -17,22 +17,46 @@
 package com.tcity.android.loader
 
 import org.apache.http.StatusLine
+import java.io.IOException
 import android.os.Handler
+import java.util.concurrent.atomic.AtomicBoolean
 
-public val ERROR_CODE: Int = -1
-public val OK_CODE: Int = 0
-
-private fun executeSafety(lambda: () -> Unit, handler: Handler? = null) {
+private fun executeSafety(lambda: () -> Unit, receiver: Receiver? = null) {
     try {
         lambda()
 
-        handler?.sendEmptyMessage(OK_CODE)
+        receiver?.receiveSuccess()
     } catch (e: Exception) {
-        handler?.sendMessage(
-                handler?.obtainMessage(ERROR_CODE, e)
-        )
+        receiver?.receiveException(e)
     }
 }
 
-private val StatusLine.exceptionMessage: String
-    get() = "${getStatusCode()} ${getReasonPhrase()}"
+public class HttpStatusException(status: StatusLine) : IOException("${status.getStatusCode()} ${status.getReasonPhrase()}")
+
+public class Receiver(private val handler: Handler) {
+
+    class object {
+        public val ERROR_CODE: Int = -1
+        public val OK_CODE: Int = 0
+    }
+
+    private var disabled = AtomicBoolean(false)
+
+    public fun disable() {
+        disabled.set(true)
+    }
+
+    public fun receiveSuccess() {
+        if (!disabled.get()) {
+            handler.sendEmptyMessage(OK_CODE)
+        }
+    }
+
+    public fun receiveException(e: Exception) {
+        if (!disabled.get()) {
+            handler.sendMessage(
+                    handler.obtainMessage(ERROR_CODE, e)
+            )
+        }
+    }
+}

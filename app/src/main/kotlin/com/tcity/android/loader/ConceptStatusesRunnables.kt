@@ -34,7 +34,6 @@ import com.tcity.android.rest.getProjectStatusUrl
 import com.tcity.android.db.BuildConfigurationSchema
 import com.tcity.android.concept.BuildConfiguration
 import com.tcity.android.rest.getBuildConfigurationStatusUrl
-import android.os.Handler
 import com.tcity.android.app.DB
 
 public abstract class ConceptStatusesRunnable<T : Concept>(
@@ -65,14 +64,14 @@ public abstract class ConceptStatusesRunnable<T : Concept>(
         }
     }
 
-    throws(javaClass<IOException>())
+    throws(javaClass<IOException>(), javaClass<HttpStatusException>())
     private fun loadStatus(conceptId: String): Status {
         val response = rest.get(getStatusUrl(conceptId), preferences.getAuth())
 
         val statusLine = response.getStatusLine()
 
         if (statusLine.getStatusCode() != HttpStatus.SC_OK) {
-            throw IOException(statusLine.exceptionMessage)
+            throw HttpStatusException(statusLine)
         } else {
             return Status.valueOf(
                     EntityUtils.toString(response.getEntity())
@@ -103,32 +102,30 @@ public abstract class ConceptStatusesRunnable<T : Concept>(
 
 public class ProjectStatusesRunnable(
         db: DB,
-        schema: ProjectSchema,
         preferences: Preferences,
-        private val handler: Handler? = null
-) : ConceptStatusesRunnable<Project>(db, schema, preferences) {
+        private val receiver: Receiver? = null
+) : ConceptStatusesRunnable<Project>(db, ProjectSchema, preferences) {
 
     override fun getWatchedConceptIds() = preferences.getWatchedProjectIds()
 
     override fun getStatusUrl(conceptId: String) = getProjectStatusUrl(conceptId, preferences)
 
     override fun run() {
-        executeSafety({ loadAndSaveStatuses() }, handler)
+        executeSafety({ loadAndSaveStatuses() }, receiver)
     }
 }
 
 public class BuildConfigurationStatusesRunnable(
         db: DB,
-        schema: BuildConfigurationSchema,
         preferences: Preferences,
-        private val handler: Handler? = null
-) : ConceptStatusesRunnable<BuildConfiguration>(db, schema, preferences) {
+        private val receiver: Receiver? = null
+) : ConceptStatusesRunnable<BuildConfiguration>(db, BuildConfigurationSchema, preferences) {
 
     override fun getWatchedConceptIds() = preferences.getWatchedBuildConfigurationIds()
 
     override fun getStatusUrl(conceptId: String) = getBuildConfigurationStatusUrl(conceptId, preferences)
 
     override fun run() {
-        executeSafety({ loadAndSaveStatuses() }, handler)
+        executeSafety({ loadAndSaveStatuses() }, receiver)
     }
 }

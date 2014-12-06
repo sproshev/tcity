@@ -36,7 +36,6 @@ import com.tcity.android.rest
 import com.tcity.android.db.ANDROID_ID_COLUMN
 import java.util.Collections
 import com.tcity.android.concept.ROOT_PROJECT_ID
-import android.os.Handler
 import com.tcity.android.app.DB
 
 
@@ -47,24 +46,20 @@ public abstract class ConceptsRunnable<T : Concept>(
         protected val preferences: Preferences
 ) : Runnable {
 
-    class object {
-        private val LOG_TAG = javaClass<ConceptsRunnable<*>>().getSimpleName()
-    }
-
     protected open val ignoredConceptIds: Set<String> = Collections.emptySet()
 
     protected fun loadAndSaveConcepts(conceptsPath: String) {
         saveConcepts(loadConcepts(conceptsPath))
     }
 
-    throws(javaClass<IOException>())
+    throws(javaClass<IOException>(), javaClass<HttpStatusException>())
     private fun loadConcepts(url: String): Collection<T> {
         val response = rest.get(url, preferences.getAuth())
 
         val statusLine = response.getStatusLine()
 
         if (statusLine.getStatusCode() != HttpStatus.SC_OK) {
-            throw IOException(statusLine.exceptionMessage)
+            throw HttpStatusException(statusLine)
         } else {
             return parser.parse(response.getEntity().getContent())
         }
@@ -100,32 +95,28 @@ public abstract class ConceptsRunnable<T : Concept>(
 
 public class ProjectsRunnable(
         db: DB,
-        schema: ProjectSchema,
-        parser: ProjectsParser,
         preferences: Preferences,
-        private val handler: Handler? = null
-) : ConceptsRunnable<Project>(db, schema, parser, preferences) {
+        private val receiver: Receiver? = null
+) : ConceptsRunnable<Project>(db, ProjectSchema, ProjectsParser, preferences) {
 
     override val ignoredConceptIds: Set<String> = setOf(ROOT_PROJECT_ID)
 
     override fun run() {
-        executeSafety({ loadAndSaveConcepts(getProjectsUrl(preferences)) }, handler)
+        executeSafety({ loadAndSaveConcepts(getProjectsUrl(preferences)) }, receiver)
     }
 }
 
 public class BuildConfigurationsRunnable(
         private val projectId: String,
         db: DB,
-        schema: BuildConfigurationSchema,
-        parser: BuildConfigurationsParser,
         preferences: Preferences,
-        private val handler: Handler? = null
-) : ConceptsRunnable<BuildConfiguration>(db, schema, parser, preferences) {
+        private val receiver: Receiver? = null
+) : ConceptsRunnable<BuildConfiguration>(db, BuildConfigurationSchema, BuildConfigurationsParser, preferences) {
 
     override fun run() {
         executeSafety(
                 { loadAndSaveConcepts(getBuildConfigurationsUrl(projectId, preferences)) },
-                handler
+                receiver
         )
     }
 }
