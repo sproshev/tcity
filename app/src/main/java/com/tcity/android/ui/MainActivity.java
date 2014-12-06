@@ -20,6 +20,7 @@ import android.app.ListActivity;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Message;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.MenuItem;
@@ -31,9 +32,8 @@ import com.tcity.android.R;
 import com.tcity.android.app.Application;
 import com.tcity.android.db.DbPackage;
 import com.tcity.android.db.ProjectSchema;
-import com.tcity.android.loader.LoaderPackage;
 import com.tcity.android.loader.ProjectsRunnable;
-import com.tcity.android.parser.ProjectsParser;
+import com.tcity.android.loader.Receiver;
 import com.tcity.android.rest.RestPackage;
 
 import org.jetbrains.annotations.NotNull;
@@ -50,7 +50,7 @@ public class MainActivity extends ListActivity implements SwipeRefreshLayout.OnR
     private OverviewEngine myOverviewEngine;
 
     @NotNull
-    private Handler myProjectsHandler;
+    private Receiver myProjectsReceiver;
 
     @NotNull
     private ProjectsRunnable myProjectsRunnable;
@@ -64,7 +64,7 @@ public class MainActivity extends ListActivity implements SwipeRefreshLayout.OnR
         setContentView(R.layout.overview);
 
         myLayout = (SwipeRefreshLayout) findViewById(R.id.overview_layout);
-        myLayout.setColorSchemeResources(android.R.color.holo_blue_bright, android.R.color.holo_purple); // TODO change colors
+        myLayout.setColorSchemeResources(R.color.green_status, R.color.red_status);
         myLayout.setOnRefreshListener(this);
 
         myApplication = (Application) getApplication();
@@ -78,16 +78,14 @@ public class MainActivity extends ListActivity implements SwipeRefreshLayout.OnR
         );
         myOverviewEngine.setListener(new OverviewListener());
 
-        myProjectsHandler = new ProjectsHandler();
-
         getListView().setAdapter(myOverviewEngine.getAdapter());
+
+        myProjectsReceiver = new Receiver(new ProjectsHandler());
 
         myProjectsRunnable = new ProjectsRunnable(
                 myApplication.getDB(),
-                ProjectSchema.INSTANCE$,
-                ProjectsParser.INSTANCE$,
                 myApplication.getPreferences(),
-                myProjectsHandler
+                myProjectsReceiver
         );
 
         loadAllData();
@@ -97,7 +95,7 @@ public class MainActivity extends ListActivity implements SwipeRefreshLayout.OnR
     protected void onDestroy() {
         super.onDestroy();
 
-        myProjectsHandler.disable();
+        myProjectsReceiver.disable();
     }
 
     /* LIFECYCLE - END */
@@ -114,6 +112,7 @@ public class MainActivity extends ListActivity implements SwipeRefreshLayout.OnR
     }
 
     private class OverviewListener implements com.tcity.android.ui.OverviewListener {
+
         @Override
         public void onProjectWatchClick(@NotNull String id) {
             boolean watched = myApplication.getPreferences().getWatchedProjectIds().contains(id);
@@ -165,7 +164,7 @@ public class MainActivity extends ListActivity implements SwipeRefreshLayout.OnR
 
             menu.inflate(R.menu.menu_concept);
 
-            menu.setOnMenuItemClickListener(new ProjectMenuItemClickListener(id));
+            menu.setOnMenuItemClickListener(new ProjectMenuListener(id));
 
             menu.show();
         }
@@ -181,12 +180,12 @@ public class MainActivity extends ListActivity implements SwipeRefreshLayout.OnR
         }
     }
 
-    private class ProjectMenuItemClickListener implements PopupMenu.OnMenuItemClickListener {
+    private class ProjectMenuListener implements PopupMenu.OnMenuItemClickListener {
 
         @NotNull
         private final String myId;
 
-        private ProjectMenuItemClickListener(@NotNull String id) {
+        private ProjectMenuListener(@NotNull String id) {
             myId = id;
         }
 
@@ -198,6 +197,8 @@ public class MainActivity extends ListActivity implements SwipeRefreshLayout.OnR
 
                     return true;
                 case R.id.menu_details:
+                    onDetailsClick();
+
                     return true;
                 default:
                     return false;
@@ -214,14 +215,9 @@ public class MainActivity extends ListActivity implements SwipeRefreshLayout.OnR
 
             startActivity(Intent.createChooser(intent, "Share"));
         }
-    }
 
-    private class Handler extends android.os.Handler {
-
-        protected boolean disabled = false;
-
-        public void disable() {
-            disabled = true;
+        private void onDetailsClick() {
+            // TODO
         }
     }
 
@@ -231,19 +227,17 @@ public class MainActivity extends ListActivity implements SwipeRefreshLayout.OnR
         public void handleMessage(@NotNull Message msg) {
             super.handleMessage(msg);
 
-            if (disabled) {
-                return;
-            }
-
             myLayout.setRefreshing(false);
 
-            if (msg.what == LoaderPackage.getERROR_CODE()) {
+            if (msg.what == Receiver.ERROR_CODE) {
+                String message = ((Exception) msg.obj).getMessage();
+
                 Toast.makeText(
                         MainActivity.this,
-                        ((Exception) msg.obj).getMessage(),
+                        message,
                         Toast.LENGTH_LONG
                 ).show();
-            } else {
+            } else if (msg.what == Receiver.OK_CODE) {
                 myOverviewEngine.notifyProjectsChanged();
             }
         }
