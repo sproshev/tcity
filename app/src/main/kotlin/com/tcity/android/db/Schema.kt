@@ -28,6 +28,7 @@ public enum class Schema {
 
     BUILD {
         override val tableName = "Build"
+
         override val columnTypes = mapOf(
                 TC_ID_COLUMN.to("TEXT NOT NULL UNIQUE"),
                 NAME_COLUMN.to("TEXT NOT NULL"),
@@ -39,6 +40,7 @@ public enum class Schema {
 
     BUILD_CONFIGURATION {
         override val tableName = "BuildConfiguration"
+
         override val columnTypes = mapOf(
                 TC_ID_COLUMN.to("TEXT NOT NULL UNIQUE"),
                 NAME_COLUMN.to("TEXT NOT NULL"),
@@ -50,6 +52,7 @@ public enum class Schema {
 
     PROJECT {
         override val tableName = "Project"
+
         override val columnTypes = mapOf(
                 TC_ID_COLUMN.to("TEXT NOT NULL UNIQUE"),
                 NAME_COLUMN.to("TEXT NOT NULL"),

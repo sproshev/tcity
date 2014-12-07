@@ -17,6 +17,5 @@
 package com.tcity.android.db
 
 public trait SchemaListener {
-
-    public fun onChanged();
+    public fun onChanged()
 }

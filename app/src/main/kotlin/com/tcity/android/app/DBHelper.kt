@@ -21,7 +21,7 @@ import android.database.sqlite.SQLiteOpenHelper
 import android.database.sqlite.SQLiteDatabase
 import com.tcity.android.db.Schema
 
-private class DBHelper(context: Context) : SQLiteOpenHelper(context, null, null, 1) {
+private class DBHelper(context: Context) : SQLiteOpenHelper(context, "tcity", null, 1) {
 
     class object {
         private val ANDROID_ID_COLUMN: String = "_id"
@@ -52,15 +52,10 @@ private class DBHelper(context: Context) : SQLiteOpenHelper(context, null, null,
 
     private fun calculateDescription(schema: Schema): String {
         return with (StringBuilder()) {
-            append(ANDROID_ID_COLUMN)
-            append(" ")
-            append("INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL")
+            append("$ANDROID_ID_COLUMN INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL")
 
             schema.columnTypes.forEach {
-                append(", ")
-                append(it.key)
-                append(" ")
-                append(it.value)
+                append(", ${it.key} ${it.value}")
             }
 
             toString()
