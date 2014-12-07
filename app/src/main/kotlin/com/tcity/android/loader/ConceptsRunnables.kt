@@ -34,6 +34,7 @@ import java.io.InputStream
 import com.tcity.android.parser.parseProjects
 import com.tcity.android.parser.parseBuildConfigurations
 import com.tcity.android.db.Schema
+import com.tcity.android.app.ExceptionReceiver
 
 
 public abstract class ConceptsRunnable<T : Concept>(
@@ -78,13 +79,17 @@ public abstract class ConceptsRunnable<T : Concept>(
 public class ProjectsRunnable(
         db: DB,
         preferences: Preferences,
-        private val receiver: Receiver? = null
+        private val exceptionReceiver: ExceptionReceiver
 ) : ConceptsRunnable<Project>(db, Schema.PROJECT, ::parseProjects, preferences) {
 
     override val ignoredConceptIds: Set<String> = setOf(ROOT_PROJECT_ID)
 
     override fun run() {
-        executeSafety({ loadAndSaveConcepts(getProjectsUrl(preferences)) }, receiver)
+        try {
+            loadAndSaveConcepts(getProjectsUrl(preferences))
+        } catch (e: Exception) {
+            exceptionReceiver.receive(javaClass<ProjectsRunnable>().getSimpleName(), e)
+        }
     }
 }
 
@@ -92,13 +97,14 @@ public class BuildConfigurationsRunnable(
         private val projectId: String,
         db: DB,
         preferences: Preferences,
-        private val receiver: Receiver? = null
+        private val exceptionReceiver: ExceptionReceiver
 ) : ConceptsRunnable<BuildConfiguration>(db, Schema.BUILD_CONFIGURATION, ::parseBuildConfigurations, preferences) {
 
     override fun run() {
-        executeSafety(
-                { loadAndSaveConcepts(getBuildConfigurationsUrl(projectId, preferences)) },
-                receiver
-        )
+        try {
+            loadAndSaveConcepts(getBuildConfigurationsUrl(projectId, preferences))
+        } catch (e: Exception) {
+            exceptionReceiver.receive(javaClass<BuildConfigurationsRunnable>().getSimpleName(), e)
+        }
     }
 }

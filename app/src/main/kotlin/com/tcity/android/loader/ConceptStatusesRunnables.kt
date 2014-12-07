@@ -32,6 +32,7 @@ import com.tcity.android.concept.BuildConfiguration
 import com.tcity.android.rest.getBuildConfigurationStatusUrl
 import com.tcity.android.app.DB
 import com.tcity.android.db.Schema
+import com.tcity.android.app.ExceptionReceiver
 
 public abstract class ConceptStatusesRunnable<T : Concept>(
         protected val db: DB,
@@ -100,7 +101,7 @@ public abstract class ConceptStatusesRunnable<T : Concept>(
 public class ProjectStatusesRunnable(
         db: DB,
         preferences: Preferences,
-        private val receiver: Receiver? = null
+        private val exceptionReceiver: ExceptionReceiver
 ) : ConceptStatusesRunnable<Project>(db, Schema.PROJECT, preferences) {
 
     override fun getWatchedConceptIds() = preferences.getWatchedProjectIds()
@@ -108,14 +109,18 @@ public class ProjectStatusesRunnable(
     override fun getStatusUrl(conceptId: String) = getProjectStatusUrl(conceptId, preferences)
 
     override fun run() {
-        executeSafety({ loadAndSaveStatuses() }, receiver)
+        try {
+            loadAndSaveStatuses()
+        } catch (e: Exception) {
+            exceptionReceiver.receive(javaClass<ProjectStatusesRunnable>().getSimpleName(), e)
+        }
     }
 }
 
 public class BuildConfigurationStatusesRunnable(
         db: DB,
         preferences: Preferences,
-        private val receiver: Receiver? = null
+        private val exceptionReceiver: ExceptionReceiver
 ) : ConceptStatusesRunnable<BuildConfiguration>(db, Schema.BUILD_CONFIGURATION, preferences) {
 
     override fun getWatchedConceptIds() = preferences.getWatchedBuildConfigurationIds()
@@ -123,6 +128,10 @@ public class BuildConfigurationStatusesRunnable(
     override fun getStatusUrl(conceptId: String) = getBuildConfigurationStatusUrl(conceptId, preferences)
 
     override fun run() {
-        executeSafety({ loadAndSaveStatuses() }, receiver)
+        try {
+            loadAndSaveStatuses()
+        } catch (e: Exception) {
+            exceptionReceiver.receive(javaClass<BuildConfigurationStatusesRunnable>().getSimpleName(), e)
+        }
     }
 }
