@@ -24,21 +24,15 @@ import android.view.LayoutInflater
 import android.widget.TextView
 import android.widget.ImageButton
 import com.tcity.android.R
-import com.tcity.android.db.NAME_COLUMN
-import com.tcity.android.db.WATCHED_COLUMN
-import com.tcity.android.db.TC_ID_COLUMN
 import com.tcity.android.db.booleanValue
 import android.widget.CursorAdapter
+import com.tcity.android.concept.Status
+import com.tcity.android.db.Schema
 
 private class ConceptsCursorAdapter(
         private val context: Context,
         private val listener: ConceptListener
 ) : CursorAdapter(context, null) {
-
-    class object {
-        private val WATCHED_IMAGE = android.R.drawable.star_big_on
-        private val NOT_WATCHED_IMAGE = android.R.drawable.star_big_off
-    }
 
     private val watchDescription = context.getResources().getString(R.string.watch)
     private val unwatchDescription = context.getResources().getString(R.string.unwatch)
@@ -62,23 +56,38 @@ private class ConceptsCursorAdapter(
     override fun bindView(view: View, context: Context?, cursor: Cursor) {
         val holder = view.getTag() as ConceptViewHolder
 
-        val conceptId = cursor.getString(cursor.getColumnIndex(TC_ID_COLUMN))
+        val conceptId = cursor.getString(cursor.getColumnIndex(Schema.TC_ID_COLUMN))
 
-        holder.name.setText(cursor.getString(cursor.getColumnIndex(NAME_COLUMN)))
+        holder.name.setText(cursor.getString(cursor.getColumnIndex(Schema.NAME_COLUMN)))
         holder.name.setOnClickListener { listener.onNameClick(conceptId) }
 
         holder.watch.setOnClickListener { listener.onWatchClick(conceptId) }
 
-        if (cursor.getInt(cursor.getColumnIndex(WATCHED_COLUMN)).booleanValue) {
+        if (cursor.getInt(cursor.getColumnIndex(Schema.WATCHED_COLUMN)).booleanValue) {
             holder.watch.setContentDescription(unwatchDescription)
-            holder.watch.setImageResource(WATCHED_IMAGE)
+
+            holder.watch.setBackgroundResource(
+                    Status.valueOf(
+                            cursor.getString(cursor.getColumnIndex(Schema.STATUS_COLUMN))
+                    ).color
+            )
         } else {
             holder.watch.setContentDescription(watchDescription)
-            holder.watch.setImageResource(NOT_WATCHED_IMAGE)
+
+            holder.watch.setBackground(null)
         }
 
         holder.options.setOnClickListener { listener.onOptionsClick(conceptId, it) }
     }
+
+    private val Status.color: Int
+        get() {
+            return when (this) {
+                Status.FAILURE -> R.color.red_status
+                Status.SUCCESS -> R.color.green_status
+                else -> R.color.default_status
+            }
+        }
 
     private class ConceptViewHolder(public val name: TextView, public val watch: ImageButton, public val options: View)
 }

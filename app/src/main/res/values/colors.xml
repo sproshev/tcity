@@ -16,7 +16,9 @@
   -->
 
 <resources>
-    <color name="separator_item_background">#FF888888</color>
+    <color name="separator_item_background">#888888</color>
+
     <color name="green_status">#20710A</color>
     <color name="red_status">#FD1C00</color>
+    <color name="default_status">#888888</color>
 </resources>
