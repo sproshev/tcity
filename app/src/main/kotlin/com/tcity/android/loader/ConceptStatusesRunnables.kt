@@ -33,6 +33,7 @@ import com.tcity.android.rest.getBuildConfigurationStatusUrl
 import com.tcity.android.app.DB
 import com.tcity.android.db.Schema
 import com.tcity.android.app.ExceptionReceiver
+import com.tcity.android.db.contentValue
 
 public abstract class ConceptStatusesRunnable<T : Concept>(
         protected val db: DB,
@@ -44,13 +45,24 @@ public abstract class ConceptStatusesRunnable<T : Concept>(
         private val LOG_TAG = javaClass<ConceptStatusesRunnable<*>>().getSimpleName()
     }
 
-    protected abstract fun getWatchedConceptIds(): Set<String>
     protected abstract fun getStatusUrl(conceptId: String): String
 
     protected fun loadAndSaveStatuses() {
-        getWatchedConceptIds().forEach {
-            loadAndSaveStatus(it)
-            saveWatched(it)
+        val cursor = db.query(
+                schema,
+                array(Schema.TC_ID_COLUMN),
+                "${Schema.WATCHED_COLUMN} = ?",
+                array(true.contentValue.toString())
+        )
+
+        cursor.use {
+            while (cursor.moveToNext()) {
+                loadAndSaveStatus(
+                        cursor.getString(
+                                cursor.getColumnIndex(Schema.TC_ID_COLUMN)
+                        )
+                )
+            }
         }
     }
 
@@ -86,16 +98,6 @@ public abstract class ConceptStatusesRunnable<T : Concept>(
                 array(conceptId)
         )
     }
-
-    throws(javaClass<SQLiteException>())
-    private fun saveWatched(conceptId: String) {
-        db.update(
-                schema,
-                true.contentValues(Schema.WATCHED_COLUMN),
-                "${Schema.TC_ID_COLUMN} = ?",
-                array(conceptId)
-        )
-    }
 }
 
 public class ProjectStatusesRunnable(
@@ -103,8 +105,6 @@ public class ProjectStatusesRunnable(
         preferences: Preferences,
         private val exceptionReceiver: ExceptionReceiver
 ) : ConceptStatusesRunnable<Project>(db, Schema.PROJECT, preferences) {
-
-    override fun getWatchedConceptIds() = preferences.getWatchedProjectIds()
 
     override fun getStatusUrl(conceptId: String) = getProjectStatusUrl(conceptId, preferences)
 
@@ -122,8 +122,6 @@ public class BuildConfigurationStatusesRunnable(
         preferences: Preferences,
         private val exceptionReceiver: ExceptionReceiver
 ) : ConceptStatusesRunnable<BuildConfiguration>(db, Schema.BUILD_CONFIGURATION, preferences) {
-
-    override fun getWatchedConceptIds() = preferences.getWatchedBuildConfigurationIds()
 
     override fun getStatusUrl(conceptId: String) = getBuildConfigurationStatusUrl(conceptId, preferences)
 

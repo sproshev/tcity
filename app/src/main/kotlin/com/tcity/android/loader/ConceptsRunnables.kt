@@ -35,6 +35,7 @@ import com.tcity.android.parser.parseProjects
 import com.tcity.android.parser.parseBuildConfigurations
 import com.tcity.android.db.Schema
 import com.tcity.android.app.ExceptionReceiver
+import com.tcity.android.db.contentValue
 
 
 public abstract class ConceptsRunnable<T : Concept>(
@@ -45,6 +46,7 @@ public abstract class ConceptsRunnable<T : Concept>(
 ) : Runnable {
 
     protected open val ignoredConceptIds: Set<String> = Collections.emptySet()
+    protected abstract val watchedConceptIds: Set<String>
 
     protected fun loadAndSaveConcepts(conceptsPath: String) {
         saveConcepts(loadConcepts(conceptsPath))
@@ -70,7 +72,15 @@ public abstract class ConceptsRunnable<T : Concept>(
                 concepts
                         .stream()
                         .filter { !ignoredConceptIds.contains(it.id) }
-                        .map { it.contentValues }
+                        .map {
+                            val values = it.contentValues
+
+                            if (watchedConceptIds.contains(it.id)) {
+                                values.put(Schema.WATCHED_COLUMN, true.contentValue)
+                            }
+
+                            values
+                        }
                         .toList()
         )
     }
@@ -83,6 +93,7 @@ public class ProjectsRunnable(
 ) : ConceptsRunnable<Project>(db, Schema.PROJECT, ::parseProjects, preferences) {
 
     override val ignoredConceptIds: Set<String> = setOf(ROOT_PROJECT_ID)
+    override val watchedConceptIds = preferences.getWatchedProjectIds()
 
     override fun run() {
         try {
@@ -99,6 +110,8 @@ public class BuildConfigurationsRunnable(
         preferences: Preferences,
         private val exceptionReceiver: ExceptionReceiver
 ) : ConceptsRunnable<BuildConfiguration>(db, Schema.BUILD_CONFIGURATION, ::parseBuildConfigurations, preferences) {
+
+    override val watchedConceptIds = preferences.getWatchedBuildConfigurationIds()
 
     override fun run() {
         try {
