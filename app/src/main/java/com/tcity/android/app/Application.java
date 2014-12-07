@@ -27,9 +27,6 @@ public class Application extends android.app.Application {
     @Nullable
     private DB myDB;
 
-    @Nullable
-    private ExceptionReceiver myExceptionReceiver;
-
     @NotNull
     public Preferences getPreferences() {
         if (myPreferences == null) {
@@ -46,15 +43,6 @@ public class Application extends android.app.Application {
         }
 
         return myDB;
-    }
-
-    @NotNull
-    public ExceptionReceiver getExceptionReceiver() {
-        if (myExceptionReceiver == null) {
-            myExceptionReceiver = new ExceptionReceiver(this);
-        }
-
-        return myExceptionReceiver;
     }
 
     @Override
