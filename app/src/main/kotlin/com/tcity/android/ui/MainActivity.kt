@@ -70,13 +70,14 @@ public class MainActivity : ListActivity(), OverviewListener {
         engine = OverviewEngine(
                 this,
                 application.getDB(),
+                getListView(),
                 "Projects",
                 "Build Configurations",
-                "Build"
+                "Build",
+                this
         )
-        engine.listener = this
 
-        chainListener = getLastNonConfigurationInstance() as GlobalChainListener? ?: GlobalChainListener(this)
+        chainListener = getLastNonConfigurationInstance() as GlobalChainListener? ?: GlobalChainListener()
         chainListener.activity = this
 
         projectsRunnables = listOf(
@@ -112,6 +113,13 @@ public class MainActivity : ListActivity(), OverviewListener {
 
     override fun onRetainNonConfigurationInstance() = chainListener
 
+    override fun onDestroy() {
+        super<ListActivity>.onDestroy()
+
+        engine.onDestroy()
+        chainListener.activity = null
+    }
+
     // Lifecycle - END
 
     // OverviewListener - BEGIN
@@ -136,8 +144,6 @@ public class MainActivity : ListActivity(), OverviewListener {
         )
 
         // TODO load status
-
-        engine.notifyProjectsChanged()
     }
 
     override fun onBuildConfigurationWatchClick(id: String) {
@@ -216,7 +222,9 @@ public class MainActivity : ListActivity(), OverviewListener {
         }
     }
 
-    private class GlobalChainListener(public var activity: MainActivity) : ChainListener {
+    private class GlobalChainListener : ChainListener {
+
+        public var activity: MainActivity? = null
 
         private var mutableCount = 0
 
@@ -226,13 +234,13 @@ public class MainActivity : ListActivity(), OverviewListener {
         public fun onStarted() {
             mutableCount++
 
-            activity.updateRefreshing()
+            activity?.updateRefreshing()
         }
 
         override fun onFinished() {
             mutableCount--
 
-            activity.updateRefreshing()
+            activity?.updateRefreshing()
         }
 
         override fun onException(e: Exception) {

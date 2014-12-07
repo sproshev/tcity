@@ -18,180 +18,118 @@ package com.tcity.android.ui
 
 import com.commonsware.cwac.merge.MergeAdapter
 import android.view.View
-import android.widget.TextView
 import android.content.Context
-import android.view.LayoutInflater
 import com.tcity.android.R
-import android.database.Cursor
-import com.tcity.android.db.WATCHED_COLUMN
-import com.tcity.android.db.contentValue
 import com.tcity.android.app.DB
 import com.tcity.android.db.Schema
+import android.view.ViewGroup
+import com.tcity.android.db.SchemaListener
+
 
 private class OverviewEngine(
-        private val context: Context,
+        context: Context,
         private val db: DB,
-        private val projectsSectionName: String, // TODO add parent selection
-        private val buildConfigurationsSectionName: String, // TODO add parent selection
-        private val buildsSectionName: String // TODO add parent selection
+        root: ViewGroup,
+        projectsSectionName: String, // TODO add parent selection
+        buildConfigurationsSectionName: String, // TODO add parent selection
+        buildsSectionName: String, // TODO add parent selection,
+        listener: OverviewListener
 ) {
-
-    public var listener: OverviewListener? = null
 
     public val adapter: MergeAdapter = MergeAdapter()
 
-    private val watchedBuildsHeader: TextView
-    private val watchedBuildConfigurationsHeader: TextView
-    private val watchedProjectsHeader: TextView
+    private val watchedPrefix = context.getResources().getString(R.string.watched)
 
-    private val projectsHeader: TextView
-    private val buildConfigurationsHeader: TextView
-    private val buildsHeader: TextView
+    private val projectsEngine: OverviewConceptsEngine
+    private val buildConfigurationsEngine: OverviewConceptsEngine
+    private val buildsEngine: OverviewConceptsEngine
 
-    private val watchedBuildsCursor: Cursor
-    private val watchedBuildConfigurationsCursor: Cursor
-    private val watchedProjectsCursor: Cursor
-
-    private val projectsCursor: Cursor
-    private val buildConfigurationsCursor: Cursor
-    private val buildsCursor: Cursor
-
-    private val projectListener: ConceptListener
-    private val buildConfigurationListener: ConceptListener
-    private val buildListener: ConceptListener
-
-    private val watchedBuildsAdapter: ConceptsCursorAdapter
-    private val watchedBuildConfigurationsAdapter: ConceptsCursorAdapter
-    private val watchedProjectsAdapter: ConceptsCursorAdapter
-
-    private val projectsAdapter: ConceptsCursorAdapter
-    private val buildConfigurationsAdapter: ConceptsCursorAdapter
-    private val buildsAdapter: ConceptsCursorAdapter
+    private val projectSchemaListener: SchemaListener
+    private val buildConfigurationSchemaListener: SchemaListener
+    private val buildSchemaListener: SchemaListener
 
     {
-        val inflater = LayoutInflater.from(context)
-        val watchedPrefix = context.getResources().getString(R.string.watched)
-
-        watchedBuildsHeader = inflater.inflate(R.layout.separator_item, null, false) as TextView // TODO parent
-        watchedBuildsHeader.setText("$watchedPrefix $buildsSectionName")
-
-        watchedBuildConfigurationsHeader = inflater.inflate(R.layout.separator_item, null, false) as TextView // TODO parent
-        watchedBuildConfigurationsHeader.setText("$watchedPrefix $buildConfigurationsSectionName")
-
-        watchedProjectsHeader = inflater.inflate(R.layout.separator_item, null, false) as TextView // TODO parent
-        watchedProjectsHeader.setText("$watchedPrefix $projectsSectionName")
-
-        buildsHeader = inflater.inflate(R.layout.separator_item, null, false) as TextView // TODO parent
-        buildsHeader.setText(buildsSectionName)
-
-        buildConfigurationsHeader = inflater.inflate(R.layout.separator_item, null, false) as TextView // TODO parent
-        buildConfigurationsHeader.setText(buildConfigurationsSectionName)
-
-        projectsHeader = inflater.inflate(R.layout.separator_item, null, false) as TextView // TODO parent
-        projectsHeader.setText(projectsSectionName)
-
-        watchedBuildsCursor = db.query(Schema.BUILD, null, "$WATCHED_COLUMN = ?", array(true.contentValue.toString()), null, null, null)
-        watchedBuildConfigurationsCursor = db.query(Schema.BUILD_CONFIGURATION, null, "$WATCHED_COLUMN = ?", array(true.contentValue.toString()), null, null, null)
-        watchedProjectsCursor = db.query(Schema.PROJECT, null, "$WATCHED_COLUMN = ?", array(true.contentValue.toString()), null, null, null)
-
-        projectsCursor = db.query(Schema.PROJECT, null, null, null, null, null, null)
-        buildConfigurationsCursor = db.query(Schema.BUILD_CONFIGURATION, null, null, null, null, null, null)
-        buildsCursor = db.query(Schema.BUILD, null, null, null, null, null, null)
-
-        projectListener = object : ConceptListener {
-            override fun onWatchClick(id: String) = listener?.onProjectWatchClick(id)
-            override fun onNameClick(id: String) = listener?.onProjectNameClick(id)
-            override fun onOptionsClick(id: String, anchor: View) = listener?.onProjectOptionsClick(id, anchor)
+        val projectViewListener = object : ConceptListener {
+            override fun onWatchClick(id: String) = listener.onProjectWatchClick(id)
+            override fun onNameClick(id: String) = listener.onProjectNameClick(id)
+            override fun onOptionsClick(id: String, anchor: View) = listener.onProjectOptionsClick(id, anchor)
         }
 
-        buildConfigurationListener = object : ConceptListener {
-            override fun onWatchClick(id: String) = listener?.onBuildConfigurationWatchClick(id)
-            override fun onNameClick(id: String) = listener?.onBuildConfigurationNameClick(id)
-            override fun onOptionsClick(id: String, anchor: View) = listener?.onBuildConfigurationOptionsClick(id, anchor)
+        projectsEngine = OverviewConceptsEngine(context, db, root, Schema.PROJECT, projectViewListener, projectsSectionName, watchedPrefix)
+
+        val buildConfigurationViewListener = object : ConceptListener {
+            override fun onWatchClick(id: String) = listener.onBuildConfigurationWatchClick(id)
+            override fun onNameClick(id: String) = listener.onBuildConfigurationNameClick(id)
+            override fun onOptionsClick(id: String, anchor: View) = listener.onBuildConfigurationOptionsClick(id, anchor)
         }
 
-        buildListener = object : ConceptListener {
-            override fun onWatchClick(id: String) = listener?.onBuildWatchClick(id)
-            override fun onNameClick(id: String) = listener?.onBuildNameClick(id)
-            override fun onOptionsClick(id: String, anchor: View) = listener?.onBuildOptionsClick(id, anchor)
+        buildConfigurationsEngine = OverviewConceptsEngine(context, db, root, Schema.BUILD_CONFIGURATION, buildConfigurationViewListener, buildConfigurationsSectionName, watchedPrefix)
+
+        val buildViewListener = object : ConceptListener {
+            override fun onWatchClick(id: String) = listener.onBuildWatchClick(id)
+            override fun onNameClick(id: String) = listener.onBuildNameClick(id)
+            override fun onOptionsClick(id: String, anchor: View) = listener.onBuildOptionsClick(id, anchor)
         }
 
-        watchedBuildsAdapter = ConceptsCursorAdapter(context, buildListener)
-        watchedBuildsAdapter.changeCursor(watchedBuildsCursor)
+        buildsEngine = OverviewConceptsEngine(context, db, root, Schema.BUILD, buildViewListener, buildsSectionName, watchedPrefix)
 
-        watchedBuildConfigurationsAdapter = ConceptsCursorAdapter(context, buildConfigurationListener)
-        watchedBuildConfigurationsAdapter.changeCursor(watchedBuildConfigurationsCursor)
+        adapter.addView(buildsEngine.watchedHeader)
+        adapter.addAdapter(buildsEngine.watchedAdapter)
 
-        watchedProjectsAdapter = ConceptsCursorAdapter(context, projectListener)
-        watchedProjectsAdapter.changeCursor(watchedProjectsCursor)
+        adapter.addView(buildConfigurationsEngine.watchedHeader)
+        adapter.addAdapter(buildConfigurationsEngine.watchedAdapter)
 
-        projectsAdapter = ConceptsCursorAdapter(context, projectListener)
-        projectsAdapter.changeCursor(projectsCursor)
+        adapter.addView(projectsEngine.watchedHeader)
+        adapter.addAdapter(projectsEngine.watchedAdapter)
 
-        buildConfigurationsAdapter = ConceptsCursorAdapter(context, buildConfigurationListener)
-        buildConfigurationsAdapter.changeCursor(buildConfigurationsCursor)
+        adapter.addView(projectsEngine.header)
+        adapter.addAdapter(projectsEngine.adapter)
 
-        buildsAdapter = ConceptsCursorAdapter(context, buildListener)
-        buildsAdapter.changeCursor(buildsCursor)
+        adapter.addView(buildConfigurationsEngine.header)
+        adapter.addAdapter(buildConfigurationsEngine.adapter)
 
-        adapter.addView(watchedBuildsHeader)
-        adapter.addAdapter(watchedBuildsAdapter)
+        adapter.addView(buildsEngine.header)
+        adapter.addAdapter(buildsEngine.adapter)
 
-        adapter.addView(watchedBuildConfigurationsHeader)
-        adapter.addAdapter(watchedBuildConfigurationsAdapter)
+        adapter.setActive(buildsEngine.watchedHeader, !buildsEngine.watchedEmpty)
+        adapter.setActive(buildConfigurationsEngine.watchedHeader, !buildConfigurationsEngine.watchedEmpty)
+        adapter.setActive(projectsEngine.watchedHeader, !projectsEngine.watchedEmpty)
 
-        adapter.addView(watchedProjectsHeader)
-        adapter.addAdapter(watchedProjectsAdapter)
+        adapter.setActive(projectsEngine.header, !projectsEngine.empty)
+        adapter.setActive(buildConfigurationsEngine.header, !buildConfigurationsEngine.empty)
+        adapter.setActive(buildsEngine.header, !buildsEngine.empty)
 
-        adapter.addView(projectsHeader)
-        adapter.addAdapter(projectsAdapter)
+        projectSchemaListener = ConceptSchemaListener(projectsEngine, adapter)
+        buildConfigurationSchemaListener = ConceptSchemaListener(buildConfigurationsEngine, adapter)
+        buildSchemaListener = ConceptSchemaListener(buildsEngine, adapter)
 
-        adapter.addView(buildConfigurationsHeader)
-        adapter.addAdapter(buildConfigurationsAdapter)
-
-        adapter.addView(buildsHeader)
-        adapter.addAdapter(buildsAdapter)
-
-        handleHeader(watchedBuildsHeader, watchedBuildsCursor)
-        handleHeader(watchedBuildConfigurationsHeader, watchedBuildConfigurationsCursor)
-        handleHeader(watchedProjectsHeader, watchedProjectsCursor)
-
-        handleHeader(projectsHeader, projectsCursor)
-        handleHeader(buildConfigurationsHeader, buildConfigurationsCursor)
-        handleHeader(buildsHeader, buildsCursor)
+        db.addListener(Schema.PROJECT, projectSchemaListener)
+        db.addListener(Schema.BUILD_CONFIGURATION, buildConfigurationSchemaListener)
+        db.addListener(Schema.BUILD, buildSchemaListener)
     }
 
-    public fun notifyProjectsChanged() {
-        watchedProjectsCursor.requery() // TODO CursorLoader
-        handleHeader(watchedProjectsHeader, watchedProjectsCursor)
+    public fun onDestroy() {
+        projectsEngine.onDestroy()
+        buildConfigurationsEngine.onDestroy()
+        buildsEngine.onDestroy()
 
-        projectsCursor.requery() // TODO CursorLoader
-        handleHeader(projectsHeader, projectsCursor)
-
-        adapter.notifyDataSetChanged()
+        db.removeListener(Schema.PROJECT, projectSchemaListener)
+        db.removeListener(Schema.BUILD_CONFIGURATION, buildConfigurationSchemaListener)
+        db.removeListener(Schema.BUILD, buildSchemaListener)
     }
 
-    public fun notifyBuildConfigurationsChanged() {
-        watchedBuildConfigurationsCursor.requery() // TODO CursorLoader
-        handleHeader(watchedBuildConfigurationsHeader, watchedBuildConfigurationsCursor)
+    private class ConceptSchemaListener(
+            private val engine: OverviewConceptsEngine,
+            private val adapter: MergeAdapter
+    ) : SchemaListener {
 
-        buildConfigurationsCursor.requery() // TODO CursorLoader
-        handleHeader(buildConfigurationsHeader, buildConfigurationsCursor)
+        override fun onChanged() {
+            engine.requery()
 
-        adapter.notifyDataSetChanged()
-    }
+            adapter.setActive(engine.watchedHeader, !engine.watchedEmpty)
+            adapter.setActive(engine.header, !engine.empty)
 
-    public fun notifyBuildsChanged() {
-        watchedBuildsCursor.requery() // TODO CursorLoader
-        handleHeader(watchedBuildsHeader, watchedBuildsCursor)
-
-        buildsCursor.requery() // TODO CursorLoader
-        handleHeader(buildsHeader, buildsCursor)
-
-        adapter.notifyDataSetChanged()
-    }
-
-    private fun handleHeader(header: View, cursor: Cursor) {
-        adapter.setActive(header, cursor.getCount() != 0)
+            adapter.notifyDataSetChanged()
+        }
     }
 }
