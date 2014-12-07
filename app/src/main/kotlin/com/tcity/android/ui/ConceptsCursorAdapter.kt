@@ -24,15 +24,22 @@ import android.view.LayoutInflater
 import android.widget.TextView
 import android.widget.ImageButton
 import com.tcity.android.R
-import com.tcity.android.db.booleanValue
 import android.widget.CursorAdapter
 import com.tcity.android.concept.Status
 import com.tcity.android.db.Schema
+import com.tcity.android.db.getBoolean
+import com.tcity.android.db.getStatus
+import android.graphics.drawable.Drawable
 
 private class ConceptsCursorAdapter(
         private val context: Context,
         private val listener: ConceptListener
 ) : CursorAdapter(context, null) {
+
+    class object {
+        private val WATCHED_IMAGE = android.R.drawable.star_big_on
+        private val NOT_WATCHED_IMAGE = android.R.drawable.star_big_off
+    }
 
     private val watchDescription = context.getResources().getString(R.string.watch)
     private val unwatchDescription = context.getResources().getString(R.string.unwatch)
@@ -63,29 +70,32 @@ private class ConceptsCursorAdapter(
 
         holder.watch.setOnClickListener { listener.onWatchClick(conceptId) }
 
-        if (cursor.getInt(cursor.getColumnIndex(Schema.WATCHED_COLUMN)).booleanValue) {
-            holder.watch.setContentDescription(unwatchDescription)
+        val watched = getBoolean(cursor, Schema.WATCHED_COLUMN)
 
-            holder.watch.setBackgroundResource(
-                    Status.valueOf(
-                            cursor.getString(cursor.getColumnIndex(Schema.STATUS_COLUMN))
-                    ).color
-            )
+        if (watched) {
+            holder.watch.setContentDescription(unwatchDescription)
+            holder.watch.setImageResource(WATCHED_IMAGE)
         } else {
             holder.watch.setContentDescription(watchDescription)
-
-            holder.watch.setBackground(null)
+            holder.watch.setImageResource(NOT_WATCHED_IMAGE)
         }
 
         holder.options.setOnClickListener { listener.onOptionsClick(conceptId, it) }
+
+        val background = getStatus(cursor).background
+        background?.setAlpha(40)
+
+        holder.watch.setBackgroundDrawable(background)
+        holder.name.setBackgroundDrawable(background)
+        holder.options.setBackgroundDrawable(background)
     }
 
-    private val Status.color: Int
+    private val Status.background: Drawable?
         get() {
             return when (this) {
-                Status.FAILURE -> R.color.red_status
-                Status.SUCCESS -> R.color.green_status
-                else -> R.color.default_status
+                Status.FAILURE -> context.getResources().getDrawable(R.color.red_status)
+                Status.SUCCESS -> context.getResources().getDrawable(R.color.green_status)
+                else -> null
             }
         }
 

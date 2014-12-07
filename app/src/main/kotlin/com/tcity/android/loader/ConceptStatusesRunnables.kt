@@ -54,15 +54,15 @@ public abstract class ConceptStatusesRunnable<T : Concept>(
                 array(true.dbValue.toString())
         )
 
-        cursor.use {
-            while (cursor.moveToNext()) {
-                loadAndSaveStatus(
-                        cursor.getString(
-                                cursor.getColumnIndex(Schema.TC_ID_COLUMN)
-                        )
-                )
-            }
+        while (cursor.moveToNext()) {
+            loadAndSaveStatus(
+                    cursor.getString(
+                            cursor.getColumnIndex(Schema.TC_ID_COLUMN)
+                    )
+            )
         }
+
+        cursor.close()
     }
 
     private fun loadAndSaveStatus(conceptId: String) {

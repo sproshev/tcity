@@ -45,6 +45,14 @@ public val Status.dbValues: ContentValues
         return result
     }
 
+public fun getStatus(cursor: Cursor): Status {
+    return Status.valueOf(
+            cursor.getString(
+                    cursor.getColumnIndex(Schema.STATUS_COLUMN)
+            )
+    )
+}
+
 // Custom - END
 
 // Primitive - BEGIN

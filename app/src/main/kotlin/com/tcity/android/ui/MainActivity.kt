@@ -37,6 +37,8 @@ import android.widget.PopupMenu
 import android.view.MenuItem
 import android.content.Intent
 import com.tcity.android.rest.getProjectWebUrl
+import android.content.ContentValues
+import com.tcity.android.db.dbValue
 
 public class MainActivity : ListActivity(), OverviewListener {
 
@@ -120,16 +122,20 @@ public class MainActivity : ListActivity(), OverviewListener {
             application.getPreferences().removeWatchedProjectId(id)
         } else {
             application.getPreferences().addWatchedProjectId(id)
-
-            // TODO load status
         }
+
+        val values = ContentValues()
+        values.putAll(com.tcity.android.concept.Status.DEFAULT.dbValues)
+        values.put(Schema.WATCHED_COLUMN, (!watched).dbValue)
 
         application.getDB().update(
                 Schema.PROJECT,
-                (!watched).dbValues(Schema.WATCHED_COLUMN),
+                values,
                 "${Schema.TC_ID_COLUMN} = ?",
                 array(id)
         )
+
+        // TODO load status
 
         engine.notifyProjectsChanged()
     }
