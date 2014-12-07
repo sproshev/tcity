@@ -23,12 +23,10 @@ import android.content.Context
 import android.view.LayoutInflater
 import com.tcity.android.R
 import android.database.Cursor
-import com.tcity.android.db.BuildSchema
 import com.tcity.android.db.WATCHED_COLUMN
 import com.tcity.android.db.contentValue
-import com.tcity.android.db.BuildConfigurationSchema
-import com.tcity.android.db.ProjectSchema
 import com.tcity.android.app.DB
+import com.tcity.android.db.Schema
 
 private class OverviewEngine(
         private val context: Context,
@@ -92,13 +90,13 @@ private class OverviewEngine(
         projectsHeader = inflater.inflate(R.layout.separator_item, null, false) as TextView // TODO parent
         projectsHeader.setText(projectsSectionName)
 
-        watchedBuildsCursor = db.query(BuildSchema, null, "$WATCHED_COLUMN = ?", array(true.contentValue.toString()), null, null, null)
-        watchedBuildConfigurationsCursor = db.query(BuildConfigurationSchema, null, "$WATCHED_COLUMN = ?", array(true.contentValue.toString()), null, null, null)
-        watchedProjectsCursor = db.query(ProjectSchema, null, "$WATCHED_COLUMN = ?", array(true.contentValue.toString()), null, null, null)
+        watchedBuildsCursor = db.query(Schema.BUILD, null, "$WATCHED_COLUMN = ?", array(true.contentValue.toString()), null, null, null)
+        watchedBuildConfigurationsCursor = db.query(Schema.BUILD_CONFIGURATION, null, "$WATCHED_COLUMN = ?", array(true.contentValue.toString()), null, null, null)
+        watchedProjectsCursor = db.query(Schema.PROJECT, null, "$WATCHED_COLUMN = ?", array(true.contentValue.toString()), null, null, null)
 
-        projectsCursor = db.query(ProjectSchema, null, null, null, null, null, null)
-        buildConfigurationsCursor = db.query(BuildConfigurationSchema, null, null, null, null, null, null)
-        buildsCursor = db.query(BuildSchema, null, null, null, null, null, null)
+        projectsCursor = db.query(Schema.PROJECT, null, null, null, null, null, null)
+        buildConfigurationsCursor = db.query(Schema.BUILD_CONFIGURATION, null, null, null, null, null, null)
+        buildsCursor = db.query(Schema.BUILD, null, null, null, null, null, null)
 
         projectListener = object : ConceptListener {
             override fun onWatchClick(id: String) = listener?.onProjectWatchClick(id)

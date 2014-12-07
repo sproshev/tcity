@@ -21,7 +21,7 @@ import android.database.sqlite.SQLiteOpenHelper
 import android.database.sqlite.SQLiteDatabase
 import com.tcity.android.db.Schema
 
-private class DBHelper(context: Context, private val schemas: Collection<Schema>) : SQLiteOpenHelper(context, null, null, 1) {
+private class DBHelper(context: Context) : SQLiteOpenHelper(context, null, null, 1) {
 
     override fun onCreate(db: SQLiteDatabase) {
         create(db)
@@ -33,14 +33,18 @@ private class DBHelper(context: Context, private val schemas: Collection<Schema>
     }
 
     private fun create(db: SQLiteDatabase) {
-        schemas.forEach {
-            db.execSQL(it.createScript)
+        Schema.values().forEach {
+            val desc = it.columnTypes.map { it.key + " " + it.value }.joinToString()
+
+            db.execSQL(
+                    "CREATE TABLE ${it.tableName} ($desc);"
+            )
         }
     }
 
     private fun drop(db: SQLiteDatabase) {
-        schemas.forEach {
-            db.execSQL(it.dropScript)
+        Schema.values().forEach {
+            db.execSQL("DROP TABLE IF EXISTS ${it.tableName};")
         }
     }
 }

@@ -26,20 +26,18 @@ import org.apache.http.util.EntityUtils
 import android.database.sqlite.SQLiteException
 import com.tcity.android.db.contentValues
 import com.tcity.android.db.WATCHED_COLUMN
-import com.tcity.android.db.ConceptSchema
 import com.tcity.android.app.Preferences
-import com.tcity.android.db.ProjectSchema
 import com.tcity.android.concept.Project
 import com.tcity.android.rest.getProjectStatusUrl
-import com.tcity.android.db.BuildConfigurationSchema
 import com.tcity.android.concept.BuildConfiguration
 import com.tcity.android.rest.getBuildConfigurationStatusUrl
 import com.tcity.android.app.DB
 import com.tcity.android.db.TC_ID_COLUMN
+import com.tcity.android.db.Schema
 
 public abstract class ConceptStatusesRunnable<T : Concept>(
         protected val db: DB,
-        protected val schema: ConceptSchema<T>,
+        protected val schema: Schema,
         protected val preferences: Preferences
 ) : Runnable {
 
@@ -105,7 +103,7 @@ public class ProjectStatusesRunnable(
         db: DB,
         preferences: Preferences,
         private val receiver: Receiver? = null
-) : ConceptStatusesRunnable<Project>(db, ProjectSchema, preferences) {
+) : ConceptStatusesRunnable<Project>(db, Schema.PROJECT, preferences) {
 
     override fun getWatchedConceptIds() = preferences.getWatchedProjectIds()
 
@@ -120,7 +118,7 @@ public class BuildConfigurationStatusesRunnable(
         db: DB,
         preferences: Preferences,
         private val receiver: Receiver? = null
-) : ConceptStatusesRunnable<BuildConfiguration>(db, BuildConfigurationSchema, preferences) {
+) : ConceptStatusesRunnable<BuildConfiguration>(db, Schema.BUILD_CONFIGURATION, preferences) {
 
     override fun getWatchedConceptIds() = preferences.getWatchedBuildConfigurationIds()
 
