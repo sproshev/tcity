@@ -20,7 +20,7 @@ import com.tcity.android.concept.Concept
 import java.io.IOException
 import org.apache.http.HttpStatus
 import android.database.sqlite.SQLiteException
-import com.tcity.android.db.contentValues
+import com.tcity.android.db.dbValues
 import com.tcity.android.concept.Project
 import com.tcity.android.rest.getProjectsUrl
 import com.tcity.android.concept.BuildConfiguration
@@ -34,8 +34,7 @@ import java.io.InputStream
 import com.tcity.android.parser.parseProjects
 import com.tcity.android.parser.parseBuildConfigurations
 import com.tcity.android.db.Schema
-import com.tcity.android.app.ExceptionReceiver
-import com.tcity.android.db.contentValue
+import com.tcity.android.db.dbValue
 
 
 public abstract class ConceptsRunnable<T : Concept>(
@@ -45,11 +44,12 @@ public abstract class ConceptsRunnable<T : Concept>(
         protected val preferences: Preferences
 ) : Runnable {
 
-    protected open val ignoredConceptIds: Set<String> = Collections.emptySet()
+    protected abstract val url: String
     protected abstract val watchedConceptIds: Set<String>
+    protected open val ignoredConceptIds: Set<String> = Collections.emptySet()
 
-    protected fun loadAndSaveConcepts(conceptsPath: String) {
-        saveConcepts(loadConcepts(conceptsPath))
+    override fun run() {
+        saveConcepts(loadConcepts(url))
     }
 
     throws(javaClass<IOException>(), javaClass<HttpStatusException>())
@@ -73,10 +73,10 @@ public abstract class ConceptsRunnable<T : Concept>(
                         .stream()
                         .filter { !ignoredConceptIds.contains(it.id) }
                         .map {
-                            val values = it.contentValues
+                            val values = it.dbValues
 
                             if (watchedConceptIds.contains(it.id)) {
-                                values.put(Schema.WATCHED_COLUMN, true.contentValue)
+                                values.put(Schema.WATCHED_COLUMN, true.dbValue)
                             }
 
                             values
@@ -88,36 +88,20 @@ public abstract class ConceptsRunnable<T : Concept>(
 
 public class ProjectsRunnable(
         db: DB,
-        preferences: Preferences,
-        private val exceptionReceiver: ExceptionReceiver
+        preferences: Preferences
 ) : ConceptsRunnable<Project>(db, Schema.PROJECT, ::parseProjects, preferences) {
 
-    override val ignoredConceptIds: Set<String> = setOf(ROOT_PROJECT_ID)
+    override val url = getProjectsUrl(preferences)
     override val watchedConceptIds = preferences.getWatchedProjectIds()
-
-    override fun run() {
-        try {
-            loadAndSaveConcepts(getProjectsUrl(preferences))
-        } catch (e: Exception) {
-            exceptionReceiver.receive(javaClass<ProjectsRunnable>().getSimpleName(), e)
-        }
-    }
+    override val ignoredConceptIds: Set<String> = setOf(ROOT_PROJECT_ID)
 }
 
 public class BuildConfigurationsRunnable(
         private val projectId: String,
         db: DB,
-        preferences: Preferences,
-        private val exceptionReceiver: ExceptionReceiver
+        preferences: Preferences
 ) : ConceptsRunnable<BuildConfiguration>(db, Schema.BUILD_CONFIGURATION, ::parseBuildConfigurations, preferences) {
 
+    override val url = getBuildConfigurationsUrl(projectId, preferences)
     override val watchedConceptIds = preferences.getWatchedBuildConfigurationIds()
-
-    override fun run() {
-        try {
-            loadAndSaveConcepts(getBuildConfigurationsUrl(projectId, preferences))
-        } catch (e: Exception) {
-            exceptionReceiver.receive(javaClass<BuildConfigurationsRunnable>().getSimpleName(), e)
-        }
-    }
 }

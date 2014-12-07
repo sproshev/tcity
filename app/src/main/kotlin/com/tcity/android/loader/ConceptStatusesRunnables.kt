@@ -24,7 +24,6 @@ import com.tcity.android.rest
 import org.apache.http.HttpStatus
 import org.apache.http.util.EntityUtils
 import android.database.sqlite.SQLiteException
-import com.tcity.android.db.contentValues
 import com.tcity.android.app.Preferences
 import com.tcity.android.concept.Project
 import com.tcity.android.rest.getProjectStatusUrl
@@ -32,8 +31,8 @@ import com.tcity.android.concept.BuildConfiguration
 import com.tcity.android.rest.getBuildConfigurationStatusUrl
 import com.tcity.android.app.DB
 import com.tcity.android.db.Schema
-import com.tcity.android.app.ExceptionReceiver
-import com.tcity.android.db.contentValue
+import com.tcity.android.db.dbValue
+import com.tcity.android.db.dbValues
 
 public abstract class ConceptStatusesRunnable<T : Concept>(
         protected val db: DB,
@@ -47,12 +46,12 @@ public abstract class ConceptStatusesRunnable<T : Concept>(
 
     protected abstract fun getStatusUrl(conceptId: String): String
 
-    protected fun loadAndSaveStatuses() {
+    override fun run() {
         val cursor = db.query(
                 schema,
                 array(Schema.TC_ID_COLUMN),
                 "${Schema.WATCHED_COLUMN} = ?",
-                array(true.contentValue.toString())
+                array(true.dbValue.toString())
         )
 
         cursor.use {
@@ -93,7 +92,7 @@ public abstract class ConceptStatusesRunnable<T : Concept>(
     private fun saveStatus(conceptId: String, status: Status) {
         db.update(
                 schema,
-                status.contentValues,
+                status.dbValues,
                 "${Schema.TC_ID_COLUMN} = ?",
                 array(conceptId)
         )
@@ -102,34 +101,16 @@ public abstract class ConceptStatusesRunnable<T : Concept>(
 
 public class ProjectStatusesRunnable(
         db: DB,
-        preferences: Preferences,
-        private val exceptionReceiver: ExceptionReceiver
+        preferences: Preferences
 ) : ConceptStatusesRunnable<Project>(db, Schema.PROJECT, preferences) {
 
     override fun getStatusUrl(conceptId: String) = getProjectStatusUrl(conceptId, preferences)
-
-    override fun run() {
-        try {
-            loadAndSaveStatuses()
-        } catch (e: Exception) {
-            exceptionReceiver.receive(javaClass<ProjectStatusesRunnable>().getSimpleName(), e)
-        }
-    }
 }
 
 public class BuildConfigurationStatusesRunnable(
         db: DB,
-        preferences: Preferences,
-        private val exceptionReceiver: ExceptionReceiver
+        preferences: Preferences
 ) : ConceptStatusesRunnable<BuildConfiguration>(db, Schema.BUILD_CONFIGURATION, preferences) {
 
     override fun getStatusUrl(conceptId: String) = getBuildConfigurationStatusUrl(conceptId, preferences)
-
-    override fun run() {
-        try {
-            loadAndSaveStatuses()
-        } catch (e: Exception) {
-            exceptionReceiver.receive(javaClass<BuildConfigurationStatusesRunnable>().getSimpleName(), e)
-        }
-    }
 }
