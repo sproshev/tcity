@@ -21,24 +21,53 @@ import com.tcity.android.db.Schema
 import android.content.ContentValues
 import android.database.Cursor
 import android.database.sqlite.SQLiteException
+import java.util.HashMap
+import java.util.LinkedList
+import com.tcity.android.db.SchemaListener
 
 public class DB protected (context: Context) {
 
     private val dbHelper = DBHelper(context)
 
+    private val listeners: MutableMap<Schema, MutableList<SchemaListener>>
+
+    {
+        listeners = HashMap()
+
+        Schema.values().forEach {
+            listeners.put(it, LinkedList())
+        }
+    }
+
+    synchronized
+    public fun addListener(schema: Schema, listener: SchemaListener) {
+        listeners.get(schema)!!.add(listener)
+    }
+
+    synchronized
+    public fun removeListener(schema: Schema, listener: SchemaListener) {
+        listeners.get(schema)!!.remove(listener)
+    }
+
+    // SQL - BEGIN
+
     throws(javaClass<SQLiteException>())
     public fun update(
             schema: Schema,
             values: ContentValues,
-            whereClause: String,
-            whereArgs: Array<String>
+            whereClause: String? = null,
+            whereArgs: Array<String>? = null
     ): Int {
-        return dbHelper.getWritableDatabase().update(
+        val result = dbHelper.getWritableDatabase().update(
                 schema.tableName,
                 values,
                 whereClause,
                 whereArgs
         )
+
+        notifyListeners(schema)
+
+        return result
     }
 
     throws(javaClass<SQLiteException>())
@@ -52,7 +81,7 @@ public class DB protected (context: Context) {
             orderBy: String? = null,
             limit: String? = null
     ): Cursor {
-        return dbHelper.getReadableDatabase().query(
+        val result = dbHelper.getReadableDatabase().query(
                 schema.tableName,
                 columns,
                 selection,
@@ -62,24 +91,47 @@ public class DB protected (context: Context) {
                 orderBy,
                 limit
         )
+
+        notifyListeners(schema)
+
+        return result
     }
 
     throws(javaClass<SQLiteException>())
-    public fun delete(schema: Schema, whereClause: String? = null, whereArgs: Array<String>? = null): Int {
-        return dbHelper.getWritableDatabase().delete(schema.tableName, whereClause, whereArgs)
+    public fun set(
+            schema: Schema,
+            values: Collection<ContentValues>
+    ): Int {
+        val db = dbHelper.getWritableDatabase()
+        var result = 0
+
+        db.beginTransaction()
+
+        try {
+            db.delete(schema.tableName, null, null)
+
+            values.forEach {
+                db.insert(schema.tableName, null, it)
+                result++
+            }
+
+            db.setTransactionSuccessful()
+
+            notifyListeners(schema)
+        } finally {
+            db.endTransaction()
+
+            result = 0
+        }
+
+        return result
     }
 
-    throws(javaClass<SQLiteException>())
-    public fun insert(schema: Schema, values: ContentValues): Long {
-        return dbHelper.getWritableDatabase().insert(schema.tableName, null, values)
+    // SQL - END
+
+    private fun notifyListeners(schema: Schema) {
+        listeners.get(schema)!!.forEach {
+            it.onChanged()
+        }
     }
-
-    throws(javaClass<SQLiteException>())
-    public fun beginTransaction(): Unit = dbHelper.getWritableDatabase().beginTransaction()
-
-    throws(javaClass<SQLiteException>())
-    public fun endTransaction(): Unit = dbHelper.getWritableDatabase().endTransaction()
-
-    throws(javaClass<SQLiteException>(), javaClass<IllegalStateException>())
-    public fun setTransactionSuccessful(): Unit = dbHelper.getWritableDatabase().setTransactionSuccessful()
 }

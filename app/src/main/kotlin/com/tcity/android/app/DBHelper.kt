@@ -23,6 +23,10 @@ import com.tcity.android.db.Schema
 
 private class DBHelper(context: Context) : SQLiteOpenHelper(context, null, null, 1) {
 
+    class object {
+        private val ANDROID_ID_COLUMN: String = "_id"
+    }
+
     override fun onCreate(db: SQLiteDatabase) {
         create(db)
     }
@@ -34,10 +38,8 @@ private class DBHelper(context: Context) : SQLiteOpenHelper(context, null, null,
 
     private fun create(db: SQLiteDatabase) {
         Schema.values().forEach {
-            val desc = it.columnTypes.map { it.key + " " + it.value }.joinToString()
-
             db.execSQL(
-                    "CREATE TABLE ${it.tableName} ($desc);"
+                    "CREATE TABLE ${it.tableName} (${calculateDescription(it)});"
             )
         }
     }
@@ -45,6 +47,23 @@ private class DBHelper(context: Context) : SQLiteOpenHelper(context, null, null,
     private fun drop(db: SQLiteDatabase) {
         Schema.values().forEach {
             db.execSQL("DROP TABLE IF EXISTS ${it.tableName};")
+        }
+    }
+
+    private fun calculateDescription(schema: Schema): String {
+        return with (StringBuilder()) {
+            append(ANDROID_ID_COLUMN)
+            append(" ")
+            append("INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL")
+
+            schema.columnTypes.forEach {
+                append(", ")
+                append(it.key)
+                append(" ")
+                append(it.value)
+            }
+
+            toString()
         }
     }
 }

@@ -27,7 +27,6 @@ import com.tcity.android.concept.BuildConfiguration
 import com.tcity.android.rest.getBuildConfigurationsUrl
 import com.tcity.android.app.Preferences
 import com.tcity.android.rest
-import com.tcity.android.db.ANDROID_ID_COLUMN
 import java.util.Collections
 import com.tcity.android.concept.ROOT_PROJECT_ID
 import com.tcity.android.app.DB
@@ -65,29 +64,14 @@ public abstract class ConceptsRunnable<T : Concept>(
 
     throws(javaClass<SQLiteException>())
     private fun saveConcepts(concepts: Collection<T>) {
-        db.beginTransaction()
-
-        try {
-            db.delete(schema, null, null)
-
-            var id = 0
-
-            concepts.forEach {
-                if (!ignoredConceptIds.contains(it.id)) {
-                    val values = it.contentValues
-
-                    values.put(ANDROID_ID_COLUMN, id)
-
-                    db.insert(schema, values)
-
-                    id++
-                }
-            }
-
-            db.setTransactionSuccessful()
-        } finally {
-            db.endTransaction()
-        }
+        db.set(
+                schema,
+                concepts
+                        .stream()
+                        .filter { !ignoredConceptIds.contains(it.id) }
+                        .map { it.contentValues }
+                        .toList()
+        )
     }
 }
 

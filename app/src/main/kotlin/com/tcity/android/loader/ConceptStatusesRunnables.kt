@@ -25,14 +25,12 @@ import org.apache.http.HttpStatus
 import org.apache.http.util.EntityUtils
 import android.database.sqlite.SQLiteException
 import com.tcity.android.db.contentValues
-import com.tcity.android.db.WATCHED_COLUMN
 import com.tcity.android.app.Preferences
 import com.tcity.android.concept.Project
 import com.tcity.android.rest.getProjectStatusUrl
 import com.tcity.android.concept.BuildConfiguration
 import com.tcity.android.rest.getBuildConfigurationStatusUrl
 import com.tcity.android.app.DB
-import com.tcity.android.db.TC_ID_COLUMN
 import com.tcity.android.db.Schema
 
 public abstract class ConceptStatusesRunnable<T : Concept>(
@@ -83,7 +81,7 @@ public abstract class ConceptStatusesRunnable<T : Concept>(
         db.update(
                 schema,
                 status.contentValues,
-                "$TC_ID_COLUMN = ?",
+                "${Schema.TC_ID_COLUMN} = ?",
                 array(conceptId)
         )
     }
@@ -92,8 +90,8 @@ public abstract class ConceptStatusesRunnable<T : Concept>(
     private fun saveWatched(conceptId: String) {
         db.update(
                 schema,
-                true.contentValues(WATCHED_COLUMN),
-                "$TC_ID_COLUMN = ?",
+                true.contentValues(Schema.WATCHED_COLUMN),
+                "${Schema.TC_ID_COLUMN} = ?",
                 array(conceptId)
         )
     }

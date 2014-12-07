@@ -24,11 +24,11 @@ public val Concept.contentValues: ContentValues
     get() {
         val result = ContentValues()
 
-        result.put(TC_ID_COLUMN, id)
-        result.put(NAME_COLUMN, name)
-        result.put(PARENT_ID_COLUMN, parentId)
-        result.put(STATUS_COLUMN, status.contentValue)
-        result.put(WATCHED_COLUMN, watched.contentValue)
+        result.put(Schema.TC_ID_COLUMN, id)
+        result.put(Schema.NAME_COLUMN, name)
+        result.put(Schema.PARENT_ID_COLUMN, parentId)
+        result.put(Schema.STATUS_COLUMN, status.contentValue)
+        result.put(Schema.WATCHED_COLUMN, watched.contentValue)
 
         return result
     }
@@ -37,7 +37,7 @@ public val Status.contentValues: ContentValues
     get () {
         val result = ContentValues()
 
-        result.put(STATUS_COLUMN, contentValue)
+        result.put(Schema.STATUS_COLUMN, contentValue)
 
         return result
     }

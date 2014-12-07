@@ -16,19 +16,19 @@
 
 package com.tcity.android.db
 
-public val TC_ID_COLUMN: String = "tc_id"
-public val NAME_COLUMN: String = "name"
-public val PARENT_ID_COLUMN: String = "parent_id"
-public val STATUS_COLUMN: String = "status"
-public val WATCHED_COLUMN: String = "watched"
-public val ANDROID_ID_COLUMN: String = "_id"
-
 public enum class Schema {
+
+    class object {
+        public val TC_ID_COLUMN: String = "tc_id"
+        public val NAME_COLUMN: String = "name"
+        public val PARENT_ID_COLUMN: String = "parent_id"
+        public val STATUS_COLUMN: String = "status"
+        public val WATCHED_COLUMN: String = "watched"
+    }
 
     BUILD {
         override val tableName = "Build"
         override val columnTypes = mapOf(
-                ANDROID_ID_COLUMN.to("INTEGER NOT NULL UNIQUE"),
                 TC_ID_COLUMN.to("TEXT NOT NULL UNIQUE"),
                 NAME_COLUMN.to("TEXT NOT NULL"),
                 PARENT_ID_COLUMN.to("TEXT NOT NULL"),
@@ -40,7 +40,6 @@ public enum class Schema {
     BUILD_CONFIGURATION {
         override val tableName = "BuildConfiguration"
         override val columnTypes = mapOf(
-                ANDROID_ID_COLUMN.to("INTEGER NOT NULL UNIQUE"),
                 TC_ID_COLUMN.to("TEXT NOT NULL UNIQUE"),
                 NAME_COLUMN.to("TEXT NOT NULL"),
                 PARENT_ID_COLUMN.to("TEXT NOT NULL"),
@@ -52,7 +51,6 @@ public enum class Schema {
     PROJECT {
         override val tableName = "Project"
         override val columnTypes = mapOf(
-                ANDROID_ID_COLUMN.to("INTEGER NOT NULL UNIQUE"),
                 TC_ID_COLUMN.to("TEXT NOT NULL UNIQUE"),
                 NAME_COLUMN.to("TEXT NOT NULL"),
                 PARENT_ID_COLUMN.to("TEXT NOT NULL"),
