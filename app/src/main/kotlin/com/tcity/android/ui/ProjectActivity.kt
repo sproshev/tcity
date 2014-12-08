@@ -42,6 +42,7 @@ import android.view.MenuItem
 import com.tcity.android.rest.getProjectWebUrl
 import com.tcity.android.loader.BuildConfigurationsRunnable
 import com.tcity.android.db.getName
+import android.widget.TextView
 
 public class ProjectActivity : ListActivity(), OverviewListener {
 
@@ -264,10 +265,12 @@ public class ProjectActivity : ListActivity(), OverviewListener {
     private fun updateRefreshing() {
         if (layout.isRefreshing() && chainListener.count == 0) {
             layout.setRefreshing(false)
+            (getListView().getEmptyView() as TextView).setText(R.string.empty)
         }
 
         if (!layout.isRefreshing() && chainListener.count != 0) {
             layout.setRefreshing(true) // https://code.google.com/p/android/issues/detail?id=77712
+            (getListView().getEmptyView() as TextView).setText(R.string.loading)
         }
     }
 

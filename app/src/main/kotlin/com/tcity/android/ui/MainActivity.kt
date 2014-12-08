@@ -40,6 +40,7 @@ import com.tcity.android.rest.getProjectWebUrl
 import android.content.ContentValues
 import com.tcity.android.db.dbValue
 import com.tcity.android.loader.status.ProjectStatusRunnable
+import android.widget.TextView
 
 public class MainActivity : ListActivity(), OverviewListener {
 
@@ -232,10 +233,12 @@ public class MainActivity : ListActivity(), OverviewListener {
     private fun updateRefreshing() {
         if (layout.isRefreshing() && chainListener.count == 0) {
             layout.setRefreshing(false)
+            (getListView().getEmptyView() as TextView).setText(R.string.empty)
         }
 
         if (!layout.isRefreshing() && chainListener.count != 0) {
             layout.setRefreshing(true) // https://code.google.com/p/android/issues/detail?id=77712
+            (getListView().getEmptyView() as TextView).setText(R.string.loading)
         }
     }
 
