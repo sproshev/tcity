@@ -81,7 +81,7 @@ public class DB protected (context: Context) {
             orderBy: String? = null,
             limit: String? = null
     ): Cursor {
-        val result = dbHelper.getReadableDatabase().query(
+        return dbHelper.getReadableDatabase().query(
                 schema.tableName,
                 columns,
                 selection,
@@ -91,16 +91,13 @@ public class DB protected (context: Context) {
                 orderBy,
                 limit
         )
-
-        notifyListeners(schema)
-
-        return result
     }
 
     throws(javaClass<SQLiteException>())
     public fun set(
             schema: Schema,
-            values: Collection<ContentValues>
+            values: Collection<ContentValues>,
+            parentId: String? = null
     ): Int {
         val db = dbHelper.getWritableDatabase()
         var result = 0
@@ -108,7 +105,7 @@ public class DB protected (context: Context) {
         db.beginTransaction()
 
         try {
-            db.delete(schema.tableName, null, null)
+            db.delete(schema.tableName, calculateSelection(parentId), calculateSelectionArgs(parentId))
 
             values.forEach {
                 db.insert(schema.tableName, null, it)
@@ -132,6 +129,22 @@ public class DB protected (context: Context) {
     private fun notifyListeners(schema: Schema) {
         listeners.get(schema)!!.forEach {
             it.onChanged()
+        }
+    }
+
+    private fun calculateSelection(parentId: String?): String? {
+        return if (parentId == null) {
+            null
+        } else {
+            "${Schema.PARENT_ID_COLUMN} = ?"
+        }
+    }
+
+    private fun calculateSelectionArgs(parentId: String?): Array<String>? {
+        return if (parentId == null) {
+            null
+        } else {
+            array(parentId)
         }
     }
 }
