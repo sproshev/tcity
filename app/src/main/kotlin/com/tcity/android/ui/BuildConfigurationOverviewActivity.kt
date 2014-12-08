@@ -17,7 +17,6 @@
 package com.tcity.android.ui
 
 import kotlin.properties.Delegates
-import com.tcity.android.loader.RunnablesChain
 import android.os.Bundle
 import com.tcity.android.R
 import com.tcity.android.db.Schema
@@ -25,13 +24,14 @@ import com.tcity.android.db.getName
 import android.os.AsyncTask.Status
 import com.tcity.android.loader.getBuildsRunnable
 import com.tcity.android.loader.getAndRunnablesChain
+import android.os.AsyncTask
 
 public class BuildConfigurationOverviewActivity : BaseOverviewActivity() {
 
     private var id: String by Delegates.notNull()
 
     private var runnables: Collection<Runnable> by Delegates.notNull()
-    private var chain: RunnablesChain by Delegates.notNull()
+    private var chain: AsyncTask<Void, Exception, Void> by Delegates.notNull()
 
     // Lifecycle - BEGIN
 

@@ -21,12 +21,12 @@ import android.os.AsyncTask
 public fun getOrRunnablesChain(
         runnables: Collection<Runnable>,
         listener: ChainListener? = null
-): RunnablesChain = RunnablesChain(runnables, false, listener)
+): AsyncTask<Void, Exception, Void> = RunnablesChain(runnables, false, listener)
 
 public fun getAndRunnablesChain(
         runnables: Collection<Runnable>,
         listener: ChainListener? = null
-): RunnablesChain = RunnablesChain(runnables, true, listener)
+): AsyncTask<Void, Exception, Void> = RunnablesChain(runnables, true, listener)
 
 public trait ChainListener {
 
@@ -35,7 +35,7 @@ public trait ChainListener {
     public fun onException(e: Exception)
 }
 
-public class RunnablesChain(
+private class RunnablesChain(
         private val runnables: Collection<Runnable>,
         private val stopOnException: Boolean,
         private val listener: ChainListener?

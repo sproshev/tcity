@@ -21,9 +21,7 @@ import java.io.IOException
 import org.apache.http.HttpStatus
 import android.database.sqlite.SQLiteException
 import com.tcity.android.db.dbValues
-import com.tcity.android.concept.Project
 import com.tcity.android.rest.getProjectsUrl
-import com.tcity.android.concept.BuildConfiguration
 import com.tcity.android.rest.getBuildConfigurationsUrl
 import com.tcity.android.app.Preferences
 import com.tcity.android.rest
@@ -35,7 +33,6 @@ import com.tcity.android.parser.parseProjects
 import com.tcity.android.parser.parseBuildConfigurations
 import com.tcity.android.db.Schema
 import com.tcity.android.db.dbValue
-import com.tcity.android.concept.Build
 import com.tcity.android.parser.parseBuilds
 import com.tcity.android.rest.getBuildsUrl
 import com.tcity.android.concept.Status
@@ -48,7 +45,7 @@ import com.tcity.android.db.getStatus
 public fun getProjectsRunnable(
         db: DB,
         preferences: Preferences
-): ConceptsRunnable<Project> {
+): Runnable {
     return ConceptsRunnable(
             getProjectsUrl(preferences),
             null,
@@ -64,7 +61,7 @@ public fun getBuildConfigurationsRunnable(
         projectId: String,
         db: DB,
         preferences: Preferences
-): ConceptsRunnable<BuildConfiguration> {
+): Runnable {
     return ConceptsRunnable(
             getBuildConfigurationsUrl(projectId, preferences),
             projectId,
@@ -79,7 +76,7 @@ public fun getBuildsRunnable(
         buildConfigurationId: String,
         db: DB,
         preferences: Preferences
-): ConceptsRunnable<Build> {
+): Runnable {
     return ConceptsRunnable(
             getBuildsUrl(buildConfigurationId, preferences),
             buildConfigurationId,
