@@ -20,53 +20,11 @@ import com.tcity.android.concept.Project
 import java.io.IOException
 import java.io.InputStream
 import android.util.JsonReader
-import java.io.InputStreamReader
-import java.util.ArrayList
 import com.tcity.android.concept.ROOT_PROJECT_ID
 
 throws(javaClass<IOException>())
 public fun parseProjects(stream: InputStream): List<Project> {
-    val reader = JsonReader(InputStreamReader(stream))
-
-    var result: List<Project>? = null
-    var capacity = 10
-
-    try {
-        reader.beginObject()
-
-        while (reader.hasNext()) {
-            when (reader.nextName()) {
-                "count" -> capacity = reader.nextInt()
-                "project" -> result = parseProjects(reader, capacity)
-                else -> reader.skipValue()
-            }
-        }
-
-        reader.endObject()
-    } finally {
-        reader.close()
-    }
-
-    if (result != null) {
-        return result!!
-    } else {
-        throw IOException("Invalid projects json: \"project\" is absent")
-    }
-}
-
-throws(javaClass<IOException>())
-private fun parseProjects(reader: JsonReader, capacity: Int): List<Project> {
-    val result = ArrayList<Project>(Math.max(capacity, 0))
-
-    reader.beginArray()
-
-    while (reader.hasNext()) {
-        result.add(parseProject(reader))
-    }
-
-    reader.endArray()
-
-    return result
+    return parseConcepts(stream, "project", ::parseProject)
 }
 
 throws(javaClass<IOException>())

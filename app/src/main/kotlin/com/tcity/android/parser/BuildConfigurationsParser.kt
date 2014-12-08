@@ -18,53 +18,11 @@ package com.tcity.android.parser
 
 import com.tcity.android.concept.BuildConfiguration
 import java.io.InputStream
-import java.io.InputStreamReader
 import android.util.JsonReader
 import java.io.IOException
-import java.util.ArrayList
 
 public fun parseBuildConfigurations(stream: InputStream): List<BuildConfiguration> {
-    val reader = JsonReader(InputStreamReader(stream))
-
-    var result: List<BuildConfiguration>? = null
-    var capacity = 10
-
-    try {
-        reader.beginObject()
-
-        while (reader.hasNext()) {
-            when (reader.nextName()) {
-                "count" -> capacity = reader.nextInt()
-                "buildType" -> result = parseBuildConfigurations(reader, capacity)
-                else -> reader.skipValue()
-            }
-        }
-
-        reader.endObject()
-    } finally {
-        reader.close()
-    }
-
-    if (result != null) {
-        return result!!
-    } else {
-        throw IOException("Invalid build configurations json: \"buildType\" is absent.")
-    }
-}
-
-throws(javaClass<IOException>())
-private fun parseBuildConfigurations(reader: JsonReader, capacity: Int): List<BuildConfiguration> {
-    val result = ArrayList<BuildConfiguration>(Math.max(capacity, 0))
-
-    reader.beginArray()
-
-    while (reader.hasNext()) {
-        result.add(parseBuildConfiguration(reader))
-    }
-
-    reader.endArray()
-
-    return result
+    return parseConcepts(stream, "buildType", ::parseBuildConfiguration)
 }
 
 throws(javaClass<IOException>())

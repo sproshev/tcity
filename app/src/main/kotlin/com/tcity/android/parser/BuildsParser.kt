@@ -19,53 +19,11 @@ package com.tcity.android.parser
 import java.io.InputStream
 import com.tcity.android.concept.Build
 import android.util.JsonReader
-import java.io.InputStreamReader
 import java.io.IOException
-import java.util.ArrayList
 import com.tcity.android.concept.Status
 
 public fun parseBuilds(stream: InputStream): List<Build> {
-    val reader = JsonReader(InputStreamReader(stream))
-
-    var result: List<Build>? = null
-    var capacity = 10
-
-    try {
-        reader.beginObject()
-
-        while (reader.hasNext()) {
-            when (reader.nextName()) {
-                "count" -> capacity = reader.nextInt()
-                "build" -> result = parseBuilds(reader, capacity)
-                else -> reader.skipValue()
-            }
-        }
-
-        reader.endObject()
-    } finally {
-        reader.close()
-    }
-
-    if (result != null) {
-        return result!!
-    } else {
-        throw IOException("Invalid builds json: \"build\" is absent.")
-    }
-}
-
-throws(javaClass<IOException>())
-private fun parseBuilds(reader: JsonReader, capacity: Int): List<Build> {
-    val result = ArrayList<Build>(Math.max(capacity, 0))
-
-    reader.beginArray()
-
-    while (reader.hasNext()) {
-        result.add(parseBuild(reader))
-    }
-
-    reader.endArray()
-
-    return result
+    return parseConcepts(stream, "build", ::parseBuild)
 }
 
 throws(javaClass<IOException>())
