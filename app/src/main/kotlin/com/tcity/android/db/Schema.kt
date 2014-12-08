@@ -24,17 +24,23 @@ public enum class Schema {
         public val PARENT_ID_COLUMN: String = "parent_id"
         public val STATUS_COLUMN: String = "status"
         public val WATCHED_COLUMN: String = "watched"
+
+        private val TC_ID_COLUMN_DESC = TC_ID_COLUMN.to("TEXT NOT NULL UNIQUE")
+        private val NAME_COLUMN_DESC = NAME_COLUMN.to("TEXT NOT NULL")
+        private val PARENT_ID_COLUMN_DESC = PARENT_ID_COLUMN.to("TEXT NOT NULL")
+        private val STATUS_COLUMN_DESC = STATUS_COLUMN.to("TEXT NOT NULL")
+        private val WATCHED_COLUMN_DESC = WATCHED_COLUMN.to("INTEGER NOT NULL")
     }
 
     BUILD {
         override val tableName = "Build"
 
         override val columnTypes = mapOf(
-                TC_ID_COLUMN.to("TEXT NOT NULL UNIQUE"),
-                NAME_COLUMN.to("TEXT NOT NULL"),
-                PARENT_ID_COLUMN.to("TEXT NOT NULL"),
-                STATUS_COLUMN.to("TEXT NOT NULL"),
-                WATCHED_COLUMN.to("INTEGER NOT NULL")
+                TC_ID_COLUMN_DESC,
+                NAME_COLUMN_DESC,
+                PARENT_ID_COLUMN_DESC,
+                STATUS_COLUMN_DESC,
+                WATCHED_COLUMN_DESC
         )
     }
 
@@ -42,11 +48,11 @@ public enum class Schema {
         override val tableName = "BuildConfiguration"
 
         override val columnTypes = mapOf(
-                TC_ID_COLUMN.to("TEXT NOT NULL UNIQUE"),
-                NAME_COLUMN.to("TEXT NOT NULL"),
-                PARENT_ID_COLUMN.to("TEXT NOT NULL"),
-                STATUS_COLUMN.to("TEXT NOT NULL"),
-                WATCHED_COLUMN.to("INTEGER NOT NULL")
+                TC_ID_COLUMN_DESC,
+                NAME_COLUMN_DESC,
+                PARENT_ID_COLUMN_DESC,
+                STATUS_COLUMN_DESC,
+                WATCHED_COLUMN_DESC
         )
     }
 
@@ -54,11 +60,11 @@ public enum class Schema {
         override val tableName = "Project"
 
         override val columnTypes = mapOf(
-                TC_ID_COLUMN.to("TEXT NOT NULL UNIQUE"),
-                NAME_COLUMN.to("TEXT NOT NULL"),
-                PARENT_ID_COLUMN.to("TEXT NOT NULL"),
-                STATUS_COLUMN.to("TEXT NOT NULL"),
-                WATCHED_COLUMN.to("INTEGER NOT NULL")
+                TC_ID_COLUMN_DESC,
+                NAME_COLUMN_DESC,
+                PARENT_ID_COLUMN_DESC,
+                STATUS_COLUMN_DESC,
+                WATCHED_COLUMN_DESC
         )
     }
 
