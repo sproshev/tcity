@@ -33,7 +33,8 @@ private class OverviewConceptsEngine(
         schema: Schema,
         listener: ConceptListener,
         name: String,
-        watchedPrefix: String
+        watchedPrefix: String,
+        private val parentId: String?
 ) {
     private val inflater = LayoutInflater.from(context)
 
@@ -56,11 +57,11 @@ private class OverviewConceptsEngine(
         watchedCursor = db.query(
                 schema,
                 null,
-                "${Schema.WATCHED_COLUMN} = ?",
-                array(true.dbValue.toString())
+                getWatchedSelection(),
+                getWatchedSelectionArgs()
         )
 
-        cursor = db.query(schema)
+        cursor = db.query(schema, null, getSelection(), getSelectionArgs())
 
         watchedAdapter = ConceptsCursorAdapter(context, listener)
         watchedAdapter.changeCursor(watchedCursor)
@@ -85,5 +86,37 @@ private class OverviewConceptsEngine(
         header.setText(text)
 
         return header
+    }
+
+    private fun getWatchedSelection(): String {
+        return if (parentId == null) {
+            "${Schema.WATCHED_COLUMN} = ?"
+        } else {
+            "${Schema.WATCHED_COLUMN} = ? AND ${Schema.PARENT_ID_COLUMN} = ?"
+        }
+    }
+
+    private fun getWatchedSelectionArgs(): Array<String> {
+        return if (parentId == null) {
+            array(true.dbValue.toString())
+        } else {
+            array(true.dbValue.toString(), parentId)
+        }
+    }
+
+    private fun getSelection(): String {
+        return if (parentId == null) {
+            ""
+        } else {
+            "${Schema.PARENT_ID_COLUMN} = ?"
+        }
+    }
+
+    private fun getSelectionArgs(): Array<String> {
+        return if (parentId == null) {
+            array()
+        } else {
+            array(parentId)
+        }
     }
 }

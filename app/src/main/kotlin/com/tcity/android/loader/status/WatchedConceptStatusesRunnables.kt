@@ -29,7 +29,8 @@ import android.util.Log
 public abstract class WatchedConceptStatusesRunnable(
         private val db: DB,
         private val schema: Schema,
-        protected val preferences: Preferences
+        protected val preferences: Preferences,
+        private val parentId: String?
 ) : Runnable {
 
     class object {
@@ -42,8 +43,8 @@ public abstract class WatchedConceptStatusesRunnable(
         val cursor = db.query(
                 schema,
                 array(Schema.TC_ID_COLUMN),
-                "${Schema.WATCHED_COLUMN} = ?",
-                array(true.dbValue.toString())
+                getSelection(),
+                getSelectionArgs()
         )
 
         while (cursor.moveToNext()) {
@@ -63,20 +64,38 @@ public abstract class WatchedConceptStatusesRunnable(
 
         cursor.close()
     }
+
+    private fun getSelection(): String {
+        return if (parentId == null) {
+            "${Schema.WATCHED_COLUMN} = ?"
+        } else {
+            "${Schema.WATCHED_COLUMN} = ? AND ${Schema.PARENT_ID_COLUMN} = ?"
+        }
+    }
+
+    private fun getSelectionArgs(): Array<String> {
+        return if (parentId == null) {
+            array(true.dbValue.toString())
+        } else {
+            array(true.dbValue.toString(), parentId)
+        }
+    }
 }
 
 public class WatchedProjectStatusesRunnable(
         db: DB,
-        preferences: Preferences
-) : WatchedConceptStatusesRunnable(db, Schema.PROJECT, preferences) {
+        preferences: Preferences,
+        parentId: String? = null
+) : WatchedConceptStatusesRunnable(db, Schema.PROJECT, preferences, parentId) {
 
     override fun getStatusUrl(conceptId: String) = getProjectStatusUrl(conceptId, preferences)
 }
 
 public class WatchedBuildConfigurationStatusesRunnable(
         db: DB,
-        preferences: Preferences
-) : WatchedConceptStatusesRunnable(db, Schema.BUILD_CONFIGURATION, preferences) {
+        preferences: Preferences,
+        parentId: String? = null
+) : WatchedConceptStatusesRunnable(db, Schema.BUILD_CONFIGURATION, preferences, parentId) {
 
     override fun getStatusUrl(conceptId: String) = getBuildConfigurationStatusUrl(conceptId, preferences)
 }

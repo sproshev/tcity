@@ -20,28 +20,31 @@ import android.app.ListActivity
 import android.support.v4.widget.SwipeRefreshLayout
 import kotlin.properties.Delegates
 import com.tcity.android.app.Application
+import com.tcity.android.loader.RunnablesChain
 import android.os.Bundle
 import com.tcity.android.R
 import com.tcity.android.loader.ProjectsRunnable
 import com.tcity.android.loader.status.WatchedProjectStatusesRunnable
-import com.tcity.android.loader.RunnablesChain
 import com.tcity.android.loader.AndRunnablesChain
-import com.tcity.android.loader.ChainListener
 import com.tcity.android.loader.status.WatchedBuildConfigurationStatusesRunnable
-import android.os.AsyncTask.Status
-import android.widget.Toast
-import android.view.View
-import com.tcity.android.db.Schema
-import com.tcity.android.db.dbValues
-import android.widget.PopupMenu
-import android.view.MenuItem
-import android.content.Intent
-import com.tcity.android.rest.getProjectWebUrl
 import android.content.ContentValues
+import com.tcity.android.db.dbValues
+import com.tcity.android.db.Schema
 import com.tcity.android.db.dbValue
 import com.tcity.android.loader.status.ProjectStatusRunnable
+import android.view.View
+import android.widget.PopupMenu
+import android.content.Intent
+import android.os.AsyncTask.Status
+import com.tcity.android.loader.ChainListener
+import android.widget.Toast
+import android.view.MenuItem
+import com.tcity.android.rest.getProjectWebUrl
+import com.tcity.android.loader.BuildConfigurationsRunnable
 
-public class MainActivity : ListActivity(), OverviewListener {
+public class ProjectActivity : ListActivity(), OverviewListener {
+
+    private var id: String by Delegates.notNull()
 
     private var layout: SwipeRefreshLayout by Delegates.notNull()
     private var application: Application by Delegates.notNull()
@@ -60,6 +63,8 @@ public class MainActivity : ListActivity(), OverviewListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super<ListActivity>.onCreate(savedInstanceState)
 
+        id = getIntent().getStringExtra("PROJECT_ID")
+
         setContentView(R.layout.overview)
 
         layout = findViewById(R.id.overview_layout) as SwipeRefreshLayout
@@ -72,10 +77,12 @@ public class MainActivity : ListActivity(), OverviewListener {
                 this,
                 application.getDB(),
                 getListView(),
-                "Projects",
+                "Subprojects",
                 "Build Configurations",
                 "Builds",
-                this
+                this,
+                id,
+                id
         )
 
         chainListener = getLastNonConfigurationInstance() as GlobalChainListener? ?: GlobalChainListener()
@@ -88,16 +95,23 @@ public class MainActivity : ListActivity(), OverviewListener {
                 ),
                 WatchedProjectStatusesRunnable(
                         application.getDB(),
-                        application.getPreferences()
+                        application.getPreferences(),
+                        id
                 )
         )
 
         projectsChain = AndRunnablesChain(chainListener, projectsRunnables)
 
         buildConfigurationsRunnables = listOf(
-                WatchedBuildConfigurationStatusesRunnable(
+                BuildConfigurationsRunnable(
+                        id,
                         application.getDB(),
                         application.getPreferences()
+                ),
+                WatchedBuildConfigurationStatusesRunnable(
+                        application.getDB(),
+                        application.getPreferences(),
+                        id
                 )
         )
 
@@ -239,7 +253,7 @@ public class MainActivity : ListActivity(), OverviewListener {
 
     private class GlobalChainListener : ChainListener {
 
-        public var activity: MainActivity? = null
+        public var activity: ProjectActivity? = null
 
         private var mutableCount = 0
 
