@@ -53,6 +53,12 @@ public fun getStatus(cursor: Cursor): Status {
     )
 }
 
+public fun getId(cursor: Cursor): String {
+    return cursor.getString(
+            cursor.getColumnIndex(Schema.TC_ID_COLUMN)
+    )
+}
+
 // Custom - END
 
 // Primitive - BEGIN

@@ -23,11 +23,11 @@ import com.tcity.android.app.Application
 import android.os.Bundle
 import com.tcity.android.R
 import com.tcity.android.loader.ProjectsRunnable
-import com.tcity.android.loader.ProjectStatusesRunnable
+import com.tcity.android.loader.status.WatchedProjectStatusesRunnable
 import com.tcity.android.loader.RunnablesChain
 import com.tcity.android.loader.AndRunnablesChain
 import com.tcity.android.loader.ChainListener
-import com.tcity.android.loader.BuildConfigurationStatusesRunnable
+import com.tcity.android.loader.status.WatchedBuildConfigurationStatusesRunnable
 import android.os.AsyncTask.Status
 import android.widget.Toast
 import android.view.View
@@ -39,7 +39,7 @@ import android.content.Intent
 import com.tcity.android.rest.getProjectWebUrl
 import android.content.ContentValues
 import com.tcity.android.db.dbValue
-import com.tcity.android.loader.ProjectStatusRunnable
+import com.tcity.android.loader.status.ProjectStatusRunnable
 
 public class MainActivity : ListActivity(), OverviewListener {
 
@@ -74,7 +74,7 @@ public class MainActivity : ListActivity(), OverviewListener {
                 getListView(),
                 "Projects",
                 "Build Configurations",
-                "Build",
+                "Builds",
                 this
         )
 
@@ -86,7 +86,7 @@ public class MainActivity : ListActivity(), OverviewListener {
                         application.getDB(),
                         application.getPreferences()
                 ),
-                ProjectStatusesRunnable(
+                WatchedProjectStatusesRunnable(
                         application.getDB(),
                         application.getPreferences()
                 )
@@ -95,7 +95,7 @@ public class MainActivity : ListActivity(), OverviewListener {
         projectsChain = AndRunnablesChain(chainListener, projectsRunnables)
 
         buildConfigurationsRunnables = listOf(
-                BuildConfigurationStatusesRunnable(
+                WatchedBuildConfigurationStatusesRunnable(
                         application.getDB(),
                         application.getPreferences()
                 )
@@ -124,6 +124,7 @@ public class MainActivity : ListActivity(), OverviewListener {
     // Lifecycle - END
 
     // OverviewListener - BEGIN
+
     override fun onProjectWatchClick(id: String) {
         val watched = application.getPreferences().getWatchedProjectIds().contains(id)
 
