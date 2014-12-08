@@ -52,6 +52,6 @@ public class Build(
         id: String,
         name: String,
         parentId: String,
-        status: Status = Status.DEFAULT,
+        status: Status,
         watched: Boolean = false
 ) : Concept(id, name, parentId, status, watched)

@@ -35,6 +35,9 @@ import com.tcity.android.parser.parseProjects
 import com.tcity.android.parser.parseBuildConfigurations
 import com.tcity.android.db.Schema
 import com.tcity.android.db.dbValue
+import com.tcity.android.concept.Build
+import com.tcity.android.parser.parseBuilds
+import com.tcity.android.rest.getBuildsUrl
 
 
 public abstract class ConceptsRunnable<T : Concept>(
@@ -93,7 +96,7 @@ public class ProjectsRunnable(
 
     override val url = getProjectsUrl(preferences)
     override val watchedConceptIds = preferences.getWatchedProjectIds()
-    override val ignoredConceptIds: Set<String> = setOf(ROOT_PROJECT_ID)
+    override val ignoredConceptIds = setOf(ROOT_PROJECT_ID)
 }
 
 public class BuildConfigurationsRunnable(
@@ -104,4 +107,14 @@ public class BuildConfigurationsRunnable(
 
     override val url = getBuildConfigurationsUrl(projectId, preferences)
     override val watchedConceptIds = preferences.getWatchedBuildConfigurationIds()
+}
+
+public class BuildsRunnable(
+        private val buildConfigurationId: String,
+        db: DB,
+        preferences: Preferences
+) : ConceptsRunnable<Build>(db, Schema.BUILD, ::parseBuilds, preferences) {
+
+    override val url = getBuildsUrl(buildConfigurationId, preferences)
+    override val watchedConceptIds = Collections.emptySet<String>()
 }

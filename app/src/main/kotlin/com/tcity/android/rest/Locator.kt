@@ -26,6 +26,10 @@ public fun getBuildConfigurationsUrl(projectId: String, preferences: Preferences
     return "${preferences.getUrl()}${REST_PATH}projects/id:$projectId/buildTypes"
 }
 
+public fun getBuildsUrl(buildConfigurationId: String, preferences: Preferences): String {
+    return "${preferences.getUrl()}${REST_PATH}builds/?locator=buildType:(id:$buildConfigurationId),running:any,branch:(branched:any)"
+}
+
 public fun getProjectStatusUrl(id: String, preferences: Preferences): String {
     return "${preferences.getUrl()}${REST_PATH}projects/id:$id/status"
 }
