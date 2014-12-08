@@ -45,9 +45,9 @@ private class OverviewEngine(
 
     private val watchedPrefix = context.getResources().getString(R.string.watched)
 
-    private val projectsEngine: OverviewConceptsEngine
-    private val buildConfigurationsEngine: OverviewConceptsEngine
-    private val buildsEngine: OverviewConceptsEngine
+    private val projectsEngine: OverviewSubEngine
+    private val buildConfigurationsEngine: OverviewSubEngine
+    private val buildsEngine: OverviewSubEngine
 
     private val projectSchemaListener: SchemaListener
     private val buildConfigurationSchemaListener: SchemaListener
@@ -60,7 +60,7 @@ private class OverviewEngine(
             override fun onOptionsClick(id: String, anchor: View) = listener.onProjectOptionsClick(id, anchor)
         }
 
-        projectsEngine = OverviewConceptsEngine(context, db, root, Schema.PROJECT, projectViewListener, projectsSectionName, watchedPrefix, projectsParentId)
+        projectsEngine = OverviewSubEngine(context, db, root, Schema.PROJECT, projectViewListener, projectsSectionName, watchedPrefix, projectsParentId)
 
         val buildConfigurationViewListener = object : ConceptListener {
             override fun onWatchClick(id: String) = listener.onBuildConfigurationWatchClick(id)
@@ -68,7 +68,7 @@ private class OverviewEngine(
             override fun onOptionsClick(id: String, anchor: View) = listener.onBuildConfigurationOptionsClick(id, anchor)
         }
 
-        buildConfigurationsEngine = OverviewConceptsEngine(context, db, root, Schema.BUILD_CONFIGURATION, buildConfigurationViewListener, buildConfigurationsSectionName, watchedPrefix, buildConfigurationsParentId)
+        buildConfigurationsEngine = OverviewSubEngine(context, db, root, Schema.BUILD_CONFIGURATION, buildConfigurationViewListener, buildConfigurationsSectionName, watchedPrefix, buildConfigurationsParentId)
 
         val buildViewListener = object : ConceptListener {
             override fun onWatchClick(id: String) = listener.onBuildWatchClick(id)
@@ -76,7 +76,7 @@ private class OverviewEngine(
             override fun onOptionsClick(id: String, anchor: View) = listener.onBuildOptionsClick(id, anchor)
         }
 
-        buildsEngine = OverviewConceptsEngine(context, db, root, Schema.BUILD, buildViewListener, buildsSectionName, watchedPrefix, buildsParentId)
+        buildsEngine = OverviewSubEngine(context, db, root, Schema.BUILD, buildViewListener, buildsSectionName, watchedPrefix, buildsParentId)
 
         adapter.addView(buildsEngine.watchedHeader)
         adapter.addAdapter(buildsEngine.watchedAdapter)
@@ -124,7 +124,7 @@ private class OverviewEngine(
     }
 
     private class ConceptSchemaListener(
-            private val engine: OverviewConceptsEngine,
+            private val engine: OverviewSubEngine,
             private val adapter: MergeAdapter
     ) : SchemaListener {
 

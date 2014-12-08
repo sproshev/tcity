@@ -26,7 +26,7 @@ import android.view.ViewGroup
 import android.view.LayoutInflater
 import com.tcity.android.R
 
-private class OverviewConceptsEngine(
+private class OverviewSubEngine(
         context: Context,
         db: DB,
         private val root: ViewGroup,
@@ -44,8 +44,8 @@ private class OverviewConceptsEngine(
     public val watchedHeader: TextView = calculateHeader("$watchedPrefix $name")
     public val header: TextView = calculateHeader(name)
 
-    public val watchedAdapter: ConceptsCursorAdapter
-    public val adapter: ConceptsCursorAdapter
+    public val watchedAdapter: ConceptCursorAdapter
+    public val adapter: ConceptCursorAdapter
 
     public val watchedEmpty: Boolean
         get() = watchedCursor.getCount() == 0
@@ -63,10 +63,10 @@ private class OverviewConceptsEngine(
 
         cursor = db.query(schema, null, getSelection(), getSelectionArgs())
 
-        watchedAdapter = ConceptsCursorAdapter(context, listener)
+        watchedAdapter = ConceptCursorAdapter(context, listener)
         watchedAdapter.changeCursor(watchedCursor)
 
-        adapter = ConceptsCursorAdapter(context, listener)
+        adapter = ConceptCursorAdapter(context, listener)
         adapter.changeCursor(cursor)
     }
 

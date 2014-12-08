@@ -20,9 +20,9 @@ import android.view.View
 
 private trait ConceptListener {
 
-    fun onWatchClick(id: String)
+    public fun onWatchClick(id: String)
 
-    fun onNameClick(id: String)
+    public fun onNameClick(id: String)
 
-    fun onOptionsClick(id: String, anchor: View)
+    public fun onOptionsClick(id: String, anchor: View)
 }

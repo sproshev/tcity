@@ -38,7 +38,7 @@
 
         <activity android:name=".ui.ProjectActivity"/>
 
-        <activity android:name=".ui.BuildConfigurationActivity"/>
+        <activity android:name=".ui.BuildConfigurationOverviewActivity"/>
 
     </application>
 

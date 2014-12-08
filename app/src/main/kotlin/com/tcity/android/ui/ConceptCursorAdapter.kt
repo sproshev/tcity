@@ -30,8 +30,10 @@ import com.tcity.android.db.Schema
 import com.tcity.android.db.getBoolean
 import com.tcity.android.db.getStatus
 import android.graphics.drawable.Drawable
+import com.tcity.android.db.getId
+import com.tcity.android.db.getName
 
-private class ConceptsCursorAdapter(
+private class ConceptCursorAdapter(
         private val context: Context,
         private val listener: ConceptListener
 ) : CursorAdapter(context, null) {
@@ -63,9 +65,9 @@ private class ConceptsCursorAdapter(
     override fun bindView(view: View, context: Context?, cursor: Cursor) {
         val holder = view.getTag() as ConceptViewHolder
 
-        val conceptId = cursor.getString(cursor.getColumnIndex(Schema.TC_ID_COLUMN))
+        val conceptId = getId(cursor)
 
-        holder.name.setText(cursor.getString(cursor.getColumnIndex(Schema.NAME_COLUMN)))
+        holder.name.setText(getName(cursor))
         holder.name.setOnClickListener { listener.onNameClick(conceptId) }
 
         holder.watch.setOnClickListener { listener.onWatchClick(conceptId) }

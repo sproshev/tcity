@@ -23,15 +23,9 @@ import com.tcity.android.app.Application
 import com.tcity.android.loader.RunnablesChain
 import android.os.Bundle
 import com.tcity.android.R
-import com.tcity.android.loader.ProjectsRunnable
-import com.tcity.android.loader.status.WatchedProjectStatusesRunnable
-import com.tcity.android.loader.AndRunnablesChain
-import com.tcity.android.loader.status.WatchedBuildConfigurationStatusesRunnable
 import android.content.ContentValues
 import com.tcity.android.db.dbValues
 import com.tcity.android.db.Schema
-import com.tcity.android.db.dbValue
-import com.tcity.android.loader.status.ProjectStatusRunnable
 import android.view.View
 import android.widget.PopupMenu
 import android.content.Intent
@@ -40,7 +34,6 @@ import com.tcity.android.loader.ChainListener
 import android.widget.Toast
 import android.view.MenuItem
 import com.tcity.android.rest.getProjectWebUrl
-import com.tcity.android.loader.BuildConfigurationsRunnable
 import com.tcity.android.db.getName
 import android.widget.TextView
 
@@ -192,7 +185,7 @@ public class ProjectActivity : ListActivity(), OverviewListener {
     }
 
     override fun onBuildConfigurationNameClick(id: String) {
-        val intent = Intent(this, javaClass<BuildConfigurationActivity>())
+        val intent = Intent(this, javaClass<BuildConfigurationOverviewActivity>())
         intent.putExtra("BUILD_CONFIGURATION_ID", id)
 
         startActivity(intent)

@@ -43,8 +43,7 @@ import android.widget.Toast
 import android.widget.TextView
 import com.tcity.android.loader.ChainListener
 
-private abstract class BaseOverviewActivity(
-) : ListActivity(), OverviewListener {
+private abstract class BaseOverviewActivity : ListActivity(), OverviewListener {
 
     protected val PROJECT_ID_INTENT_KEY: String = "PROJECT_ID"
     protected val BUILD_CONFIGURATION_ID_INTENT_KEY: String = "BUILD_CONFIGURATION_ID"

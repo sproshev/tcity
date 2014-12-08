@@ -26,7 +26,7 @@ import android.os.AsyncTask.Status
 import com.tcity.android.loader.getBuildsRunnable
 import com.tcity.android.loader.getAndRunnablesChain
 
-public class BuildConfigurationActivity : BaseOverviewActivity() {
+public class BuildConfigurationOverviewActivity : BaseOverviewActivity() {
 
     private var id: String by Delegates.notNull()
 
