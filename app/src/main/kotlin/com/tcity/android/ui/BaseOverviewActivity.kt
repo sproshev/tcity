@@ -36,13 +36,67 @@ import com.tcity.android.loader.getAndRunnablesChain
 import com.tcity.android.loader.getProjectStatusRunnable
 import com.tcity.android.loader.getBuildConfigurationStatusRunnable
 import com.tcity.android.app.DB
+import android.os.Bundle
+import android.support.v4.widget.SwipeRefreshLayout
+import kotlin.properties.Delegates
+import android.widget.Toast
+import android.widget.TextView
+import com.tcity.android.loader.ChainListener
 
 private abstract class BaseOverviewActivity(
-        protected val application: Application
 ) : ListActivity(), OverviewListener {
 
     protected val PROJECT_ID_INTENT_KEY: String = "PROJECT_ID"
     protected val BUILD_CONFIGURATION_ID_INTENT_KEY: String = "BUILD_CONFIGURATION_ID"
+
+    private var layout: SwipeRefreshLayout by Delegates.notNull()
+    private var engine: OverviewEngine by Delegates.notNull()
+
+    protected var application: Application by Delegates.notNull()
+    protected var chainListener: GlobalChainListener by Delegates.notNull()
+
+    // Lifecycle - BEGIN
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super<ListActivity>.onCreate(savedInstanceState)
+
+        setContentView(R.layout.overview)
+        getActionBar().setTitle(calculateTitle())
+
+        layout = findViewById(R.id.overview_layout) as SwipeRefreshLayout
+        layout.setColorSchemeResources(R.color.green_status, R.color.red_status)
+        layout.setOnRefreshListener { loadAllData() }
+
+        application = getApplication() as Application
+
+        engine = calculateEngine()
+
+        chainListener = getLastNonConfigurationInstance() as GlobalChainListener? ?: GlobalChainListener()
+        chainListener.activity = this
+
+        getListView().setAdapter(engine.adapter)
+
+        if (chainListener.count == 0) {
+            loadAllData()
+        } else {
+            updateRefreshing()
+        }
+    }
+
+    override fun onRetainNonConfigurationInstance() = chainListener
+
+    override fun onDestroy() {
+        super<ListActivity>.onDestroy()
+
+        engine.onDestroy()
+        chainListener.activity = null
+    }
+
+    // Lifecycle - END
+
+    protected abstract fun calculateTitle(): String
+    protected abstract fun calculateEngine(): OverviewEngine
+    protected abstract fun loadAllData()
 
     // OverviewListener - BEGIN
 
@@ -90,6 +144,18 @@ private abstract class BaseOverviewActivity(
 
     // OverviewListener - END
 
+    private fun updateRefreshing() {
+        if (layout.isRefreshing() && chainListener.count == 0) {
+            layout.setRefreshing(false)
+            (getListView().getEmptyView() as TextView).setText(R.string.empty)
+        }
+
+        if (!layout.isRefreshing() && chainListener.count != 0) {
+            layout.setRefreshing(true) // https://code.google.com/p/android/issues/detail?id=77712
+            (getListView().getEmptyView() as TextView).setText(R.string.loading)
+        }
+    }
+
     private fun onConceptWatchClick(id: String, schema: Schema, runnable: (String, DB, Preferences) -> Runnable) {
         val watched = isConceptWatched(id, schema)
 
@@ -104,10 +170,10 @@ private abstract class BaseOverviewActivity(
                                     application.getPreferences()
                             )
                     ),
-                    null // TODO
+                    chainListener
             )
 
-            // chainListener.onStarted() TODO
+            chainListener.onStarted()
             statusChain.execute()
         }
     }
@@ -191,6 +257,32 @@ private abstract class BaseOverviewActivity(
 
         private fun onDetailsClick() {
             // TODO implement
+        }
+    }
+
+    protected class GlobalChainListener : ChainListener {
+
+        public var activity: BaseOverviewActivity? = null
+
+        private var mutableCount = 0
+
+        public val count: Int
+            get() = mutableCount
+
+        public fun onStarted() {
+            mutableCount++
+
+            activity?.updateRefreshing()
+        }
+
+        override fun onFinished() {
+            mutableCount--
+
+            activity?.updateRefreshing()
+        }
+
+        override fun onException(e: Exception) {
+            Toast.makeText(activity, e.getMessage(), Toast.LENGTH_LONG).show()
         }
     }
 }
