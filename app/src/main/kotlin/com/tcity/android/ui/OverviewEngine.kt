@@ -24,6 +24,8 @@ import com.tcity.android.app.DB
 import com.tcity.android.db.Schema
 import android.view.ViewGroup
 import com.tcity.android.db.SchemaListener
+import android.os.Handler
+import android.os.Message
 
 
 private class OverviewEngine(
@@ -123,13 +125,21 @@ private class OverviewEngine(
             private val adapter: MergeAdapter
     ) : SchemaListener {
 
+        private val handler = object : Handler() {
+            override fun handleMessage(msg: Message) {
+                super<Handler>.handleMessage(msg)
+
+                engine.requery()
+
+                adapter.setActive(engine.watchedHeader, !engine.watchedEmpty)
+                adapter.setActive(engine.header, !engine.empty)
+
+                adapter.notifyDataSetChanged()
+            }
+        }
+
         override fun onChanged() {
-            engine.requery()
-
-            adapter.setActive(engine.watchedHeader, !engine.watchedEmpty)
-            adapter.setActive(engine.header, !engine.empty)
-
-            adapter.notifyDataSetChanged()
+            handler.sendEmptyMessage(0)
         }
     }
 }
