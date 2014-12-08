@@ -15,7 +15,7 @@
  */
 
 buildscript {
-    ext.kt_version = '0.9.206'
+    ext.kt_version = '0.9.976'
 
     repositories {
         mavenCentral()
