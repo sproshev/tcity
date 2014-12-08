@@ -62,6 +62,8 @@ public class MainActivity : ListActivity(), OverviewListener {
 
         setContentView(R.layout.overview)
 
+        getActionBar().setTitle(R.string.overview)
+
         layout = findViewById(R.id.overview_layout) as SwipeRefreshLayout
         layout.setColorSchemeResources(R.color.green_status, R.color.red_status)
         layout.setOnRefreshListener { loadAllData() }
@@ -72,9 +74,9 @@ public class MainActivity : ListActivity(), OverviewListener {
                 this,
                 application.getDB(),
                 getListView(),
-                "Projects",
-                "Build Configurations",
-                "Builds",
+                getResources().getString(R.string.projects),
+                getResources().getString(R.string.build_configurations),
+                getResources().getString(R.string.builds),
                 this
         )
 
@@ -289,7 +291,7 @@ public class MainActivity : ListActivity(), OverviewListener {
                     getProjectWebUrl(id, application.getPreferences())
             )
 
-            startActivity(Intent.createChooser(intent, "Share"))
+            startActivity(Intent.createChooser(intent, getResources().getString(R.string.share)))
         }
 
         private fun onDetailsClick() {

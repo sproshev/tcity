@@ -59,6 +59,12 @@ public fun getId(cursor: Cursor): String {
     )
 }
 
+public fun getName(cursor: Cursor): String {
+    return cursor.getString(
+            cursor.getColumnIndex(Schema.NAME_COLUMN)
+    )
+}
+
 // Custom - END
 
 // Primitive - BEGIN

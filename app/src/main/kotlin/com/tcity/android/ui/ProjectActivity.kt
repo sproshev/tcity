@@ -41,6 +41,7 @@ import android.widget.Toast
 import android.view.MenuItem
 import com.tcity.android.rest.getProjectWebUrl
 import com.tcity.android.loader.BuildConfigurationsRunnable
+import com.tcity.android.db.getName
 
 public class ProjectActivity : ListActivity(), OverviewListener {
 
@@ -73,13 +74,15 @@ public class ProjectActivity : ListActivity(), OverviewListener {
 
         application = getApplication() as Application
 
+        getActionBar().setTitle(loadTitle())
+
         engine = OverviewEngine(
                 this,
                 application.getDB(),
                 getListView(),
-                "Subprojects",
-                "Build Configurations",
-                "Builds",
+                getResources().getString(R.string.subprojects),
+                getResources().getString(R.string.build_configurations),
+                getResources().getString(R.string.builds),
                 this,
                 id,
                 id
@@ -215,6 +218,23 @@ public class ProjectActivity : ListActivity(), OverviewListener {
 
     // OverviewListener - END
 
+    private fun loadTitle(): String {
+        val cursor = application.getDB().query(
+                Schema.PROJECT,
+                array(Schema.NAME_COLUMN),
+                "${Schema.TC_ID_COLUMN} = ?",
+                array(id)
+        )
+
+        cursor.moveToNext()
+
+        val result = getName(cursor)
+
+        cursor.close()
+
+        return result
+    }
+
     private fun loadAllData() {
         if (projectsChain.getStatus() != Status.RUNNING) {
             if (projectsChain.getStatus() == Status.FINISHED) {
@@ -303,7 +323,7 @@ public class ProjectActivity : ListActivity(), OverviewListener {
                     getProjectWebUrl(id, application.getPreferences())
             )
 
-            startActivity(Intent.createChooser(intent, "Share"))
+            startActivity(Intent.createChooser(intent, getResources().getString(R.string.share)))
         }
 
         private fun onDetailsClick() {

@@ -24,6 +24,7 @@
     <string name="details">Details</string>
 
     <string name="projects">Projects</string>
+    <string name="subprojects">Subprojects</string>
     <string name="build_configurations">Build Configurations</string>
     <string name="builds">Builds</string>
 
