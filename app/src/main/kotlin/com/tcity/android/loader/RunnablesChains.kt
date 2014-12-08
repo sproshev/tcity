@@ -18,6 +18,16 @@ package com.tcity.android.loader
 
 import android.os.AsyncTask
 
+public fun getOrRunnablesChain(
+        runnables: Collection<Runnable>,
+        listener: ChainListener? = null
+): RunnablesChain = RunnablesChain(runnables, false, listener)
+
+public fun getAndRunnablesChain(
+        runnables: Collection<Runnable>,
+        listener: ChainListener? = null
+): RunnablesChain = RunnablesChain(runnables, true, listener)
+
 public trait ChainListener {
 
     public fun onFinished()
@@ -25,10 +35,10 @@ public trait ChainListener {
     public fun onException(e: Exception)
 }
 
-public abstract class RunnablesChain(
-        private val listener: ChainListener,
+private class RunnablesChain(
         private val runnables: Collection<Runnable>,
-        private val stopOnException: Boolean
+        private val stopOnException: Boolean,
+        private val listener: ChainListener?
 ) : AsyncTask<Void, Exception, Void>() {
 
     override fun doInBackground(vararg params: Void?): Void? {
@@ -48,20 +58,10 @@ public abstract class RunnablesChain(
     }
 
     override fun onProgressUpdate(vararg values: Exception) {
-        listener.onException(values[0])
+        listener?.onException(values[0])
     }
 
     override fun onPostExecute(result: Void?) {
-        listener.onFinished()
+        listener?.onFinished()
     }
 }
-
-public class AndRunnablesChain(
-        listener: ChainListener,
-        runnables: Collection<Runnable>
-) : RunnablesChain(listener, runnables, true)
-
-public class OrRunnablesChain(
-        listener: ChainListener,
-        runnables: Collection<Runnable>
-) : RunnablesChain(listener, runnables, false)

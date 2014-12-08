@@ -38,18 +38,67 @@ import com.tcity.android.db.dbValue
 import com.tcity.android.concept.Build
 import com.tcity.android.parser.parseBuilds
 import com.tcity.android.rest.getBuildsUrl
+import com.tcity.android.concept.Status
+import java.util.ArrayList
+import android.content.ContentValues
+import java.util.HashMap
+import com.tcity.android.db.getId
+import com.tcity.android.db.getStatus
 
+public fun getProjectsRunnable(
+        db: DB,
+        preferences: Preferences
+): ConceptsRunnable<Project> {
+    return ConceptsRunnable(
+            getProjectsUrl(preferences),
+            null,
+            ::parseProjects,
+            db,
+            Schema.PROJECT,
+            preferences,
+            setOf(ROOT_PROJECT_ID)
+    )
+}
 
-public abstract class ConceptsRunnable<T : Concept>(
-        protected val db: DB,
-        protected val schema: Schema,
-        protected val parser: (InputStream) -> Collection<T>,
-        protected val preferences: Preferences
+public fun getBuildConfigurationsRunnable(
+        projectId: String,
+        db: DB,
+        preferences: Preferences
+): ConceptsRunnable<BuildConfiguration> {
+    return ConceptsRunnable(
+            getBuildConfigurationsUrl(projectId, preferences),
+            projectId,
+            ::parseBuildConfigurations,
+            db,
+            Schema.BUILD_CONFIGURATION,
+            preferences
+    )
+}
+
+public fun getBuildsRunnable(
+        buildConfigurationId: String,
+        db: DB,
+        preferences: Preferences
+): ConceptsRunnable<Build> {
+    return ConceptsRunnable(
+            getBuildsUrl(buildConfigurationId, preferences),
+            buildConfigurationId,
+            ::parseBuilds,
+            db,
+            Schema.BUILD,
+            preferences
+    )
+}
+
+private class ConceptsRunnable<T : Concept>(
+        private val url: String,
+        private val parentId: String?,
+        private val parser: (InputStream) -> Collection<T>,
+        private val db: DB,
+        private val schema: Schema,
+        private val preferences: Preferences,
+        private val ignoredConceptIds: Set<String> = Collections.emptySet()
 ) : Runnable {
-
-    protected abstract val url: String
-    protected abstract val watchedConceptIds: Set<String>
-    protected open val ignoredConceptIds: Set<String> = Collections.emptySet()
 
     override fun run() {
         saveConcepts(loadConcepts(url))
@@ -70,51 +119,64 @@ public abstract class ConceptsRunnable<T : Concept>(
 
     throws(javaClass<SQLiteException>())
     private fun saveConcepts(concepts: Collection<T>) {
-        db.set(
-                schema,
-                concepts
-                        .stream()
-                        .filter { !ignoredConceptIds.contains(it.id) }
-                        .map {
-                            val values = it.dbValues
+        val watchedIdToStatus = loadWatchedIdToStatus()
+        val result = ArrayList<ContentValues>()
 
-                            if (watchedConceptIds.contains(it.id)) {
-                                values.put(Schema.WATCHED_COLUMN, true.dbValue)
-                            }
+        concepts.forEach {
+            if (!ignoredConceptIds.contains(it.id)) {
+                val values = it.dbValues
 
-                            values
-                        }
-                        .toList()
-        )
+                if (watchedIdToStatus.contains(it.id)) {
+                    values.put(Schema.WATCHED_COLUMN, true.dbValue)
+
+                    if (it.status == Status.DEFAULT) {
+                        values.put(Schema.STATUS_COLUMN, watchedIdToStatus.get(it.id)!!.dbValue)
+                    }
+                }
+
+                result.add(values)
+            }
+        }
+
+        db.set(schema, result, parentId)
     }
-}
 
-public class ProjectsRunnable(
-        db: DB,
-        preferences: Preferences
-) : ConceptsRunnable<Project>(db, Schema.PROJECT, ::parseProjects, preferences) {
+    throws(javaClass<SQLiteException>())
+    private fun loadWatchedIdToStatus(): Map<String, Status> {
+        val result = HashMap<String, Status>()
 
-    override val url = getProjectsUrl(preferences)
-    override val watchedConceptIds = preferences.getWatchedProjectIds()
-    override val ignoredConceptIds = setOf(ROOT_PROJECT_ID)
-}
+        val cursor = db.query(
+                schema,
+                array(Schema.TC_ID_COLUMN, Schema.STATUS_COLUMN),
+                calculateSelection(),
+                calculateSelectionArgs()
+        )
 
-public class BuildConfigurationsRunnable(
-        private val projectId: String,
-        db: DB,
-        preferences: Preferences
-) : ConceptsRunnable<BuildConfiguration>(db, Schema.BUILD_CONFIGURATION, ::parseBuildConfigurations, preferences) {
+        while (cursor.moveToNext()) {
+            result.put(
+                    getId(cursor),
+                    getStatus(cursor)
+            )
+        }
 
-    override val url = getBuildConfigurationsUrl(projectId, preferences)
-    override val watchedConceptIds = preferences.getWatchedBuildConfigurationIds()
-}
+        cursor.close()
 
-public class BuildsRunnable(
-        private val buildConfigurationId: String,
-        db: DB,
-        preferences: Preferences
-) : ConceptsRunnable<Build>(db, Schema.BUILD, ::parseBuilds, preferences) {
+        return result
+    }
 
-    override val url = getBuildsUrl(buildConfigurationId, preferences)
-    override val watchedConceptIds = Collections.emptySet<String>()
+    private fun calculateSelection(): String {
+        return if (parentId == null) {
+            "${Schema.WATCHED_COLUMN} = ?"
+        } else {
+            "${Schema.WATCHED_COLUMN} = ? AND ${Schema.PARENT_ID_COLUMN} = ?"
+        }
+    }
+
+    private fun calculateSelectionArgs(): Array<String> {
+        return if (parentId == null) {
+            array(true.dbValue.toString())
+        } else {
+            array(true.dbValue.toString(), parentId)
+        }
+    }
 }

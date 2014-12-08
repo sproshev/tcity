@@ -30,7 +30,7 @@ public val Concept.dbValues: ContentValues
         result.put(Schema.TC_ID_COLUMN, id)
         result.put(Schema.NAME_COLUMN, name)
         result.put(Schema.PARENT_ID_COLUMN, parentId)
-        result.put(Schema.STATUS_COLUMN, status.toString())
+        result.put(Schema.STATUS_COLUMN, status.dbValue)
         result.put(Schema.WATCHED_COLUMN, watched.dbValue)
 
         return result
@@ -40,10 +40,13 @@ public val Status.dbValues: ContentValues
     get () {
         val result = ContentValues()
 
-        result.put(Schema.STATUS_COLUMN, toString())
+        result.put(Schema.STATUS_COLUMN, dbValue)
 
         return result
     }
+
+public val Status.dbValue: String
+    get() = toString()
 
 public fun getStatus(cursor: Cursor): Status {
     return Status.valueOf(
