@@ -18,36 +18,44 @@ package com.tcity.android.app
 
 import android.content.Context
 import android.preference.PreferenceManager
+import android.util.Base64
 
 
 public class Preferences protected (context: Context) {
 
     private val preferences = PreferenceManager.getDefaultSharedPreferences(context)
 
-    private val watchedProjectIds = WatchedConceptIdsPreference("watched_projects", preferences)
-    private val watchedBuildConfigurationIds = WatchedConceptIdsPreference("watched_build_configurations", preferences)
-    private val watchedBuildIds = WatchedConceptIdsPreference("watched_builds", preferences)
+    class object {
+        private val URL_KEY = "url"
+        private val LOGIN_KEY = "login"
+        private val AUTH_KEY = "auth"
+    }
 
-    private val loginPreference = LoginPreference(preferences)
+    public fun isValid(): Boolean {
+        return preferences.contains(URL_KEY) && preferences.contains(LOGIN_KEY) && preferences.contains(AUTH_KEY)
+    }
 
-    public fun getUrl(): String = loginPreference.getUrl()
-    public fun getAuth(): String = loginPreference.getAuth()
+    public fun getUrl(): String = preferences.getString(URL_KEY, null)
 
-    public fun getWatchedProjectIds(): Set<String> = watchedProjectIds.get()
-    public fun getWatchedBuildConfigurationIds(): Set<String> = watchedBuildConfigurationIds.get()
-    public fun getWatchedBuildIds(): Set<String> = watchedBuildIds.get()
+    public fun getLogin(): String = preferences.getString(LOGIN_KEY, null)
 
-    public fun addWatchedProjectId(id: String): Unit = watchedProjectIds.add(id)
-    public fun addWatchedBuildConfigurationId(id: String): Unit = watchedBuildConfigurationIds.add(id)
-    public fun addWatchedBuildId(id: String): Unit = watchedBuildIds.add(id)
+    public fun getAuth(): String = preferences.getString(AUTH_KEY, null)
 
-    public fun removeWatchedProjectId(id: String): Unit = watchedProjectIds.remove(id)
-    public fun removeWatchedBuildConfigurationId(id: String): Unit = watchedBuildConfigurationIds.remove(id)
-    public fun removeWatchedBuildId(id: String): Unit = watchedBuildIds.remove(id)
+    public fun setUrl(url: String) {
+        val editor = preferences.edit()
 
-    protected fun onTrimMemory() {
-        watchedProjectIds.onTrimMemory()
-        watchedBuildConfigurationIds.onTrimMemory()
-        watchedBuildIds.onTrimMemory()
+        editor.putString(URL_KEY, url)
+
+        editor.apply()
+    }
+
+    public fun setAuth(login: String, password: String) {
+        val editor = preferences.edit()
+
+        editor.putString(LOGIN_KEY, login)
+
+        editor.putString(AUTH_KEY, Base64.encodeToString("$login:$password".toByteArray(), Base64.NO_WRAP))
+
+        editor.apply()
     }
 }
