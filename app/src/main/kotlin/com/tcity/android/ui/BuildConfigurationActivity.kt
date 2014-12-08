@@ -17,34 +17,31 @@
 package com.tcity.android.ui
 
 import android.app.ListActivity
-import android.support.v4.widget.SwipeRefreshLayout
 import kotlin.properties.Delegates
+import android.support.v4.widget.SwipeRefreshLayout
 import com.tcity.android.app.Application
 import com.tcity.android.loader.RunnablesChain
 import android.os.Bundle
 import com.tcity.android.R
-import com.tcity.android.loader.ProjectsRunnable
-import com.tcity.android.loader.status.WatchedProjectStatusesRunnable
 import com.tcity.android.loader.AndRunnablesChain
-import com.tcity.android.loader.status.WatchedBuildConfigurationStatusesRunnable
 import android.content.ContentValues
 import com.tcity.android.db.dbValues
 import com.tcity.android.db.Schema
 import com.tcity.android.db.dbValue
 import com.tcity.android.loader.status.ProjectStatusRunnable
+import android.content.Intent
 import android.view.View
 import android.widget.PopupMenu
-import android.content.Intent
+import com.tcity.android.db.getName
 import android.os.AsyncTask.Status
+import android.widget.TextView
 import com.tcity.android.loader.ChainListener
 import android.widget.Toast
 import android.view.MenuItem
 import com.tcity.android.rest.getProjectWebUrl
-import com.tcity.android.loader.BuildConfigurationsRunnable
-import com.tcity.android.db.getName
-import android.widget.TextView
+import com.tcity.android.loader.BuildsRunnable
 
-public class ProjectActivity : ListActivity(), OverviewListener {
+public class BuildConfigurationActivity : ListActivity(), OverviewListener {
 
     private var id: String by Delegates.notNull()
 
@@ -54,18 +51,15 @@ public class ProjectActivity : ListActivity(), OverviewListener {
 
     private var chainListener: GlobalChainListener by Delegates.notNull()
 
-    private var projectsRunnables: Collection<Runnable> by Delegates.notNull()
-    private var projectsChain: RunnablesChain by Delegates.notNull()
-
-    private var buildConfigurationsRunnables: Collection<Runnable> by Delegates.notNull()
-    private var buildConfigurationsChain: RunnablesChain by Delegates.notNull()
+    private var buildsRunnables: Collection<Runnable> by Delegates.notNull()
+    private var buildsChain: RunnablesChain by Delegates.notNull()
 
     // Lifecycle - BEGIN
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super<ListActivity>.onCreate(savedInstanceState)
 
-        id = getIntent().getStringExtra("PROJECT_ID")
+        id = getIntent().getStringExtra("BUILD_CONFIGURATION_ID")
 
         setContentView(R.layout.overview)
 
@@ -86,40 +80,22 @@ public class ProjectActivity : ListActivity(), OverviewListener {
                 getResources().getString(R.string.builds),
                 this,
                 id,
+                id,
                 id
         )
 
         chainListener = getLastNonConfigurationInstance() as GlobalChainListener? ?: GlobalChainListener()
         chainListener.activity = this
 
-        projectsRunnables = listOf(
-                ProjectsRunnable(
-                        application.getDB(),
-                        application.getPreferences()
-                ),
-                WatchedProjectStatusesRunnable(
-                        application.getDB(),
-                        application.getPreferences(),
-                        id
-                )
-        )
-
-        projectsChain = AndRunnablesChain(chainListener, projectsRunnables)
-
-        buildConfigurationsRunnables = listOf(
-                BuildConfigurationsRunnable(
+        buildsRunnables = listOf(
+                BuildsRunnable(
                         id,
                         application.getDB(),
                         application.getPreferences()
-                ),
-                WatchedBuildConfigurationStatusesRunnable(
-                        application.getDB(),
-                        application.getPreferences(),
-                        id
                 )
         )
 
-        buildConfigurationsChain = AndRunnablesChain(chainListener, buildConfigurationsRunnables)
+        buildsChain = AndRunnablesChain(chainListener, buildsRunnables)
 
         getListView().setAdapter(engine.adapter)
 
@@ -192,10 +168,7 @@ public class ProjectActivity : ListActivity(), OverviewListener {
     }
 
     override fun onBuildConfigurationNameClick(id: String) {
-        val intent = Intent(this, javaClass<BuildConfigurationActivity>())
-        intent.putExtra("BUILD_CONFIGURATION_ID", id)
-
-        startActivity(intent)
+        throw UnsupportedOperationException()
     }
 
     override fun onBuildNameClick(id: String) {
@@ -224,7 +197,7 @@ public class ProjectActivity : ListActivity(), OverviewListener {
 
     private fun loadTitle(): String {
         val cursor = application.getDB().query(
-                Schema.PROJECT,
+                Schema.BUILD_CONFIGURATION,
                 array(Schema.NAME_COLUMN),
                 "${Schema.TC_ID_COLUMN} = ?",
                 array(id)
@@ -240,28 +213,16 @@ public class ProjectActivity : ListActivity(), OverviewListener {
     }
 
     private fun loadAllData() {
-        if (projectsChain.getStatus() != Status.RUNNING) {
-            if (projectsChain.getStatus() == Status.FINISHED) {
-                projectsChain = AndRunnablesChain(
+        if (buildsChain.getStatus() != Status.RUNNING) {
+            if (buildsChain.getStatus() == Status.FINISHED) {
+                buildsChain = AndRunnablesChain(
                         chainListener,
-                        projectsRunnables
+                        buildsRunnables
                 )
             }
 
             chainListener.onStarted()
-            projectsChain.execute()
-        }
-
-        if (buildConfigurationsChain.getStatus() != Status.RUNNING) {
-            if (buildConfigurationsChain.getStatus() == Status.FINISHED) {
-                buildConfigurationsChain = AndRunnablesChain(
-                        chainListener,
-                        buildConfigurationsRunnables
-                )
-            }
-
-            chainListener.onStarted()
-            buildConfigurationsChain.execute()
+            buildsChain.execute()
         }
     }
 
@@ -279,7 +240,7 @@ public class ProjectActivity : ListActivity(), OverviewListener {
 
     private class GlobalChainListener : ChainListener {
 
-        public var activity: ProjectActivity? = null
+        public var activity: BuildConfigurationActivity? = null
 
         private var mutableCount = 0
 
