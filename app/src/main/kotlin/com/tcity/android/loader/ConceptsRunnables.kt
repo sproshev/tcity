@@ -41,6 +41,8 @@ import android.content.ContentValues
 import java.util.HashMap
 import com.tcity.android.db.getId
 import com.tcity.android.db.getStatus
+import com.tcity.android.db.calculateSelection
+import com.tcity.android.db.calculateSelectionArgs
 
 public fun getProjectsRunnable(
         db: DB,
@@ -145,8 +147,8 @@ private class ConceptsRunnable<T : Concept>(
         val cursor = db.query(
                 schema,
                 array(Schema.TC_ID_COLUMN, Schema.STATUS_COLUMN),
-                calculateSelection(),
-                calculateSelectionArgs()
+                calculateSelection(parentId, Schema.PARENT_ID_COLUMN, Schema.WATCHED_COLUMN),
+                calculateSelectionArgs(parentId, true.dbValue.toString())
         )
 
         while (cursor.moveToNext()) {
@@ -159,21 +161,5 @@ private class ConceptsRunnable<T : Concept>(
         cursor.close()
 
         return result
-    }
-
-    private fun calculateSelection(): String {
-        return if (parentId == null) {
-            "${Schema.WATCHED_COLUMN} = ?"
-        } else {
-            "${Schema.WATCHED_COLUMN} = ? AND ${Schema.PARENT_ID_COLUMN} = ?"
-        }
-    }
-
-    private fun calculateSelectionArgs(): Array<String> {
-        return if (parentId == null) {
-            array(true.dbValue.toString())
-        } else {
-            array(true.dbValue.toString(), parentId)
-        }
     }
 }

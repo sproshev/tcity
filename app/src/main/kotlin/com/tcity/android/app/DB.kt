@@ -24,6 +24,8 @@ import android.database.sqlite.SQLiteException
 import java.util.HashMap
 import java.util.LinkedList
 import com.tcity.android.db.SchemaListener
+import com.tcity.android.db.calculateSelection
+import com.tcity.android.db.calculateSelectionArgs
 
 public class DB protected (context: Context) {
 
@@ -97,7 +99,7 @@ public class DB protected (context: Context) {
     public fun set(
             schema: Schema,
             values: Collection<ContentValues>,
-            parentId: String? = null
+            parentId: String?
     ): Int {
         val db = dbHelper.getWritableDatabase()
         var result = 0
@@ -105,7 +107,11 @@ public class DB protected (context: Context) {
         db.beginTransaction()
 
         try {
-            db.delete(schema.tableName, calculateSelection(parentId), calculateSelectionArgs(parentId))
+            db.delete(
+                    schema.tableName,
+                    calculateSelection(parentId, Schema.PARENT_ID_COLUMN),
+                    calculateSelectionArgs(parentId)
+            )
 
             values.forEach {
                 db.insert(schema.tableName, null, it)
@@ -129,22 +135,6 @@ public class DB protected (context: Context) {
     private fun notifyListeners(schema: Schema) {
         listeners.get(schema)!!.forEach {
             it.onChanged()
-        }
-    }
-
-    private fun calculateSelection(parentId: String?): String? {
-        return if (parentId == null) {
-            null
-        } else {
-            "${Schema.PARENT_ID_COLUMN} = ?"
-        }
-    }
-
-    private fun calculateSelectionArgs(parentId: String?): Array<String>? {
-        return if (parentId == null) {
-            null
-        } else {
-            array(parentId)
         }
     }
 }
