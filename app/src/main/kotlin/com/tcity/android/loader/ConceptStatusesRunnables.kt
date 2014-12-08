@@ -16,7 +16,6 @@
 
 package com.tcity.android.loader
 
-import com.tcity.android.concept.Concept
 import android.util.Log
 import java.io.IOException
 import com.tcity.android.concept.Status
@@ -25,47 +24,26 @@ import org.apache.http.HttpStatus
 import org.apache.http.util.EntityUtils
 import android.database.sqlite.SQLiteException
 import com.tcity.android.app.Preferences
-import com.tcity.android.concept.Project
 import com.tcity.android.rest.getProjectStatusUrl
-import com.tcity.android.concept.BuildConfiguration
 import com.tcity.android.rest.getBuildConfigurationStatusUrl
 import com.tcity.android.app.DB
 import com.tcity.android.db.Schema
 import com.tcity.android.db.dbValue
 import com.tcity.android.db.dbValues
 
-public abstract class ConceptStatusesRunnable<T : Concept>(
+public abstract class ConceptStatusRunnable(
         protected val db: DB,
         protected val schema: Schema,
         protected val preferences: Preferences
 ) : Runnable {
 
     class object {
-        private val LOG_TAG = javaClass<ConceptStatusesRunnable<*>>().getSimpleName()
+        private val LOG_TAG = javaClass<ConceptStatusRunnable>().getSimpleName()
     }
 
     protected abstract fun getStatusUrl(conceptId: String): String
 
-    override fun run() {
-        val cursor = db.query(
-                schema,
-                array(Schema.TC_ID_COLUMN),
-                "${Schema.WATCHED_COLUMN} = ?",
-                array(true.dbValue.toString())
-        )
-
-        while (cursor.moveToNext()) {
-            loadAndSaveStatus(
-                    cursor.getString(
-                            cursor.getColumnIndex(Schema.TC_ID_COLUMN)
-                    )
-            )
-        }
-
-        cursor.close()
-    }
-
-    private fun loadAndSaveStatus(conceptId: String) {
+    protected fun loadAndSaveStatus(conceptId: String) {
         try {
             saveStatus(conceptId, loadStatus(conceptId))
         } catch (e: Exception) {
@@ -99,18 +77,54 @@ public abstract class ConceptStatusesRunnable<T : Concept>(
     }
 }
 
+public abstract class ConceptStatusesRunnable(
+        db: DB,
+        schema: Schema,
+        preferences: Preferences
+) : ConceptStatusRunnable(db, schema, preferences) {
+
+    override fun run() {
+        val cursor = db.query(
+                schema,
+                array(Schema.TC_ID_COLUMN),
+                "${Schema.WATCHED_COLUMN} = ?",
+                array(true.dbValue.toString())
+        )
+
+        while (cursor.moveToNext()) {
+            loadAndSaveStatus(
+                    cursor.getString(
+                            cursor.getColumnIndex(Schema.TC_ID_COLUMN)
+                    )
+            )
+        }
+
+        cursor.close()
+    }
+}
+
 public class ProjectStatusesRunnable(
         db: DB,
         preferences: Preferences
-) : ConceptStatusesRunnable<Project>(db, Schema.PROJECT, preferences) {
+) : ConceptStatusesRunnable(db, Schema.PROJECT, preferences) {
 
+    override fun getStatusUrl(conceptId: String) = getProjectStatusUrl(conceptId, preferences)
+}
+
+public class ProjectStatusRunnable(
+        private val id: String,
+        db: DB,
+        preferences: Preferences
+) : ConceptStatusRunnable(db, Schema.PROJECT, preferences) {
+
+    override fun run() = loadAndSaveStatus(id)
     override fun getStatusUrl(conceptId: String) = getProjectStatusUrl(conceptId, preferences)
 }
 
 public class BuildConfigurationStatusesRunnable(
         db: DB,
         preferences: Preferences
-) : ConceptStatusesRunnable<BuildConfiguration>(db, Schema.BUILD_CONFIGURATION, preferences) {
+) : ConceptStatusesRunnable(db, Schema.BUILD_CONFIGURATION, preferences) {
 
     override fun getStatusUrl(conceptId: String) = getBuildConfigurationStatusUrl(conceptId, preferences)
 }

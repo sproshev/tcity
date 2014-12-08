@@ -39,6 +39,7 @@ import android.content.Intent
 import com.tcity.android.rest.getProjectWebUrl
 import android.content.ContentValues
 import com.tcity.android.db.dbValue
+import com.tcity.android.loader.ProjectStatusRunnable
 
 public class MainActivity : ListActivity(), OverviewListener {
 
@@ -143,7 +144,17 @@ public class MainActivity : ListActivity(), OverviewListener {
                 array(id)
         )
 
-        // TODO load status
+        if (!watched) {
+            val projectStatusChain = AndRunnablesChain(
+                    chainListener,
+                    listOf(
+                            ProjectStatusRunnable(id, application.getDB(), application.getPreferences())
+                    )
+            )
+
+            chainListener.onStarted()
+            projectStatusChain.execute()
+        }
     }
 
     override fun onBuildConfigurationWatchClick(id: String) {
