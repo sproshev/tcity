@@ -44,6 +44,11 @@ public class ProjectOverviewActivity : BaseOverviewActivity() {
 
         id = getIntent().getStringExtra(PROJECT_ID_INTENT_KEY)
 
+        getActionBar().setTitle(calculateTitle())
+
+        engine = calculateEngine()
+        setListAdapter(engine.adapter)
+
         projectsRunnables = listOf(
                 getProjectsRunnable(
                         application.getDB(),
@@ -72,11 +77,17 @@ public class ProjectOverviewActivity : BaseOverviewActivity() {
         )
 
         buildConfigurationsChain = getAndRunnablesChain(buildConfigurationsRunnables, chainListener)
+
+        if (chainListener.count == 0) {
+            loadAllData()
+        } else {
+            updateRefreshing()
+        }
     }
 
     // Lifecycle - END
 
-    override fun calculateTitle(): String {
+    private fun calculateTitle(): String {
         val cursor = application.getDB().query(
                 Schema.PROJECT,
                 array(Schema.NAME_COLUMN),
@@ -93,7 +104,7 @@ public class ProjectOverviewActivity : BaseOverviewActivity() {
         return result
     }
 
-    override fun calculateEngine(): OverviewEngine {
+    private fun calculateEngine(): OverviewEngine {
         return OverviewEngine(
                 this,
                 application.getDB(),

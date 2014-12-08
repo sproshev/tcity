@@ -47,5 +47,5 @@ public fun getBuildConfigurationWebUrl(id: String, preferences: Preferences): St
 }
 
 public fun getBuildWebUrl(id: String, preferences: Preferences): String {
-    return "${preferences.getUrl()}/viewLog.html?buildId=$id}"
+    return "${preferences.getUrl()}/viewLog.html?buildId=$id"
 }

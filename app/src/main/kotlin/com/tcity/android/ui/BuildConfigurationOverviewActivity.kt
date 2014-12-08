@@ -40,6 +40,11 @@ public class BuildConfigurationOverviewActivity : BaseOverviewActivity() {
 
         id = getIntent().getStringExtra(BUILD_CONFIGURATION_ID_INTENT_KEY)
 
+        getActionBar().setTitle(calculateTitle())
+
+        engine = calculateEngine()
+        setListAdapter(engine.adapter)
+
         runnables = listOf(
                 getBuildsRunnable(
                         id,
@@ -49,11 +54,17 @@ public class BuildConfigurationOverviewActivity : BaseOverviewActivity() {
         )
 
         chain = getAndRunnablesChain(runnables, chainListener)
+
+        if (chainListener.count == 0) {
+            loadAllData()
+        } else {
+            updateRefreshing()
+        }
     }
 
     // Lifecycle - END
 
-    override fun calculateTitle(): String {
+    private fun calculateTitle(): String {
         val cursor = application.getDB().query(
                 Schema.BUILD_CONFIGURATION,
                 array(Schema.NAME_COLUMN),
@@ -70,7 +81,7 @@ public class BuildConfigurationOverviewActivity : BaseOverviewActivity() {
         return result
     }
 
-    override fun calculateEngine(): OverviewEngine {
+    private fun calculateEngine(): OverviewEngine {
         return OverviewEngine(
                 this,
                 application.getDB(),

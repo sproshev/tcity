@@ -35,6 +35,11 @@ public class MainOverviewActivity : BaseOverviewActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super<BaseOverviewActivity>.onCreate(savedInstanceState)
 
+        getActionBar().setTitle(calculateTitle())
+
+        engine = calculateEngine()
+        setListAdapter(engine.adapter)
+
         runnables = listOf(
                 getProjectsRunnable(
                         application.getDB(),
@@ -48,13 +53,19 @@ public class MainOverviewActivity : BaseOverviewActivity() {
         )
 
         chain = getAndRunnablesChain(runnables, chainListener)
+
+        if (chainListener.count == 0) {
+            loadAllData()
+        } else {
+            updateRefreshing()
+        }
     }
 
     // Lifecycle - END
 
-    override fun calculateTitle() = getResources().getString(R.string.overview)
+    private fun calculateTitle() = getResources().getString(R.string.overview)
 
-    override fun calculateEngine(): OverviewEngine {
+    private fun calculateEngine(): OverviewEngine {
         return OverviewEngine(
                 this,
                 application.getDB(),

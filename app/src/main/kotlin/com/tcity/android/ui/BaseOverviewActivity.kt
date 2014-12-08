@@ -49,10 +49,10 @@ private abstract class BaseOverviewActivity : ListActivity(), OverviewListener {
     protected val BUILD_CONFIGURATION_ID_INTENT_KEY: String = "BUILD_CONFIGURATION_ID"
 
     private var layout: SwipeRefreshLayout by Delegates.notNull()
-    private var engine: OverviewEngine by Delegates.notNull()
 
     protected var application: Application by Delegates.notNull()
     protected var chainListener: GlobalChainListener by Delegates.notNull()
+    protected var engine: OverviewEngine by Delegates.notNull()
 
     // Lifecycle - BEGIN
 
@@ -60,7 +60,6 @@ private abstract class BaseOverviewActivity : ListActivity(), OverviewListener {
         super<ListActivity>.onCreate(savedInstanceState)
 
         setContentView(R.layout.overview)
-        getActionBar().setTitle(calculateTitle())
 
         layout = findViewById(R.id.overview_layout) as SwipeRefreshLayout
         layout.setColorSchemeResources(R.color.green_status, R.color.red_status)
@@ -68,18 +67,8 @@ private abstract class BaseOverviewActivity : ListActivity(), OverviewListener {
 
         application = getApplication() as Application
 
-        engine = calculateEngine()
-
         chainListener = getLastNonConfigurationInstance() as GlobalChainListener? ?: GlobalChainListener()
         chainListener.activity = this
-
-        getListView().setAdapter(engine.adapter)
-
-        if (chainListener.count == 0) {
-            loadAllData()
-        } else {
-            updateRefreshing()
-        }
     }
 
     override fun onRetainNonConfigurationInstance() = chainListener
@@ -93,9 +82,19 @@ private abstract class BaseOverviewActivity : ListActivity(), OverviewListener {
 
     // Lifecycle - END
 
-    protected abstract fun calculateTitle(): String
-    protected abstract fun calculateEngine(): OverviewEngine
     protected abstract fun loadAllData()
+
+    protected fun updateRefreshing() {
+        if (layout.isRefreshing() && chainListener.count == 0) {
+            layout.setRefreshing(false)
+            (getListView().getEmptyView() as TextView).setText(R.string.empty)
+        }
+
+        if (!layout.isRefreshing() && chainListener.count != 0) {
+            layout.setRefreshing(true) // https://code.google.com/p/android/issues/detail?id=77712
+            (getListView().getEmptyView() as TextView).setText(R.string.loading)
+        }
+    }
 
     // OverviewListener - BEGIN
 
@@ -119,7 +118,7 @@ private abstract class BaseOverviewActivity : ListActivity(), OverviewListener {
     }
 
     override fun onBuildConfigurationNameClick(id: String) {
-        val intent = Intent(this, javaClass<ProjectOverviewActivity>())
+        val intent = Intent(this, javaClass<BuildConfigurationOverviewActivity>())
         intent.putExtra(BUILD_CONFIGURATION_ID_INTENT_KEY, id)
 
         startActivity(intent)
@@ -142,18 +141,6 @@ private abstract class BaseOverviewActivity : ListActivity(), OverviewListener {
     }
 
     // OverviewListener - END
-
-    private fun updateRefreshing() {
-        if (layout.isRefreshing() && chainListener.count == 0) {
-            layout.setRefreshing(false)
-            (getListView().getEmptyView() as TextView).setText(R.string.empty)
-        }
-
-        if (!layout.isRefreshing() && chainListener.count != 0) {
-            layout.setRefreshing(true) // https://code.google.com/p/android/issues/detail?id=77712
-            (getListView().getEmptyView() as TextView).setText(R.string.loading)
-        }
-    }
 
     private fun onConceptWatchClick(id: String, schema: Schema, runnable: (String, DB, Preferences) -> Runnable) {
         val watched = isConceptWatched(id, schema)
