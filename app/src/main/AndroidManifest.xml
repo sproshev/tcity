@@ -29,14 +29,14 @@
         android:label="@string/tcity"
         android:theme="@style/android:Theme.Holo.Light.DarkActionBar">
 
-        <activity android:name=".ui.MainActivity">
+        <activity android:name=".ui.MainOverviewActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
 
-        <activity android:name=".ui.ProjectActivity"/>
+        <activity android:name=".ui.ProjectOverviewActivity"/>
 
         <activity android:name=".ui.BuildConfigurationOverviewActivity"/>
 

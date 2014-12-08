@@ -112,14 +112,14 @@ private abstract class BaseOverviewActivity : ListActivity(), OverviewListener {
     }
 
     override fun onProjectNameClick(id: String) {
-        val intent = Intent(this, javaClass<ProjectActivity>())
+        val intent = Intent(this, javaClass<ProjectOverviewActivity>())
         intent.putExtra(PROJECT_ID_INTENT_KEY, id)
 
         startActivity(intent)
     }
 
     override fun onBuildConfigurationNameClick(id: String) {
-        val intent = Intent(this, javaClass<ProjectActivity>())
+        val intent = Intent(this, javaClass<ProjectOverviewActivity>())
         intent.putExtra(BUILD_CONFIGURATION_ID_INTENT_KEY, id)
 
         startActivity(intent)

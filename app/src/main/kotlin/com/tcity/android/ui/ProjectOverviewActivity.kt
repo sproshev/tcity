@@ -27,7 +27,7 @@ import com.tcity.android.loader.getAndRunnablesChain
 import com.tcity.android.loader.getBuildConfigurationsRunnable
 import com.tcity.android.loader.getProjectsRunnable
 
-public class ProjectActivity : BaseOverviewActivity() {
+public class ProjectOverviewActivity : BaseOverviewActivity() {
 
     private var id: String by Delegates.notNull()
 

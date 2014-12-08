@@ -44,13 +44,4 @@ public class Application extends android.app.Application {
 
         return myDB;
     }
-
-    @Override
-    public void onTrimMemory(int level) {
-        super.onTrimMemory(level);
-
-        if (myPreferences != null) {
-            myPreferences.onTrimMemory();
-        }
-    }
 }

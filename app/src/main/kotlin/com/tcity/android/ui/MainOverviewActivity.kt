@@ -25,7 +25,7 @@ import com.tcity.android.loader.getAndRunnablesChain
 import com.tcity.android.concept.ROOT_PROJECT_ID
 import android.os.AsyncTask
 
-public class MainActivity : BaseOverviewActivity() {
+public class MainOverviewActivity : BaseOverviewActivity() {
 
     private var runnables: Collection<Runnable> by Delegates.notNull()
     private var chain: AsyncTask<Void, Exception, Void> by Delegates.notNull()

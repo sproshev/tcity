@@ -18,23 +18,23 @@ package com.tcity.android.ui
 
 import android.view.View
 
-public trait OverviewListener {
+private trait OverviewListener {
 
-    fun onProjectWatchClick(id: String)
+    public fun onProjectWatchClick(id: String)
 
-    fun onBuildConfigurationWatchClick(id: String)
+    public fun onBuildConfigurationWatchClick(id: String)
 
-    fun onBuildWatchClick(id: String)
+    public fun onBuildWatchClick(id: String)
 
-    fun onProjectNameClick(id: String)
+    public fun onProjectNameClick(id: String)
 
-    fun onBuildConfigurationNameClick(id: String)
+    public fun onBuildConfigurationNameClick(id: String)
 
-    fun onBuildNameClick(id: String)
+    public fun onBuildNameClick(id: String)
 
-    fun onProjectOptionsClick(id: String, anchor: View)
+    public fun onProjectOptionsClick(id: String, anchor: View)
 
-    fun onBuildConfigurationOptionsClick(id: String, anchor: View)
+    public fun onBuildConfigurationOptionsClick(id: String, anchor: View)
 
-    fun onBuildOptionsClick(id: String, anchor: View)
+    public fun onBuildOptionsClick(id: String, anchor: View)
 }
