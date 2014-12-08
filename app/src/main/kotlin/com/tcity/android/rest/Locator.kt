@@ -41,3 +41,11 @@ public fun getBuildConfigurationStatusUrl(id: String, preferences: Preferences):
 public fun getProjectWebUrl(id: String, preferences: Preferences): String {
     return "${preferences.getUrl()}/project.html?projectId=$id"
 }
+
+public fun getBuildConfigurationWebUrl(id: String, preferences: Preferences): String {
+    return "${preferences.getUrl()}/viewType.html?buildTypeId=$id"
+}
+
+public fun getBuildWebUrl(id: String, preferences: Preferences): String {
+    return "${preferences.getUrl()}/viewLog.html?buildId=$id}"
+}

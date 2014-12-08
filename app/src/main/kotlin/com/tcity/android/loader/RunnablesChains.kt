@@ -35,7 +35,7 @@ public trait ChainListener {
     public fun onException(e: Exception)
 }
 
-private class RunnablesChain(
+public class RunnablesChain(
         private val runnables: Collection<Runnable>,
         private val stopOnException: Boolean,
         private val listener: ChainListener?
