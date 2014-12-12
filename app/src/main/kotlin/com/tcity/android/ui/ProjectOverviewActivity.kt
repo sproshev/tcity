@@ -23,19 +23,19 @@ import com.tcity.android.db.Schema
 import android.os.AsyncTask.Status
 import com.tcity.android.db.getName
 import android.os.AsyncTask
-import com.tcity.android.loader.getAndRunnablesChain
 import com.tcity.android.loader.getBuildConfigurationsRunnable
 import com.tcity.android.loader.getProjectsRunnable
+import com.tcity.android.loader.RunnableChain
 
 public class ProjectOverviewActivity : BaseOverviewActivity() {
 
     private var id: String by Delegates.notNull()
 
-    private var projectsRunnables: Collection<Runnable> by Delegates.notNull()
-    private var projectsChain: AsyncTask<Void, Exception, Void> by Delegates.notNull()
+    private var projectsChain: RunnableChain by Delegates.notNull()
+    private var executableProjectsChain: AsyncTask<Void, Exception, Void> by Delegates.notNull()
 
-    private var buildConfigurationsRunnables: Collection<Runnable> by Delegates.notNull()
-    private var buildConfigurationsChain: AsyncTask<Void, Exception, Void> by Delegates.notNull()
+    private var buildConfigurationsChain: RunnableChain by Delegates.notNull()
+    private var executableBuildConfigurationsChain: AsyncTask<Void, Exception, Void> by Delegates.notNull()
 
     // Lifecycle - BEGIN
 
@@ -49,7 +49,7 @@ public class ProjectOverviewActivity : BaseOverviewActivity() {
         engine = calculateEngine()
         setListAdapter(engine.adapter)
 
-        projectsRunnables = listOf(
+        projectsChain = RunnableChain.getSingleRunnableChain(
                 getProjectsRunnable(
                         application.getDB(),
                         application.getPreferences()
@@ -61,9 +61,9 @@ public class ProjectOverviewActivity : BaseOverviewActivity() {
                 ) TODO */
         )
 
-        projectsChain = getAndRunnablesChain(projectsRunnables, chainListener)
+        executableProjectsChain = projectsChain.toAsyncTask(chainListener)
 
-        buildConfigurationsRunnables = listOf(
+        buildConfigurationsChain = RunnableChain.getSingleRunnableChain(
                 getBuildConfigurationsRunnable(
                         id,
                         application.getDB(),
@@ -76,7 +76,7 @@ public class ProjectOverviewActivity : BaseOverviewActivity() {
                 ) TODO */
         )
 
-        buildConfigurationsChain = getAndRunnablesChain(buildConfigurationsRunnables, chainListener)
+        executableBuildConfigurationsChain = buildConfigurationsChain.toAsyncTask(chainListener)
 
         if (chainListener.count == 0) {
             loadAllData()
@@ -120,28 +120,22 @@ public class ProjectOverviewActivity : BaseOverviewActivity() {
     }
 
     override fun loadAllData() {
-        if (projectsChain.getStatus() != Status.RUNNING) {
-            if (projectsChain.getStatus() == Status.FINISHED) {
-                projectsChain = getAndRunnablesChain(
-                        projectsRunnables,
-                        chainListener
-                )
+        if (executableProjectsChain.getStatus() != Status.RUNNING) {
+            if (executableProjectsChain.getStatus() == Status.FINISHED) {
+                executableProjectsChain = projectsChain.toAsyncTask(chainListener)
             }
 
             chainListener.onStarted()
-            projectsChain.execute()
+            executableProjectsChain.execute()
         }
 
-        if (buildConfigurationsChain.getStatus() != Status.RUNNING) {
-            if (buildConfigurationsChain.getStatus() == Status.FINISHED) {
-                buildConfigurationsChain = getAndRunnablesChain(
-                        buildConfigurationsRunnables,
-                        chainListener
-                )
+        if (executableBuildConfigurationsChain.getStatus() != Status.RUNNING) {
+            if (executableBuildConfigurationsChain.getStatus() == Status.FINISHED) {
+                executableBuildConfigurationsChain = buildConfigurationsChain.toAsyncTask(chainListener)
             }
 
             chainListener.onStarted()
-            buildConfigurationsChain.execute()
+            executableBuildConfigurationsChain.execute()
         }
     }
 }

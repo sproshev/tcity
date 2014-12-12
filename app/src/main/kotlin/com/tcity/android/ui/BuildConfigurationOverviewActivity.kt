@@ -23,15 +23,15 @@ import com.tcity.android.db.Schema
 import com.tcity.android.db.getName
 import android.os.AsyncTask.Status
 import com.tcity.android.loader.getBuildsRunnable
-import com.tcity.android.loader.getAndRunnablesChain
 import android.os.AsyncTask
+import com.tcity.android.loader.RunnableChain
 
 public class BuildConfigurationOverviewActivity : BaseOverviewActivity() {
 
     private var id: String by Delegates.notNull()
 
-    private var runnables: Collection<Runnable> by Delegates.notNull()
-    private var chain: AsyncTask<Void, Exception, Void> by Delegates.notNull()
+    private var chain: RunnableChain by Delegates.notNull()
+    private var executableChain: AsyncTask<Void, Exception, Void> by Delegates.notNull()
 
     // Lifecycle - BEGIN
 
@@ -45,7 +45,7 @@ public class BuildConfigurationOverviewActivity : BaseOverviewActivity() {
         engine = calculateEngine()
         setListAdapter(engine.adapter)
 
-        runnables = listOf(
+        chain = RunnableChain.getSingleRunnableChain(
                 getBuildsRunnable(
                         id,
                         application.getDB(),
@@ -53,7 +53,7 @@ public class BuildConfigurationOverviewActivity : BaseOverviewActivity() {
                 )
         )
 
-        chain = getAndRunnablesChain(runnables, chainListener)
+        executableChain = chain.toAsyncTask(chainListener)
 
         if (chainListener.count == 0) {
             loadAllData()
@@ -97,16 +97,13 @@ public class BuildConfigurationOverviewActivity : BaseOverviewActivity() {
     }
 
     override fun loadAllData() {
-        if (chain.getStatus() != Status.RUNNING) {
-            if (chain.getStatus() == Status.FINISHED) {
-                chain = getAndRunnablesChain(
-                        runnables,
-                        chainListener
-                )
+        if (executableChain.getStatus() != Status.RUNNING) {
+            if (executableChain.getStatus() == Status.FINISHED) {
+                executableChain = chain.toAsyncTask(chainListener)
             }
 
             chainListener.onStarted()
-            chain.execute()
+            executableChain.execute()
         }
     }
 }

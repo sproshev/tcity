@@ -32,7 +32,6 @@ import com.tcity.android.rest.getBuildWebUrl
 import com.tcity.android.db.getBoolean
 import com.tcity.android.db.dbValue
 import com.tcity.android.concept.Status
-import com.tcity.android.loader.getAndRunnablesChain
 import com.tcity.android.loader.getProjectStatusRunnable
 import com.tcity.android.loader.getBuildConfigurationStatusRunnable
 import com.tcity.android.app.DB
@@ -41,7 +40,7 @@ import android.support.v4.widget.SwipeRefreshLayout
 import kotlin.properties.Delegates
 import android.widget.Toast
 import android.widget.TextView
-import com.tcity.android.loader.ChainListener
+import com.tcity.android.loader.RunnableChain
 
 private abstract class BaseOverviewActivity : ListActivity(), OverviewListener {
 
@@ -148,19 +147,16 @@ private abstract class BaseOverviewActivity : ListActivity(), OverviewListener {
         updateConceptStatusAndWatched(id, schema, watched)
 
         if (!watched) {
-            val statusChain = getAndRunnablesChain(
-                    listOf(
-                            runnable(
-                                    id,
-                                    application.getDB(),
-                                    application.getPreferences()
-                            )
-                    ),
-                    chainListener
-            )
+            val statusTask = RunnableChain.getAndRunnableChain(
+                    runnable(
+                            id,
+                            application.getDB(),
+                            application.getPreferences()
+                    )
+            ).toAsyncTask(chainListener)
 
             chainListener.onStarted()
-            statusChain.execute()
+            statusTask.execute()
         }
     }
 
@@ -246,7 +242,7 @@ private abstract class BaseOverviewActivity : ListActivity(), OverviewListener {
         }
     }
 
-    protected class GlobalChainListener : ChainListener {
+    protected class GlobalChainListener : RunnableChain.Listener {
 
         public var activity: BaseOverviewActivity? = null
 
