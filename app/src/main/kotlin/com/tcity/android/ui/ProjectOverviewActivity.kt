@@ -26,16 +26,17 @@ import android.os.AsyncTask
 import com.tcity.android.loader.getBuildConfigurationsRunnable
 import com.tcity.android.loader.getProjectsRunnable
 import com.tcity.android.loader.RunnableChain
+import com.tcity.android.db.watchedDbValue
+import com.tcity.android.db.getId
+import com.tcity.android.loader.getProjectStatusRunnable
+import com.tcity.android.loader.getBuildConfigurationStatusRunnable
 
 public class ProjectOverviewActivity : BaseOverviewActivity() {
 
     private var id: String by Delegates.notNull()
 
-    private var projectsChain: RunnableChain by Delegates.notNull()
-    private var executableProjectsChain: AsyncTask<Void, Exception, Void> by Delegates.notNull()
-
-    private var buildConfigurationsChain: RunnableChain by Delegates.notNull()
-    private var executableBuildConfigurationsChain: AsyncTask<Void, Exception, Void> by Delegates.notNull()
+    private var executableProjectsChain: AsyncTask<Void, Exception, Void>? = null
+    private var executableBuildConfigurationsChain: AsyncTask<Void, Exception, Void>? = null
 
     // Lifecycle - BEGIN
 
@@ -48,35 +49,6 @@ public class ProjectOverviewActivity : BaseOverviewActivity() {
 
         engine = calculateEngine()
         setListAdapter(engine.adapter)
-
-        projectsChain = RunnableChain.getSingleRunnableChain(
-                getProjectsRunnable(
-                        application.getDB(),
-                        application.getPreferences()
-                )/*,
-                WatchedProjectStatusesRunnable(
-                        application.getDB(),
-                        application.getPreferences(),
-                        id
-                ) TODO */
-        )
-
-        executableProjectsChain = projectsChain.toAsyncTask(chainListener)
-
-        buildConfigurationsChain = RunnableChain.getSingleRunnableChain(
-                getBuildConfigurationsRunnable(
-                        id,
-                        application.getDB(),
-                        application.getPreferences()
-                )/*,
-                WatchedBuildConfigurationStatusesRunnable(
-                        application.getDB(),
-                        application.getPreferences(),
-                        id
-                ) TODO */
-        )
-
-        executableBuildConfigurationsChain = buildConfigurationsChain.toAsyncTask(chainListener)
 
         if (chainListener.count == 0) {
             loadAllData()
@@ -120,22 +92,112 @@ public class ProjectOverviewActivity : BaseOverviewActivity() {
     }
 
     override fun loadAllData() {
-        if (executableProjectsChain.getStatus() != Status.RUNNING) {
-            if (executableProjectsChain.getStatus() == Status.FINISHED) {
-                executableProjectsChain = projectsChain.toAsyncTask(chainListener)
+        if (executableProjectsChain == null) {
+            executableProjectsChain = calculateExecutableProjectsChain()
+        }
+
+        if (executableProjectsChain!!.getStatus() != Status.RUNNING) {
+            if (executableProjectsChain!!.getStatus() == Status.FINISHED) {
+                executableProjectsChain = calculateExecutableProjectsChain()
             }
 
             chainListener.onStarted()
-            executableProjectsChain.execute()
+            executableProjectsChain!!.execute()
         }
 
-        if (executableBuildConfigurationsChain.getStatus() != Status.RUNNING) {
-            if (executableBuildConfigurationsChain.getStatus() == Status.FINISHED) {
-                executableBuildConfigurationsChain = buildConfigurationsChain.toAsyncTask(chainListener)
+        if (executableBuildConfigurationsChain == null) {
+            executableBuildConfigurationsChain = calculateExecutableBuildConfigurationsChain()
+        }
+
+        if (executableBuildConfigurationsChain!!.getStatus() != Status.RUNNING) {
+            if (executableBuildConfigurationsChain!!.getStatus() == Status.FINISHED) {
+                executableBuildConfigurationsChain = calculateExecutableBuildConfigurationsChain()
             }
 
             chainListener.onStarted()
-            executableBuildConfigurationsChain.execute()
+            executableBuildConfigurationsChain!!.execute()
         }
+    }
+
+    private fun calculateExecutableProjectsChain(): AsyncTask<Void, Exception, Void> {
+        val projectsChain = RunnableChain.getSingleRunnableChain(
+                getProjectsRunnable(
+                        application.getDB(),
+                        application.getPreferences()
+                )
+        )
+
+        return RunnableChain.getAndRunnableChain(
+                projectsChain,
+                calculateProjectStatusesChain()
+        ).toAsyncTask(chainListener)
+    }
+
+    private fun calculateProjectStatusesChain(): RunnableChain {
+        val cursor = application.getDB().query(
+                Schema.PROJECT,
+                array(Schema.TC_ID_COLUMN),
+                "${Schema.PARENT_ID_COLUMN} = ? AND ${Schema.WATCHED_COLUMN} = ?",
+                array(id, true.watchedDbValue.toString())
+        )
+
+        val runnables = arrayOfNulls<Runnable>(cursor.getCount())
+        var pos = 0
+
+        while (cursor.moveToNext()) {
+            runnables[pos] =
+                    getProjectStatusRunnable(
+                            getId(cursor),
+                            application.getDB(),
+                            application.getPreferences()
+                    )
+
+            pos++
+        }
+
+        cursor.close()
+
+        return RunnableChain.getOrRunnableChain(*runnables)
+    }
+
+    private fun calculateExecutableBuildConfigurationsChain(): AsyncTask<Void, Exception, Void> {
+        val buildConfigurationsChain = RunnableChain.getSingleRunnableChain(
+                getBuildConfigurationsRunnable(
+                        id,
+                        application.getDB(),
+                        application.getPreferences()
+                )
+        )
+
+        return RunnableChain.getAndRunnableChain(
+                buildConfigurationsChain,
+                calculateBuildConfigurationStatusesChain()
+        ).toAsyncTask(chainListener)
+    }
+
+    private fun calculateBuildConfigurationStatusesChain(): RunnableChain {
+        val cursor = application.getDB().query(
+                Schema.BUILD_CONFIGURATION,
+                array(Schema.TC_ID_COLUMN),
+                "${Schema.PARENT_ID_COLUMN} = ? AND ${Schema.WATCHED_COLUMN} = ?",
+                array(id, true.watchedDbValue.toString())
+        )
+
+        val runnables = arrayOfNulls<Runnable>(cursor.getCount())
+        var pos = 0
+
+        while (cursor.moveToNext()) {
+            runnables[pos] = getBuildConfigurationStatusRunnable(
+                    getId(cursor),
+                    application.getDB(),
+                    application.getPreferences()
+            )
+
+            pos++
+        }
+
+        cursor.close()
+
+        return RunnableChain.getOrRunnableChain(*runnables)
     }
 }
