@@ -23,7 +23,10 @@ import java.io.InputStreamReader
 import java.io.IOException
 import java.util.ArrayList
 
-private fun <T : Concept> parseConcepts(stream: InputStream, key: String, parser: (JsonReader) -> T): List<T> {
+private fun <T : Concept> parseConcepts(
+        stream: InputStream,
+        key: String, parser: (JsonReader) -> T
+): List<T> {
     val reader = JsonReader(InputStreamReader(stream))
 
     var result: MutableList<T>? = null

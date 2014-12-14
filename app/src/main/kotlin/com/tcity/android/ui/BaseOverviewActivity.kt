@@ -142,7 +142,11 @@ private abstract class BaseOverviewActivity : ListActivity(), OverviewListener {
 
     // OverviewListener - END
 
-    private fun onConceptWatchClick(id: String, schema: Schema, runnable: (String, DB, Preferences) -> Runnable) {
+    private fun onConceptWatchClick(
+            id: String,
+            schema: Schema,
+            runnable: (String, DB, Preferences) -> Runnable
+    ) {
         val watched = isConceptWatched(id, schema)
 
         updateConceptStatusAndWatched(id, schema, watched)

@@ -37,13 +37,13 @@ repositories {
 
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kt_version"
-    compile "com.android.support:support-v4:21.0.2"
+    compile 'com.android.support:support-v4:21.0.3'
     compile 'com.commonsware.cwac:merge:1.0.2'
 }
 
 android {
     compileSdkVersion 21
-    buildToolsVersion '21.1.1'
+    buildToolsVersion '21.1.2'
 
     defaultConfig {
         applicationId "com.tcity.android"
