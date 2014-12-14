@@ -36,9 +36,9 @@ public fun getProjectStatusRunnable(
 ): Runnable = ConceptStatusRunnable(
         id,
         getProjectStatusUrl(id, preferences),
+        preferences,
         db,
-        Schema.PROJECT,
-        preferences
+        Schema.PROJECT
 )
 
 public fun getBuildConfigurationStatusRunnable(
@@ -48,17 +48,17 @@ public fun getBuildConfigurationStatusRunnable(
 ): Runnable = ConceptStatusRunnable(
         id,
         getBuildConfigurationStatusUrl(id, preferences),
+        preferences,
         db,
-        Schema.BUILD_CONFIGURATION,
-        preferences
+        Schema.BUILD_CONFIGURATION
 )
 
 private class ConceptStatusRunnable(
         private val id: String,
         private val url: String,
+        private val preferences: Preferences,
         private val db: DB,
-        private val schema: Schema,
-        private val preferences: Preferences
+        private val schema: Schema
 ) : Runnable {
 
     override fun run() {

@@ -19,4 +19,6 @@ package com.tcity.android.loader
 import org.apache.http.StatusLine
 import java.io.IOException
 
-public class HttpStatusException(status: StatusLine) : IOException("${status.getStatusCode()} ${status.getReasonPhrase()}")
+public class HttpStatusException(
+        status: StatusLine
+) : IOException("${status.getStatusCode()} ${status.getReasonPhrase()}")

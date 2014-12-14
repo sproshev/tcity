@@ -48,55 +48,49 @@ import com.tcity.android.db.watchedDbValue
 public fun getProjectsRunnable(
         db: DB,
         preferences: Preferences
-): Runnable {
-    return ConceptsRunnable(
-            getProjectsUrl(preferences),
-            null,
-            ::parseProjects,
-            db,
-            Schema.PROJECT,
-            preferences,
-            setOf(ROOT_PROJECT_ID)
-    )
-}
+): Runnable = ConceptsRunnable(
+        getProjectsUrl(preferences),
+        preferences,
+        ::parseProjects,
+        db,
+        Schema.PROJECT,
+        null,
+        setOf(ROOT_PROJECT_ID)
+)
 
 public fun getBuildConfigurationsRunnable(
         projectId: String,
         db: DB,
         preferences: Preferences
-): Runnable {
-    return ConceptsRunnable(
-            getBuildConfigurationsUrl(projectId, preferences),
-            projectId,
-            ::parseBuildConfigurations,
-            db,
-            Schema.BUILD_CONFIGURATION,
-            preferences
-    )
-}
+): Runnable = ConceptsRunnable(
+        getBuildConfigurationsUrl(projectId, preferences),
+        preferences,
+        ::parseBuildConfigurations,
+        db,
+        Schema.BUILD_CONFIGURATION,
+        projectId
+)
 
 public fun getBuildsRunnable(
         buildConfigurationId: String,
         db: DB,
         preferences: Preferences
-): Runnable {
-    return ConceptsRunnable(
-            getBuildsUrl(buildConfigurationId, preferences),
-            buildConfigurationId,
-            ::parseBuilds,
-            db,
-            Schema.BUILD,
-            preferences
-    )
-}
+): Runnable = ConceptsRunnable(
+        getBuildsUrl(buildConfigurationId, preferences),
+        preferences,
+        ::parseBuilds,
+        db,
+        Schema.BUILD,
+        buildConfigurationId
+)
 
 private class ConceptsRunnable<T : Concept>(
         private val url: String,
-        private val parentId: String?,
+        private val preferences: Preferences,
         private val parser: (InputStream) -> Collection<T>,
         private val db: DB,
         private val schema: Schema,
-        private val preferences: Preferences,
+        private val parentId: String?,
         private val ignoredConceptIds: Set<String> = Collections.emptySet()
 ) : Runnable {
 
