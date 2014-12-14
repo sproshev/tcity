@@ -60,7 +60,7 @@ public class ProjectOverviewActivity : BaseOverviewActivity() {
     // Lifecycle - END
 
     private fun calculateTitle(): String {
-        val cursor = application.getDB().query(
+        val cursor = db.query(
                 Schema.PROJECT,
                 array(Schema.NAME_COLUMN),
                 "${Schema.TC_ID_COLUMN} = ?",
@@ -79,7 +79,7 @@ public class ProjectOverviewActivity : BaseOverviewActivity() {
     private fun calculateEngine(): OverviewEngine {
         return OverviewEngine(
                 this,
-                application.getDB(),
+                db,
                 getListView(),
                 getResources().getString(R.string.subprojects),
                 getResources().getString(R.string.build_configurations),
@@ -121,10 +121,7 @@ public class ProjectOverviewActivity : BaseOverviewActivity() {
 
     private fun calculateExecutableProjectsChain(): AsyncTask<Void, Exception, Void> {
         val projectsChain = RunnableChain.getSingleRunnableChain(
-                getProjectsRunnable(
-                        application.getDB(),
-                        application.getPreferences()
-                )
+                getProjectsRunnable(db, preferences)
         )
 
         return RunnableChain.getAndRunnableChain(
@@ -134,7 +131,7 @@ public class ProjectOverviewActivity : BaseOverviewActivity() {
     }
 
     private fun calculateProjectStatusesChain(): RunnableChain {
-        val cursor = application.getDB().query(
+        val cursor = db.query(
                 Schema.PROJECT,
                 array(Schema.TC_ID_COLUMN),
                 "${Schema.PARENT_ID_COLUMN} = ? AND ${Schema.WATCHED_COLUMN} = ?",
@@ -147,9 +144,7 @@ public class ProjectOverviewActivity : BaseOverviewActivity() {
         while (cursor.moveToNext()) {
             runnables[pos] =
                     getProjectStatusRunnable(
-                            getId(cursor),
-                            application.getDB(),
-                            application.getPreferences()
+                            getId(cursor), db, preferences
                     )
 
             pos++
@@ -163,9 +158,7 @@ public class ProjectOverviewActivity : BaseOverviewActivity() {
     private fun calculateExecutableBuildConfigurationsChain(): AsyncTask<Void, Exception, Void> {
         val buildConfigurationsChain = RunnableChain.getSingleRunnableChain(
                 getBuildConfigurationsRunnable(
-                        id,
-                        application.getDB(),
-                        application.getPreferences()
+                        id, db, preferences
                 )
         )
 
@@ -176,7 +169,7 @@ public class ProjectOverviewActivity : BaseOverviewActivity() {
     }
 
     private fun calculateBuildConfigurationStatusesChain(): RunnableChain {
-        val cursor = application.getDB().query(
+        val cursor = db.query(
                 Schema.BUILD_CONFIGURATION,
                 array(Schema.TC_ID_COLUMN),
                 "${Schema.PARENT_ID_COLUMN} = ? AND ${Schema.WATCHED_COLUMN} = ?",
@@ -188,9 +181,7 @@ public class ProjectOverviewActivity : BaseOverviewActivity() {
 
         while (cursor.moveToNext()) {
             runnables[pos] = getBuildConfigurationStatusRunnable(
-                    getId(cursor),
-                    application.getDB(),
-                    application.getPreferences()
+                    getId(cursor), db, preferences
             )
 
             pos++

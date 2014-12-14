@@ -46,11 +46,7 @@ public class BuildConfigurationOverviewActivity : BaseOverviewActivity() {
         setListAdapter(engine.adapter)
 
         chain = RunnableChain.getSingleRunnableChain(
-                getBuildsRunnable(
-                        id,
-                        application.getDB(),
-                        application.getPreferences()
-                )
+                getBuildsRunnable(id, db, preferences)
         )
 
         executableChain = chain.toAsyncTask(chainListener)
@@ -65,7 +61,7 @@ public class BuildConfigurationOverviewActivity : BaseOverviewActivity() {
     // Lifecycle - END
 
     private fun calculateTitle(): String {
-        val cursor = application.getDB().query(
+        val cursor = db.query(
                 Schema.BUILD_CONFIGURATION,
                 array(Schema.NAME_COLUMN),
                 "${Schema.TC_ID_COLUMN} = ?",
@@ -84,7 +80,7 @@ public class BuildConfigurationOverviewActivity : BaseOverviewActivity() {
     private fun calculateEngine(): OverviewEngine {
         return OverviewEngine(
                 this,
-                application.getDB(),
+                db,
                 getListView(),
                 getResources().getString(R.string.subprojects), // TODO off
                 getResources().getString(R.string.build_configurations), // TODO off

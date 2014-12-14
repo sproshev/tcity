@@ -56,7 +56,7 @@ public class MainOverviewActivity : BaseOverviewActivity() {
     private fun calculateEngine(): OverviewEngine {
         return OverviewEngine(
                 this,
-                application.getDB(),
+                db,
                 getListView(),
                 getResources().getString(R.string.projects),
                 getResources().getString(R.string.build_configurations), // TODO off
@@ -85,7 +85,7 @@ public class MainOverviewActivity : BaseOverviewActivity() {
 
     private fun calculateExecutableChain(): AsyncTask<Void, Exception, Void> {
         val projectsChain = RunnableChain.getSingleRunnableChain(
-                getProjectsRunnable(application.getDB(), application.getPreferences())
+                getProjectsRunnable(db, preferences)
         )
 
         return RunnableChain.getAndRunnableChain(
@@ -95,7 +95,7 @@ public class MainOverviewActivity : BaseOverviewActivity() {
     }
 
     private fun calculateStatusesChain(): RunnableChain {
-        val cursor = application.getDB().query(
+        val cursor = db.query(
                 Schema.PROJECT,
                 array(Schema.TC_ID_COLUMN),
                 "${Schema.PARENT_ID_COLUMN} = ? AND ${Schema.WATCHED_COLUMN} = ?",
@@ -107,9 +107,7 @@ public class MainOverviewActivity : BaseOverviewActivity() {
 
         while (cursor.moveToNext()) {
             runnables[pos] = getProjectStatusRunnable(
-                    getId(cursor),
-                    application.getDB(),
-                    application.getPreferences()
+                    getId(cursor), db, preferences
             )
 
             pos++

@@ -50,7 +50,9 @@ private abstract class BaseOverviewActivity : ListActivity(), OverviewListener {
 
     private var layout: SwipeRefreshLayout by Delegates.notNull()
 
-    protected var application: Application by Delegates.notNull()
+    protected var db: DB by Delegates.notNull()
+    protected var preferences: Preferences by Delegates.notNull()
+
     protected var chainListener: GlobalChainListener by Delegates.notNull()
     protected var engine: OverviewEngine by Delegates.notNull()
 
@@ -65,7 +67,8 @@ private abstract class BaseOverviewActivity : ListActivity(), OverviewListener {
         layout.setColorSchemeResources(R.color.green_status, R.color.red_status)
         layout.setOnRefreshListener { loadAllData() }
 
-        application = getApplication() as Application
+        db = (getApplication() as Application).getDB()
+        preferences = Preferences(this)
 
         chainListener = getLastNonConfigurationInstance() as GlobalChainListener? ?: GlobalChainListener()
         chainListener.activity = this
@@ -107,7 +110,7 @@ private abstract class BaseOverviewActivity : ListActivity(), OverviewListener {
     }
 
     override fun onBuildWatchClick(id: String) {
-        throw UnsupportedOperationException()
+        throw UnsupportedOperationException() // TODO
     }
 
     override fun onProjectNameClick(id: String) {
@@ -125,7 +128,7 @@ private abstract class BaseOverviewActivity : ListActivity(), OverviewListener {
     }
 
     override fun onBuildNameClick(id: String) {
-        throw UnsupportedOperationException()
+        throw UnsupportedOperationException() // TODO
     }
 
     override fun onProjectOptionsClick(id: String, anchor: View) {
@@ -153,11 +156,7 @@ private abstract class BaseOverviewActivity : ListActivity(), OverviewListener {
 
         if (!watched) {
             val statusTask = RunnableChain.getAndRunnableChain(
-                    runnable(
-                            id,
-                            application.getDB(),
-                            application.getPreferences()
-                    )
+                    runnable(id, db, preferences)
             ).toAsyncTask(chainListener)
 
             chainListener.onStarted()
@@ -166,7 +165,7 @@ private abstract class BaseOverviewActivity : ListActivity(), OverviewListener {
     }
 
     private fun isConceptWatched(id: String, schema: Schema): Boolean {
-        val cursor = application.getDB().query(
+        val cursor = db.query(
                 schema,
                 array(Schema.WATCHED_COLUMN),
                 "${Schema.TC_ID_COLUMN} = ?",
@@ -187,7 +186,7 @@ private abstract class BaseOverviewActivity : ListActivity(), OverviewListener {
         values.putAll(Status.DEFAULT.dbValues)
         values.putAll((!watched).watchedDbValues)
 
-        application.getDB().update(
+        db.update(
                 schema,
                 values,
                 "${Schema.TC_ID_COLUMN} = ?",
@@ -236,7 +235,7 @@ private abstract class BaseOverviewActivity : ListActivity(), OverviewListener {
             intent.setType("text/plain")
             intent.putExtra(
                     Intent.EXTRA_TEXT,
-                    url(id, application.getPreferences())
+                    url(id, preferences)
             )
 
             startActivity(Intent.createChooser(intent, getResources().getString(R.string.share)))

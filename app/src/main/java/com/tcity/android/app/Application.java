@@ -22,19 +22,7 @@ import org.jetbrains.annotations.Nullable;
 public class Application extends android.app.Application {
 
     @Nullable
-    private Preferences myPreferences;
-
-    @Nullable
     private DB myDB;
-
-    @NotNull
-    public Preferences getPreferences() {
-        if (myPreferences == null) {
-            myPreferences = new Preferences(this);
-        }
-
-        return myPreferences;
-    }
 
     @NotNull
     public DB getDB() {

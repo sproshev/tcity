@@ -21,7 +21,7 @@ import android.preference.PreferenceManager
 import android.util.Base64
 
 
-public class Preferences protected (context: Context) {
+public class Preferences(context: Context) {
 
     private val preferences = PreferenceManager.getDefaultSharedPreferences(context)
 
