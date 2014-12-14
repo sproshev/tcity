@@ -21,8 +21,6 @@ import com.tcity.android.concept.Concept
 import com.tcity.android.concept.Status
 import android.database.Cursor
 
-// Custom - BEGIN
-
 public val Concept.dbValues: ContentValues
     get() {
         val result = ContentValues()
@@ -45,8 +43,11 @@ public val Status.dbValues: ContentValues
         return result
     }
 
-public val Status.dbValue: String
-    get() = toString()
+public val Boolean.watchedDbValues: ContentValues
+    get() = dbValues(Schema.WATCHED_COLUMN)
+
+public val Boolean.watchedDbValue: Int
+    get() = dbValue
 
 public fun getStatus(cursor: Cursor): Status {
     return Status.valueOf(
@@ -55,6 +56,8 @@ public fun getStatus(cursor: Cursor): Status {
             )
     )
 }
+
+public fun getWatched(cursor: Cursor): Boolean = getBoolean(cursor, Schema.WATCHED_COLUMN)
 
 public fun getId(cursor: Cursor): String {
     return cursor.getString(
@@ -68,11 +71,10 @@ public fun getName(cursor: Cursor): String {
     )
 }
 
-// Custom - END
+private val Status.dbValue: String
+    get() = toString()
 
-// Primitive - BEGIN
-
-public fun Boolean.dbValues(column: String): ContentValues {
+private fun Boolean.dbValues(column: String): ContentValues {
     val result = ContentValues()
 
     result.put(column, dbValue)
@@ -80,11 +82,9 @@ public fun Boolean.dbValues(column: String): ContentValues {
     return result
 }
 
-public val Boolean.dbValue: Int
-    get() = if (this) 1 else 0
-
-public fun getBoolean(cursor: Cursor, column: String): Boolean {
+private fun getBoolean(cursor: Cursor, column: String): Boolean {
     return cursor.getInt(cursor.getColumnIndex(column)) != 0
 }
 
-// Primitive - END
+private val Boolean.dbValue: Int
+    get() = if (this) 1 else 0

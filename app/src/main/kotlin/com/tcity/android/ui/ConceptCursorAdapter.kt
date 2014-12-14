@@ -26,12 +26,11 @@ import android.widget.ImageButton
 import com.tcity.android.R
 import android.widget.CursorAdapter
 import com.tcity.android.concept.Status
-import com.tcity.android.db.Schema
-import com.tcity.android.db.getBoolean
 import com.tcity.android.db.getStatus
 import android.graphics.drawable.Drawable
 import com.tcity.android.db.getId
 import com.tcity.android.db.getName
+import com.tcity.android.db.getWatched
 
 private class ConceptCursorAdapter(
         private val context: Context,
@@ -72,7 +71,7 @@ private class ConceptCursorAdapter(
 
         holder.watch.setOnClickListener { listener.onWatchClick(conceptId) }
 
-        val watched = getBoolean(cursor, Schema.WATCHED_COLUMN)
+        val watched = getWatched(cursor)
 
         if (watched) {
             holder.watch.setContentDescription(unwatchDescription)

@@ -18,13 +18,13 @@ package com.tcity.android.ui
 
 import android.database.Cursor
 import com.tcity.android.db.Schema
-import com.tcity.android.db.dbValue
 import com.tcity.android.app.DB
 import android.content.Context
 import android.widget.TextView
 import android.view.ViewGroup
 import android.view.LayoutInflater
 import com.tcity.android.R
+import com.tcity.android.db.watchedDbValue
 
 private class OverviewSubEngine(
         context: Context,
@@ -98,9 +98,9 @@ private class OverviewSubEngine(
 
     private fun getWatchedSelectionArgs(): Array<String> {
         return if (parentId == null) {
-            array(true.dbValue.toString())
+            array(true.watchedDbValue.toString())
         } else {
-            array(true.dbValue.toString(), parentId)
+            array(true.watchedDbValue.toString(), parentId)
         }
     }
 

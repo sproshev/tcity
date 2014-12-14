@@ -29,8 +29,6 @@ import com.tcity.android.rest.getProjectWebUrl
 import com.tcity.android.app.Preferences
 import com.tcity.android.rest.getBuildConfigurationWebUrl
 import com.tcity.android.rest.getBuildWebUrl
-import com.tcity.android.db.getBoolean
-import com.tcity.android.db.dbValue
 import com.tcity.android.concept.Status
 import com.tcity.android.loader.getProjectStatusRunnable
 import com.tcity.android.loader.getBuildConfigurationStatusRunnable
@@ -41,6 +39,9 @@ import kotlin.properties.Delegates
 import android.widget.Toast
 import android.widget.TextView
 import com.tcity.android.loader.RunnableChain
+import com.tcity.android.db.getWatched
+import com.tcity.android.db.watchedDbValues
+import com.tcity.android.db.dbValues
 
 private abstract class BaseOverviewActivity : ListActivity(), OverviewListener {
 
@@ -170,7 +171,7 @@ private abstract class BaseOverviewActivity : ListActivity(), OverviewListener {
 
         cursor.moveToNext()
 
-        val result = getBoolean(cursor, Schema.WATCHED_COLUMN)
+        val result = getWatched(cursor)
 
         cursor.close()
 
@@ -179,8 +180,8 @@ private abstract class BaseOverviewActivity : ListActivity(), OverviewListener {
 
     private fun updateConceptStatusAndWatched(id: String, schema: Schema, watched: Boolean) {
         val values = ContentValues()
-        values.put(Schema.STATUS_COLUMN, Status.DEFAULT.dbValue)
-        values.put(Schema.WATCHED_COLUMN, (!watched).dbValue)
+        values.putAll(Status.DEFAULT.dbValues)
+        values.putAll((!watched).watchedDbValues)
 
         application.getDB().update(
                 schema,

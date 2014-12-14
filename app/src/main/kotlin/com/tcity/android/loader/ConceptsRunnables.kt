@@ -32,7 +32,6 @@ import java.io.InputStream
 import com.tcity.android.parser.parseProjects
 import com.tcity.android.parser.parseBuildConfigurations
 import com.tcity.android.db.Schema
-import com.tcity.android.db.dbValue
 import com.tcity.android.parser.parseBuilds
 import com.tcity.android.rest.getBuildsUrl
 import com.tcity.android.concept.Status
@@ -43,6 +42,8 @@ import com.tcity.android.db.getId
 import com.tcity.android.db.getStatus
 import com.tcity.android.db.calculateSelection
 import com.tcity.android.db.calculateSelectionArgs
+import com.tcity.android.db.watchedDbValues
+import com.tcity.android.db.watchedDbValue
 
 public fun getProjectsRunnable(
         db: DB,
@@ -126,10 +127,10 @@ private class ConceptsRunnable<T : Concept>(
                 val values = it.dbValues
 
                 if (watchedIdToStatus.contains(it.id)) {
-                    values.put(Schema.WATCHED_COLUMN, true.dbValue)
+                    values.putAll(true.watchedDbValues)
 
                     if (it.status == Status.DEFAULT) {
-                        values.put(Schema.STATUS_COLUMN, watchedIdToStatus.get(it.id)!!.dbValue)
+                        values.putAll(watchedIdToStatus.get(it.id)!!.dbValues)
                     }
                 }
 
@@ -148,7 +149,7 @@ private class ConceptsRunnable<T : Concept>(
                 schema,
                 array(Schema.TC_ID_COLUMN, Schema.STATUS_COLUMN),
                 calculateSelection(parentId, Schema.PARENT_ID_COLUMN, Schema.WATCHED_COLUMN),
-                calculateSelectionArgs(parentId, true.dbValue.toString())
+                calculateSelectionArgs(parentId, true.watchedDbValue.toString())
         )
 
         while (cursor.moveToNext()) {
