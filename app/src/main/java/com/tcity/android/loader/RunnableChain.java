@@ -16,45 +16,38 @@
 
 package com.tcity.android.loader;
 
-import android.os.AsyncTask;
-
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public abstract class RunnableChain implements Runnable {
+public abstract class RunnableChain {
 
     @NotNull
     public static RunnableChain getAndRunnableChain(@NotNull Runnable... runnables) {
-        return new FirstLevelRunnableChain(true, runnables);
+        return new ZeroLevelRunnableChain(true, runnables);
     }
 
     @NotNull
     public static RunnableChain getOrRunnableChain(@NotNull Runnable... runnables) {
-        return new FirstLevelRunnableChain(false, runnables);
+        return new ZeroLevelRunnableChain(false, runnables);
     }
 
     @NotNull
     public static RunnableChain getSingleRunnableChain(@NotNull Runnable runnable) {
-        return new FirstLevelRunnableChain(true, runnable);
+        return new ZeroLevelRunnableChain(true, runnable);
     }
 
     @NotNull
-    public static RunnableChain getAndRunnableChain(@NotNull RunnableChain... runnableChains) {
-        return new ElderLevelRunnableChain(true, runnableChains);
+    public static RunnableChain getAndRunnableChain(@NotNull RunnableChain... chains) {
+        return new DeeperLevelRunnableChain(true, chains);
     }
 
     @NotNull
-    public static RunnableChain getOrRunnableChain(@NotNull RunnableChain... runnableChains) {
-        return new ElderLevelRunnableChain(false, runnableChains);
-    }
-
-    @Override
-    public void run() {
-        run(null);
+    public static RunnableChain getOrRunnableChain(@NotNull RunnableChain... chains) {
+        return new DeeperLevelRunnableChain(false, chains);
     }
 
     @NotNull
-    public AsyncTask<Void, Exception, Void> toAsyncTask(@Nullable Listener listener) {
+    public ExecutableRunnableChain toAsyncTask(@Nullable Listener listener) {
         return new ExecutableRunnableChain(this, listener);
     }
 

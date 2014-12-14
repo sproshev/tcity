@@ -22,7 +22,6 @@ import com.tcity.android.R
 import com.tcity.android.db.Schema
 import android.os.AsyncTask.Status
 import com.tcity.android.db.getName
-import android.os.AsyncTask
 import com.tcity.android.loader.getBuildConfigurationsRunnable
 import com.tcity.android.loader.getProjectsRunnable
 import com.tcity.android.loader.RunnableChain
@@ -30,13 +29,14 @@ import com.tcity.android.db.watchedDbValue
 import com.tcity.android.db.getId
 import com.tcity.android.loader.getProjectStatusRunnable
 import com.tcity.android.loader.getBuildConfigurationStatusRunnable
+import com.tcity.android.loader.ExecutableRunnableChain
 
 public class ProjectOverviewActivity : BaseOverviewActivity() {
 
     private var id: String by Delegates.notNull()
 
-    private var executableProjectsChain: AsyncTask<Void, Exception, Void>? = null
-    private var executableBuildConfigurationsChain: AsyncTask<Void, Exception, Void>? = null
+    private var executableProjectsChain: ExecutableRunnableChain? = null
+    private var executableBuildConfigurationsChain: ExecutableRunnableChain? = null
 
     // Lifecycle - BEGIN
 
@@ -119,7 +119,7 @@ public class ProjectOverviewActivity : BaseOverviewActivity() {
         }
     }
 
-    private fun calculateExecutableProjectsChain(): AsyncTask<Void, Exception, Void> {
+    private fun calculateExecutableProjectsChain(): ExecutableRunnableChain {
         val projectsChain = RunnableChain.getSingleRunnableChain(
                 getProjectsRunnable(db, preferences)
         )
@@ -155,7 +155,7 @@ public class ProjectOverviewActivity : BaseOverviewActivity() {
         return RunnableChain.getOrRunnableChain(*runnables)
     }
 
-    private fun calculateExecutableBuildConfigurationsChain(): AsyncTask<Void, Exception, Void> {
+    private fun calculateExecutableBuildConfigurationsChain(): ExecutableRunnableChain {
         val buildConfigurationsChain = RunnableChain.getSingleRunnableChain(
                 getBuildConfigurationsRunnable(
                         id, db, preferences

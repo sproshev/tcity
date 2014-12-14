@@ -19,24 +19,31 @@ package com.tcity.android.loader;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-class ElderLevelRunnableChain extends RunnableChain {
+class ZeroLevelRunnableChain extends RunnableChain {
 
     private final boolean myStopOnException;
 
     @NotNull
-    private final RunnableChain[] myRunnableChains;
+    private final Runnable[] myRunnables;
 
-    ElderLevelRunnableChain(boolean stopOnException,
-                            @NotNull RunnableChain... runnableChains) {
+    ZeroLevelRunnableChain(boolean stopOnException, @NotNull Runnable... runnables) {
         myStopOnException = stopOnException;
-        myRunnableChains = runnableChains;
+        myRunnables = runnables;
     }
 
     @Override
     protected boolean run(@Nullable Listener listener) {
-        for (RunnableChain runnableChain : myRunnableChains) {
-            if (!runnableChain.run(listener) && myStopOnException) {
-                return false;
+        for (Runnable runnable : myRunnables) {
+            try {
+                runnable.run();
+            } catch (Exception e) {
+                if (listener != null) {
+                    listener.onException(e);
+                }
+
+                if (myStopOnException) {
+                    return false;
+                }
             }
         }
 

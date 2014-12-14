@@ -21,16 +21,16 @@ import com.tcity.android.R
 import android.os.AsyncTask.Status
 import com.tcity.android.loader.getProjectsRunnable
 import com.tcity.android.concept.ROOT_PROJECT_ID
-import android.os.AsyncTask
 import com.tcity.android.loader.RunnableChain
 import com.tcity.android.db.Schema
 import com.tcity.android.db.watchedDbValue
 import com.tcity.android.loader.getProjectStatusRunnable
 import com.tcity.android.db.getId
+import com.tcity.android.loader.ExecutableRunnableChain
 
 public class MainOverviewActivity : BaseOverviewActivity() {
 
-    private var executableChain: AsyncTask<Void, Exception, Void>? = null
+    private var executableChain: ExecutableRunnableChain? = null
 
     // Lifecycle - BEGIN
 
@@ -83,7 +83,7 @@ public class MainOverviewActivity : BaseOverviewActivity() {
         }
     }
 
-    private fun calculateExecutableChain(): AsyncTask<Void, Exception, Void> {
+    private fun calculateExecutableChain(): ExecutableRunnableChain {
         val projectsChain = RunnableChain.getSingleRunnableChain(
                 getProjectsRunnable(db, preferences)
         )

@@ -21,48 +21,64 @@ import android.os.AsyncTask;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-class ExecutableRunnableChain extends AsyncTask<Void, Exception, Void> implements RunnableChain.Listener {
+public class ExecutableRunnableChain {
 
     @NotNull
-    private final RunnableChain myRunnableChain;
+    private final RunnableChain myChain;
 
     @Nullable
     private final RunnableChain.Listener myListener;
 
-    public ExecutableRunnableChain(@NotNull RunnableChain runnableChain,
-                                   @Nullable RunnableChain.Listener listener) {
-        myRunnableChain = runnableChain;
+    @NotNull
+    private final Task myTask;
+
+    ExecutableRunnableChain(@NotNull RunnableChain chain,
+                            @Nullable RunnableChain.Listener listener) {
+        myChain = chain;
         myListener = listener;
+
+        myTask = new Task();
     }
 
-    @Override
-    public void onException(@NotNull Exception e) {
-        publishProgress(e);
+    public void execute() {
+        myTask.execute();
     }
 
-    @Override
-    public void onFinished() {
-        // NO-OP
+    public AsyncTask.Status getStatus() {
+        return myTask.getStatus();
     }
 
-    @Override
-    protected Void doInBackground(@NotNull Void... params) {
-        myRunnableChain.run(this);
+    private class Task extends AsyncTask<Void, Exception, Void> implements RunnableChain.Listener {
 
-        return null;
-    }
-
-    @Override
-    protected void onProgressUpdate(Exception... values) {
-        if (myListener != null) {
-            myListener.onException(values[0]);
+        @Override
+        public void onException(@NotNull Exception e) {
+            publishProgress(e);
         }
-    }
 
-    @Override
-    protected void onPostExecute(@NotNull Void result) {
-        if (myListener != null) {
-            myListener.onFinished();
+        @Override
+        public void onFinished() {
+            // NO-OP
+        }
+
+        @Override
+        protected Void doInBackground(@NotNull Void... params) {
+            myChain.run(this);
+
+            return null;
+        }
+
+        @Override
+        protected void onProgressUpdate(Exception... values) {
+            if (myListener != null) {
+                myListener.onException(values[0]);
+            }
+        }
+
+        @Override
+        protected void onPostExecute(@NotNull Void result) {
+            if (myListener != null) {
+                myListener.onFinished();
+            }
         }
     }
 }

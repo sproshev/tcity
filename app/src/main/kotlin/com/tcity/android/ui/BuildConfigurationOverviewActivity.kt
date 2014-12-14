@@ -23,15 +23,15 @@ import com.tcity.android.db.Schema
 import com.tcity.android.db.getName
 import android.os.AsyncTask.Status
 import com.tcity.android.loader.getBuildsRunnable
-import android.os.AsyncTask
 import com.tcity.android.loader.RunnableChain
+import com.tcity.android.loader.ExecutableRunnableChain
 
 public class BuildConfigurationOverviewActivity : BaseOverviewActivity() {
 
     private var id: String by Delegates.notNull()
 
     private var chain: RunnableChain by Delegates.notNull()
-    private var executableChain: AsyncTask<Void, Exception, Void> by Delegates.notNull()
+    private var executableChain: ExecutableRunnableChain by Delegates.notNull()
 
     // Lifecycle - BEGIN
 
