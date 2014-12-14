@@ -16,7 +16,6 @@
 
 package com.tcity.android.ui
 
-import kotlin.properties.Delegates
 import android.os.Bundle
 import com.tcity.android.R
 import android.os.AsyncTask.Status
@@ -24,11 +23,14 @@ import com.tcity.android.loader.getProjectsRunnable
 import com.tcity.android.concept.ROOT_PROJECT_ID
 import android.os.AsyncTask
 import com.tcity.android.loader.RunnableChain
+import com.tcity.android.db.Schema
+import com.tcity.android.db.watchedDbValue
+import com.tcity.android.loader.getProjectStatusRunnable
+import com.tcity.android.db.getId
 
 public class MainOverviewActivity : BaseOverviewActivity() {
 
-    private var chain: RunnableChain by Delegates.notNull()
-    private var executableChain: AsyncTask<Void, Exception, Void> by Delegates.notNull()
+    private var executableChain: AsyncTask<Void, Exception, Void>? = null
 
     // Lifecycle - BEGIN
 
@@ -39,20 +41,6 @@ public class MainOverviewActivity : BaseOverviewActivity() {
 
         engine = calculateEngine()
         setListAdapter(engine.adapter)
-
-        chain = RunnableChain.getSingleRunnableChain(
-                getProjectsRunnable(
-                        application.getDB(),
-                        application.getPreferences()
-                )/*,
-                WatchedProjectStatusesRunnable( // TODO stub
-                        application.getDB(),
-                        application.getPreferences()
-                )
-                */
-        )
-
-        executableChain = chain.toAsyncTask(chainListener)
 
         if (chainListener.count == 0) {
             loadAllData()
@@ -81,13 +69,54 @@ public class MainOverviewActivity : BaseOverviewActivity() {
     }
 
     override fun loadAllData() {
-        if (executableChain.getStatus() != Status.RUNNING) {
-            if (executableChain.getStatus() == Status.FINISHED) {
-                executableChain = chain.toAsyncTask(chainListener)
+        if (executableChain == null) {
+            executableChain = calculateExecutableChain()
+        }
+
+        if (executableChain!!.getStatus() != Status.RUNNING) {
+            if (executableChain!!.getStatus() == Status.FINISHED) {
+                executableChain = calculateExecutableChain()
             }
 
             chainListener.onStarted()
-            executableChain.execute()
+            executableChain!!.execute()
         }
+    }
+
+    private fun calculateExecutableChain(): AsyncTask<Void, Exception, Void> {
+        val projectsChain = RunnableChain.getSingleRunnableChain(
+                getProjectsRunnable(application.getDB(), application.getPreferences())
+        )
+
+        return RunnableChain.getAndRunnableChain(
+                projectsChain,
+                calculateStatusesChain()
+        ).toAsyncTask(chainListener)
+    }
+
+    private fun calculateStatusesChain(): RunnableChain {
+        val cursor = application.getDB().query(
+                Schema.PROJECT,
+                array(Schema.TC_ID_COLUMN),
+                "${Schema.PARENT_ID_COLUMN} = ? AND ${Schema.WATCHED_COLUMN} = ?",
+                array(ROOT_PROJECT_ID, true.watchedDbValue.toString())
+        )
+
+        val runnables = arrayOfNulls<Runnable>(cursor.getCount())
+        var pos = 0
+
+        while (cursor.moveToNext()) {
+            runnables[pos] = getProjectStatusRunnable(
+                    getId(cursor),
+                    application.getDB(),
+                    application.getPreferences()
+            )
+
+            pos++
+        }
+
+        cursor.close()
+
+        return RunnableChain.getOrRunnableChain(*runnables)
     }
 }
