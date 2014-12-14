@@ -33,18 +33,31 @@ public fun getProjectStatusRunnable(
         id: String,
         db: DB,
         preferences: Preferences
-): Runnable = ConceptStatusRunnable(id, getProjectStatusUrl(id, preferences), db, preferences)
+): Runnable = ConceptStatusRunnable(
+        id,
+        getProjectStatusUrl(id, preferences),
+        db,
+        Schema.PROJECT,
+        preferences
+)
 
 public fun getBuildConfigurationStatusRunnable(
         id: String,
         db: DB,
         preferences: Preferences
-): Runnable = ConceptStatusRunnable(id, getBuildConfigurationStatusUrl(id, preferences), db, preferences)
+): Runnable = ConceptStatusRunnable(
+        id,
+        getBuildConfigurationStatusUrl(id, preferences),
+        db,
+        Schema.BUILD_CONFIGURATION,
+        preferences
+)
 
 private class ConceptStatusRunnable(
         private val id: String,
         private val url: String,
         private val db: DB,
+        private val schema: Schema,
         private val preferences: Preferences
 ) : Runnable {
 
@@ -53,7 +66,7 @@ private class ConceptStatusRunnable(
                 id,
                 loadStatus(url, preferences),
                 db,
-                Schema.PROJECT
+                schema
         )
     }
 
