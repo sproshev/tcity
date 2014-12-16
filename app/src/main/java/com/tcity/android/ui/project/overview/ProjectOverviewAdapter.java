@@ -33,7 +33,7 @@ import com.tcity.android.db.DbPackage;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-class OverviewAdapter extends CursorAdapter {
+class ProjectOverviewAdapter extends CursorAdapter {
 
     private static final int WATCHED_IMAGE = android.R.drawable.star_big_on;
     private static final int NOT_WATCHED_IMAGE = android.R.drawable.star_big_off;
@@ -47,7 +47,7 @@ class OverviewAdapter extends CursorAdapter {
     @NotNull
     private final String myNotWatchedDescription;
 
-    OverviewAdapter(@NotNull Context context, @NotNull ClickListener clickListener) {
+    ProjectOverviewAdapter(@NotNull Context context, @NotNull ClickListener clickListener) {
         super(context, null, true);
 
         myClickListener = clickListener;
@@ -149,9 +149,9 @@ class OverviewAdapter extends CursorAdapter {
 
     public static interface ClickListener {
 
-        public void onNameClick(@NotNull String id);
-
         public void onImageClick(@NotNull String id);
+
+        public void onNameClick(@NotNull String id);
 
         public void onOptionsClick(@NotNull String id, @NotNull View anchor);
     }

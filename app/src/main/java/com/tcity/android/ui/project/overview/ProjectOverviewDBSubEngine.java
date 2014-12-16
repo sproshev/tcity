@@ -29,30 +29,30 @@ import com.tcity.android.db.Schema;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-class OverviewDBSubEngine {
+class ProjectOverviewDBSubEngine {
 
     @NotNull
-    private final TextView header;
+    private final TextView myHeader;
 
     @NotNull
-    private final Cursor cursor;
+    private final Cursor myCursor;
 
     @NotNull
-    private final OverviewAdapter adapter;
+    private final ProjectOverviewAdapter myAdapter;
 
-    OverviewDBSubEngine(@NotNull Context context,
-                        @NotNull DB db,
-                        @NotNull ViewGroup root,
-                        @NotNull OverviewAdapter.ClickListener clickListener,
-                        @NotNull String title,
-                        @Nullable String selection,
-                        @Nullable String[] selectionArgs) {
+    ProjectOverviewDBSubEngine(@NotNull Context context,
+                               @NotNull DB db,
+                               @NotNull ViewGroup root,
+                               @NotNull ProjectOverviewAdapter.ClickListener clickListener,
+                               @NotNull String title,
+                               @Nullable String selection,
+                               @Nullable String[] selectionArgs) {
         LayoutInflater inflater = LayoutInflater.from(context);
 
-        header = (TextView) inflater.inflate(R.layout.separator_item, root, false);
-        header.setText(title);
+        myHeader = (TextView) inflater.inflate(R.layout.separator_item, root, false);
+        myHeader.setText(title);
 
-        cursor = db.query(
+        myCursor = db.query(
                 Schema.PROJECT,
                 null,
                 selection,
@@ -60,29 +60,30 @@ class OverviewDBSubEngine {
                 null, null, null, null
         );
 
-        adapter = new OverviewAdapter(context, clickListener);
-        adapter.changeCursor(cursor);
+        myAdapter = new ProjectOverviewAdapter(context, clickListener);
+        myAdapter.changeCursor(myCursor);
     }
 
     @NotNull
     public TextView getHeader() {
-        return header;
+        return myHeader;
     }
 
     @NotNull
-    public OverviewAdapter getAdapter() {
-        return adapter;
+    public ProjectOverviewAdapter getAdapter() {
+        return myAdapter;
     }
 
     public boolean empty() {
-        return cursor.getCount() == 0;
+        return myCursor.getCount() == 0;
     }
 
     public void requery() {
-        cursor.requery();
+        //noinspection deprecation
+        myCursor.requery();
     }
 
     public void close() {
-        adapter.changeCursor(null);
+        myAdapter.changeCursor(null);
     }
 }

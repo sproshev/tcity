@@ -18,6 +18,7 @@ package com.tcity.android.ui.project.overview;
 
 import android.database.Cursor;
 import android.os.AsyncTask;
+import android.widget.Toast;
 
 import com.tcity.android.app.DB;
 import com.tcity.android.app.Preferences;
@@ -31,7 +32,7 @@ import com.tcity.android.loader.RunnableChain;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-class OverviewServerEngine {
+class ProjectOverviewServerEngine {
 
     @NotNull
     private final Preferences myPreferences;
@@ -45,14 +46,14 @@ class OverviewServerEngine {
     @Nullable
     private ExecutableRunnableChain myChain;
 
-    OverviewServerEngine(@NotNull Preferences preferences, @NotNull DB db) {
+    ProjectOverviewServerEngine(@NotNull Preferences preferences, @NotNull DB db) {
         myPreferences = preferences;
         myDb = db;
 
         myChainListener = new ChainListener();
     }
 
-    public void run() {
+    public void refresh() {
         if (myChain == null) {
             myChain = calculateExecutableChain();
         }
@@ -70,8 +71,8 @@ class OverviewServerEngine {
     public void setActivity(@Nullable ProjectOverviewActivity activity) {
         myChainListener.myActivity = activity;
 
-        if (myChainListener.isRunning) {
-            // TODO
+        if (myChainListener.isRunning && activity != null) {
+            activity.setRefreshing(true);
         }
     }
 
@@ -121,17 +122,25 @@ class OverviewServerEngine {
         private boolean isRunning;
 
         public void onStarted() {
-            // TODO
+            if (myActivity != null) {
+                myActivity.setRefreshing(true);
+                isRunning = true;
+            }
         }
 
         @Override
         public void onFinished() {
-            // TODO
+            if (myActivity != null) {
+                myActivity.setRefreshing(false);
+                isRunning = false;
+            }
         }
 
         @Override
         public void onException(@NotNull Exception e) {
-            // TODO
+            if (myActivity != null) {
+                Toast.makeText(myActivity, e.getMessage(), Toast.LENGTH_LONG).show();
+            }
         }
     }
 }

@@ -18,6 +18,7 @@ package com.tcity.android.ui.project.overview;
 
 import android.content.Context;
 import android.view.ViewGroup;
+import android.widget.ListAdapter;
 
 import com.tcity.android.app.DB;
 import com.tcity.android.app.Preferences;
@@ -25,21 +26,34 @@ import com.tcity.android.app.Preferences;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-class OverviewEngine {
+class ProjectOverviewEngine {
 
     @NotNull
-    private final OverviewDBEngine myDBEngine;
+    private final ProjectOverviewDBEngine myDBEngine;
 
     @NotNull
-    private final OverviewServerEngine myServerEngine;
+    private final ProjectOverviewServerEngine myServerEngine;
 
-    OverviewEngine(@NotNull Context context, @NotNull DB db, @NotNull ViewGroup root) {
-        myDBEngine = new OverviewDBEngine(context, db, root);
-        myServerEngine = new OverviewServerEngine(new Preferences(context), db);
+    ProjectOverviewEngine(@NotNull Context context, @NotNull DB db, @NotNull ViewGroup root) {
+        myDBEngine = new ProjectOverviewDBEngine(context, db, root);
+        myServerEngine = new ProjectOverviewServerEngine(new Preferences(context), db);
+    }
+
+    @NotNull
+    public ListAdapter getAdapter() {
+        return myDBEngine.getAdapter();
+    }
+
+    public void refresh() {
+        myServerEngine.refresh();
     }
 
     public void setActivity(@Nullable ProjectOverviewActivity activity) {
         myDBEngine.setActivity(activity);
         myServerEngine.setActivity(activity);
+    }
+
+    public void close() {
+        myDBEngine.close();
     }
 }

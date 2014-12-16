@@ -19,6 +19,7 @@ package com.tcity.android.ui.project.overview;
 import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ListAdapter;
 
 import com.commonsware.cwac.merge.MergeAdapter;
 import com.tcity.android.R;
@@ -30,7 +31,7 @@ import com.tcity.android.db.Schema;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-class OverviewDBEngine {
+class ProjectOverviewDBEngine {
 
     @NotNull
     private final DB myDB;
@@ -42,22 +43,22 @@ class OverviewDBEngine {
     private final ClickListener myClickListener;
 
     @NotNull
-    private final OverviewDBSubEngine myWatchedEngine;
+    private final ProjectOverviewDBSubEngine myWatchedEngine;
 
     @NotNull
-    private final OverviewDBSubEngine myAllEngine;
+    private final ProjectOverviewDBSubEngine myAllEngine;
 
     @NotNull
     private final SchemaListener mySchemaListener;
 
-    OverviewDBEngine(@NotNull Context context,
-                     @NotNull DB db,
-                     @NotNull ViewGroup root) {
+    ProjectOverviewDBEngine(@NotNull Context context,
+                            @NotNull DB db,
+                            @NotNull ViewGroup root) {
         myDB = db;
         myMainAdapter = new MergeAdapter();
         myClickListener = new ClickListener();
 
-        myWatchedEngine = new OverviewDBSubEngine(
+        myWatchedEngine = new ProjectOverviewDBSubEngine(
                 context,
                 db,
                 root,
@@ -67,7 +68,7 @@ class OverviewDBEngine {
                 DbPackage.calculateSelectionArgs(ConceptPackage.getROOT_PROJECT_ID(), Integer.toString(DbPackage.getDbValue(true)))
         );
 
-        myAllEngine = new OverviewDBSubEngine(
+        myAllEngine = new ProjectOverviewDBSubEngine(
                 context,
                 db,
                 root,
@@ -92,7 +93,7 @@ class OverviewDBEngine {
     }
 
     @NotNull
-    public MergeAdapter getAdapter() {
+    public ListAdapter getAdapter() {
         return myMainAdapter;
     }
 
@@ -107,28 +108,34 @@ class OverviewDBEngine {
         myAllEngine.close();
     }
 
-    private void handleHeader(@NotNull OverviewDBSubEngine subEngine) {
+    private void handleHeader(@NotNull ProjectOverviewDBSubEngine subEngine) {
         myMainAdapter.setActive(subEngine.getHeader(), !subEngine.empty());
     }
 
-    private static class ClickListener implements OverviewAdapter.ClickListener {
+    private static class ClickListener implements ProjectOverviewAdapter.ClickListener {
 
         @Nullable
         private ProjectOverviewActivity myActivity;
 
         @Override
-        public void onNameClick(@NotNull String id) {
-            // TODO
+        public void onImageClick(@NotNull String id) {
+            if (myActivity != null) {
+                myActivity.onImageClick(id);
+            }
         }
 
         @Override
-        public void onImageClick(@NotNull String id) {
-            // TODO
+        public void onNameClick(@NotNull String id) {
+            if (myActivity != null) {
+                myActivity.onNameClick(id);
+            }
         }
 
         @Override
         public void onOptionsClick(@NotNull String id, @NotNull View anchor) {
-            // TODO
+            if (myActivity != null) {
+                myActivity.onOptionsClick(id, anchor);
+            }
         }
     }
 
