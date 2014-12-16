@@ -51,6 +51,11 @@ class ProjectOverviewEngine {
         myServerEngine.refresh();
     }
 
+    public void imageClick(@NotNull String id) {
+        myDBEngine.imageClick(id);
+        myServerEngine.imageClick(id);
+    }
+
     public void setActivity(@Nullable ProjectOverviewActivity activity) {
         myDBEngine.setActivity(activity);
         myServerEngine.setActivity(activity);

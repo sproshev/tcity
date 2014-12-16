@@ -123,7 +123,7 @@ public class ProjectOverviewActivity extends ListActivity implements SwipeRefres
     }
 
     void onImageClick(@NotNull String id) {
-        // TODO
+        myEngine.imageClick(id);
     }
 
     void onNameClick(@NotNull String id) {

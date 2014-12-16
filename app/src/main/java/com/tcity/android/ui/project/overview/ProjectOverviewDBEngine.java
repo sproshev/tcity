@@ -16,7 +16,9 @@
 
 package com.tcity.android.ui.project.overview;
 
+import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.os.Handler;
 import android.os.Message;
 import android.view.View;
@@ -27,6 +29,7 @@ import com.commonsware.cwac.merge.MergeAdapter;
 import com.tcity.android.R;
 import com.tcity.android.app.DB;
 import com.tcity.android.concept.ConceptPackage;
+import com.tcity.android.concept.Status;
 import com.tcity.android.db.DbPackage;
 import com.tcity.android.db.Schema;
 
@@ -102,6 +105,19 @@ class ProjectOverviewDBEngine {
         return myMainAdapter;
     }
 
+    public void imageClick(@NotNull String id) {
+        ContentValues values = new ContentValues();
+        values.putAll(DbPackage.getDbValues(Status.DEFAULT));
+        values.putAll(DbPackage.getWatchedDbValues(!isWatched(id)));
+
+        myDB.update(
+                Schema.PROJECT,
+                values,
+                Schema.TC_ID_COLUMN + " = ?",
+                new String[]{id}
+        );
+    }
+
     public void setActivity(@Nullable ProjectOverviewActivity activity) {
         myClickListener.myActivity = activity;
     }
@@ -125,6 +141,24 @@ class ProjectOverviewDBEngine {
 
     private void handleHeader(@NotNull ProjectOverviewDBSubEngine subEngine) {
         myMainAdapter.setActive(subEngine.getHeader(), !subEngine.empty());
+    }
+
+    private boolean isWatched(@NotNull String id) {
+        Cursor cursor = myDB.query(
+                Schema.PROJECT,
+                new String[]{Schema.WATCHED_COLUMN},
+                Schema.TC_ID_COLUMN + " = ?",
+                new String[]{id},
+                null, null, null, null
+        );
+
+        cursor.moveToNext();
+
+        boolean result = DbPackage.getWatched(cursor);
+
+        cursor.close();
+
+        return result;
     }
 
     private static class ClickListener implements ProjectOverviewAdapter.ClickListener {

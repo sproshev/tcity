@@ -73,10 +73,21 @@ class ProjectOverviewServerEngine {
         }
     }
 
+    public void imageClick(@NotNull String id) {
+        if (isWatched(id)) {
+            ExecutableRunnableChain statusTask = RunnableChain.getAndRunnableChain(
+                    LoaderPackage.getProjectStatusRunnable(id, myDb, myPreferences)
+            ).toAsyncTask(myChainListener);
+
+            myChainListener.onStarted();
+            statusTask.execute();
+        }
+    }
+
     public void setActivity(@Nullable ProjectOverviewActivity activity) {
         myChainListener.myActivity = activity;
 
-        if (myChainListener.isRunning && activity != null) {
+        if (myChainListener.count != 0 && activity != null) {
             activity.setRefreshing(true);
         }
     }
@@ -119,25 +130,47 @@ class ProjectOverviewServerEngine {
         return RunnableChain.getOrRunnableChain(runnables);
     }
 
+    private boolean isWatched(@NotNull String id) {
+        Cursor cursor = myDb.query(
+                Schema.PROJECT,
+                new String[]{Schema.WATCHED_COLUMN},
+                Schema.TC_ID_COLUMN + " = ?",
+                new String[]{id},
+                null, null, null, null
+        );
+
+        cursor.moveToNext();
+
+        boolean result = DbPackage.getWatched(cursor);
+
+        cursor.close();
+
+        return result;
+    }
+
     private static class ChainListener implements RunnableChain.Listener {
 
         @Nullable
         private ProjectOverviewActivity myActivity;
 
-        private boolean isRunning;
+        private int count;
 
         public void onStarted() {
+            count++;
+
             if (myActivity != null) {
                 myActivity.setRefreshing(true);
-                isRunning = true;
             }
         }
 
         @Override
         public void onFinished() {
-            if (myActivity != null) {
+            if (count != 0) {
+                count--;
+            }
+
+            if (myActivity != null && count == 0) {
                 myActivity.setRefreshing(false);
-                isRunning = false;
             }
         }
 
