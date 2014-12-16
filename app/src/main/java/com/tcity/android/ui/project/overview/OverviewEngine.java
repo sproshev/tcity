@@ -1,0 +1,45 @@
+/*
+ * Copyright 2014 Semyon Proshev
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.tcity.android.ui.project.overview;
+
+import android.content.Context;
+import android.view.ViewGroup;
+
+import com.tcity.android.app.DB;
+import com.tcity.android.app.Preferences;
+
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+class OverviewEngine {
+
+    @NotNull
+    private final OverviewDBEngine myDBEngine;
+
+    @NotNull
+    private final OverviewServerEngine myServerEngine;
+
+    OverviewEngine(@NotNull Context context, @NotNull DB db, @NotNull ViewGroup root) {
+        myDBEngine = new OverviewDBEngine(context, db, root);
+        myServerEngine = new OverviewServerEngine(new Preferences(context), db);
+    }
+
+    public void setActivity(@Nullable ProjectOverviewActivity activity) {
+        myDBEngine.setActivity(activity);
+        myServerEngine.setActivity(activity);
+    }
+}
