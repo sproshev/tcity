@@ -18,18 +18,24 @@ package com.tcity.android.ui.project.overview;
 
 import android.app.ActionBar;
 import android.app.ListActivity;
+import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.view.MenuItem;
 import android.view.View;
+import android.widget.PopupMenu;
+import android.widget.TextView;
 
 import com.tcity.android.R;
 import com.tcity.android.app.Application;
 import com.tcity.android.app.DB;
+import com.tcity.android.app.Preferences;
 import com.tcity.android.concept.ConceptPackage;
 import com.tcity.android.db.DbPackage;
 import com.tcity.android.db.Schema;
+import com.tcity.android.rest.RestPackage;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -97,7 +103,6 @@ public class ProjectOverviewActivity extends ListActivity implements SwipeRefres
 
     // LIFECYCLE - End
 
-
     @Override
     public void onRefresh() {
         myEngine.refresh();
@@ -106,19 +111,36 @@ public class ProjectOverviewActivity extends ListActivity implements SwipeRefres
     void setRefreshing(boolean refreshing) {
         if (myLayout.isRefreshing() ^ refreshing) {
             myLayout.setRefreshing(refreshing);
+
+            TextView emptyView = (TextView) getListView().getEmptyView();
+
+            if (refreshing) {
+                emptyView.setText(R.string.loading);
+            } else {
+                emptyView.setText(R.string.empty);
+            }
         }
     }
 
     void onImageClick(@NotNull String id) {
-
+        // TODO
     }
 
     void onNameClick(@NotNull String id) {
+        Intent intent = new Intent(this, ProjectOverviewActivity.class);
+        intent.putExtra(INTENT_KEY, id);
 
+        startActivity(intent);
     }
 
     void onOptionsClick(@NotNull String id, @NotNull View anchor) {
+        PopupMenu menu = new PopupMenu(this, anchor);
 
+        menu.inflate(R.menu.menu_concept);
+
+        menu.setOnMenuItemClickListener(new PopupMenuListener(id));
+
+        menu.show();
     }
 
     @NotNull
@@ -170,5 +192,47 @@ public class ProjectOverviewActivity extends ListActivity implements SwipeRefres
         }
 
         return result;
+    }
+
+    private class PopupMenuListener implements PopupMenu.OnMenuItemClickListener {
+
+        @NotNull
+        private final String myId;
+
+        private PopupMenuListener(@NotNull String id) {
+            myId = id;
+        }
+
+        @Override
+        public boolean onMenuItemClick(@NotNull MenuItem item) {
+            switch (item.getItemId()) {
+                case R.id.menu_share:
+                    onShareClick();
+
+                    return true;
+                case R.id.menu_details:
+                    onDetailsClick();
+
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
+        private void onShareClick() {
+            Intent intent = new Intent(Intent.ACTION_SEND);
+
+            intent.setType("text/plain");
+            intent.putExtra(
+                    Intent.EXTRA_TEXT,
+                    RestPackage.getProjectWebUrl(myId, new Preferences(ProjectOverviewActivity.this))
+            );
+
+            startActivity(Intent.createChooser(intent, getResources().getString(R.string.share)));
+        }
+
+        private void onDetailsClick() {
+            // TODO
+        }
     }
 }
