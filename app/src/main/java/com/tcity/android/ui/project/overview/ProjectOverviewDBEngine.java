@@ -17,6 +17,8 @@
 package com.tcity.android.ui.project.overview;
 
 import android.content.Context;
+import android.os.Handler;
+import android.os.Message;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListAdapter;
@@ -141,15 +143,25 @@ class ProjectOverviewDBEngine {
 
     private class SchemaListener implements com.tcity.android.db.SchemaListener {
 
+        @NotNull
+        private final Handler myHandler = new Handler() {
+            @Override
+            public void handleMessage(@NotNull Message msg) {
+                super.handleMessage(msg);
+
+                myWatchedEngine.requery();
+                myAllEngine.requery();
+
+                handleHeader(myWatchedEngine);
+                handleHeader(myAllEngine);
+
+                myMainAdapter.notifyDataSetChanged();
+            }
+        };
+
         @Override
         public void onChanged() {
-            myWatchedEngine.requery();
-            myAllEngine.requery();
-
-            handleHeader(myWatchedEngine);
-            handleHeader(myAllEngine);
-
-            myMainAdapter.notifyDataSetChanged();
+            myHandler.sendEmptyMessage(0);
         }
     }
 }

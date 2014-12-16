@@ -19,6 +19,7 @@ package com.tcity.android.ui.project.overview;
 import android.app.ActionBar;
 import android.app.ListActivity;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.View;
 
@@ -53,9 +54,19 @@ public class ProjectOverviewActivity extends ListActivity implements SwipeRefres
         setListAdapter(myEngine.getAdapter());
 
         myLayout = (SwipeRefreshLayout) findViewById(R.id.overview_layout);
-        myLayout.setColorSchemeColors(R.color.green_status, R.color.red_status);
+        myLayout.setColorSchemeResources(R.color.green_status, R.color.red_status);
+        myLayout.setOnRefreshListener(this);
 
-        myEngine.refresh();
+        Handler handler = new Handler();
+        handler.postDelayed(
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        myEngine.refresh();
+                    }
+                },
+                1000
+        ); // https://code.google.com/p/android/issues/detail?id=77712
     }
 
     @SuppressWarnings("deprecation")
@@ -80,7 +91,9 @@ public class ProjectOverviewActivity extends ListActivity implements SwipeRefres
     }
 
     void setRefreshing(boolean refreshing) {
-        myLayout.setRefreshing(refreshing);
+        if (myLayout.isRefreshing() ^ refreshing) {
+            myLayout.setRefreshing(refreshing);
+        }
     }
 
     void onImageClick(@NotNull String id) {
@@ -102,7 +115,7 @@ public class ProjectOverviewActivity extends ListActivity implements SwipeRefres
 
         if (result == null) {
             result = new ProjectOverviewEngine(
-                    getApplicationContext(),
+                    this,
                     ((Application) getApplication()).getDB(),
                     getListView()
             );
