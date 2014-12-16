@@ -45,7 +45,7 @@ class ProjectOverviewDBSubEngine {
     ProjectOverviewDBSubEngine(@NotNull Context context,
                                @NotNull DB db,
                                @NotNull ViewGroup root,
-                               @NotNull ProjectOverviewAdapter.ClickListener clickListener,
+                               @NotNull ProjectAdapter.ClickListener clickListener,
                                @NotNull String title,
                                @Nullable String selection,
                                @Nullable String[] selectionArgs) {
@@ -62,7 +62,7 @@ class ProjectOverviewDBSubEngine {
                 null, null, null, null
         );
 
-        myAdapter = new ProjectOverviewAdapter(context, clickListener);
+        myAdapter = new ProjectAdapter(context, clickListener);
         myAdapter.changeCursor(myCursor);
     }
 

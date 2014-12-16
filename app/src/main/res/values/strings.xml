@@ -39,4 +39,7 @@
 
     <string name="project_is_watched">Project is watched</string>
     <string name="project_is_not_watched">Project is not watched</string>
+
+    <string name="build_configuration_is_watched">Build configuration is watched</string>
+    <string name="build_configuration_is_not_watched">Build configuration is not watched</string>
 </resources>

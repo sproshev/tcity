@@ -33,7 +33,7 @@ import com.tcity.android.db.DbPackage;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-class ProjectOverviewAdapter extends CursorAdapter {
+class BuildConfigurationAdapter extends CursorAdapter {
 
     private static final int WATCHED_IMAGE = android.R.drawable.star_big_on;
     private static final int NOT_WATCHED_IMAGE = android.R.drawable.star_big_off;
@@ -47,13 +47,13 @@ class ProjectOverviewAdapter extends CursorAdapter {
     @NotNull
     private final String myNotWatchedDescription;
 
-    ProjectOverviewAdapter(@NotNull Context context, @NotNull ClickListener clickListener) {
+    BuildConfigurationAdapter(@NotNull Context context, @NotNull ClickListener clickListener) {
         super(context, null, true);
 
         myClickListener = clickListener;
 
-        myWatchedDescription = context.getString(R.string.project_is_watched);
-        myNotWatchedDescription = context.getString(R.string.project_is_not_watched);
+        myWatchedDescription = context.getString(R.string.build_configuration_is_watched);
+        myNotWatchedDescription = context.getString(R.string.build_configuration_is_not_watched);
     }
 
     @NotNull

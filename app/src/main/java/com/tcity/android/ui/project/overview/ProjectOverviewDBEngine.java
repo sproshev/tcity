@@ -161,7 +161,7 @@ class ProjectOverviewDBEngine {
         return result;
     }
 
-    private static class ClickListener implements ProjectOverviewAdapter.ClickListener {
+    private static class ClickListener implements ProjectAdapter.ClickListener {
 
         @Nullable
         private ProjectOverviewActivity myActivity;
