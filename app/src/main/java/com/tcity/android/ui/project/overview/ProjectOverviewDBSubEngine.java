@@ -20,6 +20,8 @@ import android.content.Context;
 import android.database.Cursor;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
+import android.widget.CursorAdapter;
+import android.widget.ListAdapter;
 import android.widget.TextView;
 
 import com.tcity.android.R;
@@ -38,7 +40,7 @@ class ProjectOverviewDBSubEngine {
     private final Cursor myCursor;
 
     @NotNull
-    private final ProjectOverviewAdapter myAdapter;
+    private final CursorAdapter myAdapter;
 
     ProjectOverviewDBSubEngine(@NotNull Context context,
                                @NotNull DB db,
@@ -70,7 +72,7 @@ class ProjectOverviewDBSubEngine {
     }
 
     @NotNull
-    public ProjectOverviewAdapter getAdapter() {
+    public ListAdapter getAdapter() {
         return myAdapter;
     }
 

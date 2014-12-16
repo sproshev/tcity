@@ -22,7 +22,6 @@ import android.widget.Toast;
 
 import com.tcity.android.app.DB;
 import com.tcity.android.app.Preferences;
-import com.tcity.android.concept.ConceptPackage;
 import com.tcity.android.db.DbPackage;
 import com.tcity.android.db.Schema;
 import com.tcity.android.loader.ExecutableRunnableChain;
@@ -33,6 +32,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 class ProjectOverviewServerEngine {
+
+    @NotNull
+    private final String myProjectId;
 
     @NotNull
     private final Preferences myPreferences;
@@ -46,7 +48,10 @@ class ProjectOverviewServerEngine {
     @Nullable
     private ExecutableRunnableChain myChain;
 
-    ProjectOverviewServerEngine(@NotNull Preferences preferences, @NotNull DB db) {
+    ProjectOverviewServerEngine(@NotNull String projectId,
+                                @NotNull Preferences preferences,
+                                @NotNull DB db) {
+        myProjectId = projectId;
         myPreferences = preferences;
         myDb = db;
 
@@ -94,7 +99,7 @@ class ProjectOverviewServerEngine {
                 Schema.PROJECT,
                 new String[]{Schema.TC_ID_COLUMN},
                 Schema.PARENT_ID_COLUMN + " = ? AND " + Schema.WATCHED_COLUMN + " = ?",
-                new String[]{ConceptPackage.getROOT_PROJECT_ID(), Integer.toString(DbPackage.getDbValue(true))},
+                new String[]{myProjectId, Integer.toString(DbPackage.getDbValue(true))},
                 null, null, null, null
         );
 

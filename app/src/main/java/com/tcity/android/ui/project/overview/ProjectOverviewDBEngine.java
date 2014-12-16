@@ -53,21 +53,24 @@ class ProjectOverviewDBEngine {
     @NotNull
     private final SchemaListener mySchemaListener;
 
-    ProjectOverviewDBEngine(@NotNull Context context,
+    ProjectOverviewDBEngine(@NotNull String projectId,
+                            @NotNull Context context,
                             @NotNull DB db,
                             @NotNull ViewGroup root) {
         myDB = db;
         myMainAdapter = new MergeAdapter();
         myClickListener = new ClickListener();
 
+        String projectSectionName = calculateProjectSectionName(projectId, context);
+
         myWatchedEngine = new ProjectOverviewDBSubEngine(
                 context,
                 db,
                 root,
                 myClickListener,
-                context.getString(R.string.watched) + " " + context.getString(R.string.projects),
-                DbPackage.calculateSelection(ConceptPackage.getROOT_PROJECT_ID(), Schema.PARENT_ID_COLUMN, Schema.WATCHED_COLUMN),
-                DbPackage.calculateSelectionArgs(ConceptPackage.getROOT_PROJECT_ID(), Integer.toString(DbPackage.getDbValue(true)))
+                context.getString(R.string.watched) + " " + projectSectionName,
+                Schema.PARENT_ID_COLUMN + " = ? AND " + Schema.WATCHED_COLUMN + " = ?",
+                new String[]{projectId, Integer.toString(DbPackage.getDbValue(true))}
         );
 
         myAllEngine = new ProjectOverviewDBSubEngine(
@@ -75,9 +78,9 @@ class ProjectOverviewDBEngine {
                 db,
                 root,
                 myClickListener,
-                context.getString(R.string.projects),
-                DbPackage.calculateSelection(ConceptPackage.getROOT_PROJECT_ID(), Schema.PARENT_ID_COLUMN),
-                DbPackage.calculateSelectionArgs(ConceptPackage.getROOT_PROJECT_ID())
+                projectSectionName,
+                Schema.PARENT_ID_COLUMN + " = ?",
+                new String[]{projectId}
         );
 
         myMainAdapter.addView(myWatchedEngine.getHeader());
@@ -108,6 +111,16 @@ class ProjectOverviewDBEngine {
 
         myWatchedEngine.close();
         myAllEngine.close();
+    }
+
+    @NotNull
+    private String calculateProjectSectionName(@NotNull String projectId,
+                                               @NotNull Context context) {
+        if (projectId.equals(ConceptPackage.getROOT_PROJECT_ID())) {
+            return context.getString(R.string.projects);
+        } else {
+            return context.getString(R.string.subprojects);
+        }
     }
 
     private void handleHeader(@NotNull ProjectOverviewDBSubEngine subEngine) {

@@ -18,6 +18,7 @@ package com.tcity.android.ui.project.overview;
 
 import android.app.ActionBar;
 import android.app.ListActivity;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -25,10 +26,20 @@ import android.view.View;
 
 import com.tcity.android.R;
 import com.tcity.android.app.Application;
+import com.tcity.android.app.DB;
+import com.tcity.android.concept.ConceptPackage;
+import com.tcity.android.db.DbPackage;
+import com.tcity.android.db.Schema;
 
 import org.jetbrains.annotations.NotNull;
 
 public class ProjectOverviewActivity extends ListActivity implements SwipeRefreshLayout.OnRefreshListener {
+
+    @NotNull
+    public static final String INTENT_KEY = "PROJECT_ID";
+
+    @NotNull
+    private String myProjectId;
 
     @NotNull
     private SwipeRefreshLayout myLayout;
@@ -42,11 +53,13 @@ public class ProjectOverviewActivity extends ListActivity implements SwipeRefres
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        myProjectId = calculateProjectId();
+
         setContentView(R.layout.overview);
 
         ActionBar bar = getActionBar();
         if (bar != null) {
-            bar.setTitle(R.string.overview);
+            bar.setTitle(calculateTitle());
         }
 
         myEngine = calculateEngine();
@@ -109,12 +122,47 @@ public class ProjectOverviewActivity extends ListActivity implements SwipeRefres
     }
 
     @NotNull
+    private String calculateProjectId() {
+        if (getIntent().hasExtra(INTENT_KEY)) {
+            return getIntent().getStringExtra(INTENT_KEY);
+        } else {
+            return ConceptPackage.getROOT_PROJECT_ID();
+        }
+    }
+
+    @NotNull
+    private String calculateTitle() {
+        if (myProjectId.equals(ConceptPackage.getROOT_PROJECT_ID())) {
+            return getString(R.string.projects);
+        }
+
+        DB db = ((Application) getApplication()).getDB();
+
+        Cursor cursor = db.query(
+                Schema.PROJECT,
+                new String[]{Schema.NAME_COLUMN},
+                Schema.TC_ID_COLUMN + " = ?",
+                new String[]{myProjectId},
+                null, null, null, null
+        );
+
+        cursor.moveToNext();
+
+        String result = DbPackage.getName(cursor);
+
+        cursor.close();
+
+        return result;
+    }
+
+    @NotNull
     private ProjectOverviewEngine calculateEngine() {
         @SuppressWarnings("deprecation")
         ProjectOverviewEngine result = (ProjectOverviewEngine) getLastNonConfigurationInstance();
 
         if (result == null) {
             result = new ProjectOverviewEngine(
+                    myProjectId,
                     this,
                     ((Application) getApplication()).getDB(),
                     getListView()

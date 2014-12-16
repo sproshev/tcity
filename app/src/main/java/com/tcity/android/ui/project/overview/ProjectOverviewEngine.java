@@ -34,9 +34,12 @@ class ProjectOverviewEngine {
     @NotNull
     private final ProjectOverviewServerEngine myServerEngine;
 
-    ProjectOverviewEngine(@NotNull Context context, @NotNull DB db, @NotNull ViewGroup root) {
-        myDBEngine = new ProjectOverviewDBEngine(context, db, root);
-        myServerEngine = new ProjectOverviewServerEngine(new Preferences(context), db);
+    ProjectOverviewEngine(@NotNull String projectId,
+                          @NotNull Context context,
+                          @NotNull DB db,
+                          @NotNull ViewGroup root) {
+        myDBEngine = new ProjectOverviewDBEngine(projectId, context, db, root);
+        myServerEngine = new ProjectOverviewServerEngine(projectId, new Preferences(context), db);
     }
 
     @NotNull
