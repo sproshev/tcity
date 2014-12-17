@@ -69,7 +69,7 @@ public class ProjectOverviewActivity extends ListActivity implements SwipeRefres
             bar.setTitle(calculateTitle());
         }
 
-        myLayout = (SwipeRefreshLayout) findViewById(R.id.overview_layout);
+        myLayout = (SwipeRefreshLayout) findViewById(R.id.overview);
         myLayout.setColorSchemeResources(R.color.green_status, R.color.red_status);
         myLayout.setOnRefreshListener(this);
 

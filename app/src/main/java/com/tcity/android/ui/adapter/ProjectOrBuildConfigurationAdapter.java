@@ -71,9 +71,9 @@ class ProjectOrBuildConfigurationAdapter extends CursorAdapter {
 
         result.setTag(
                 new ViewHolder(
-                        (ImageButton) result.findViewById(R.id.project_or_build_configuration_favourite),
-                        (TextView) result.findViewById(R.id.project_or_build_configuration_name),
-                        result.findViewById(R.id.project_or_build_configuration_options)
+                        (ImageButton) result.findViewById(R.id.favourite),
+                        (TextView) result.findViewById(R.id.name),
+                        result.findViewById(R.id.options)
                 )
         );
 
