@@ -20,6 +20,7 @@ import android.app.ActionBar;
 import android.app.ListActivity;
 import android.content.Intent;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -236,8 +237,12 @@ public class ProjectOverviewActivity extends ListActivity implements SwipeRefres
         @Override
         public boolean onMenuItemClick(@NotNull MenuItem item) {
             switch (item.getItemId()) {
-                case R.id.menu_share:
+                case R.id.menu_share_link:
                     onShareClick();
+
+                    return true;
+                case R.id.menu_open_in_browser:
+                    onOpenClick();
 
                     return true;
                 default:
@@ -254,7 +259,14 @@ public class ProjectOverviewActivity extends ListActivity implements SwipeRefres
                     myUrl
             );
 
-            startActivity(Intent.createChooser(intent, getResources().getString(R.string.share)));
+            startActivity(Intent.createChooser(intent, getResources().getString(R.string.share_link)));
+        }
+
+        private void onOpenClick() {
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            intent.setData(Uri.parse(myUrl));
+
+            startActivity(intent);
         }
     }
 }
