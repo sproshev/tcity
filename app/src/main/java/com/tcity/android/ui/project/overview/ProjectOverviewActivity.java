@@ -149,7 +149,7 @@ public class ProjectOverviewActivity extends ListActivity implements SwipeRefres
     }
 
     void buildConfigurationImageClick(@NotNull String id) {
-        // TODO
+        myEngine.buildConfigurationImageClick(id);
     }
 
     void buildConfigurationNameClick(@NotNull String id) {

@@ -149,6 +149,11 @@ class ProjectOverviewDBEngine {
         return myMainAdapter;
     }
 
+    public void setActivity(@Nullable ProjectOverviewActivity activity) {
+        myProjectClickListener.myActivity = activity;
+        myBuildConfigurationClickListener.myActivity = activity;
+    }
+
     public void projectImageClick(@NotNull String id) {
         ContentValues values = new ContentValues();
         values.putAll(DbPackage.getDbValues(Status.DEFAULT));
@@ -162,9 +167,17 @@ class ProjectOverviewDBEngine {
         );
     }
 
-    public void setActivity(@Nullable ProjectOverviewActivity activity) {
-        myProjectClickListener.myActivity = activity;
-        myBuildConfigurationClickListener.myActivity = activity;
+    public void buildConfigurationImageClick(@NotNull String id) {
+        ContentValues values = new ContentValues();
+        values.putAll(DbPackage.getDbValues(Status.DEFAULT));
+        values.putAll(DbPackage.getWatchedDbValues(!isBuildConfigurationWatched(id)));
+
+        myDB.update(
+                Schema.BUILD_CONFIGURATION,
+                values,
+                Schema.TC_ID_COLUMN + " = ?",
+                new String[]{id}
+        );
     }
 
     public void close() {
@@ -198,6 +211,24 @@ class ProjectOverviewDBEngine {
     private boolean isProjectWatched(@NotNull String id) {
         Cursor cursor = myDB.query(
                 Schema.PROJECT,
+                new String[]{Schema.WATCHED_COLUMN},
+                Schema.TC_ID_COLUMN + " = ?",
+                new String[]{id},
+                null, null, null, null
+        );
+
+        cursor.moveToNext();
+
+        boolean result = DbPackage.getWatched(cursor);
+
+        cursor.close();
+
+        return result;
+    }
+
+    private boolean isBuildConfigurationWatched(@NotNull String id) {
+        Cursor cursor = myDB.query(
+                Schema.BUILD_CONFIGURATION,
                 new String[]{Schema.WATCHED_COLUMN},
                 Schema.TC_ID_COLUMN + " = ?",
                 new String[]{id},

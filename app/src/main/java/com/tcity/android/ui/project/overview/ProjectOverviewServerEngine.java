@@ -58,6 +58,36 @@ class ProjectOverviewServerEngine {
         myChainListener = new ChainListener();
     }
 
+    public void setActivity(@Nullable ProjectOverviewActivity activity) {
+        myChainListener.myActivity = activity;
+
+        if (myChainListener.count != 0 && activity != null) {
+            activity.setRefreshing(true);
+        }
+    }
+
+    public void projectImageClick(@NotNull String id) {
+        if (isProjectWatched(id)) {
+            ExecutableRunnableChain statusTask = RunnableChain.getSingleRunnableChain(
+                    LoaderPackage.getProjectStatusRunnable(id, myDb, myPreferences)
+            ).toAsyncTask(myChainListener);
+
+            myChainListener.onStarted();
+            statusTask.execute();
+        }
+    }
+
+    public void buildConfigurationImageClick(@NotNull String id) {
+        if (isBuildConfigurationWatched(id)) {
+            ExecutableRunnableChain statusTask = RunnableChain.getSingleRunnableChain(
+                    LoaderPackage.getBuildConfigurationStatusRunnable(id, myDb, myPreferences)
+            ).toAsyncTask(myChainListener);
+
+            myChainListener.onStarted();
+            statusTask.execute();
+        }
+    }
+
     public void refresh() {
         if (myChain == null) {
             myChain = calculateExecutableChain();
@@ -70,25 +100,6 @@ class ProjectOverviewServerEngine {
 
             myChainListener.onStarted();
             myChain.execute();
-        }
-    }
-
-    public void imageClick(@NotNull String id) {
-        if (isWatched(id)) {
-            ExecutableRunnableChain statusTask = RunnableChain.getAndRunnableChain(
-                    LoaderPackage.getProjectStatusRunnable(id, myDb, myPreferences)
-            ).toAsyncTask(myChainListener);
-
-            myChainListener.onStarted();
-            statusTask.execute();
-        }
-    }
-
-    public void setActivity(@Nullable ProjectOverviewActivity activity) {
-        myChainListener.myActivity = activity;
-
-        if (myChainListener.count != 0 && activity != null) {
-            activity.setRefreshing(true);
         }
     }
 
@@ -166,9 +177,27 @@ class ProjectOverviewServerEngine {
         return RunnableChain.getOrRunnableChain(runnables);
     }
 
-    private boolean isWatched(@NotNull String id) {
+    private boolean isProjectWatched(@NotNull String id) {
         Cursor cursor = myDb.query(
                 Schema.PROJECT,
+                new String[]{Schema.WATCHED_COLUMN},
+                Schema.TC_ID_COLUMN + " = ?",
+                new String[]{id},
+                null, null, null, null
+        );
+
+        cursor.moveToNext();
+
+        boolean result = DbPackage.getWatched(cursor);
+
+        cursor.close();
+
+        return result;
+    }
+
+    private boolean isBuildConfigurationWatched(@NotNull String id) {
+        Cursor cursor = myDb.query(
+                Schema.BUILD_CONFIGURATION,
                 new String[]{Schema.WATCHED_COLUMN},
                 Schema.TC_ID_COLUMN + " = ?",
                 new String[]{id},

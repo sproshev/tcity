@@ -54,7 +54,12 @@ class ProjectOverviewEngine {
 
     public void projectImageClick(@NotNull String id) {
         myDBEngine.projectImageClick(id);
-        myServerEngine.imageClick(id);
+        myServerEngine.projectImageClick(id);
+    }
+
+    public void buildConfigurationImageClick(@NotNull String id) {
+        myDBEngine.buildConfigurationImageClick(id);
+        myServerEngine.buildConfigurationImageClick(id);
     }
 
     public void refresh() {
