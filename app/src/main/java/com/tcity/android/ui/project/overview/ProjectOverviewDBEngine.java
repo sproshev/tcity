@@ -220,17 +220,23 @@ class ProjectOverviewDBEngine {
 
         @Override
         public void onImageClick(@NotNull String id) {
-            // TODO
+            if (myActivity != null) {
+                myActivity.buildConfigurationImageClick(id);
+            }
         }
 
         @Override
         public void onNameClick(@NotNull String id) {
-            // TODO
+            if (myActivity != null) {
+                myActivity.buildConfigurationNameClick(id);
+            }
         }
 
         @Override
         public void onOptionsClick(@NotNull String id, @NotNull View anchor) {
-            // TODO
+            if (myActivity != null) {
+                myActivity.buildConfigurationOptionsClick(id, anchor);
+            }
         }
     }
 
@@ -242,21 +248,21 @@ class ProjectOverviewDBEngine {
         @Override
         public void onImageClick(@NotNull String id) {
             if (myActivity != null) {
-                myActivity.onImageClick(id);
+                myActivity.projectImageClick(id);
             }
         }
 
         @Override
         public void onNameClick(@NotNull String id) {
             if (myActivity != null) {
-                myActivity.onNameClick(id);
+                myActivity.projectNameClick(id);
             }
         }
 
         @Override
         public void onOptionsClick(@NotNull String id, @NotNull View anchor) {
             if (myActivity != null) {
-                myActivity.onOptionsClick(id, anchor);
+                myActivity.projectOptionsClick(id, anchor);
             }
         }
     }

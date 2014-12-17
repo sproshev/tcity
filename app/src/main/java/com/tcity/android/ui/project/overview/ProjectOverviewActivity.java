@@ -36,6 +36,7 @@ import com.tcity.android.concept.ConceptPackage;
 import com.tcity.android.db.DbPackage;
 import com.tcity.android.db.Schema;
 import com.tcity.android.rest.RestPackage;
+import com.tcity.android.ui.BuildConfigurationOverviewActivity;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -122,23 +123,52 @@ public class ProjectOverviewActivity extends ListActivity implements SwipeRefres
         }
     }
 
-    void onImageClick(@NotNull String id) {
-        myEngine.imageClick(id);
+    void projectImageClick(@NotNull String id) {
+        myEngine.projectImageClick(id);
     }
 
-    void onNameClick(@NotNull String id) {
+    void projectNameClick(@NotNull String id) {
         Intent intent = new Intent(this, ProjectOverviewActivity.class);
         intent.putExtra(INTENT_KEY, id);
 
         startActivity(intent);
     }
 
-    void onOptionsClick(@NotNull String id, @NotNull View anchor) {
+    void projectOptionsClick(@NotNull String id, @NotNull View anchor) {
         PopupMenu menu = new PopupMenu(this, anchor);
 
         menu.inflate(R.menu.menu_concept);
 
-        menu.setOnMenuItemClickListener(new PopupMenuListener(id));
+        menu.setOnMenuItemClickListener(
+                new PopupMenuListener(
+                        RestPackage.getProjectWebUrl(id, new Preferences(this))
+                )
+        );
+
+        menu.show();
+    }
+
+    void buildConfigurationImageClick(@NotNull String id) {
+        // TODO
+    }
+
+    void buildConfigurationNameClick(@NotNull String id) {
+        Intent intent = new Intent(this, BuildConfigurationOverviewActivity.class);
+        intent.putExtra("BUILD_CONFIGURATION_ID", id); // TODO key
+
+        startActivity(intent);
+    }
+
+    void buildConfigurationOptionsClick(@NotNull String id, @NotNull View anchor) {
+        PopupMenu menu = new PopupMenu(this, anchor);
+
+        menu.inflate(R.menu.menu_concept);
+
+        menu.setOnMenuItemClickListener(
+                new PopupMenuListener(
+                        RestPackage.getBuildConfigurationWebUrl(id, new Preferences(this))
+                )
+        );
 
         menu.show();
     }
@@ -197,10 +227,10 @@ public class ProjectOverviewActivity extends ListActivity implements SwipeRefres
     private class PopupMenuListener implements PopupMenu.OnMenuItemClickListener {
 
         @NotNull
-        private final String myId;
+        private final String myUrl;
 
-        private PopupMenuListener(@NotNull String id) {
-            myId = id;
+        private PopupMenuListener(@NotNull String url) {
+            myUrl = url;
         }
 
         @Override
@@ -221,7 +251,7 @@ public class ProjectOverviewActivity extends ListActivity implements SwipeRefres
             intent.setType("text/plain");
             intent.putExtra(
                     Intent.EXTRA_TEXT,
-                    RestPackage.getProjectWebUrl(myId, new Preferences(ProjectOverviewActivity.this))
+                    myUrl
             );
 
             startActivity(Intent.createChooser(intent, getResources().getString(R.string.share)));

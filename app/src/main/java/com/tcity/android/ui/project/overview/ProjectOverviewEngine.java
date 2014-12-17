@@ -47,18 +47,18 @@ class ProjectOverviewEngine {
         return myDBEngine.getAdapter();
     }
 
-    public void refresh() {
-        myServerEngine.refresh();
+    public void setActivity(@Nullable ProjectOverviewActivity activity) {
+        myDBEngine.setActivity(activity);
+        myServerEngine.setActivity(activity);
     }
 
-    public void imageClick(@NotNull String id) {
+    public void projectImageClick(@NotNull String id) {
         myDBEngine.projectImageClick(id);
         myServerEngine.imageClick(id);
     }
 
-    public void setActivity(@Nullable ProjectOverviewActivity activity) {
-        myDBEngine.setActivity(activity);
-        myServerEngine.setActivity(activity);
+    public void refresh() {
+        myServerEngine.refresh();
     }
 
     public void close() {
