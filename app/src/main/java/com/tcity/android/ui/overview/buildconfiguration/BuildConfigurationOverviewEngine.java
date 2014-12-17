@@ -21,6 +21,7 @@ import android.view.ViewGroup;
 import android.widget.ListAdapter;
 
 import com.tcity.android.app.DB;
+import com.tcity.android.app.Preferences;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -38,7 +39,12 @@ class BuildConfigurationOverviewEngine {
                                      @NotNull DB db,
                                      @NotNull ViewGroup root) {
         myDBEngine = new BuildConfigurationOverviewDBEngine(buildConfigurationId, context, db, root);
-        myServerEngine = new BuildConfigurationOverviewServerEngine();
+
+        myServerEngine = new BuildConfigurationOverviewServerEngine(
+                buildConfigurationId,
+                new Preferences(context),
+                db
+        );
     }
 
     @NotNull

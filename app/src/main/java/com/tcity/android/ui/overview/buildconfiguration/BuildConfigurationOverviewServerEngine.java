@@ -16,15 +16,106 @@
 
 package com.tcity.android.ui.overview.buildconfiguration;
 
+import android.os.AsyncTask;
+import android.widget.Toast;
+
+import com.tcity.android.app.DB;
+import com.tcity.android.app.Preferences;
+import com.tcity.android.loader.ExecutableRunnableChain;
+import com.tcity.android.loader.LoaderPackage;
+import com.tcity.android.loader.RunnableChain;
+
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 class BuildConfigurationOverviewServerEngine {
 
+    @NotNull
+    private final String myBuildConfigurationId;
+
+    @NotNull
+    private final Preferences myPreferences;
+
+    @NotNull
+    private final DB myDb;
+
+    @NotNull
+    private final ChainListener myChainListener;
+
+    @Nullable
+    private ExecutableRunnableChain myChain;
+
+    BuildConfigurationOverviewServerEngine(@NotNull String buildConfigurationId,
+                                           @NotNull Preferences preferences,
+                                           @NotNull DB db) {
+        myBuildConfigurationId = buildConfigurationId;
+        myPreferences = preferences;
+        myDb = db;
+
+        myChainListener = new ChainListener();
+    }
+
     public void setActivity(@Nullable BuildConfigurationOverviewActivity activity) {
-        // TODO
+        myChainListener.myActivity = activity;
+
+        if (myChainListener.count != 0 && activity != null) {
+            activity.setRefreshing(true);
+        }
     }
 
     public void refresh() {
-        // TODO
+        if (myChain == null) {
+            myChain = calculateExecutableChain();
+        }
+
+        if (myChain.getStatus() != AsyncTask.Status.RUNNING) {
+            if (myChain.getStatus() == AsyncTask.Status.FINISHED) {
+                myChain = calculateExecutableChain();
+            }
+
+            myChainListener.onStarted();
+            myChain.execute();
+        }
+    }
+
+    @NotNull
+    private ExecutableRunnableChain calculateExecutableChain() {
+        return RunnableChain.getSingleRunnableChain(
+                LoaderPackage.getBuildsRunnable(myBuildConfigurationId, myDb, myPreferences)
+        ).toAsyncTask(myChainListener);
+    }
+
+    private static class ChainListener implements RunnableChain.Listener {
+
+        @Nullable
+        private BuildConfigurationOverviewActivity myActivity;
+
+        private int count;
+
+        public void onStarted() {
+            count++;
+
+            if (myActivity != null) {
+                myActivity.setRefreshing(true);
+            }
+        }
+
+        @Override
+        public void onFinished() {
+            if (count != 0) {
+                count--;
+            }
+
+            if (myActivity != null && count == 0) {
+                myActivity.setRefreshing(false);
+            }
+        }
+
+        @Override
+        public void onException(@NotNull Exception e) {
+            if (myActivity != null) {
+                Toast.makeText(myActivity, e.getMessage(), Toast.LENGTH_LONG).show();
+            }
+        }
     }
 }
