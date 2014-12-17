@@ -98,14 +98,24 @@ class ProjectOverviewServerEngine {
                 LoaderPackage.getProjectsRunnable(myDb, myPreferences)
         );
 
-        return RunnableChain.getAndRunnableChain(
-                projectsChain,
-                calculateStatusesChain()
+        RunnableChain buildConfigurationsChain = RunnableChain.getSingleRunnableChain(
+                LoaderPackage.getBuildConfigurationsRunnable(myProjectId, myDb, myPreferences)
+        );
+
+        return RunnableChain.getOrRunnableChain(
+                RunnableChain.getAndRunnableChain(
+                        projectsChain,
+                        calculateProjectStatusesChain()
+                ),
+                RunnableChain.getAndRunnableChain(
+                        buildConfigurationsChain,
+                        calculateBuildConfigurationStatusesChain()
+                )
         ).toAsyncTask(myChainListener);
     }
 
     @NotNull
-    private RunnableChain calculateStatusesChain() {
+    private RunnableChain calculateProjectStatusesChain() {
         Cursor cursor = myDb.query(
                 Schema.PROJECT,
                 new String[]{Schema.TC_ID_COLUMN},
@@ -119,6 +129,32 @@ class ProjectOverviewServerEngine {
 
         while (cursor.moveToNext()) {
             runnables[pos] = LoaderPackage.getProjectStatusRunnable(
+                    DbPackage.getId(cursor), myDb, myPreferences
+            );
+
+            pos++;
+        }
+
+        cursor.close();
+
+        return RunnableChain.getOrRunnableChain(runnables);
+    }
+
+    @NotNull
+    private RunnableChain calculateBuildConfigurationStatusesChain() {
+        Cursor cursor = myDb.query(
+                Schema.BUILD_CONFIGURATION,
+                new String[]{Schema.TC_ID_COLUMN},
+                Schema.PARENT_ID_COLUMN + " = ? AND " + Schema.WATCHED_COLUMN + " = ?",
+                new String[]{myProjectId, Integer.toString(DbPackage.getDbValue(true))},
+                null, null, null, null
+        );
+
+        Runnable[] runnables = new Runnable[cursor.getCount()];
+        int pos = 0;
+
+        while (cursor.moveToNext()) {
+            runnables[pos] = LoaderPackage.getBuildConfigurationStatusRunnable(
                     DbPackage.getId(cursor), myDb, myPreferences
             );
 
