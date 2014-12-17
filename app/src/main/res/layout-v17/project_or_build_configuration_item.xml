@@ -26,17 +26,13 @@
               android:orientation="horizontal">
 
     <ImageButton
-        android:id="@+id/concept_item_watch"
+        android:id="@+id/project_or_build_configuration_favourite"
 
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="center_vertical"
 
-        android:paddingTop="8dp"
-        android:paddingBottom="8dp"
-        android:paddingLeft="8dp"
         android:paddingStart="8dp"
-        android:paddingRight="4dp"
         android:paddingEnd="4dp"
 
         android:background="@null"
@@ -45,15 +41,13 @@
     <!-- content description will be set dynamically -->
 
     <TextView
-        android:id="@+id/concept_item_name"
+        android:id="@+id/project_or_build_configuration_name"
 
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_gravity="center_vertical"
         android:layout_weight="1"
 
-        android:paddingTop="8dp"
-        android:paddingBottom="8dp"
         android:paddingLeft="4dp"
         android:paddingRight="4dp"
 
@@ -61,17 +55,13 @@
         android:textAppearance="?android:attr/textAppearanceListItem"/>
 
     <ImageButton
-        android:id="@+id/concept_item_options"
+        android:id="@+id/project_or_build_configuration_options"
 
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="center_vertical"
 
-        android:paddingTop="8dp"
-        android:paddingBottom="8dp"
-        android:paddingLeft="4dp"
         android:paddingStart="4dp"
-        android:paddingRight="8dp"
         android:paddingEnd="8dp"
 
         android:background="@null"

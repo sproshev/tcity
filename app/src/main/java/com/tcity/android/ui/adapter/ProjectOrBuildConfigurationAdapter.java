@@ -63,13 +63,17 @@ class ProjectOrBuildConfigurationAdapter extends CursorAdapter {
     public View newView(@NotNull Context context,
                         @Nullable Cursor cursor,
                         @Nullable ViewGroup parent) {
-        View result = LayoutInflater.from(context).inflate(R.layout.concept_item, parent, false);
+        View result = LayoutInflater.from(context).inflate(
+                R.layout.project_or_build_configuration_item,
+                parent,
+                false
+        );
 
         result.setTag(
                 new ViewHolder(
-                        (ImageButton) result.findViewById(R.id.concept_item_watch),
-                        (TextView) result.findViewById(R.id.concept_item_name),
-                        result.findViewById(R.id.concept_item_options)
+                        (ImageButton) result.findViewById(R.id.project_or_build_configuration_favourite),
+                        (TextView) result.findViewById(R.id.project_or_build_configuration_name),
+                        result.findViewById(R.id.project_or_build_configuration_options)
                 )
         );
 
