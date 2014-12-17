@@ -21,8 +21,4 @@
         android:id="@+id/menu_share"
         android:title="@string/share"/>
 
-    <item
-        android:id="@+id/menu_details"
-        android:title="@string/details"/>
-
 </menu>

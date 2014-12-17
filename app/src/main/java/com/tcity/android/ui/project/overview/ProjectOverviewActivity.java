@@ -68,13 +68,13 @@ public class ProjectOverviewActivity extends ListActivity implements SwipeRefres
             bar.setTitle(calculateTitle());
         }
 
-        myEngine = calculateEngine();
-        myEngine.setActivity(this);
-        setListAdapter(myEngine.getAdapter());
-
         myLayout = (SwipeRefreshLayout) findViewById(R.id.overview_layout);
         myLayout.setColorSchemeResources(R.color.green_status, R.color.red_status);
         myLayout.setOnRefreshListener(this);
+
+        myEngine = calculateEngine();
+        myEngine.setActivity(this);
+        setListAdapter(myEngine.getAdapter());
 
         Handler handler = new Handler();
         handler.postDelayed(
@@ -210,10 +210,6 @@ public class ProjectOverviewActivity extends ListActivity implements SwipeRefres
                     onShareClick();
 
                     return true;
-                case R.id.menu_details:
-                    onDetailsClick();
-
-                    return true;
                 default:
                     return false;
             }
@@ -229,10 +225,6 @@ public class ProjectOverviewActivity extends ListActivity implements SwipeRefres
             );
 
             startActivity(Intent.createChooser(intent, getResources().getString(R.string.share)));
-        }
-
-        private void onDetailsClick() {
-            // TODO
         }
     }
 }
