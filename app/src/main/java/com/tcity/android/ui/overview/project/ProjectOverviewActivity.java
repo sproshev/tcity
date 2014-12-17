@@ -36,7 +36,7 @@ import com.tcity.android.concept.ConceptPackage;
 import com.tcity.android.db.DbPackage;
 import com.tcity.android.db.Schema;
 import com.tcity.android.rest.RestPackage;
-import com.tcity.android.ui.BuildConfigurationOverviewActivity;
+import com.tcity.android.ui.overview.buildconfiguration.BuildConfigurationOverviewActivity;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -154,7 +154,7 @@ public class ProjectOverviewActivity extends ListActivity implements SwipeRefres
 
     void buildConfigurationNameClick(@NotNull String id) {
         Intent intent = new Intent(this, BuildConfigurationOverviewActivity.class);
-        intent.putExtra("BUILD_CONFIGURATION_ID", id); // TODO key
+        intent.putExtra(BuildConfigurationOverviewActivity.INTENT_KEY, id);
 
         startActivity(intent);
     }
