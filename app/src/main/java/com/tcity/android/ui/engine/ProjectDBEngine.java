@@ -28,6 +28,7 @@ import com.tcity.android.R;
 import com.tcity.android.app.DB;
 import com.tcity.android.db.Schema;
 import com.tcity.android.ui.adapter.ProjectAdapter;
+import com.tcity.android.ui.adapter.ProjectClickListener;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -46,7 +47,7 @@ public class ProjectDBEngine {
     public ProjectDBEngine(@NotNull Context context,
                            @NotNull DB db,
                            @NotNull ViewGroup root,
-                           @NotNull ProjectAdapter.ClickListener clickListener,
+                           @NotNull ProjectClickListener clickListener,
                            @NotNull String title,
                            @Nullable String selection,
                            @Nullable String[] selectionArgs) {

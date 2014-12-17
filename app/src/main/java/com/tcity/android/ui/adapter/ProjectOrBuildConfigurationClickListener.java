@@ -16,16 +16,15 @@
 
 package com.tcity.android.ui.adapter;
 
-import android.content.Context;
-
-import com.tcity.android.R;
+import android.view.View;
 
 import org.jetbrains.annotations.NotNull;
 
-public class ProjectAdapter extends ProjectOrBuildConfigurationAdapter {
+interface ProjectOrBuildConfigurationClickListener {
 
-    public ProjectAdapter(@NotNull Context context,
-                          @NotNull ProjectClickListener clickListener) {
-        super(context, clickListener, R.string.project_is_watched, R.string.project_is_not_watched);
-    }
+    public void onImageClick(@NotNull String id);
+
+    public void onNameClick(@NotNull String id);
+
+    public void onOptionsClick(@NotNull String id, @NotNull View anchor);
 }

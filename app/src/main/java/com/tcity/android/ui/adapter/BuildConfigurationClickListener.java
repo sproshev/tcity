@@ -16,16 +16,5 @@
 
 package com.tcity.android.ui.adapter;
 
-import android.content.Context;
-
-import com.tcity.android.R;
-
-import org.jetbrains.annotations.NotNull;
-
-public class ProjectAdapter extends ProjectOrBuildConfigurationAdapter {
-
-    public ProjectAdapter(@NotNull Context context,
-                          @NotNull ProjectClickListener clickListener) {
-        super(context, clickListener, R.string.project_is_watched, R.string.project_is_not_watched);
-    }
+public interface BuildConfigurationClickListener extends ProjectOrBuildConfigurationClickListener {
 }

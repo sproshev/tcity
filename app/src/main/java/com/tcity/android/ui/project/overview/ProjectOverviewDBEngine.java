@@ -33,8 +33,8 @@ import com.tcity.android.concept.Status;
 import com.tcity.android.db.DbPackage;
 import com.tcity.android.db.Schema;
 import com.tcity.android.db.SchemaListener;
-import com.tcity.android.ui.adapter.BuildConfigurationAdapter;
-import com.tcity.android.ui.adapter.ProjectAdapter;
+import com.tcity.android.ui.adapter.BuildConfigurationClickListener;
+import com.tcity.android.ui.adapter.ProjectClickListener;
 import com.tcity.android.ui.engine.BuildConfigurationDBEngine;
 import com.tcity.android.ui.engine.ProjectDBEngine;
 
@@ -50,10 +50,10 @@ class ProjectOverviewDBEngine {
     private final MergeAdapter myMainAdapter;
 
     @NotNull
-    private final BuildConfigurationClickListener myBuildConfigurationClickListener;
+    private final MyBuildConfigurationClickListener myBuildConfigurationClickListener;
 
     @NotNull
-    private final ProjectClickListener myProjectClickListener;
+    private final MyProjectClickListener myProjectClickListener;
 
     @NotNull
     private final BuildConfigurationDBEngine myWatchedBuildConfigurationsEngine;
@@ -79,8 +79,8 @@ class ProjectOverviewDBEngine {
                             @NotNull ViewGroup root) {
         myDB = db;
         myMainAdapter = new MergeAdapter();
-        myProjectClickListener = new ProjectClickListener();
-        myBuildConfigurationClickListener = new BuildConfigurationClickListener();
+        myProjectClickListener = new MyProjectClickListener();
+        myBuildConfigurationClickListener = new MyBuildConfigurationClickListener();
 
         myWatchedBuildConfigurationsEngine = new BuildConfigurationDBEngine(
                 context,
@@ -248,7 +248,7 @@ class ProjectOverviewDBEngine {
         return result;
     }
 
-    private static class BuildConfigurationClickListener implements BuildConfigurationAdapter.ClickListener {
+    private static class MyBuildConfigurationClickListener implements BuildConfigurationClickListener {
 
         @Nullable
         private ProjectOverviewActivity myActivity;
@@ -275,7 +275,7 @@ class ProjectOverviewDBEngine {
         }
     }
 
-    private static class ProjectClickListener implements ProjectAdapter.ClickListener {
+    private static class MyProjectClickListener implements ProjectClickListener {
 
         @Nullable
         private ProjectOverviewActivity myActivity;
