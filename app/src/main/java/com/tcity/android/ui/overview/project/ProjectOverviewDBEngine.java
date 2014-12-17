@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.tcity.android.ui.project.overview;
+package com.tcity.android.ui.overview.project;
 
 import android.content.ContentValues;
 import android.content.Context;
