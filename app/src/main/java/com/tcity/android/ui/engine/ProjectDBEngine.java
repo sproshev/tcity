@@ -30,9 +30,6 @@ import org.jetbrains.annotations.Nullable;
 
 public class ProjectDBEngine extends DBEngine {
 
-    @NotNull
-    private final ProjectClickListener myClickListener;
-
     public ProjectDBEngine(@NotNull Context context,
                            @NotNull DB db,
                            @NotNull ViewGroup root,
@@ -40,14 +37,21 @@ public class ProjectDBEngine extends DBEngine {
                            @NotNull String title,
                            @Nullable String selection,
                            @Nullable String[] selectionArgs) {
-        super(context, db, root, title, Schema.PROJECT, selection, selectionArgs);
-
-        myClickListener = clickListener;
+        super(
+                context,
+                db,
+                root,
+                title,
+                Schema.PROJECT,
+                selection,
+                selectionArgs,
+                calculateAdapter(context, clickListener)
+        );
     }
 
     @NotNull
-    @Override
-    protected CursorAdapter calculateAdapter(@NotNull Context context) {
-        return new ProjectAdapter(context, myClickListener);
+    private static CursorAdapter calculateAdapter(@NotNull Context context,
+                                                  @NotNull ProjectClickListener clickListener) {
+        return new ProjectAdapter(context, clickListener);
     }
 }

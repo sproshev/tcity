@@ -31,23 +31,27 @@ import org.jetbrains.annotations.Nullable;
 
 public class BuildDBEngine extends DBEngine {
 
-    @NotNull
-    private final BuildClickListener myClickListener;
-
     public BuildDBEngine(@NotNull Context context,
                          @NotNull DB db,
                          @NotNull ViewGroup root,
                          @NotNull BuildClickListener clickListener,
                          @Nullable String selection,
                          @Nullable String[] selectionArgs) {
-        super(context, db, root, context.getString(R.string.builds), Schema.BUILD, selection, selectionArgs);
-
-        myClickListener = clickListener;
+        super(
+                context,
+                db,
+                root,
+                context.getString(R.string.builds),
+                Schema.BUILD,
+                selection,
+                selectionArgs,
+                calculateAdapter(context, clickListener)
+        );
     }
 
     @NotNull
-    @Override
-    protected CursorAdapter calculateAdapter(@NotNull Context context) {
-        return new BuildAdapter(context, myClickListener);
+    private static CursorAdapter calculateAdapter(@NotNull Context context,
+                                                  @NotNull BuildClickListener clickListener) {
+        return new BuildAdapter(context, clickListener);
     }
 }

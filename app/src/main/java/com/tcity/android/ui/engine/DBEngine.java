@@ -31,7 +31,7 @@ import com.tcity.android.db.Schema;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-abstract class DBEngine {
+class DBEngine {
 
     @NotNull
     private final TextView myHeader;
@@ -48,7 +48,8 @@ abstract class DBEngine {
                     @NotNull String title,
                     @NotNull Schema schema,
                     @Nullable String selection,
-                    @Nullable String[] selectionArgs) {
+                    @Nullable String[] selectionArgs,
+                    @NotNull CursorAdapter adapter) {
         LayoutInflater inflater = LayoutInflater.from(context);
 
         myHeader = (TextView) inflater.inflate(R.layout.separator_item, root, false);
@@ -62,7 +63,7 @@ abstract class DBEngine {
                 null, null, null, null
         );
 
-        myAdapter = calculateAdapter(context);
+        myAdapter = adapter;
         myAdapter.changeCursor(myCursor);
     }
 
@@ -88,7 +89,4 @@ abstract class DBEngine {
     public void close() {
         myAdapter.changeCursor(null);
     }
-
-    @NotNull
-    protected abstract CursorAdapter calculateAdapter(@NotNull Context context);
 }
