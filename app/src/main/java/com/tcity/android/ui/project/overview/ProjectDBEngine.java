@@ -31,7 +31,7 @@ import com.tcity.android.db.Schema;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-class ProjectOverviewDBSubEngine {
+class ProjectDBEngine {
 
     @NotNull
     private final TextView myHeader;
@@ -42,13 +42,13 @@ class ProjectOverviewDBSubEngine {
     @NotNull
     private final CursorAdapter myAdapter;
 
-    ProjectOverviewDBSubEngine(@NotNull Context context,
-                               @NotNull DB db,
-                               @NotNull ViewGroup root,
-                               @NotNull ProjectAdapter.ClickListener clickListener,
-                               @NotNull String title,
-                               @Nullable String selection,
-                               @Nullable String[] selectionArgs) {
+    ProjectDBEngine(@NotNull Context context,
+                    @NotNull DB db,
+                    @NotNull ViewGroup root,
+                    @NotNull ProjectAdapter.ClickListener clickListener,
+                    @NotNull String title,
+                    @Nullable String selection,
+                    @Nullable String[] selectionArgs) {
         LayoutInflater inflater = LayoutInflater.from(context);
 
         myHeader = (TextView) inflater.inflate(R.layout.separator_item, root, false);

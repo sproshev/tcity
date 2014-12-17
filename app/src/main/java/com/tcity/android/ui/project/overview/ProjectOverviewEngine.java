@@ -52,7 +52,7 @@ class ProjectOverviewEngine {
     }
 
     public void imageClick(@NotNull String id) {
-        myDBEngine.imageClick(id);
+        myDBEngine.projectImageClick(id);
         myServerEngine.imageClick(id);
     }
 

@@ -32,6 +32,7 @@ import com.tcity.android.concept.ConceptPackage;
 import com.tcity.android.concept.Status;
 import com.tcity.android.db.DbPackage;
 import com.tcity.android.db.Schema;
+import com.tcity.android.db.SchemaListener;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -45,16 +46,28 @@ class ProjectOverviewDBEngine {
     private final MergeAdapter myMainAdapter;
 
     @NotNull
-    private final ClickListener myClickListener;
+    private final BuildConfigurationClickListener myBuildConfigurationClickListener;
 
     @NotNull
-    private final ProjectOverviewDBSubEngine myWatchedEngine;
+    private final ProjectClickListener myProjectClickListener;
 
     @NotNull
-    private final ProjectOverviewDBSubEngine myAllEngine;
+    private final BuildConfigurationDBEngine myWatchedBuildConfigurationsEngine;
 
     @NotNull
-    private final SchemaListener mySchemaListener;
+    private final BuildConfigurationDBEngine myAllBuildConfigurationsEngine;
+
+    @NotNull
+    private final ProjectDBEngine myWatchedProjectsEngine;
+
+    @NotNull
+    private final ProjectDBEngine myAllProjectsEngine;
+
+    @NotNull
+    private final BuildConfigurationSchemaListener myBuildConfigurationSchemaListener;
+
+    @NotNull
+    private final ProjectSchemaListener myProjectSchemaListener;
 
     ProjectOverviewDBEngine(@NotNull String projectId,
                             @NotNull Context context,
@@ -62,42 +75,73 @@ class ProjectOverviewDBEngine {
                             @NotNull ViewGroup root) {
         myDB = db;
         myMainAdapter = new MergeAdapter();
-        myClickListener = new ClickListener();
+        myProjectClickListener = new ProjectClickListener();
+        myBuildConfigurationClickListener = new BuildConfigurationClickListener();
 
-        String projectSectionName = calculateProjectSectionName(projectId, context);
-
-        myWatchedEngine = new ProjectOverviewDBSubEngine(
+        myWatchedBuildConfigurationsEngine = new BuildConfigurationDBEngine(
                 context,
                 db,
                 root,
-                myClickListener,
+                myBuildConfigurationClickListener,
+                context.getString(R.string.watched) + " " + context.getString(R.string.build_configurations),
+                Schema.PARENT_ID_COLUMN + " = ? AND " + Schema.WATCHED_COLUMN + " = ?",
+                new String[]{projectId, Integer.toString(DbPackage.getDbValue(true))}
+        );
+
+        myAllBuildConfigurationsEngine = new BuildConfigurationDBEngine(
+                context,
+                db,
+                root,
+                myBuildConfigurationClickListener,
+                context.getString(R.string.build_configurations),
+                Schema.PARENT_ID_COLUMN + " = ?",
+                new String[]{projectId}
+        );
+
+        String projectSectionName = calculateProjectSectionName(projectId, context);
+
+        myWatchedProjectsEngine = new ProjectDBEngine(
+                context,
+                db,
+                root,
+                myProjectClickListener,
                 context.getString(R.string.watched) + " " + projectSectionName,
                 Schema.PARENT_ID_COLUMN + " = ? AND " + Schema.WATCHED_COLUMN + " = ?",
                 new String[]{projectId, Integer.toString(DbPackage.getDbValue(true))}
         );
 
-        myAllEngine = new ProjectOverviewDBSubEngine(
+        myAllProjectsEngine = new ProjectDBEngine(
                 context,
                 db,
                 root,
-                myClickListener,
+                myProjectClickListener,
                 projectSectionName,
                 Schema.PARENT_ID_COLUMN + " = ?",
                 new String[]{projectId}
         );
 
-        myMainAdapter.addView(myWatchedEngine.getHeader());
-        myMainAdapter.addAdapter(myWatchedEngine.getAdapter());
+        myMainAdapter.addView(myWatchedBuildConfigurationsEngine.getHeader());
+        myMainAdapter.addAdapter(myWatchedBuildConfigurationsEngine.getAdapter());
 
-        myMainAdapter.addView(myAllEngine.getHeader());
-        myMainAdapter.addAdapter(myAllEngine.getAdapter());
+        myMainAdapter.addView(myWatchedProjectsEngine.getHeader());
+        myMainAdapter.addAdapter(myWatchedProjectsEngine.getAdapter());
 
-        handleHeader(myWatchedEngine);
-        handleHeader(myAllEngine);
+        myMainAdapter.addView(myAllProjectsEngine.getHeader());
+        myMainAdapter.addAdapter(myAllProjectsEngine.getAdapter());
 
-        mySchemaListener = new SchemaListener();
+        myMainAdapter.addView(myAllBuildConfigurationsEngine.getHeader());
+        myMainAdapter.addAdapter(myAllBuildConfigurationsEngine.getAdapter());
 
-        myDB.addListener(Schema.PROJECT, mySchemaListener);
+        handleHeader(myWatchedBuildConfigurationsEngine);
+        handleHeader(myWatchedProjectsEngine);
+        handleHeader(myAllProjectsEngine);
+        handleHeader(myAllBuildConfigurationsEngine);
+
+        myBuildConfigurationSchemaListener = new BuildConfigurationSchemaListener();
+        myProjectSchemaListener = new ProjectSchemaListener();
+
+        myDB.addListener(Schema.PROJECT, myProjectSchemaListener);
+        myDB.addListener(Schema.BUILD_CONFIGURATION, myBuildConfigurationSchemaListener);
     }
 
     @NotNull
@@ -105,10 +149,10 @@ class ProjectOverviewDBEngine {
         return myMainAdapter;
     }
 
-    public void imageClick(@NotNull String id) {
+    public void projectImageClick(@NotNull String id) {
         ContentValues values = new ContentValues();
         values.putAll(DbPackage.getDbValues(Status.DEFAULT));
-        values.putAll(DbPackage.getWatchedDbValues(!isWatched(id)));
+        values.putAll(DbPackage.getWatchedDbValues(!isProjectWatched(id)));
 
         myDB.update(
                 Schema.PROJECT,
@@ -119,14 +163,18 @@ class ProjectOverviewDBEngine {
     }
 
     public void setActivity(@Nullable ProjectOverviewActivity activity) {
-        myClickListener.myActivity = activity;
+        myProjectClickListener.myActivity = activity;
+        myBuildConfigurationClickListener.myActivity = activity;
     }
 
     public void close() {
-        myDB.removeListener(Schema.PROJECT, mySchemaListener);
+        myDB.removeListener(Schema.PROJECT, myProjectSchemaListener);
+        myDB.removeListener(Schema.BUILD_CONFIGURATION, myBuildConfigurationSchemaListener);
 
-        myWatchedEngine.close();
-        myAllEngine.close();
+        myWatchedBuildConfigurationsEngine.close();
+        myWatchedProjectsEngine.close();
+        myAllProjectsEngine.close();
+        myAllBuildConfigurationsEngine.close();
     }
 
     @NotNull
@@ -139,11 +187,15 @@ class ProjectOverviewDBEngine {
         }
     }
 
-    private void handleHeader(@NotNull ProjectOverviewDBSubEngine subEngine) {
-        myMainAdapter.setActive(subEngine.getHeader(), !subEngine.empty());
+    private void handleHeader(@NotNull ProjectDBEngine engine) {
+        myMainAdapter.setActive(engine.getHeader(), !engine.empty());
     }
 
-    private boolean isWatched(@NotNull String id) {
+    private void handleHeader(@NotNull BuildConfigurationDBEngine engine) {
+        myMainAdapter.setActive(engine.getHeader(), !engine.empty());
+    }
+
+    private boolean isProjectWatched(@NotNull String id) {
         Cursor cursor = myDB.query(
                 Schema.PROJECT,
                 new String[]{Schema.WATCHED_COLUMN},
@@ -161,7 +213,28 @@ class ProjectOverviewDBEngine {
         return result;
     }
 
-    private static class ClickListener implements ProjectAdapter.ClickListener {
+    private static class BuildConfigurationClickListener implements BuildConfigurationAdapter.ClickListener {
+
+        @Nullable
+        private ProjectOverviewActivity myActivity;
+
+        @Override
+        public void onImageClick(@NotNull String id) {
+            // TODO
+        }
+
+        @Override
+        public void onNameClick(@NotNull String id) {
+            // TODO
+        }
+
+        @Override
+        public void onOptionsClick(@NotNull String id, @NotNull View anchor) {
+            // TODO
+        }
+    }
+
+    private static class ProjectClickListener implements ProjectAdapter.ClickListener {
 
         @Nullable
         private ProjectOverviewActivity myActivity;
@@ -188,7 +261,7 @@ class ProjectOverviewDBEngine {
         }
     }
 
-    private class SchemaListener implements com.tcity.android.db.SchemaListener {
+    private class BuildConfigurationSchemaListener implements SchemaListener {
 
         @NotNull
         private final Handler myHandler = new Handler() {
@@ -196,11 +269,35 @@ class ProjectOverviewDBEngine {
             public void handleMessage(@NotNull Message msg) {
                 super.handleMessage(msg);
 
-                myWatchedEngine.requery();
-                myAllEngine.requery();
+                myWatchedBuildConfigurationsEngine.requery();
+                myAllBuildConfigurationsEngine.requery();
 
-                handleHeader(myWatchedEngine);
-                handleHeader(myAllEngine);
+                handleHeader(myWatchedBuildConfigurationsEngine);
+                handleHeader(myAllBuildConfigurationsEngine);
+
+                myMainAdapter.notifyDataSetChanged();
+            }
+        };
+
+        @Override
+        public void onChanged() {
+            myHandler.sendEmptyMessage(0);
+        }
+    }
+
+    private class ProjectSchemaListener implements SchemaListener {
+
+        @NotNull
+        private final Handler myHandler = new Handler() {
+            @Override
+            public void handleMessage(@NotNull Message msg) {
+                super.handleMessage(msg);
+
+                myWatchedProjectsEngine.requery();
+                myAllProjectsEngine.requery();
+
+                handleHeader(myWatchedProjectsEngine);
+                handleHeader(myAllProjectsEngine);
 
                 myMainAdapter.notifyDataSetChanged();
             }
