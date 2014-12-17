@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.tcity.android.ui.project.overview;
+package com.tcity.android.ui.engine;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -27,11 +27,12 @@ import android.widget.TextView;
 import com.tcity.android.R;
 import com.tcity.android.app.DB;
 import com.tcity.android.db.Schema;
+import com.tcity.android.ui.adapter.BuildConfigurationAdapter;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-class BuildConfigurationDBEngine {
+public class BuildConfigurationDBEngine {
 
     @NotNull
     private final TextView myHeader;
@@ -42,13 +43,13 @@ class BuildConfigurationDBEngine {
     @NotNull
     private final CursorAdapter myAdapter;
 
-    BuildConfigurationDBEngine(@NotNull Context context,
-                               @NotNull DB db,
-                               @NotNull ViewGroup root,
-                               @NotNull BuildConfigurationAdapter.ClickListener clickListener,
-                               @NotNull String title,
-                               @Nullable String selection,
-                               @Nullable String[] selectionArgs) {
+    public BuildConfigurationDBEngine(@NotNull Context context,
+                                      @NotNull DB db,
+                                      @NotNull ViewGroup root,
+                                      @NotNull BuildConfigurationAdapter.ClickListener clickListener,
+                                      @NotNull String title,
+                                      @Nullable String selection,
+                                      @Nullable String[] selectionArgs) {
         LayoutInflater inflater = LayoutInflater.from(context);
 
         myHeader = (TextView) inflater.inflate(R.layout.separator_item, root, false);

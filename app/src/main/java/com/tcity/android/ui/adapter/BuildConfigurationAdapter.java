@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.tcity.android.ui.project.overview;
+package com.tcity.android.ui.adapter;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -33,7 +33,7 @@ import com.tcity.android.db.DbPackage;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-class BuildConfigurationAdapter extends CursorAdapter {
+public class BuildConfigurationAdapter extends CursorAdapter {
 
     private static final int WATCHED_IMAGE = android.R.drawable.star_big_on;
     private static final int NOT_WATCHED_IMAGE = android.R.drawable.star_big_off;
@@ -47,7 +47,8 @@ class BuildConfigurationAdapter extends CursorAdapter {
     @NotNull
     private final String myNotWatchedDescription;
 
-    BuildConfigurationAdapter(@NotNull Context context, @NotNull ClickListener clickListener) {
+    public BuildConfigurationAdapter(@NotNull Context context,
+                                     @NotNull ClickListener clickListener) {
         super(context, null, true);
 
         myClickListener = clickListener;
@@ -216,13 +217,13 @@ class BuildConfigurationAdapter extends CursorAdapter {
     private static class ViewHolder {
 
         @NotNull
-        public ImageButton image;
+        public final ImageButton image;
 
         @NotNull
-        public TextView name;
+        public final TextView name;
 
         @NotNull
-        public View options;
+        public final View options;
 
         private ViewHolder(@NotNull ImageButton image,
                            @NotNull TextView name,

@@ -33,6 +33,10 @@ import com.tcity.android.concept.Status;
 import com.tcity.android.db.DbPackage;
 import com.tcity.android.db.Schema;
 import com.tcity.android.db.SchemaListener;
+import com.tcity.android.ui.adapter.BuildConfigurationAdapter;
+import com.tcity.android.ui.adapter.ProjectAdapter;
+import com.tcity.android.ui.engine.BuildConfigurationDBEngine;
+import com.tcity.android.ui.engine.ProjectDBEngine;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
