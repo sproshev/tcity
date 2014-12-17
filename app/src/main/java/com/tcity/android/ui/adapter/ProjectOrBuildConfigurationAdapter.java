@@ -34,28 +34,28 @@ import org.jetbrains.annotations.Nullable;
 
 class ProjectOrBuildConfigurationAdapter extends CursorAdapter {
 
-    private static final int WATCHED_IMAGE = android.R.drawable.star_big_on;
-    private static final int NOT_WATCHED_IMAGE = android.R.drawable.star_big_off;
+    private static final int FAVOURITE_IMAGE = android.R.drawable.star_big_on;
+    private static final int NOT_FAVOURITE_IMAGE = android.R.drawable.star_big_off;
 
     @NotNull
     private final ProjectOrBuildConfigurationClickListener myClickListener;
 
     @NotNull
-    private final String myWatchedDescription;
+    private final String myFavouriteDescription;
 
     @NotNull
-    private final String myNotWatchedDescription;
+    private final String myNotFavouriteDescription;
 
     ProjectOrBuildConfigurationAdapter(@NotNull Context context,
                                        @NotNull ProjectOrBuildConfigurationClickListener clickListener,
-                                       int watchedDescriptionStringId,
-                                       int notWatchedDescriptionStringId) {
+                                       int favouriteDescriptionId,
+                                       int notFavouriteDescriptionId) {
         super(context, null, true);
 
         myClickListener = clickListener;
 
-        myWatchedDescription = context.getString(watchedDescriptionStringId);
-        myNotWatchedDescription = context.getString(notWatchedDescriptionStringId);
+        myFavouriteDescription = context.getString(favouriteDescriptionId);
+        myNotFavouriteDescription = context.getString(notFavouriteDescriptionId);
     }
 
     @NotNull
@@ -87,23 +87,23 @@ class ProjectOrBuildConfigurationAdapter extends CursorAdapter {
         String id = DbPackage.getId(cursor);
         Drawable background = Utils.getBackground(DbPackage.getStatus(cursor), context);
 
-        bindImage(holder.image, id, DbPackage.getWatched(cursor), background);
+        bindImage(holder.image, id, DbPackage.getFavourite(cursor), background);
         bindName(holder.name, id, DbPackage.getName(cursor), background);
         bindOptions(holder.options, id, background);
     }
 
     private void bindImage(@NotNull ImageButton imageView,
                            @NotNull String id,
-                           boolean watched,
+                           boolean favourite,
                            @Nullable Drawable background) {
         imageView.setOnClickListener(new ImageListener(myClickListener, id));
 
-        if (watched) {
-            imageView.setContentDescription(myWatchedDescription);
-            imageView.setImageResource(WATCHED_IMAGE);
+        if (favourite) {
+            imageView.setContentDescription(myFavouriteDescription);
+            imageView.setImageResource(FAVOURITE_IMAGE);
         } else {
-            imageView.setContentDescription(myNotWatchedDescription);
-            imageView.setImageResource(NOT_WATCHED_IMAGE);
+            imageView.setContentDescription(myNotFavouriteDescription);
+            imageView.setImageResource(NOT_FAVOURITE_IMAGE);
         }
 
         //noinspection deprecation

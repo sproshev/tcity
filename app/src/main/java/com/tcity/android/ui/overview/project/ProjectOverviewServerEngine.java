@@ -67,7 +67,7 @@ class ProjectOverviewServerEngine {
     }
 
     public void projectImageClick(@NotNull String id) {
-        if (isProjectWatched(id)) {
+        if (isProjectFavourite(id)) {
             ExecutableRunnableChain statusTask = RunnableChain.getSingleRunnableChain(
                     LoaderPackage.getProjectStatusRunnable(id, myDb, myPreferences)
             ).toAsyncTask(myChainListener);
@@ -78,7 +78,7 @@ class ProjectOverviewServerEngine {
     }
 
     public void buildConfigurationImageClick(@NotNull String id) {
-        if (isBuildConfigurationWatched(id)) {
+        if (isBuildConfigurationFavourite(id)) {
             ExecutableRunnableChain statusTask = RunnableChain.getSingleRunnableChain(
                     LoaderPackage.getBuildConfigurationStatusRunnable(id, myDb, myPreferences)
             ).toAsyncTask(myChainListener);
@@ -130,7 +130,7 @@ class ProjectOverviewServerEngine {
         Cursor cursor = myDb.query(
                 Schema.PROJECT,
                 new String[]{Schema.TC_ID_COLUMN},
-                Schema.PARENT_ID_COLUMN + " = ? AND " + Schema.WATCHED_COLUMN + " = ?",
+                Schema.PARENT_ID_COLUMN + " = ? AND " + Schema.FAVOURITE_COLUMN + " = ?",
                 new String[]{myProjectId, Integer.toString(DbPackage.getDbValue(true))},
                 null, null, null, null
         );
@@ -156,7 +156,7 @@ class ProjectOverviewServerEngine {
         Cursor cursor = myDb.query(
                 Schema.BUILD_CONFIGURATION,
                 new String[]{Schema.TC_ID_COLUMN},
-                Schema.PARENT_ID_COLUMN + " = ? AND " + Schema.WATCHED_COLUMN + " = ?",
+                Schema.PARENT_ID_COLUMN + " = ? AND " + Schema.FAVOURITE_COLUMN + " = ?",
                 new String[]{myProjectId, Integer.toString(DbPackage.getDbValue(true))},
                 null, null, null, null
         );
@@ -177,10 +177,10 @@ class ProjectOverviewServerEngine {
         return RunnableChain.getOrRunnableChain(runnables);
     }
 
-    private boolean isProjectWatched(@NotNull String id) {
+    private boolean isProjectFavourite(@NotNull String id) {
         Cursor cursor = myDb.query(
                 Schema.PROJECT,
-                new String[]{Schema.WATCHED_COLUMN},
+                new String[]{Schema.FAVOURITE_COLUMN},
                 Schema.TC_ID_COLUMN + " = ?",
                 new String[]{id},
                 null, null, null, null
@@ -188,17 +188,17 @@ class ProjectOverviewServerEngine {
 
         cursor.moveToNext();
 
-        boolean result = DbPackage.getWatched(cursor);
+        boolean result = DbPackage.getFavourite(cursor);
 
         cursor.close();
 
         return result;
     }
 
-    private boolean isBuildConfigurationWatched(@NotNull String id) {
+    private boolean isBuildConfigurationFavourite(@NotNull String id) {
         Cursor cursor = myDb.query(
                 Schema.BUILD_CONFIGURATION,
-                new String[]{Schema.WATCHED_COLUMN},
+                new String[]{Schema.FAVOURITE_COLUMN},
                 Schema.TC_ID_COLUMN + " = ?",
                 new String[]{id},
                 null, null, null, null
@@ -206,7 +206,7 @@ class ProjectOverviewServerEngine {
 
         cursor.moveToNext();
 
-        boolean result = DbPackage.getWatched(cursor);
+        boolean result = DbPackage.getFavourite(cursor);
 
         cursor.close();
 

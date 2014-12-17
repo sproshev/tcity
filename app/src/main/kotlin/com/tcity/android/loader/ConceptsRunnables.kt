@@ -42,8 +42,8 @@ import com.tcity.android.db.getId
 import com.tcity.android.db.getStatus
 import com.tcity.android.db.calculateSelection
 import com.tcity.android.db.calculateSelectionArgs
-import com.tcity.android.db.watchedDbValues
-import com.tcity.android.db.watchedDbValue
+import com.tcity.android.db.favouriteDbValues
+import com.tcity.android.db.favouriteDbValue
 
 public fun getProjectsRunnable(
         db: DB,
@@ -113,18 +113,18 @@ private class ConceptsRunnable<T : Concept>(
 
     throws(javaClass<SQLiteException>())
     private fun saveConcepts(concepts: Collection<T>) {
-        val watchedIdToStatus = loadWatchedIdToStatus()
+        val favouriteIdToStatus = loadFavouriteIdToStatus()
         val result = ArrayList<ContentValues>()
 
         concepts.forEach {
             if (!ignoredConceptIds.contains(it.id)) {
                 val values = it.dbValues
 
-                if (watchedIdToStatus.contains(it.id)) {
-                    values.putAll(true.watchedDbValues)
+                if (favouriteIdToStatus.contains(it.id)) {
+                    values.putAll(true.favouriteDbValues)
 
                     if (it.status == Status.DEFAULT) {
-                        values.putAll(watchedIdToStatus.get(it.id)!!.dbValues)
+                        values.putAll(favouriteIdToStatus.get(it.id)!!.dbValues)
                     }
                 }
 
@@ -136,14 +136,14 @@ private class ConceptsRunnable<T : Concept>(
     }
 
     throws(javaClass<SQLiteException>())
-    private fun loadWatchedIdToStatus(): Map<String, Status> {
+    private fun loadFavouriteIdToStatus(): Map<String, Status> {
         val result = HashMap<String, Status>()
 
         val cursor = db.query(
                 schema,
                 array(Schema.TC_ID_COLUMN, Schema.STATUS_COLUMN),
-                calculateSelection(parentId, Schema.PARENT_ID_COLUMN, Schema.WATCHED_COLUMN),
-                calculateSelectionArgs(parentId, true.watchedDbValue.toString())
+                calculateSelection(parentId, Schema.PARENT_ID_COLUMN, Schema.FAVOURITE_COLUMN),
+                calculateSelectionArgs(parentId, true.favouriteDbValue.toString())
         )
 
         while (cursor.moveToNext()) {

@@ -26,6 +26,11 @@ public class ProjectAdapter extends ProjectOrBuildConfigurationAdapter {
 
     public ProjectAdapter(@NotNull Context context,
                           @NotNull ProjectClickListener clickListener) {
-        super(context, clickListener, R.string.project_is_watched, R.string.project_is_not_watched);
+        super(
+                context,
+                clickListener,
+                R.string.project_was_marked_as_favourite,
+                R.string.project_was_not_marked_as_favourite
+        );
     }
 }

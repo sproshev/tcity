@@ -23,13 +23,13 @@ public enum class Schema {
         public val NAME_COLUMN: String = "name"
         public val PARENT_ID_COLUMN: String = "parent_id"
         public val STATUS_COLUMN: String = "status"
-        public val WATCHED_COLUMN: String = "watched"
+        public val FAVOURITE_COLUMN: String = "favourite"
 
         private val TC_ID_COLUMN_DESC = TC_ID_COLUMN.to("TEXT NOT NULL UNIQUE")
         private val NAME_COLUMN_DESC = NAME_COLUMN.to("TEXT NOT NULL")
         private val PARENT_ID_COLUMN_DESC = PARENT_ID_COLUMN.to("TEXT NOT NULL")
         private val STATUS_COLUMN_DESC = STATUS_COLUMN.to("TEXT NOT NULL")
-        private val WATCHED_COLUMN_DESC = WATCHED_COLUMN.to("INTEGER NOT NULL")
+        private val FAVOURITE_COLUMN_DESC = FAVOURITE_COLUMN.to("INTEGER NOT NULL")
     }
 
     BUILD {
@@ -40,7 +40,7 @@ public enum class Schema {
                 NAME_COLUMN_DESC,
                 PARENT_ID_COLUMN_DESC,
                 STATUS_COLUMN_DESC,
-                WATCHED_COLUMN_DESC
+                FAVOURITE_COLUMN_DESC
         )
     }
 
@@ -52,7 +52,7 @@ public enum class Schema {
                 NAME_COLUMN_DESC,
                 PARENT_ID_COLUMN_DESC,
                 STATUS_COLUMN_DESC,
-                WATCHED_COLUMN_DESC
+                FAVOURITE_COLUMN_DESC
         )
     }
 
@@ -64,7 +64,7 @@ public enum class Schema {
                 NAME_COLUMN_DESC,
                 PARENT_ID_COLUMN_DESC,
                 STATUS_COLUMN_DESC,
-                WATCHED_COLUMN_DESC
+                FAVOURITE_COLUMN_DESC
         )
     }
 

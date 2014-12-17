@@ -29,7 +29,7 @@ public val Concept.dbValues: ContentValues
         result.put(Schema.NAME_COLUMN, name)
         result.put(Schema.PARENT_ID_COLUMN, parentId)
         result.put(Schema.STATUS_COLUMN, status.dbValue)
-        result.put(Schema.WATCHED_COLUMN, watched.dbValue)
+        result.put(Schema.FAVOURITE_COLUMN, favourite.dbValue)
 
         return result
     }
@@ -43,10 +43,10 @@ public val Status.dbValues: ContentValues
         return result
     }
 
-public val Boolean.watchedDbValues: ContentValues
-    get() = dbValues(Schema.WATCHED_COLUMN)
+public val Boolean.favouriteDbValues: ContentValues
+    get() = dbValues(Schema.FAVOURITE_COLUMN)
 
-public val Boolean.watchedDbValue: Int
+public val Boolean.favouriteDbValue: Int
     get() = dbValue
 
 public fun getStatus(cursor: Cursor): Status {
@@ -57,7 +57,7 @@ public fun getStatus(cursor: Cursor): Status {
     )
 }
 
-public fun getWatched(cursor: Cursor): Boolean = getBoolean(cursor, Schema.WATCHED_COLUMN)
+public fun getFavourite(cursor: Cursor): Boolean = getBoolean(cursor, Schema.FAVOURITE_COLUMN)
 
 public fun getId(cursor: Cursor): String {
     return cursor.getString(

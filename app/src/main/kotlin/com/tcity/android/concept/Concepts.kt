@@ -30,7 +30,7 @@ public abstract class Concept(
         public val name: String,
         public val parentId: String,
         public val status: Status,
-        public val watched: Boolean
+        public val favourite: Boolean
 )
 
 public class Project(
@@ -38,21 +38,21 @@ public class Project(
         name: String,
         parentId: String,
         status: Status = Status.DEFAULT,
-        watched: Boolean = false
-) : Concept(id, name, parentId, status, watched)
+        favourite: Boolean = false
+) : Concept(id, name, parentId, status, favourite)
 
 public class BuildConfiguration(
         id: String,
         name: String,
         parentId: String,
         status: Status = Status.DEFAULT,
-        watched: Boolean = false
-) : Concept(id, name, parentId, status, watched)
+        favourite: Boolean = false
+) : Concept(id, name, parentId, status, favourite)
 
 public class Build(
         id: String,
         name: String,
         parentId: String,
         status: Status,
-        watched: Boolean = false
-) : Concept(id, name, parentId, status, watched)
+        favourite: Boolean = false
+) : Concept(id, name, parentId, status, favourite)

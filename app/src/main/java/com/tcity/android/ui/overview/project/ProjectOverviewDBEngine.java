@@ -56,13 +56,13 @@ class ProjectOverviewDBEngine {
     private final MyProjectClickListener myProjectClickListener;
 
     @NotNull
-    private final BuildConfigurationDBEngine myWatchedBuildConfigurationsEngine;
+    private final BuildConfigurationDBEngine myFavouriteBuildConfigurationsEngine;
 
     @NotNull
     private final BuildConfigurationDBEngine myAllBuildConfigurationsEngine;
 
     @NotNull
-    private final ProjectDBEngine myWatchedProjectsEngine;
+    private final ProjectDBEngine myFavouriteProjectsEngine;
 
     @NotNull
     private final ProjectDBEngine myAllProjectsEngine;
@@ -82,13 +82,13 @@ class ProjectOverviewDBEngine {
         myProjectClickListener = new MyProjectClickListener();
         myBuildConfigurationClickListener = new MyBuildConfigurationClickListener();
 
-        myWatchedBuildConfigurationsEngine = new BuildConfigurationDBEngine(
+        myFavouriteBuildConfigurationsEngine = new BuildConfigurationDBEngine(
                 context,
                 db,
                 root,
                 myBuildConfigurationClickListener,
-                context.getString(R.string.watched) + " " + context.getString(R.string.build_configurations),
-                Schema.PARENT_ID_COLUMN + " = ? AND " + Schema.WATCHED_COLUMN + " = ?",
+                context.getString(R.string.favourite) + " " + context.getString(R.string.build_configurations),
+                Schema.PARENT_ID_COLUMN + " = ? AND " + Schema.FAVOURITE_COLUMN + " = ?",
                 new String[]{projectId, Integer.toString(DbPackage.getDbValue(true))}
         );
 
@@ -104,13 +104,13 @@ class ProjectOverviewDBEngine {
 
         String projectSectionName = calculateProjectSectionName(projectId, context);
 
-        myWatchedProjectsEngine = new ProjectDBEngine(
+        myFavouriteProjectsEngine = new ProjectDBEngine(
                 context,
                 db,
                 root,
                 myProjectClickListener,
-                context.getString(R.string.watched) + " " + projectSectionName,
-                Schema.PARENT_ID_COLUMN + " = ? AND " + Schema.WATCHED_COLUMN + " = ?",
+                context.getString(R.string.favourite) + " " + projectSectionName,
+                Schema.PARENT_ID_COLUMN + " = ? AND " + Schema.FAVOURITE_COLUMN + " = ?",
                 new String[]{projectId, Integer.toString(DbPackage.getDbValue(true))}
         );
 
@@ -124,11 +124,11 @@ class ProjectOverviewDBEngine {
                 new String[]{projectId}
         );
 
-        myMainAdapter.addView(myWatchedBuildConfigurationsEngine.getHeader());
-        myMainAdapter.addAdapter(myWatchedBuildConfigurationsEngine.getAdapter());
+        myMainAdapter.addView(myFavouriteBuildConfigurationsEngine.getHeader());
+        myMainAdapter.addAdapter(myFavouriteBuildConfigurationsEngine.getAdapter());
 
-        myMainAdapter.addView(myWatchedProjectsEngine.getHeader());
-        myMainAdapter.addAdapter(myWatchedProjectsEngine.getAdapter());
+        myMainAdapter.addView(myFavouriteProjectsEngine.getHeader());
+        myMainAdapter.addAdapter(myFavouriteProjectsEngine.getAdapter());
 
         myMainAdapter.addView(myAllProjectsEngine.getHeader());
         myMainAdapter.addAdapter(myAllProjectsEngine.getAdapter());
@@ -136,8 +136,8 @@ class ProjectOverviewDBEngine {
         myMainAdapter.addView(myAllBuildConfigurationsEngine.getHeader());
         myMainAdapter.addAdapter(myAllBuildConfigurationsEngine.getAdapter());
 
-        handleHeader(myWatchedBuildConfigurationsEngine);
-        handleHeader(myWatchedProjectsEngine);
+        handleHeader(myFavouriteBuildConfigurationsEngine);
+        handleHeader(myFavouriteProjectsEngine);
         handleHeader(myAllProjectsEngine);
         handleHeader(myAllBuildConfigurationsEngine);
 
@@ -161,7 +161,7 @@ class ProjectOverviewDBEngine {
     public void projectImageClick(@NotNull String id) {
         ContentValues values = new ContentValues();
         values.putAll(DbPackage.getDbValues(Status.DEFAULT));
-        values.putAll(DbPackage.getWatchedDbValues(!isProjectWatched(id)));
+        values.putAll(DbPackage.getFavouriteDbValues(!isProjectFavourite(id)));
 
         myDB.update(
                 Schema.PROJECT,
@@ -174,7 +174,7 @@ class ProjectOverviewDBEngine {
     public void buildConfigurationImageClick(@NotNull String id) {
         ContentValues values = new ContentValues();
         values.putAll(DbPackage.getDbValues(Status.DEFAULT));
-        values.putAll(DbPackage.getWatchedDbValues(!isBuildConfigurationWatched(id)));
+        values.putAll(DbPackage.getFavouriteDbValues(!isBuildConfigurationFavourite(id)));
 
         myDB.update(
                 Schema.BUILD_CONFIGURATION,
@@ -188,8 +188,8 @@ class ProjectOverviewDBEngine {
         myDB.removeListener(Schema.PROJECT, myProjectSchemaListener);
         myDB.removeListener(Schema.BUILD_CONFIGURATION, myBuildConfigurationSchemaListener);
 
-        myWatchedBuildConfigurationsEngine.close();
-        myWatchedProjectsEngine.close();
+        myFavouriteBuildConfigurationsEngine.close();
+        myFavouriteProjectsEngine.close();
         myAllProjectsEngine.close();
         myAllBuildConfigurationsEngine.close();
     }
@@ -212,10 +212,10 @@ class ProjectOverviewDBEngine {
         myMainAdapter.setActive(engine.getHeader(), !engine.empty());
     }
 
-    private boolean isProjectWatched(@NotNull String id) {
+    private boolean isProjectFavourite(@NotNull String id) {
         Cursor cursor = myDB.query(
                 Schema.PROJECT,
-                new String[]{Schema.WATCHED_COLUMN},
+                new String[]{Schema.FAVOURITE_COLUMN},
                 Schema.TC_ID_COLUMN + " = ?",
                 new String[]{id},
                 null, null, null, null
@@ -223,17 +223,17 @@ class ProjectOverviewDBEngine {
 
         cursor.moveToNext();
 
-        boolean result = DbPackage.getWatched(cursor);
+        boolean result = DbPackage.getFavourite(cursor);
 
         cursor.close();
 
         return result;
     }
 
-    private boolean isBuildConfigurationWatched(@NotNull String id) {
+    private boolean isBuildConfigurationFavourite(@NotNull String id) {
         Cursor cursor = myDB.query(
                 Schema.BUILD_CONFIGURATION,
-                new String[]{Schema.WATCHED_COLUMN},
+                new String[]{Schema.FAVOURITE_COLUMN},
                 Schema.TC_ID_COLUMN + " = ?",
                 new String[]{id},
                 null, null, null, null
@@ -241,7 +241,7 @@ class ProjectOverviewDBEngine {
 
         cursor.moveToNext();
 
-        boolean result = DbPackage.getWatched(cursor);
+        boolean result = DbPackage.getFavourite(cursor);
 
         cursor.close();
 
@@ -310,10 +310,10 @@ class ProjectOverviewDBEngine {
             public void handleMessage(@NotNull Message msg) {
                 super.handleMessage(msg);
 
-                myWatchedBuildConfigurationsEngine.requery();
+                myFavouriteBuildConfigurationsEngine.requery();
                 myAllBuildConfigurationsEngine.requery();
 
-                handleHeader(myWatchedBuildConfigurationsEngine);
+                handleHeader(myFavouriteBuildConfigurationsEngine);
                 handleHeader(myAllBuildConfigurationsEngine);
 
                 myMainAdapter.notifyDataSetChanged();
@@ -334,10 +334,10 @@ class ProjectOverviewDBEngine {
             public void handleMessage(@NotNull Message msg) {
                 super.handleMessage(msg);
 
-                myWatchedProjectsEngine.requery();
+                myFavouriteProjectsEngine.requery();
                 myAllProjectsEngine.requery();
 
-                handleHeader(myWatchedProjectsEngine);
+                handleHeader(myFavouriteProjectsEngine);
                 handleHeader(myAllProjectsEngine);
 
                 myMainAdapter.notifyDataSetChanged();
