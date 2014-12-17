@@ -51,8 +51,8 @@ public class BuildAdapter extends CursorAdapter {
 
         result.setTag(
                 new ViewHolder(
-                        (TextView) result.findViewById(R.id.name),
-                        result.findViewById(R.id.options)
+                        (TextView) result.findViewById(R.id.build_name),
+                        result.findViewById(R.id.build_options)
                 )
         );
 

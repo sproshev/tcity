@@ -52,7 +52,7 @@ class DBEngine {
              @NotNull CursorAdapter adapter) {
         LayoutInflater inflater = LayoutInflater.from(context);
 
-        myHeader = (TextView) inflater.inflate(R.layout.separator_item, root, false);
+        myHeader = (TextView) inflater.inflate(R.layout.overview_separator, root, false);
         myHeader.setText(title);
 
         myCursor = db.query(

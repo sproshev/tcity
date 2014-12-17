@@ -71,7 +71,7 @@ public class ProjectOverviewActivity extends ListActivity implements SwipeRefres
         }
 
         myLayout = (SwipeRefreshLayout) findViewById(R.id.overview);
-        myLayout.setColorSchemeResources(R.color.green_status, R.color.red_status);
+        myLayout.setColorSchemeResources(R.color.green, R.color.red);
         myLayout.setOnRefreshListener(this);
 
         myEngine = calculateEngine();

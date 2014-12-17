@@ -16,12 +16,12 @@
   -->
 
 <TextView
-    android:id="@+id/text"
+    android:id="@+id/overview_separator_text"
 
     xmlns:android="http://schemas.android.com/apk/res/android"
 
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
 
-    android:background="@color/separator_item_background"
+    android:background="@color/overview_separator_background"
     android:padding="8dp"/>

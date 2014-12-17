@@ -45,9 +45,9 @@ class Utils {
     private static Drawable loadBackground(@NotNull Status status, @NotNull Context context) {
         switch (status) {
             case SUCCESS:
-                return context.getResources().getDrawable(R.color.green_status);
+                return context.getResources().getDrawable(R.color.green);
             case FAILURE:
-                return context.getResources().getDrawable(R.color.red_status);
+                return context.getResources().getDrawable(R.color.red);
             default:
                 return null;
         }
