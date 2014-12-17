@@ -17,14 +17,9 @@
 package com.tcity.android.ui.engine;
 
 import android.content.Context;
-import android.database.Cursor;
-import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import android.widget.CursorAdapter;
-import android.widget.ListAdapter;
-import android.widget.TextView;
 
-import com.tcity.android.R;
 import com.tcity.android.app.DB;
 import com.tcity.android.db.Schema;
 import com.tcity.android.ui.adapter.ProjectAdapter;
@@ -33,16 +28,10 @@ import com.tcity.android.ui.adapter.ProjectClickListener;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class ProjectDBEngine {
+public class ProjectDBEngine extends ProjectOrBuildConfigurationDBEngine {
 
     @NotNull
-    private final TextView myHeader;
-
-    @NotNull
-    private final Cursor myCursor;
-
-    @NotNull
-    private final CursorAdapter myAdapter;
+    private final ProjectClickListener myClickListener;
 
     public ProjectDBEngine(@NotNull Context context,
                            @NotNull DB db,
@@ -51,43 +40,14 @@ public class ProjectDBEngine {
                            @NotNull String title,
                            @Nullable String selection,
                            @Nullable String[] selectionArgs) {
-        LayoutInflater inflater = LayoutInflater.from(context);
+        super(context, db, root, title, Schema.PROJECT, selection, selectionArgs);
 
-        myHeader = (TextView) inflater.inflate(R.layout.separator_item, root, false);
-        myHeader.setText(title);
-
-        myCursor = db.query(
-                Schema.PROJECT,
-                null,
-                selection,
-                selectionArgs,
-                null, null, null, null
-        );
-
-        myAdapter = new ProjectAdapter(context, clickListener);
-        myAdapter.changeCursor(myCursor);
+        myClickListener = clickListener;
     }
 
     @NotNull
-    public TextView getHeader() {
-        return myHeader;
-    }
-
-    @NotNull
-    public ListAdapter getAdapter() {
-        return myAdapter;
-    }
-
-    public boolean empty() {
-        return myCursor.getCount() == 0;
-    }
-
-    public void requery() {
-        //noinspection deprecation
-        myCursor.requery();
-    }
-
-    public void close() {
-        myAdapter.changeCursor(null);
+    @Override
+    protected CursorAdapter calculateAdapter(@NotNull Context context) {
+        return new ProjectAdapter(context, myClickListener);
     }
 }
