@@ -18,17 +18,23 @@ package com.tcity.android.ui.overview.buildconfiguration;
 
 import android.app.ActionBar;
 import android.app.ListActivity;
+import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 
 import com.tcity.android.R;
 import com.tcity.android.app.Application;
 import com.tcity.android.app.DB;
+import com.tcity.android.app.Preferences;
 import com.tcity.android.db.DbPackage;
 import com.tcity.android.db.Schema;
+import com.tcity.android.rest.RestPackage;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -115,6 +121,24 @@ public class BuildConfigurationOverviewActivity extends ListActivity implements 
         }
     }
 
+    void nameClick(@NotNull String id) {
+        // TODO
+    }
+
+    void optionsClick(@NotNull String id, @NotNull View anchor) {
+        PopupMenu menu = new PopupMenu(this, anchor);
+
+        menu.inflate(R.menu.menu_concept);
+
+        menu.setOnMenuItemClickListener(
+                new PopupMenuListener(
+                        RestPackage.getBuildWebUrl(id, new Preferences(this))
+                )
+        );
+
+        menu.show();
+    }
+
     @NotNull
     private String calculateTitle() {
         DB db = ((Application) getApplication()).getDB();
@@ -151,5 +175,39 @@ public class BuildConfigurationOverviewActivity extends ListActivity implements 
         }
 
         return result;
+    }
+
+    private class PopupMenuListener implements PopupMenu.OnMenuItemClickListener {
+
+        @NotNull
+        private final String myUrl;
+
+        private PopupMenuListener(@NotNull String url) {
+            myUrl = url;
+        }
+
+        @Override
+        public boolean onMenuItemClick(@NotNull MenuItem item) {
+            switch (item.getItemId()) {
+                case R.id.menu_share:
+                    onShareClick();
+
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
+        private void onShareClick() {
+            Intent intent = new Intent(Intent.ACTION_SEND);
+
+            intent.setType("text/plain");
+            intent.putExtra(
+                    Intent.EXTRA_TEXT,
+                    myUrl
+            );
+
+            startActivity(Intent.createChooser(intent, getResources().getString(R.string.share)));
+        }
     }
 }

@@ -103,12 +103,16 @@ class BuildConfigurationOverviewDBEngine {
 
         @Override
         public void onNameClick(@NotNull String id) {
-            // TODO
+            if (myActivity != null) {
+                myActivity.nameClick(id);
+            }
         }
 
         @Override
         public void onOptionsClick(@NotNull String id, @NotNull View anchor) {
-            // TODO
+            if (myActivity != null) {
+                myActivity.optionsClick(id, anchor);
+            }
         }
     }
 
