@@ -21,6 +21,7 @@ public val ROOT_PROJECT_ID: String = "_Root"
 public enum class Status {
     FAILURE
     SUCCESS
+    UNKNOWN
     DEFAULT
 }
 

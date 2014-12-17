@@ -42,14 +42,14 @@ class DBEngine {
     @NotNull
     private final CursorAdapter myAdapter;
 
-    public DBEngine(@NotNull Context context,
-                    @NotNull DB db,
-                    @NotNull ViewGroup root,
-                    @NotNull String title,
-                    @NotNull Schema schema,
-                    @Nullable String selection,
-                    @Nullable String[] selectionArgs,
-                    @NotNull CursorAdapter adapter) {
+    DBEngine(@NotNull Context context,
+             @NotNull DB db,
+             @NotNull ViewGroup root,
+             @NotNull String title,
+             @NotNull Schema schema,
+             @Nullable String selection,
+             @Nullable String[] selectionArgs,
+             @NotNull CursorAdapter adapter) {
         LayoutInflater inflater = LayoutInflater.from(context);
 
         myHeader = (TextView) inflater.inflate(R.layout.separator_item, root, false);
