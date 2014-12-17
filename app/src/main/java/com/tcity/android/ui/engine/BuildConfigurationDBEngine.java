@@ -28,7 +28,7 @@ import com.tcity.android.ui.adapter.BuildConfigurationClickListener;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class BuildConfigurationDBEngine extends ProjectOrBuildConfigurationDBEngine {
+public class BuildConfigurationDBEngine extends DBEngine {
 
     @NotNull
     private final BuildConfigurationClickListener myClickListener;

@@ -20,27 +20,27 @@ import android.content.Context;
 import android.view.ViewGroup;
 import android.widget.CursorAdapter;
 
+import com.tcity.android.R;
 import com.tcity.android.app.DB;
 import com.tcity.android.db.Schema;
-import com.tcity.android.ui.adapter.ProjectAdapter;
-import com.tcity.android.ui.adapter.ProjectClickListener;
+import com.tcity.android.ui.adapter.BuildAdapter;
+import com.tcity.android.ui.adapter.BuildClickListener;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class ProjectDBEngine extends DBEngine {
+public class BuildDBEngine extends DBEngine {
 
     @NotNull
-    private final ProjectClickListener myClickListener;
+    private final BuildClickListener myClickListener;
 
-    public ProjectDBEngine(@NotNull Context context,
-                           @NotNull DB db,
-                           @NotNull ViewGroup root,
-                           @NotNull ProjectClickListener clickListener,
-                           @NotNull String title,
-                           @Nullable String selection,
-                           @Nullable String[] selectionArgs) {
-        super(context, db, root, title, Schema.PROJECT, selection, selectionArgs);
+    public BuildDBEngine(@NotNull Context context,
+                         @NotNull DB db,
+                         @NotNull ViewGroup root,
+                         @NotNull BuildClickListener clickListener,
+                         @Nullable String selection,
+                         @Nullable String[] selectionArgs) {
+        super(context, db, root, context.getString(R.string.builds), Schema.BUILD, selection, selectionArgs);
 
         myClickListener = clickListener;
     }
@@ -48,6 +48,6 @@ public class ProjectDBEngine extends DBEngine {
     @NotNull
     @Override
     protected CursorAdapter calculateAdapter(@NotNull Context context) {
-        return new ProjectAdapter(context, myClickListener);
+        return new BuildAdapter(context, myClickListener);
     }
 }
