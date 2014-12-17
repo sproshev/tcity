@@ -26,7 +26,6 @@ import android.widget.CursorAdapter;
 import android.widget.TextView;
 
 import com.tcity.android.R;
-import com.tcity.android.concept.Status;
 import com.tcity.android.db.DbPackage;
 
 import org.jetbrains.annotations.NotNull;
@@ -65,7 +64,7 @@ public class BuildAdapter extends CursorAdapter {
         ViewHolder holder = (ViewHolder) view.getTag();
 
         String id = DbPackage.getId(cursor);
-        Drawable background = calculateBackground(DbPackage.getStatus(cursor), context);
+        Drawable background = Utils.getBackground(DbPackage.getStatus(cursor), context);
 
         bindName(holder.name, id, DbPackage.getName(cursor), background);
         bindOptions(holder.options, id, background);
@@ -89,29 +88,6 @@ public class BuildAdapter extends CursorAdapter {
 
         //noinspection deprecation
         optionsView.setBackgroundDrawable(background);
-    }
-
-    @Nullable
-    private Drawable calculateBackground(@NotNull Status status, @NotNull Context context) {
-        Drawable background = loadBackground(status, context);
-
-        if (background != null) {
-            background.setAlpha(40);
-        }
-
-        return background;
-    }
-
-    @Nullable
-    private Drawable loadBackground(@NotNull Status status, @NotNull Context context) {
-        switch (status) {
-            case SUCCESS:
-                return context.getResources().getDrawable(R.color.green_status);
-            case FAILURE:
-                return context.getResources().getDrawable(R.color.red_status);
-            default:
-                return null;
-        }
     }
 
     private static class NameListener implements View.OnClickListener {
