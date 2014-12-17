@@ -16,7 +16,11 @@
 
 package com.tcity.android.ui.overview.buildconfiguration;
 
+import android.content.Context;
+import android.view.ViewGroup;
 import android.widget.ListAdapter;
+
+import com.tcity.android.app.DB;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -29,8 +33,11 @@ class BuildConfigurationOverviewEngine {
     @NotNull
     private final BuildConfigurationOverviewServerEngine myServerEngine;
 
-    BuildConfigurationOverviewEngine() {
-        myDBEngine = new BuildConfigurationOverviewDBEngine();
+    BuildConfigurationOverviewEngine(@NotNull String buildConfigurationId,
+                                     @NotNull Context context,
+                                     @NotNull DB db,
+                                     @NotNull ViewGroup root) {
+        myDBEngine = new BuildConfigurationOverviewDBEngine(buildConfigurationId, context, db, root);
         myServerEngine = new BuildConfigurationOverviewServerEngine();
     }
 

@@ -142,7 +142,12 @@ public class BuildConfigurationOverviewActivity extends ListActivity implements 
         BuildConfigurationOverviewEngine result = (BuildConfigurationOverviewEngine) getLastNonConfigurationInstance();
 
         if (result == null) {
-            result = new BuildConfigurationOverviewEngine();
+            result = new BuildConfigurationOverviewEngine(
+                    myBuildConfigurationId,
+                    this,
+                    ((Application) getApplication()).getDB(),
+                    getListView()
+            );
         }
 
         return result;
