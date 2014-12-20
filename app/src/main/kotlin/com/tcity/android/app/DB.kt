@@ -23,15 +23,13 @@ import android.database.Cursor
 import android.database.sqlite.SQLiteException
 import java.util.HashMap
 import java.util.LinkedList
-import com.tcity.android.db.SchemaListener
-import com.tcity.android.db.calculateSelection
-import com.tcity.android.db.calculateSelectionArgs
+import com.tcity.android.db.SelectionUtils
 
 public class DB protected (context: Context) {
 
     private val dbHelper = DBHelper(context)
 
-    private val listeners: MutableMap<Schema, MutableList<SchemaListener>>
+    private val listeners: MutableMap<Schema, MutableList<Schema.Listener>>
 
     {
         listeners = HashMap()
@@ -42,12 +40,12 @@ public class DB protected (context: Context) {
     }
 
     synchronized
-    public fun addListener(schema: Schema, listener: SchemaListener) {
+    public fun addListener(schema: Schema, listener: Schema.Listener) {
         listeners.get(schema)!!.add(listener)
     }
 
     synchronized
-    public fun removeListener(schema: Schema, listener: SchemaListener) {
+    public fun removeListener(schema: Schema, listener: Schema.Listener) {
         listeners.get(schema)!!.remove(listener)
     }
 
@@ -109,8 +107,8 @@ public class DB protected (context: Context) {
         try {
             db.delete(
                     schema.tableName,
-                    calculateSelection(parentId, Schema.PARENT_ID_COLUMN),
-                    calculateSelectionArgs(parentId)
+                    SelectionUtils.getSelection(parentId, Schema.PARENT_ID_COLUMN),
+                    SelectionUtils.getSelectionArgs(parentId)
             )
 
             values.forEach {

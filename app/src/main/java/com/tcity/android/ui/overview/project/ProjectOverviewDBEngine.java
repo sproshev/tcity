@@ -33,7 +33,6 @@ import com.tcity.android.concept.Status;
 import com.tcity.android.db.CVUtils;
 import com.tcity.android.db.DBUtils;
 import com.tcity.android.db.Schema;
-import com.tcity.android.db.SchemaListener;
 import com.tcity.android.ui.adapter.BuildConfigurationClickListener;
 import com.tcity.android.ui.adapter.ProjectClickListener;
 import com.tcity.android.ui.engine.BuildConfigurationDBEngine;
@@ -319,7 +318,7 @@ class ProjectOverviewDBEngine {
         }
     }
 
-    private class BuildConfigurationSchemaListener implements SchemaListener {
+    private class BuildConfigurationSchemaListener implements Schema.Listener {
 
         @NotNull
         private final Handler myHandler = new Handler() {
@@ -343,7 +342,7 @@ class ProjectOverviewDBEngine {
         }
     }
 
-    private class ProjectSchemaListener implements SchemaListener {
+    private class ProjectSchemaListener implements Schema.Listener {
 
         @NotNull
         private final Handler myHandler = new Handler() {

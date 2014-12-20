@@ -26,7 +26,6 @@ import android.widget.ListAdapter;
 import com.commonsware.cwac.merge.MergeAdapter;
 import com.tcity.android.app.DB;
 import com.tcity.android.db.Schema;
-import com.tcity.android.db.SchemaListener;
 import com.tcity.android.ui.adapter.BuildClickListener;
 import com.tcity.android.ui.engine.BuildDBEngine;
 
@@ -48,7 +47,7 @@ class BuildConfigurationOverviewDBEngine {
     private final BuildDBEngine myEngine;
 
     @NotNull
-    private final SchemaListener mySchemaListener;
+    private final Schema.Listener mySchemaListener;
 
     BuildConfigurationOverviewDBEngine(@NotNull String buildConfigurationId,
                                        @NotNull Context context,
@@ -116,7 +115,7 @@ class BuildConfigurationOverviewDBEngine {
         }
     }
 
-    private class MySchemaListener implements SchemaListener {
+    private class MySchemaListener implements Schema.Listener {
 
         @NotNull
         private final Handler myHandler = new Handler() {

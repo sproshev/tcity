@@ -70,6 +70,10 @@ public enum class Schema {
 
     public abstract val tableName: String
     public abstract val columnTypes: Map<String, String>
+
+    public trait Listener {
+        public fun onChanged()
+    }
 }
 
 

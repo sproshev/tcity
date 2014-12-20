@@ -37,10 +37,9 @@ import com.tcity.android.concept.Status
 import java.util.ArrayList
 import android.content.ContentValues
 import java.util.HashMap
-import com.tcity.android.db.calculateSelection
-import com.tcity.android.db.calculateSelectionArgs
 import com.tcity.android.db.CVUtils
 import com.tcity.android.db.DBUtils
+import com.tcity.android.db.SelectionUtils
 
 public fun getProjectsRunnable(
         db: DB,
@@ -143,8 +142,8 @@ private class ConceptsRunnable<T : Concept>(
         val cursor = db.query(
                 schema,
                 array(Schema.TC_ID_COLUMN, Schema.STATUS_COLUMN),
-                calculateSelection(parentId, Schema.PARENT_ID_COLUMN, Schema.FAVOURITE_COLUMN),
-                calculateSelectionArgs(parentId, CVUtils.toFavouriteContentValue(true))
+                SelectionUtils.getSelection(parentId, Schema.PARENT_ID_COLUMN, Schema.FAVOURITE_COLUMN),
+                SelectionUtils.getSelectionArgs(parentId, CVUtils.toFavouriteContentValue(true))
         )
 
         while (cursor.moveToNext()) {
