@@ -34,7 +34,7 @@ import com.tcity.android.app.Application;
 import com.tcity.android.app.DB;
 import com.tcity.android.app.Preferences;
 import com.tcity.android.concept.ConceptPackage;
-import com.tcity.android.db.DbPackage;
+import com.tcity.android.db.DBUtils;
 import com.tcity.android.db.Schema;
 import com.tcity.android.rest.RestPackage;
 import com.tcity.android.ui.overview.buildconfiguration.BuildConfigurationOverviewActivity;
@@ -201,7 +201,7 @@ public class ProjectOverviewActivity extends ListActivity implements SwipeRefres
 
         cursor.moveToNext();
 
-        String result = DbPackage.getName(cursor);
+        String result = DBUtils.getName(cursor);
 
         cursor.close();
 

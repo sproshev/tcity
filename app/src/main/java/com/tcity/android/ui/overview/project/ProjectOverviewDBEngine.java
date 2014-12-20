@@ -30,7 +30,8 @@ import com.tcity.android.R;
 import com.tcity.android.app.DB;
 import com.tcity.android.concept.ConceptPackage;
 import com.tcity.android.concept.Status;
-import com.tcity.android.db.DbPackage;
+import com.tcity.android.db.CVUtils;
+import com.tcity.android.db.DBUtils;
 import com.tcity.android.db.Schema;
 import com.tcity.android.db.SchemaListener;
 import com.tcity.android.ui.adapter.BuildConfigurationClickListener;
@@ -89,7 +90,9 @@ class ProjectOverviewDBEngine {
                 myBuildConfigurationClickListener,
                 context.getString(R.string.favourite) + " " + context.getString(R.string.build_configurations),
                 Schema.PARENT_ID_COLUMN + " = ? AND " + Schema.FAVOURITE_COLUMN + " = ?",
-                new String[]{projectId, Integer.toString(DbPackage.getDbValue(true))}
+                new String[]{
+                        projectId, CVUtils.toFavouriteContentValue(true)
+                }
         );
 
         myAllBuildConfigurationsEngine = new BuildConfigurationDBEngine(
@@ -111,7 +114,9 @@ class ProjectOverviewDBEngine {
                 myProjectClickListener,
                 context.getString(R.string.favourite) + " " + projectSectionName,
                 Schema.PARENT_ID_COLUMN + " = ? AND " + Schema.FAVOURITE_COLUMN + " = ?",
-                new String[]{projectId, Integer.toString(DbPackage.getDbValue(true))}
+                new String[]{
+                        projectId, CVUtils.toFavouriteContentValue(true)
+                }
         );
 
         myAllProjectsEngine = new ProjectDBEngine(
@@ -160,8 +165,14 @@ class ProjectOverviewDBEngine {
 
     public void projectImageClick(@NotNull String id) {
         ContentValues values = new ContentValues();
-        values.putAll(DbPackage.getDbValues(Status.DEFAULT));
-        values.putAll(DbPackage.getFavouriteDbValues(!isProjectFavourite(id)));
+
+        values.putAll(
+                CVUtils.toContentValues(Status.DEFAULT)
+        );
+
+        values.putAll(
+                CVUtils.toFavouriteContentValues(!isProjectFavourite(id))
+        );
 
         myDB.update(
                 Schema.PROJECT,
@@ -173,8 +184,14 @@ class ProjectOverviewDBEngine {
 
     public void buildConfigurationImageClick(@NotNull String id) {
         ContentValues values = new ContentValues();
-        values.putAll(DbPackage.getDbValues(Status.DEFAULT));
-        values.putAll(DbPackage.getFavouriteDbValues(!isBuildConfigurationFavourite(id)));
+
+        values.putAll(
+                CVUtils.toContentValues(Status.DEFAULT)
+        );
+
+        values.putAll(
+                CVUtils.toFavouriteContentValues(!isBuildConfigurationFavourite(id))
+        );
 
         myDB.update(
                 Schema.BUILD_CONFIGURATION,
@@ -223,7 +240,7 @@ class ProjectOverviewDBEngine {
 
         cursor.moveToNext();
 
-        boolean result = DbPackage.getFavourite(cursor);
+        boolean result = DBUtils.getFavourite(cursor);
 
         cursor.close();
 
@@ -241,7 +258,7 @@ class ProjectOverviewDBEngine {
 
         cursor.moveToNext();
 
-        boolean result = DbPackage.getFavourite(cursor);
+        boolean result = DBUtils.getFavourite(cursor);
 
         cursor.close();
 

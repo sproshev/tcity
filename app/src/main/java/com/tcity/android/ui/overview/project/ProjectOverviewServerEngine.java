@@ -22,7 +22,8 @@ import android.widget.Toast;
 
 import com.tcity.android.app.DB;
 import com.tcity.android.app.Preferences;
-import com.tcity.android.db.DbPackage;
+import com.tcity.android.db.CVUtils;
+import com.tcity.android.db.DBUtils;
 import com.tcity.android.db.Schema;
 import com.tcity.android.loader.ExecutableRunnableChain;
 import com.tcity.android.loader.LoaderPackage;
@@ -131,7 +132,7 @@ class ProjectOverviewServerEngine {
                 Schema.PROJECT,
                 new String[]{Schema.TC_ID_COLUMN},
                 Schema.PARENT_ID_COLUMN + " = ? AND " + Schema.FAVOURITE_COLUMN + " = ?",
-                new String[]{myProjectId, Integer.toString(DbPackage.getDbValue(true))},
+                new String[]{myProjectId, CVUtils.toFavouriteContentValue(true)},
                 null, null, null, null
         );
 
@@ -140,7 +141,7 @@ class ProjectOverviewServerEngine {
 
         while (cursor.moveToNext()) {
             runnables[pos] = LoaderPackage.getProjectStatusRunnable(
-                    DbPackage.getId(cursor), myDb, myPreferences
+                    DBUtils.getId(cursor), myDb, myPreferences
             );
 
             pos++;
@@ -157,7 +158,7 @@ class ProjectOverviewServerEngine {
                 Schema.BUILD_CONFIGURATION,
                 new String[]{Schema.TC_ID_COLUMN},
                 Schema.PARENT_ID_COLUMN + " = ? AND " + Schema.FAVOURITE_COLUMN + " = ?",
-                new String[]{myProjectId, Integer.toString(DbPackage.getDbValue(true))},
+                new String[]{myProjectId, CVUtils.toFavouriteContentValue(true)},
                 null, null, null, null
         );
 
@@ -166,7 +167,7 @@ class ProjectOverviewServerEngine {
 
         while (cursor.moveToNext()) {
             runnables[pos] = LoaderPackage.getBuildConfigurationStatusRunnable(
-                    DbPackage.getId(cursor), myDb, myPreferences
+                    DBUtils.getId(cursor), myDb, myPreferences
             );
 
             pos++;
@@ -188,7 +189,7 @@ class ProjectOverviewServerEngine {
 
         cursor.moveToNext();
 
-        boolean result = DbPackage.getFavourite(cursor);
+        boolean result = DBUtils.getFavourite(cursor);
 
         cursor.close();
 
@@ -206,7 +207,7 @@ class ProjectOverviewServerEngine {
 
         cursor.moveToNext();
 
-        boolean result = DbPackage.getFavourite(cursor);
+        boolean result = DBUtils.getFavourite(cursor);
 
         cursor.close();
 

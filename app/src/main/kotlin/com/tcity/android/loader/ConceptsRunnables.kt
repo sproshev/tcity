@@ -20,7 +20,6 @@ import com.tcity.android.concept.Concept
 import java.io.IOException
 import org.apache.http.HttpStatus
 import android.database.sqlite.SQLiteException
-import com.tcity.android.db.dbValues
 import com.tcity.android.rest.getProjectsUrl
 import com.tcity.android.rest.getBuildConfigurationsUrl
 import com.tcity.android.app.Preferences
@@ -38,12 +37,10 @@ import com.tcity.android.concept.Status
 import java.util.ArrayList
 import android.content.ContentValues
 import java.util.HashMap
-import com.tcity.android.db.getId
-import com.tcity.android.db.getStatus
 import com.tcity.android.db.calculateSelection
 import com.tcity.android.db.calculateSelectionArgs
-import com.tcity.android.db.favouriteDbValues
-import com.tcity.android.db.favouriteDbValue
+import com.tcity.android.db.CVUtils
+import com.tcity.android.db.DBUtils
 
 public fun getProjectsRunnable(
         db: DB,
@@ -118,13 +115,17 @@ private class ConceptsRunnable<T : Concept>(
 
         concepts.forEach {
             if (!ignoredConceptIds.contains(it.id)) {
-                val values = it.dbValues
+                val values = CVUtils.toContentValues(it)
 
                 if (favouriteIdToStatus.contains(it.id)) {
-                    values.putAll(true.favouriteDbValues)
+                    values.putAll(CVUtils.toFavouriteContentValues(true))
 
                     if (it.status == Status.DEFAULT) {
-                        values.putAll(favouriteIdToStatus.get(it.id)!!.dbValues)
+                        values.putAll(
+                                CVUtils.toContentValues(
+                                        favouriteIdToStatus.get(it.id)!!
+                                )
+                        )
                     }
                 }
 
@@ -143,13 +144,13 @@ private class ConceptsRunnable<T : Concept>(
                 schema,
                 array(Schema.TC_ID_COLUMN, Schema.STATUS_COLUMN),
                 calculateSelection(parentId, Schema.PARENT_ID_COLUMN, Schema.FAVOURITE_COLUMN),
-                calculateSelectionArgs(parentId, true.favouriteDbValue.toString())
+                calculateSelectionArgs(parentId, CVUtils.toFavouriteContentValue(true))
         )
 
         while (cursor.moveToNext()) {
             result.put(
-                    getId(cursor),
-                    getStatus(cursor)
+                    DBUtils.getId(cursor),
+                    DBUtils.getStatus(cursor)
             )
         }
 

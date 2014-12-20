@@ -26,7 +26,7 @@ import android.widget.CursorAdapter;
 import android.widget.TextView;
 
 import com.tcity.android.R;
-import com.tcity.android.db.DbPackage;
+import com.tcity.android.db.DBUtils;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -63,10 +63,10 @@ public class BuildAdapter extends CursorAdapter {
     public void bindView(@NotNull View view, @NotNull Context context, @NotNull Cursor cursor) {
         ViewHolder holder = (ViewHolder) view.getTag();
 
-        String id = DbPackage.getId(cursor);
-        Drawable background = Utils.getBackground(DbPackage.getStatus(cursor), context);
+        String id = DBUtils.getId(cursor);
+        Drawable background = AdapterUtils.getBackground(DBUtils.getStatus(cursor), context);
 
-        bindName(holder.name, id, DbPackage.getName(cursor), background);
+        bindName(holder.name, id, DBUtils.getName(cursor), background);
         bindOptions(holder.options, id, background);
     }
 

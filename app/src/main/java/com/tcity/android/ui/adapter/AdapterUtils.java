@@ -25,9 +25,9 @@ import com.tcity.android.concept.Status;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-class Utils {
+class AdapterUtils {
 
-    private Utils() {
+    private AdapterUtils() {
     }
 
     @Nullable
