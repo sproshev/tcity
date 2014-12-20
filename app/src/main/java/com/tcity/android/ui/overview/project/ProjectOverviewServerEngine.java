@@ -22,9 +22,9 @@ import android.widget.Toast;
 
 import com.tcity.android.app.DB;
 import com.tcity.android.app.Preferences;
-import com.tcity.android.client.runnable.RunnablePackage;
-import com.tcity.android.client.runnable.chain.ExecutableRunnableChain;
-import com.tcity.android.client.runnable.chain.RunnableChain;
+import com.tcity.android.background.runnable.RunnablePackage;
+import com.tcity.android.background.runnable.chain.ExecutableRunnableChain;
+import com.tcity.android.background.runnable.chain.RunnableChain;
 import com.tcity.android.db.CVUtils;
 import com.tcity.android.db.DBUtils;
 import com.tcity.android.db.Schema;

@@ -14,29 +14,32 @@
  * limitations under the License.
  */
 
-package com.tcity.android.client.parser
+package com.tcity.android.background.parser
 
 import java.io.InputStream
 import android.util.JsonReader
 import java.io.IOException
+import com.tcity.android.Status
 
-public fun parseBuildConfigurations(stream: InputStream): List<BuildConfiguration> {
-    return parseConcepts(stream, "buildType", ::parseBuildConfiguration)
+public fun parseBuilds(stream: InputStream): List<Build> {
+    return parseConcepts(stream, "build", ::parseBuild)
 }
 
 throws(javaClass<IOException>())
-private fun parseBuildConfiguration(reader: JsonReader): BuildConfiguration {
+private fun parseBuild(reader: JsonReader): Build {
     reader.beginObject()
 
     var id: String? = null
     var name: String? = null
     var parentId: String? = null
+    var status: Status? = null
 
     while (reader.hasNext()) {
         when (reader.nextName()) {
             "id" -> id = reader.nextString()
-            "name" -> name = reader.nextString()
-            "projectId" -> parentId = reader.nextString()
+            "number" -> name = reader.nextString()
+            "buildTypeId" -> parentId = reader.nextString()
+            "status" -> status = Status.valueOf(reader.nextString())
             else -> reader.skipValue()
         }
     }
@@ -44,16 +47,22 @@ private fun parseBuildConfiguration(reader: JsonReader): BuildConfiguration {
     reader.endObject()
 
     if (id == null) {
-        throw IOException("Invalid build configuration json: \"id\" is absent")
+        throw IOException("Invalid build json: \"id\" is absent")
     }
 
     if (name == null) {
-        throw IOException("Invalid build configuration json: \"name\" is absent")
+        throw IOException("Invalid build json: \"number\" is absent")
     }
 
     if (parentId == null) {
-        throw IOException("Invalid build configuration json: \"projectId\" is absent")
+        throw IOException("Invalid build json: \"buildTypeId\" is absent")
     }
 
-    return BuildConfiguration(id!!, name!!, parentId!!)
+    if (status == null) {
+        throw IOException("Invalid build json: \"status\" is absent")
+    }
+
+    return Build(id!!, name!!, parentId!!, status!!)
 }
+
+

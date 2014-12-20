@@ -14,24 +14,20 @@
  * limitations under the License.
  */
 
-package com.tcity.android.client.runnable
+package com.tcity.android.background.runnable
 
-import com.tcity.android.client.parser.Concept
+import com.tcity.android.background.parser.Concept
 import java.io.IOException
 import org.apache.http.HttpStatus
 import android.database.sqlite.SQLiteException
-import com.tcity.android.rest.getProjectsUrl
-import com.tcity.android.rest.getBuildConfigurationsUrl
 import com.tcity.android.app.Preferences
-import com.tcity.android.rest
 import java.util.Collections
 import com.tcity.android.app.DB
 import java.io.InputStream
-import com.tcity.android.client.parser.parseProjects
-import com.tcity.android.client.parser.parseBuildConfigurations
+import com.tcity.android.background.parser.parseProjects
+import com.tcity.android.background.parser.parseBuildConfigurations
 import com.tcity.android.db.Schema
-import com.tcity.android.client.parser.parseBuilds
-import com.tcity.android.rest.getBuildsUrl
+import com.tcity.android.background.parser.parseBuilds
 import java.util.ArrayList
 import android.content.ContentValues
 import java.util.HashMap

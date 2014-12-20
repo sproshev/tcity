@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.tcity.android.client.parser
+package com.tcity.android.background.parser
 
 import com.tcity.android.Status
 

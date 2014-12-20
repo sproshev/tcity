@@ -19,7 +19,7 @@ package com.tcity.android.db;
 import android.content.ContentValues;
 
 import com.tcity.android.Status;
-import com.tcity.android.client.parser.Concept;
+import com.tcity.android.background.parser.Concept;
 
 import org.jetbrains.annotations.NotNull;
 

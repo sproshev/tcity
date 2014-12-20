@@ -14,20 +14,18 @@
  * limitations under the License.
  */
 
-package com.tcity.android.client.parser
+package com.tcity.android.background.parser
 
-import java.io.IOException
 import java.io.InputStream
 import android.util.JsonReader
-import com.tcity.android.ROOT_PROJECT_ID
+import java.io.IOException
 
-throws(javaClass<IOException>())
-public fun parseProjects(stream: InputStream): List<Project> {
-    return parseConcepts(stream, "project", ::parseProject)
+public fun parseBuildConfigurations(stream: InputStream): List<BuildConfiguration> {
+    return parseConcepts(stream, "buildType", ::parseBuildConfiguration)
 }
 
 throws(javaClass<IOException>())
-private fun parseProject(reader: JsonReader): Project {
+private fun parseBuildConfiguration(reader: JsonReader): BuildConfiguration {
     reader.beginObject()
 
     var id: String? = null
@@ -38,28 +36,24 @@ private fun parseProject(reader: JsonReader): Project {
         when (reader.nextName()) {
             "id" -> id = reader.nextString()
             "name" -> name = reader.nextString()
-            "parentProjectId" -> parentId = reader.nextString()
+            "projectId" -> parentId = reader.nextString()
             else -> reader.skipValue()
         }
     }
 
     reader.endObject()
 
-    if (id == ROOT_PROJECT_ID) {
-        parentId = ROOT_PROJECT_ID
-    }
-
     if (id == null) {
-        throw IOException("Invalid project json: \"id\" is absent")
+        throw IOException("Invalid build configuration json: \"id\" is absent")
     }
 
     if (name == null) {
-        throw IOException("Invalid project json: \"name\" is absent")
+        throw IOException("Invalid build configuration json: \"name\" is absent")
     }
 
     if (parentId == null) {
-        throw IOException("Invalid project json: \"parentProjectId\" is absent")
+        throw IOException("Invalid build configuration json: \"projectId\" is absent")
     }
 
-    return Project(id!!, name!!, parentId!!)
+    return BuildConfiguration(id!!, name!!, parentId!!)
 }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.tcity.android.client.runnable
+package com.tcity.android.background.runnable
 
 import org.apache.http.StatusLine
 import java.io.IOException

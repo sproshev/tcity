@@ -14,19 +14,16 @@
  * limitations under the License.
  */
 
-package com.tcity.android.client.runnable
+package com.tcity.android.background.runnable
 
 import java.io.IOException
 import com.tcity.android.Status
-import com.tcity.android.rest
 import org.apache.http.HttpStatus
 import org.apache.http.util.EntityUtils
 import android.database.sqlite.SQLiteException
 import com.tcity.android.db.Schema
 import com.tcity.android.app.Preferences
 import com.tcity.android.app.DB
-import com.tcity.android.rest.getProjectStatusUrl
-import com.tcity.android.rest.getBuildConfigurationStatusUrl
 import com.tcity.android.db.CVUtils
 
 public fun getProjectStatusRunnable(

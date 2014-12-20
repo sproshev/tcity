@@ -14,55 +14,52 @@
  * limitations under the License.
  */
 
-package com.tcity.android.client.parser
+package com.tcity.android.background.parser
 
+import java.io.IOException
 import java.io.InputStream
 import android.util.JsonReader
-import java.io.IOException
-import com.tcity.android.Status
+import com.tcity.android.ROOT_PROJECT_ID
 
-public fun parseBuilds(stream: InputStream): List<Build> {
-    return parseConcepts(stream, "build", ::parseBuild)
+throws(javaClass<IOException>())
+public fun parseProjects(stream: InputStream): List<Project> {
+    return parseConcepts(stream, "project", ::parseProject)
 }
 
 throws(javaClass<IOException>())
-private fun parseBuild(reader: JsonReader): Build {
+private fun parseProject(reader: JsonReader): Project {
     reader.beginObject()
 
     var id: String? = null
     var name: String? = null
     var parentId: String? = null
-    var status: Status? = null
 
     while (reader.hasNext()) {
         when (reader.nextName()) {
             "id" -> id = reader.nextString()
-            "number" -> name = reader.nextString()
-            "buildTypeId" -> parentId = reader.nextString()
-            "status" -> status = Status.valueOf(reader.nextString())
+            "name" -> name = reader.nextString()
+            "parentProjectId" -> parentId = reader.nextString()
             else -> reader.skipValue()
         }
     }
 
     reader.endObject()
 
+    if (id == ROOT_PROJECT_ID) {
+        parentId = ROOT_PROJECT_ID
+    }
+
     if (id == null) {
-        throw IOException("Invalid build json: \"id\" is absent")
+        throw IOException("Invalid project json: \"id\" is absent")
     }
 
     if (name == null) {
-        throw IOException("Invalid build json: \"number\" is absent")
+        throw IOException("Invalid project json: \"name\" is absent")
     }
 
     if (parentId == null) {
-        throw IOException("Invalid build json: \"buildTypeId\" is absent")
+        throw IOException("Invalid project json: \"parentProjectId\" is absent")
     }
 
-    if (status == null) {
-        throw IOException("Invalid build json: \"status\" is absent")
-    }
-
-    return Build(id!!, name!!, parentId!!, status!!)
+    return Project(id!!, name!!, parentId!!)
 }
-
-
