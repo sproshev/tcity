@@ -14,29 +14,36 @@
  * limitations under the License.
  */
 
-package com.tcity.android.loader;
+package com.tcity.android.client.runnable.chain;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-class DeeperLevelRunnableChain extends RunnableChain {
+class ZeroLevelRunnableChain extends RunnableChain {
 
     private final boolean myStopOnException;
 
     @NotNull
-    private final RunnableChain[] myChains;
+    private final Runnable[] myRunnables;
 
-    DeeperLevelRunnableChain(boolean stopOnException,
-                             @NotNull RunnableChain... chains) {
+    ZeroLevelRunnableChain(boolean stopOnException, @NotNull Runnable... runnables) {
         myStopOnException = stopOnException;
-        myChains = chains;
+        myRunnables = runnables;
     }
 
     @Override
     protected boolean run(@Nullable Listener listener) {
-        for (RunnableChain chain : myChains) {
-            if (!chain.run(listener) && myStopOnException) {
-                return false;
+        for (Runnable runnable : myRunnables) {
+            try {
+                runnable.run();
+            } catch (Exception e) {
+                if (listener != null) {
+                    listener.onException(e);
+                }
+
+                if (myStopOnException) {
+                    return false;
+                }
             }
         }
 

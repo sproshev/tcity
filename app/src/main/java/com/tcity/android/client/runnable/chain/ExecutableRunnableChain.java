@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.tcity.android.loader;
+package com.tcity.android.client.runnable.chain;
 
 import android.os.AsyncTask;
 
