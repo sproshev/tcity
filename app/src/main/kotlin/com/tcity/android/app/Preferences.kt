@@ -19,32 +19,41 @@ package com.tcity.android.app
 import android.content.Context
 import android.preference.PreferenceManager
 import android.util.Base64
+import com.tcity.android.R
 
 
 public class Preferences(context: Context) {
 
     private val preferences = PreferenceManager.getDefaultSharedPreferences(context)
 
+    private val urlKey = context.getString(R.string.url_pref_key)
+    private val loginKey = context.getString(R.string.login_pref_key)
+
+    private val syncKey = context.getString(R.string.sync_pref_key)
+    private val syncWifiOnlyKey = context.getString(R.string.sync_wifi_only_pref_key)
+
     class object {
-        private val URL_KEY = "url"
-        private val LOGIN_KEY = "login"
         private val AUTH_KEY = "auth"
     }
 
     public fun isValid(): Boolean {
-        return preferences.contains(URL_KEY) && preferences.contains(LOGIN_KEY) && preferences.contains(AUTH_KEY)
+        return preferences.contains(urlKey) && preferences.contains(loginKey) && preferences.contains(AUTH_KEY)
     }
 
-    public fun getUrl(): String = preferences.getString(URL_KEY, null)
+    public fun getUrl(): String = preferences.getString(urlKey, null)
 
-    public fun getLogin(): String = preferences.getString(LOGIN_KEY, null)
+    public fun getLogin(): String = preferences.getString(loginKey, null)
 
     public fun getAuth(): String = preferences.getString(AUTH_KEY, null)
+
+    public fun isSyncEnabled(): Boolean = preferences.getBoolean(syncKey, true)
+
+    public fun isSyncWifiOnly(): Boolean = preferences.getBoolean(syncWifiOnlyKey, true)
 
     public fun setUrl(url: String) {
         val editor = preferences.edit()
 
-        editor.putString(URL_KEY, url)
+        editor.putString(urlKey, url)
 
         editor.apply()
     }
@@ -52,9 +61,25 @@ public class Preferences(context: Context) {
     public fun setAuth(login: String, password: String) {
         val editor = preferences.edit()
 
-        editor.putString(LOGIN_KEY, login)
+        editor.putString(loginKey, login)
 
         editor.putString(AUTH_KEY, Base64.encodeToString("$login:$password".toByteArray(), Base64.NO_WRAP))
+
+        editor.apply()
+    }
+
+    public fun setSyncEnabled(enabled: Boolean) {
+        val editor = preferences.edit()
+
+        editor.putBoolean(syncKey, enabled)
+
+        editor.apply()
+    }
+
+    public fun setSyncWifiOnly(wifiOnly: Boolean) {
+        val editor = preferences.edit()
+
+        editor.putBoolean(syncWifiOnlyKey, wifiOnly)
 
         editor.apply()
     }

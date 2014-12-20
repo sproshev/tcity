@@ -38,6 +38,8 @@
 
         <activity android:name=".ui.overview.buildconfiguration.BuildConfigurationOverviewActivity"/>
 
+        <activity android:name=".ui.PreferenceActivity"/>
+
     </application>
 
 </manifest>
