@@ -19,6 +19,7 @@ package com.tcity.android.client.parser
 import java.io.IOException
 import java.io.InputStream
 import android.util.JsonReader
+import com.tcity.android.ROOT_PROJECT_ID
 
 throws(javaClass<IOException>())
 public fun parseProjects(stream: InputStream): List<Project> {

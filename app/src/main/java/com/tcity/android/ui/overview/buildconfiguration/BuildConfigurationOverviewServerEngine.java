@@ -21,9 +21,9 @@ import android.widget.Toast;
 
 import com.tcity.android.app.DB;
 import com.tcity.android.app.Preferences;
-import com.tcity.android.loader.ExecutableRunnableChain;
-import com.tcity.android.loader.LoaderPackage;
-import com.tcity.android.loader.RunnableChain;
+import com.tcity.android.client.runnable.RunnablePackage;
+import com.tcity.android.client.runnable.chain.ExecutableRunnableChain;
+import com.tcity.android.client.runnable.chain.RunnableChain;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -81,7 +81,7 @@ class BuildConfigurationOverviewServerEngine {
     @NotNull
     private ExecutableRunnableChain calculateExecutableChain() {
         return RunnableChain.getSingleRunnableChain(
-                LoaderPackage.getBuildsRunnable(myBuildConfigurationId, myDb, myPreferences)
+                RunnablePackage.getBuildsRunnable(myBuildConfigurationId, myDb, myPreferences)
         ).toAsyncTask(myChainListener);
     }
 

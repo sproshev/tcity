@@ -19,6 +19,7 @@ package com.tcity.android.client.parser
 import java.io.InputStream
 import android.util.JsonReader
 import java.io.IOException
+import com.tcity.android.Status
 
 public fun parseBuilds(stream: InputStream): List<Build> {
     return parseConcepts(stream, "build", ::parseBuild)

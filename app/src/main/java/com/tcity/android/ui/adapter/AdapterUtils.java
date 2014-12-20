@@ -20,7 +20,7 @@ import android.content.Context;
 import android.graphics.drawable.Drawable;
 
 import com.tcity.android.R;
-import com.tcity.android.concept.Status;
+import com.tcity.android.Status;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

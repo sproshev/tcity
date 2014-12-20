@@ -18,7 +18,7 @@ package com.tcity.android.db;
 
 import android.database.Cursor;
 
-import com.tcity.android.concept.Status;
+import com.tcity.android.Status;
 
 import org.jetbrains.annotations.NotNull;
 

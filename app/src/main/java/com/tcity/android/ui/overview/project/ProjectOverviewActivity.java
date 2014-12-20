@@ -29,11 +29,11 @@ import android.view.View;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 
+import com.tcity.android.AndroidPackage;
 import com.tcity.android.R;
 import com.tcity.android.app.Application;
 import com.tcity.android.app.DB;
 import com.tcity.android.app.Preferences;
-import com.tcity.android.concept.ConceptPackage;
 import com.tcity.android.db.DBUtils;
 import com.tcity.android.db.Schema;
 import com.tcity.android.rest.RestPackage;
@@ -179,13 +179,13 @@ public class ProjectOverviewActivity extends ListActivity implements SwipeRefres
         if (getIntent().hasExtra(INTENT_KEY)) {
             return getIntent().getStringExtra(INTENT_KEY);
         } else {
-            return ConceptPackage.getROOT_PROJECT_ID();
+            return AndroidPackage.getROOT_PROJECT_ID();
         }
     }
 
     @NotNull
     private String calculateTitle() {
-        if (myProjectId.equals(ConceptPackage.getROOT_PROJECT_ID())) {
+        if (myProjectId.equals(AndroidPackage.getROOT_PROJECT_ID())) {
             return getString(R.string.projects);
         }
 

@@ -18,8 +18,8 @@ package com.tcity.android.db;
 
 import android.content.ContentValues;
 
-import com.tcity.android.concept.Concept;
-import com.tcity.android.concept.Status;
+import com.tcity.android.Status;
+import com.tcity.android.client.parser.Concept;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -37,7 +37,7 @@ public class CVUtils {
         result.put(Schema.PARENT_ID_COLUMN, concept.getParentId());
 
         result.putAll(toContentValues(concept.getStatus()));
-        result.putAll(toFavouriteContentValues(concept.getFavourite()));
+        result.putAll(toFavouriteContentValues(false));
 
         return result;
     }

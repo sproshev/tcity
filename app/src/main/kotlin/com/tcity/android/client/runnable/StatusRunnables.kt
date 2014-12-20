@@ -17,7 +17,7 @@
 package com.tcity.android.client.runnable
 
 import java.io.IOException
-import com.tcity.android.client.parser.Status
+import com.tcity.android.Status
 import com.tcity.android.rest
 import org.apache.http.HttpStatus
 import org.apache.http.util.EntityUtils

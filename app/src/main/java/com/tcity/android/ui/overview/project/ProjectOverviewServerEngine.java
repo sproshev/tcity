@@ -22,12 +22,12 @@ import android.widget.Toast;
 
 import com.tcity.android.app.DB;
 import com.tcity.android.app.Preferences;
+import com.tcity.android.client.runnable.RunnablePackage;
+import com.tcity.android.client.runnable.chain.ExecutableRunnableChain;
+import com.tcity.android.client.runnable.chain.RunnableChain;
 import com.tcity.android.db.CVUtils;
 import com.tcity.android.db.DBUtils;
 import com.tcity.android.db.Schema;
-import com.tcity.android.loader.ExecutableRunnableChain;
-import com.tcity.android.loader.LoaderPackage;
-import com.tcity.android.loader.RunnableChain;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -70,7 +70,7 @@ class ProjectOverviewServerEngine {
     public void projectImageClick(@NotNull String id) {
         if (isProjectFavourite(id)) {
             ExecutableRunnableChain statusTask = RunnableChain.getSingleRunnableChain(
-                    LoaderPackage.getProjectStatusRunnable(id, myDb, myPreferences)
+                    RunnablePackage.getProjectStatusRunnable(id, myDb, myPreferences)
             ).toAsyncTask(myChainListener);
 
             myChainListener.onStarted();
@@ -81,7 +81,7 @@ class ProjectOverviewServerEngine {
     public void buildConfigurationImageClick(@NotNull String id) {
         if (isBuildConfigurationFavourite(id)) {
             ExecutableRunnableChain statusTask = RunnableChain.getSingleRunnableChain(
-                    LoaderPackage.getBuildConfigurationStatusRunnable(id, myDb, myPreferences)
+                    RunnablePackage.getBuildConfigurationStatusRunnable(id, myDb, myPreferences)
             ).toAsyncTask(myChainListener);
 
             myChainListener.onStarted();
@@ -107,11 +107,11 @@ class ProjectOverviewServerEngine {
     @NotNull
     private ExecutableRunnableChain calculateExecutableChain() {
         RunnableChain projectsChain = RunnableChain.getSingleRunnableChain(
-                LoaderPackage.getProjectsRunnable(myDb, myPreferences)
+                RunnablePackage.getProjectsRunnable(myDb, myPreferences)
         );
 
         RunnableChain buildConfigurationsChain = RunnableChain.getSingleRunnableChain(
-                LoaderPackage.getBuildConfigurationsRunnable(myProjectId, myDb, myPreferences)
+                RunnablePackage.getBuildConfigurationsRunnable(myProjectId, myDb, myPreferences)
         );
 
         return RunnableChain.getOrRunnableChain(
@@ -140,7 +140,7 @@ class ProjectOverviewServerEngine {
         int pos = 0;
 
         while (cursor.moveToNext()) {
-            runnables[pos] = LoaderPackage.getProjectStatusRunnable(
+            runnables[pos] = RunnablePackage.getProjectStatusRunnable(
                     DBUtils.getId(cursor), myDb, myPreferences
             );
 
@@ -166,7 +166,7 @@ class ProjectOverviewServerEngine {
         int pos = 0;
 
         while (cursor.moveToNext()) {
-            runnables[pos] = LoaderPackage.getBuildConfigurationStatusRunnable(
+            runnables[pos] = RunnablePackage.getBuildConfigurationStatusRunnable(
                     DBUtils.getId(cursor), myDb, myPreferences
             );
 
