@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.tcity.android.concept
+package com.tcity.android.client.parser
 
 public val ROOT_PROJECT_ID: String = "_Root"
 

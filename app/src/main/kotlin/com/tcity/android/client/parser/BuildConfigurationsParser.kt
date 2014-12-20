@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-package com.tcity.android.parser
+package com.tcity.android.client.parser
 
-import com.tcity.android.concept.BuildConfiguration
 import java.io.InputStream
 import android.util.JsonReader
 import java.io.IOException

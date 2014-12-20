@@ -14,13 +14,11 @@
  * limitations under the License.
  */
 
-package com.tcity.android.parser
+package com.tcity.android.client.parser
 
 import java.io.InputStream
-import com.tcity.android.concept.Build
 import android.util.JsonReader
 import java.io.IOException
-import com.tcity.android.concept.Status
 
 public fun parseBuilds(stream: InputStream): List<Build> {
     return parseConcepts(stream, "build", ::parseBuild)
