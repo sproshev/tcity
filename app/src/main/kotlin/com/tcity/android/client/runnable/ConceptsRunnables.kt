@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.tcity.android.loader
+package com.tcity.android.client.runnable
 
-import com.tcity.android.concept.Concept
+import com.tcity.android.client.parser.Concept
 import java.io.IOException
 import org.apache.http.HttpStatus
 import android.database.sqlite.SQLiteException
@@ -25,15 +25,15 @@ import com.tcity.android.rest.getBuildConfigurationsUrl
 import com.tcity.android.app.Preferences
 import com.tcity.android.rest
 import java.util.Collections
-import com.tcity.android.concept.ROOT_PROJECT_ID
+import com.tcity.android.client.parser.ROOT_PROJECT_ID
 import com.tcity.android.app.DB
 import java.io.InputStream
-import com.tcity.android.parser.parseProjects
-import com.tcity.android.parser.parseBuildConfigurations
+import com.tcity.android.client.parser.parseProjects
+import com.tcity.android.client.parser.parseBuildConfigurations
 import com.tcity.android.db.Schema
-import com.tcity.android.parser.parseBuilds
+import com.tcity.android.client.parser.parseBuilds
 import com.tcity.android.rest.getBuildsUrl
-import com.tcity.android.concept.Status
+import com.tcity.android.client.parser.Status
 import java.util.ArrayList
 import android.content.ContentValues
 import java.util.HashMap
@@ -91,11 +91,11 @@ private class ConceptsRunnable<T : Concept>(
 ) : Runnable {
 
     override fun run() {
-        saveConcepts(loadConcepts(url))
+        saveConcepts(loadConcepts())
     }
 
     throws(javaClass<IOException>(), javaClass<HttpStatusException>())
-    private fun loadConcepts(url: String): Collection<T> {
+    private fun loadConcepts(): Collection<T> {
         val response = rest.getJson(url, preferences.getAuth())
 
         val statusLine = response.getStatusLine()

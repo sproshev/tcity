@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package com.tcity.android.loader
+package com.tcity.android.client.runnable
 
 import java.io.IOException
-import com.tcity.android.concept.Status
+import com.tcity.android.client.parser.Status
 import com.tcity.android.rest
 import org.apache.http.HttpStatus
 import org.apache.http.util.EntityUtils
@@ -62,20 +62,12 @@ private class ConceptStatusRunnable(
 ) : Runnable {
 
     override fun run() {
-        saveStatus(
-                id,
-                loadStatus(url, preferences),
-                db,
-                schema
-        )
+        saveStatus(loadStatus())
     }
 
     throws(javaClass<IOException>(), javaClass<HttpStatusException>())
-    private fun loadStatus(statusUrl: String, preferences: Preferences): Status {
-        val response = rest.getPlain(
-                statusUrl,
-                preferences.getAuth()
-        )
+    private fun loadStatus(): Status {
+        val response = rest.getPlain(url, preferences.getAuth())
 
         val statusLine = response.getStatusLine()
 
@@ -89,12 +81,12 @@ private class ConceptStatusRunnable(
     }
 
     throws(javaClass<SQLiteException>())
-    private fun saveStatus(conceptId: String, status: Status, db: DB, schema: Schema) {
+    private fun saveStatus(status: Status) {
         db.update(
                 schema,
                 CVUtils.toContentValues(status),
                 "${Schema.TC_ID_COLUMN} = ?",
-                array(conceptId)
+                array(id)
         )
     }
 }
