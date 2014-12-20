@@ -21,10 +21,13 @@ import android.os.AsyncTask;
 import android.widget.Toast;
 
 import com.tcity.android.app.DB;
-import com.tcity.android.app.Preferences;
-import com.tcity.android.background.runnable.RunnablePackage;
+import com.tcity.android.background.rest.RestClient;
 import com.tcity.android.background.runnable.chain.ExecutableRunnableChain;
 import com.tcity.android.background.runnable.chain.RunnableChain;
+import com.tcity.android.background.runnable.primitive.BuildConfigurationStatusRunnable;
+import com.tcity.android.background.runnable.primitive.BuildConfigurationsRunnable;
+import com.tcity.android.background.runnable.primitive.ProjectStatusRunnable;
+import com.tcity.android.background.runnable.primitive.ProjectsRunnable;
 import com.tcity.android.db.CVUtils;
 import com.tcity.android.db.DBUtils;
 import com.tcity.android.db.Schema;
@@ -38,9 +41,6 @@ class ProjectOverviewServerEngine {
     private final String myProjectId;
 
     @NotNull
-    private final Preferences myPreferences;
-
-    @NotNull
     private final DB myDb;
 
     @NotNull
@@ -49,14 +49,17 @@ class ProjectOverviewServerEngine {
     @Nullable
     private ExecutableRunnableChain myChain;
 
+    @NotNull
+    private final RestClient myRestClient;
+
     ProjectOverviewServerEngine(@NotNull String projectId,
-                                @NotNull Preferences preferences,
-                                @NotNull DB db) {
+                                @NotNull DB db,
+                                @NotNull RestClient restClient) {
         myProjectId = projectId;
-        myPreferences = preferences;
         myDb = db;
 
         myChainListener = new ChainListener();
+        myRestClient = restClient;
     }
 
     public void setActivity(@Nullable ProjectOverviewActivity activity) {
@@ -70,7 +73,7 @@ class ProjectOverviewServerEngine {
     public void projectImageClick(@NotNull String id) {
         if (isProjectFavourite(id)) {
             ExecutableRunnableChain statusTask = RunnableChain.getSingleRunnableChain(
-                    RunnablePackage.getProjectStatusRunnable(id, myDb, myPreferences)
+                    new ProjectStatusRunnable(id, myDb, myRestClient)
             ).toAsyncTask(myChainListener);
 
             myChainListener.onStarted();
@@ -81,7 +84,7 @@ class ProjectOverviewServerEngine {
     public void buildConfigurationImageClick(@NotNull String id) {
         if (isBuildConfigurationFavourite(id)) {
             ExecutableRunnableChain statusTask = RunnableChain.getSingleRunnableChain(
-                    RunnablePackage.getBuildConfigurationStatusRunnable(id, myDb, myPreferences)
+                    new BuildConfigurationStatusRunnable(id, myDb, myRestClient)
             ).toAsyncTask(myChainListener);
 
             myChainListener.onStarted();
@@ -107,11 +110,11 @@ class ProjectOverviewServerEngine {
     @NotNull
     private ExecutableRunnableChain calculateExecutableChain() {
         RunnableChain projectsChain = RunnableChain.getSingleRunnableChain(
-                RunnablePackage.getProjectsRunnable(myDb, myPreferences)
+                new ProjectsRunnable(myDb, myRestClient)
         );
 
         RunnableChain buildConfigurationsChain = RunnableChain.getSingleRunnableChain(
-                RunnablePackage.getBuildConfigurationsRunnable(myProjectId, myDb, myPreferences)
+                new BuildConfigurationsRunnable(myProjectId, myDb, myRestClient)
         );
 
         return RunnableChain.getOrRunnableChain(
@@ -140,8 +143,8 @@ class ProjectOverviewServerEngine {
         int pos = 0;
 
         while (cursor.moveToNext()) {
-            runnables[pos] = RunnablePackage.getProjectStatusRunnable(
-                    DBUtils.getId(cursor), myDb, myPreferences
+            runnables[pos] = new ProjectStatusRunnable(
+                    DBUtils.getId(cursor), myDb, myRestClient
             );
 
             pos++;
@@ -166,8 +169,8 @@ class ProjectOverviewServerEngine {
         int pos = 0;
 
         while (cursor.moveToNext()) {
-            runnables[pos] = RunnablePackage.getBuildConfigurationStatusRunnable(
-                    DBUtils.getId(cursor), myDb, myPreferences
+            runnables[pos] = new BuildConfigurationStatusRunnable(
+                    DBUtils.getId(cursor), myDb, myRestClient
             );
 
             pos++;

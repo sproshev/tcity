@@ -33,9 +33,9 @@ import com.tcity.android.R;
 import com.tcity.android.app.Application;
 import com.tcity.android.app.DB;
 import com.tcity.android.app.Preferences;
+import com.tcity.android.background.web.WebLocator;
 import com.tcity.android.db.DBUtils;
 import com.tcity.android.db.Schema;
-import com.tcity.android.rest.RestPackage;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -133,7 +133,7 @@ public class BuildConfigurationOverviewActivity extends ListActivity implements 
 
         menu.setOnMenuItemClickListener(
                 new PopupMenuListener(
-                        RestPackage.getBuildWebUrl(id, new Preferences(this))
+                        WebLocator.getBuildUrl(id, new Preferences(this))
                 )
         );
 

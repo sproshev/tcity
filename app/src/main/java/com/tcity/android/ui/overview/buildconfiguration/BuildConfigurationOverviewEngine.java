@@ -22,6 +22,7 @@ import android.widget.ListAdapter;
 
 import com.tcity.android.app.DB;
 import com.tcity.android.app.Preferences;
+import com.tcity.android.background.rest.RestClient;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -42,8 +43,8 @@ class BuildConfigurationOverviewEngine {
 
         myServerEngine = new BuildConfigurationOverviewServerEngine(
                 buildConfigurationId,
-                new Preferences(context),
-                db
+                db,
+                new RestClient(new Preferences(context))
         );
     }
 

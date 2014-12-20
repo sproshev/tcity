@@ -22,6 +22,7 @@ import android.widget.ListAdapter;
 
 import com.tcity.android.app.DB;
 import com.tcity.android.app.Preferences;
+import com.tcity.android.background.rest.RestClient;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -39,7 +40,7 @@ class ProjectOverviewEngine {
                           @NotNull DB db,
                           @NotNull ViewGroup root) {
         myDBEngine = new ProjectOverviewDBEngine(projectId, context, db, root);
-        myServerEngine = new ProjectOverviewServerEngine(projectId, new Preferences(context), db);
+        myServerEngine = new ProjectOverviewServerEngine(projectId, db, new RestClient(new Preferences(context)));
     }
 
     @NotNull

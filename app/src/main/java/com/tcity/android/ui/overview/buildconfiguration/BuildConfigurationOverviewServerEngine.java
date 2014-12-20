@@ -20,10 +20,10 @@ import android.os.AsyncTask;
 import android.widget.Toast;
 
 import com.tcity.android.app.DB;
-import com.tcity.android.app.Preferences;
-import com.tcity.android.background.runnable.RunnablePackage;
+import com.tcity.android.background.rest.RestClient;
 import com.tcity.android.background.runnable.chain.ExecutableRunnableChain;
 import com.tcity.android.background.runnable.chain.RunnableChain;
+import com.tcity.android.background.runnable.primitive.BuildsRunnable;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -34,9 +34,6 @@ class BuildConfigurationOverviewServerEngine {
     private final String myBuildConfigurationId;
 
     @NotNull
-    private final Preferences myPreferences;
-
-    @NotNull
     private final DB myDb;
 
     @NotNull
@@ -45,12 +42,15 @@ class BuildConfigurationOverviewServerEngine {
     @Nullable
     private ExecutableRunnableChain myChain;
 
+    @NotNull
+    private final RestClient myRestClient;
+
     BuildConfigurationOverviewServerEngine(@NotNull String buildConfigurationId,
-                                           @NotNull Preferences preferences,
-                                           @NotNull DB db) {
+                                           @NotNull DB db,
+                                           @NotNull RestClient restClient) {
         myBuildConfigurationId = buildConfigurationId;
-        myPreferences = preferences;
         myDb = db;
+        myRestClient = restClient;
 
         myChainListener = new ChainListener();
     }
@@ -81,7 +81,7 @@ class BuildConfigurationOverviewServerEngine {
     @NotNull
     private ExecutableRunnableChain calculateExecutableChain() {
         return RunnableChain.getSingleRunnableChain(
-                RunnablePackage.getBuildsRunnable(myBuildConfigurationId, myDb, myPreferences)
+                new BuildsRunnable(myBuildConfigurationId, myDb, myRestClient)
         ).toAsyncTask(myChainListener);
     }
 

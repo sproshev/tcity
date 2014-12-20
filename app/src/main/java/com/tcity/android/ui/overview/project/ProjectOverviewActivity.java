@@ -34,9 +34,9 @@ import com.tcity.android.R;
 import com.tcity.android.app.Application;
 import com.tcity.android.app.DB;
 import com.tcity.android.app.Preferences;
+import com.tcity.android.background.web.WebLocator;
 import com.tcity.android.db.DBUtils;
 import com.tcity.android.db.Schema;
-import com.tcity.android.rest.RestPackage;
 import com.tcity.android.ui.overview.buildconfiguration.BuildConfigurationOverviewActivity;
 
 import org.jetbrains.annotations.NotNull;
@@ -142,7 +142,7 @@ public class ProjectOverviewActivity extends ListActivity implements SwipeRefres
 
         menu.setOnMenuItemClickListener(
                 new PopupMenuListener(
-                        RestPackage.getProjectWebUrl(id, new Preferences(this))
+                        WebLocator.getProjectUrl(id, new Preferences(this))
                 )
         );
 
@@ -167,7 +167,7 @@ public class ProjectOverviewActivity extends ListActivity implements SwipeRefres
 
         menu.setOnMenuItemClickListener(
                 new PopupMenuListener(
-                        RestPackage.getBuildConfigurationWebUrl(id, new Preferences(this))
+                        WebLocator.getBuildConfigurationUrl(id, new Preferences(this))
                 )
         );
 
