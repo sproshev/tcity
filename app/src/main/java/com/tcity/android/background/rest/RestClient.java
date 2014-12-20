@@ -39,11 +39,25 @@ public class RestClient {
     private final HttpClient myHttpClient;
 
     @NotNull
-    private final String myAuth;
+    private final Preferences myPreferences;
 
     public RestClient(@NotNull Preferences preferences) {
         myHttpClient = new DefaultHttpClient(calculateHttpParams());
-        myAuth = preferences.getAuth();
+        myPreferences = preferences;
+    }
+
+    @NotNull
+    public HttpResponse getProjectStatus(@NotNull String id) throws IOException {
+        return getPlain(
+                RestLocator.getProjectStatusUrl(id, myPreferences)
+        );
+    }
+
+    @NotNull
+    public HttpResponse getBuildConfigurationStatus(@NotNull String id) throws IOException {
+        return getPlain(
+                RestLocator.getBuildConfigurationStatusUrl(id, myPreferences)
+        );
     }
 
     @NotNull
@@ -60,7 +74,7 @@ public class RestClient {
     private HttpResponse get(@NotNull String path, @NotNull String format) throws IOException {
         HttpRequestBase request = new HttpGet();
 
-        request.addHeader("Authorization", "Basic " + myAuth);
+        request.addHeader("Authorization", "Basic " + myPreferences.getAuth());
         request.addHeader("Accept", format);
 
         request.setURI(URI.create(path));

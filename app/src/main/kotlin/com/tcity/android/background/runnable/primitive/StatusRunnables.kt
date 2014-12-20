@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.tcity.android.background.runnable
+package com.tcity.android.background.runnable.primitive
 
 import java.io.IOException
 import com.tcity.android.Status
@@ -22,49 +22,50 @@ import org.apache.http.HttpStatus
 import org.apache.http.util.EntityUtils
 import android.database.sqlite.SQLiteException
 import com.tcity.android.db.Schema
-import com.tcity.android.app.Preferences
 import com.tcity.android.app.DB
 import com.tcity.android.db.CVUtils
+import com.tcity.android.background.runnable.HttpStatusException
+import org.apache.http.HttpResponse
+import com.tcity.android.background.rest.RestClient
 
-public fun getProjectStatusRunnable(
+
+public class ProjectStatusRunnable(
         id: String,
         db: DB,
-        preferences: Preferences
-): Runnable = ConceptStatusRunnable(
-        id,
-        getProjectStatusUrl(id, preferences),
-        preferences,
-        db,
-        Schema.PROJECT
-)
+        private val client: RestClient
+) : ProjectOrBuildConfigurationStatusRunnable(id, db, Schema.PROJECT) {
 
-public fun getBuildConfigurationStatusRunnable(
+    throws(javaClass<IOException>())
+    override fun getHttpResponse(): HttpResponse = client.getProjectStatus(id)
+}
+
+public class BuildConfigurationStatusRunnable(
         id: String,
         db: DB,
-        preferences: Preferences
-): Runnable = ConceptStatusRunnable(
-        id,
-        getBuildConfigurationStatusUrl(id, preferences),
-        preferences,
-        db,
-        Schema.BUILD_CONFIGURATION
-)
+        private val client: RestClient
+) : ProjectOrBuildConfigurationStatusRunnable(id, db, Schema.BUILD_CONFIGURATION) {
 
-private class ConceptStatusRunnable(
-        private val id: String,
-        private val url: String,
-        private val preferences: Preferences,
+    throws(javaClass<IOException>())
+    override fun getHttpResponse(): HttpResponse = client.getBuildConfigurationStatus(id)
+}
+
+private abstract class ProjectOrBuildConfigurationStatusRunnable(
+        protected val id: String,
         private val db: DB,
         private val schema: Schema
 ) : Runnable {
 
+    throws(javaClass<IOException>(), javaClass<SQLiteException>())
     override fun run() {
         saveStatus(loadStatus())
     }
 
-    throws(javaClass<IOException>(), javaClass<HttpStatusException>())
+    throws(javaClass<IOException>())
+    protected abstract fun getHttpResponse(): HttpResponse
+
+    throws(javaClass<IOException>())
     private fun loadStatus(): Status {
-        val response = rest.getPlain(url, preferences.getAuth())
+        val response = getHttpResponse()
 
         val statusLine = response.getStatusLine()
 
