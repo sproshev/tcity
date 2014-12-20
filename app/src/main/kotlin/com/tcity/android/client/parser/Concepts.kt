@@ -16,43 +16,30 @@
 
 package com.tcity.android.client.parser
 
-public val ROOT_PROJECT_ID: String = "_Root"
-
-public enum class Status {
-    FAILURE
-    SUCCESS
-    UNKNOWN
-    DEFAULT
-}
+import com.tcity.android.Status
 
 public abstract class Concept(
         public val id: String,
         public val name: String,
         public val parentId: String,
-        public val status: Status,
-        public val favourite: Boolean
+        public val status: Status = Status.DEFAULT
 )
 
 public class Project(
         id: String,
         name: String,
-        parentId: String,
-        status: Status = Status.DEFAULT,
-        favourite: Boolean = false
-) : Concept(id, name, parentId, status, favourite)
+        parentId: String
+) : Concept(id, name, parentId)
 
 public class BuildConfiguration(
         id: String,
         name: String,
-        parentId: String,
-        status: Status = Status.DEFAULT,
-        favourite: Boolean = false
-) : Concept(id, name, parentId, status, favourite)
+        parentId: String
+) : Concept(id, name, parentId)
 
 public class Build(
         id: String,
         name: String,
         parentId: String,
-        status: Status,
-        favourite: Boolean = false
-) : Concept(id, name, parentId, status, favourite)
+        status: Status
+) : Concept(id, name, parentId, status)
