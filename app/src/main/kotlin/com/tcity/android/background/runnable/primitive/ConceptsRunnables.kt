@@ -14,17 +14,15 @@
  * limitations under the License.
  */
 
-package com.tcity.android.background.runnable
+package com.tcity.android.background.runnable.primitive
 
 import com.tcity.android.background.parser.Concept
 import java.io.IOException
 import org.apache.http.HttpStatus
 import android.database.sqlite.SQLiteException
-import com.tcity.android.app.Preferences
 import java.util.Collections
 import com.tcity.android.app.DB
 import java.io.InputStream
-import com.tcity.android.background.parser.parseProjects
 import com.tcity.android.background.parser.parseBuildConfigurations
 import com.tcity.android.db.Schema
 import com.tcity.android.background.parser.parseBuilds
@@ -36,70 +34,81 @@ import com.tcity.android.db.DBUtils
 import com.tcity.android.db.SelectionUtils
 import com.tcity.android.ROOT_PROJECT_ID
 import com.tcity.android.Status
+import com.tcity.android.background.runnable.HttpStatusException
+import org.apache.http.HttpResponse
+import com.tcity.android.background.parser.Build
+import com.tcity.android.background.rest.RestClient
+import com.tcity.android.background.parser.BuildConfiguration
+import com.tcity.android.background.parser.Project
+import com.tcity.android.background.parser.parseProjects
 
-public fun getProjectsRunnable(
+
+public class ProjectsRunnable(
         db: DB,
-        preferences: Preferences
-): Runnable = ConceptsRunnable(
-        getProjectsUrl(preferences),
-        preferences,
-        ::parseProjects,
-        db,
-        Schema.PROJECT,
-        null,
-        setOf(ROOT_PROJECT_ID)
-)
+        private val client: RestClient
+) : ConceptsRunnable<Project>(null, db, Schema.PROJECT, setOf(ROOT_PROJECT_ID)) {
 
-public fun getBuildConfigurationsRunnable(
+    throws(javaClass<IOException>())
+    override fun getHttpResponse() = client.getProjects()
+
+    throws(javaClass<IOException>())
+    override fun parseConcepts(stream: InputStream) = parseProjects(stream)
+}
+
+public class BuildConfigurationsRunnable(
         projectId: String,
         db: DB,
-        preferences: Preferences
-): Runnable = ConceptsRunnable(
-        getBuildConfigurationsUrl(projectId, preferences),
-        preferences,
-        ::parseBuildConfigurations,
-        db,
-        Schema.BUILD_CONFIGURATION,
-        projectId
-)
+        private val client: RestClient
+) : ConceptsRunnable<BuildConfiguration>(projectId, db, Schema.BUILD_CONFIGURATION) {
 
-public fun getBuildsRunnable(
+    throws(javaClass<IOException>())
+    override fun getHttpResponse(): HttpResponse = client.getBuildConfigurations(parentId)
+
+    throws(javaClass<IOException>())
+    override fun parseConcepts(stream: InputStream) = parseBuildConfigurations(stream)
+}
+
+public class BuildsRunnable(
         buildConfigurationId: String,
         db: DB,
-        preferences: Preferences
-): Runnable = ConceptsRunnable(
-        getBuildsUrl(buildConfigurationId, preferences),
-        preferences,
-        ::parseBuilds,
-        db,
-        Schema.BUILD,
-        buildConfigurationId
-)
+        private val client: RestClient
+) : ConceptsRunnable<Build>(buildConfigurationId, db, Schema.BUILD) {
 
-private class ConceptsRunnable<T : Concept>(
-        private val url: String,
-        private val preferences: Preferences,
-        private val parser: (InputStream) -> Collection<T>,
+    throws(javaClass<IOException>())
+    override fun getHttpResponse() = client.getBuilds(parentId)
+
+    throws(javaClass<IOException>())
+    override fun parseConcepts(stream: InputStream) = parseBuilds(stream)
+}
+
+private abstract class ConceptsRunnable<T : Concept>(
+        protected val parentId: String?,
         private val db: DB,
         private val schema: Schema,
-        private val parentId: String?,
         private val ignoredConceptIds: Set<String> = Collections.emptySet()
 ) : Runnable {
 
+    throws(javaClass<IOException>(), javaClass<SQLiteException>())
     override fun run() {
         saveConcepts(loadConcepts())
     }
 
-    throws(javaClass<IOException>(), javaClass<HttpStatusException>())
+    throws(javaClass<IOException>())
+    protected abstract fun getHttpResponse(): HttpResponse
+
+    throws(javaClass<IOException>())
+    protected abstract fun parseConcepts(stream: InputStream): Collection<T>
+
+    throws(javaClass<IOException>())
     private fun loadConcepts(): Collection<T> {
-        val response = rest.getJson(url, preferences.getAuth())
+        val response = getHttpResponse()
 
         val statusLine = response.getStatusLine()
 
         if (statusLine.getStatusCode() != HttpStatus.SC_OK) {
             throw HttpStatusException(statusLine)
         } else {
-            return parser(response.getEntity().getContent())
+            return parseConcepts(response.getEntity().getContent())
         }
     }
 

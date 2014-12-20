@@ -21,6 +21,7 @@ import android.util.JsonReader
 import java.io.IOException
 import com.tcity.android.Status
 
+throws(javaClass<IOException>())
 public fun parseBuilds(stream: InputStream): List<Build> {
     return parseConcepts(stream, "build", ::parseBuild)
 }

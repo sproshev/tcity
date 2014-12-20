@@ -22,6 +22,7 @@ import java.io.InputStreamReader
 import java.io.IOException
 import java.util.ArrayList
 
+throws(javaClass<IOException>())
 private fun <T : Concept> parseConcepts(
         stream: InputStream,
         key: String, parser: (JsonReader) -> T

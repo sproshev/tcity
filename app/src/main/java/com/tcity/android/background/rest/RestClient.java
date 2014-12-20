@@ -47,6 +47,27 @@ public class RestClient {
     }
 
     @NotNull
+    public HttpResponse getProjects() throws IOException {
+        return getJson(
+                RestLocator.getProjectsUrl(myPreferences)
+        );
+    }
+
+    @NotNull
+    public HttpResponse getBuildConfigurations(@NotNull String projectId) throws IOException {
+        return getJson(
+                RestLocator.getBuildConfigurationsUrl(projectId, myPreferences)
+        );
+    }
+
+    @NotNull
+    public HttpResponse getBuilds(@NotNull String buildConfigurationId) throws IOException {
+        return getJson(
+                RestLocator.getBuildsUrl(buildConfigurationId, myPreferences)
+        );
+    }
+
+    @NotNull
     public HttpResponse getProjectStatus(@NotNull String id) throws IOException {
         return getPlain(
                 RestLocator.getProjectStatusUrl(id, myPreferences)
