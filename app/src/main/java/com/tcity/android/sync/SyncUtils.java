@@ -22,10 +22,13 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 
 import com.tcity.android.app.Preferences;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class SyncUtils {
 
@@ -34,24 +37,41 @@ public class SyncUtils {
 
     public static void enableSync(@NotNull Context context) {
         enableReceiver(context);
-        scheduleReceiver(context);
+        scheduleAlarm(context);
     }
 
     public static void disableSync(@NotNull Context context) {
-        unscheduleReceiver(context);
+        unscheduleAlarm(context);
         disableReceiver(context);
     }
 
-    static void scheduleReceiver(@NotNull Context context) {
+    public static void updateSync(@NotNull Context context, boolean wifiOnly) {
+        NetworkInfo networkInfo = getNetworkInfo(context);
         Preferences preferences = new Preferences(context);
 
-        if (preferences.isSyncEnabled() && !preferences.isSyncScheduled()) {
+        if (preferences.isSyncScheduled()) {
+            if (!isNetworkAvailable(networkInfo) ||
+                    !isConnectionProper(wifiOnly, isWifi(networkInfo))) {
+                unscheduleAlarm(context);
+            }
+        } else {
+            scheduleAlarm(context);
+        }
+    }
+
+    static void scheduleAlarm(@NotNull Context context) {
+        NetworkInfo networkInfo = getNetworkInfo(context);
+        Preferences preferences = new Preferences(context);
+
+        if (isNetworkAvailable(networkInfo) &&
+                isConnectionProper(preferences.isSyncWifiOnly(), isWifi(networkInfo)) &&
+                isSyncEnabledAndNotScheduled(preferences)) {
             AlarmManager manager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
 
             manager.setInexactRepeating(
                     AlarmManager.RTC,
                     System.currentTimeMillis() + AlarmManager.INTERVAL_FIFTEEN_MINUTES / 3,
-                    AlarmManager.INTERVAL_HALF_HOUR,
+                    AlarmManager.INTERVAL_FIFTEEN_MINUTES,
                     getPendingIntent(context)
             );
 
@@ -59,7 +79,11 @@ public class SyncUtils {
         }
     }
 
-    static void unscheduleReceiver(@NotNull Context context) {
+    static void updateAlarm(@NotNull Context context) {
+        updateSync(context, new Preferences(context).isSyncWifiOnly());
+    }
+
+    static void unscheduleAlarm(@NotNull Context context) {
         Preferences preferences = new Preferences(context);
 
         if (preferences.isSyncScheduled()) {
@@ -91,14 +115,27 @@ public class SyncUtils {
         }
     }
 
-    private static void setReceiverState(@NotNull Context context, int state) {
-        ComponentName receiver = new ComponentName(context, SyncReceiver.class);
+    @Nullable
+    private static NetworkInfo getNetworkInfo(@NotNull Context context) {
+        ConnectivityManager manager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
 
-        context.getPackageManager().setComponentEnabledSetting(
-                receiver,
-                state,
-                PackageManager.DONT_KILL_APP
-        );
+        return manager.getActiveNetworkInfo();
+    }
+
+    private static boolean isWifi(@Nullable NetworkInfo networkInfo) {
+        return networkInfo != null && networkInfo.getType() == ConnectivityManager.TYPE_WIFI;
+    }
+
+    private static boolean isNetworkAvailable(@Nullable NetworkInfo networkInfo) {
+        return networkInfo != null && networkInfo.isConnectedOrConnecting();
+    }
+
+    private static boolean isConnectionProper(boolean wifiOnly, boolean isWifi) {
+        return wifiOnly && isWifi || !wifiOnly;
+    }
+
+    private static boolean isSyncEnabledAndNotScheduled(@NotNull Preferences preferences) {
+        return preferences.isSyncEnabled() && !preferences.isSyncScheduled();
     }
 
     @NotNull
@@ -108,6 +145,16 @@ public class SyncUtils {
                 0,
                 new Intent(context, SyncReceiver.class),
                 0
+        );
+    }
+
+    private static void setReceiverState(@NotNull Context context, int state) {
+        ComponentName receiver = new ComponentName(context, SyncReceiver.class);
+
+        context.getPackageManager().setComponentEnabledSetting(
+                receiver,
+                state,
+                PackageManager.DONT_KILL_APP
         );
     }
 }

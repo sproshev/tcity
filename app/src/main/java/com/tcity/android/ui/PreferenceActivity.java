@@ -18,10 +18,15 @@ package com.tcity.android.ui;
 
 import android.app.ActionBar;
 import android.os.Bundle;
+import android.preference.CheckBoxPreference;
 import android.preference.Preference;
 
 import com.tcity.android.R;
 import com.tcity.android.app.Preferences;
+import com.tcity.android.sync.SyncUtils;
+
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class PreferenceActivity extends android.preference.PreferenceActivity {
 
@@ -48,5 +53,39 @@ public class PreferenceActivity extends android.preference.PreferenceActivity {
         Preference loginPreference = findPreference(getResources().getString(R.string.login_pref_key));
         loginPreference.setSummary(preferences.getLogin());
         loginPreference.setSelectable(false);
+
+        //noinspection deprecation
+        CheckBoxPreference syncPreference = (CheckBoxPreference) findPreference(getString(R.string.sync_pref_key));
+        syncPreference.setOnPreferenceChangeListener(new SyncPreferenceListener());
+
+        //noinspection deprecation
+        CheckBoxPreference wifiPreference = (CheckBoxPreference) findPreference(getString(R.string.sync_wifi_only_pref_key));
+        wifiPreference.setOnPreferenceChangeListener(new WifiPreferenceListener());
+    }
+
+    private class SyncPreferenceListener implements Preference.OnPreferenceChangeListener {
+
+        @Override
+        public boolean onPreferenceChange(@Nullable Preference preference,
+                                          @NotNull Object newValue) {
+            if ((boolean) newValue) {
+                SyncUtils.enableSync(PreferenceActivity.this);
+            } else {
+                SyncUtils.disableSync(PreferenceActivity.this);
+            }
+
+            return true;
+        }
+    }
+
+    private class WifiPreferenceListener implements Preference.OnPreferenceChangeListener {
+
+        @Override
+        public boolean onPreferenceChange(@Nullable Preference preference,
+                                          @NotNull Object newValue) {
+            SyncUtils.updateSync(PreferenceActivity.this, (boolean) newValue);
+
+            return true;
+        }
     }
 }
