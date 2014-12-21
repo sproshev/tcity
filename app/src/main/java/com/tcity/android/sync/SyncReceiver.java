@@ -20,6 +20,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
+import com.tcity.android.app.Preferences;
+
 import org.jetbrains.annotations.NotNull;
 
 public class SyncReceiver extends BroadcastReceiver {
@@ -29,10 +31,12 @@ public class SyncReceiver extends BroadcastReceiver {
         String action = intent.getAction();
 
         if (action != null) {
-            if (action.equals("android.intent.action.BOOT_COMPLETED")) {
-                SyncUtils.scheduleAlarm(context);
+            Preferences preferences = new Preferences(context);
+
+            if (action.equals("android.intent.action.BOOT_COMPLETED") && preferences.isSyncEnabled()) {
+                SyncUtils.enableSync(context, preferences.isSyncWifiOnly());
             } else if (action.equals("android.net.conn.CONNECTIVITY_CHANGE")) {
-                SyncUtils.updateAlarm(context);
+                SyncUtils.updateSync(context, preferences.isSyncWifiOnly());
             }
         } else {
             onAlarm(context);

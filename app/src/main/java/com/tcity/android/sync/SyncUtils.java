@@ -35,9 +35,9 @@ public class SyncUtils {
     private SyncUtils() {
     }
 
-    public static void enableSync(@NotNull Context context) {
+    public static void enableSync(@NotNull Context context, boolean wifiOnly) {
         enableReceiver(context);
-        scheduleAlarm(context);
+        scheduleAlarm(context, wifiOnly);
     }
 
     public static void disableSync(@NotNull Context context) {
@@ -55,17 +55,17 @@ public class SyncUtils {
                 unscheduleAlarm(context);
             }
         } else {
-            scheduleAlarm(context);
+            scheduleAlarm(context, wifiOnly);
         }
     }
 
-    static void scheduleAlarm(@NotNull Context context) {
+    private static void scheduleAlarm(@NotNull Context context, boolean wifiOnly) {
         NetworkInfo networkInfo = getNetworkInfo(context);
         Preferences preferences = new Preferences(context);
 
         if (isNetworkAvailable(networkInfo) &&
-                isConnectionProper(preferences.isSyncWifiOnly(), isWifi(networkInfo)) &&
-                isSyncEnabledAndNotScheduled(preferences)) {
+                isConnectionProper(wifiOnly, isWifi(networkInfo)) &&
+                !preferences.isSyncScheduled()) {
             AlarmManager manager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
 
             manager.setInexactRepeating(
@@ -79,11 +79,7 @@ public class SyncUtils {
         }
     }
 
-    static void updateAlarm(@NotNull Context context) {
-        updateSync(context, new Preferences(context).isSyncWifiOnly());
-    }
-
-    static void unscheduleAlarm(@NotNull Context context) {
+    private static void unscheduleAlarm(@NotNull Context context) {
         Preferences preferences = new Preferences(context);
 
         if (preferences.isSyncScheduled()) {
@@ -132,10 +128,6 @@ public class SyncUtils {
 
     private static boolean isConnectionProper(boolean wifiOnly, boolean isWifi) {
         return wifiOnly && isWifi || !wifiOnly;
-    }
-
-    private static boolean isSyncEnabledAndNotScheduled(@NotNull Preferences preferences) {
-        return preferences.isSyncEnabled() && !preferences.isSyncScheduled();
     }
 
     @NotNull

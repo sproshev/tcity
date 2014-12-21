@@ -68,10 +68,12 @@ public class PreferenceActivity extends android.preference.PreferenceActivity {
         @Override
         public boolean onPreferenceChange(@Nullable Preference preference,
                                           @NotNull Object newValue) {
+            PreferenceActivity context = PreferenceActivity.this;
+
             if ((boolean) newValue) {
-                SyncUtils.enableSync(PreferenceActivity.this);
+                SyncUtils.enableSync(context, new Preferences(context).isSyncWifiOnly());
             } else {
-                SyncUtils.disableSync(PreferenceActivity.this);
+                SyncUtils.disableSync(context);
             }
 
             return true;
