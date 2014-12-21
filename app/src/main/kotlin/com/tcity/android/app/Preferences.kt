@@ -34,6 +34,8 @@ public class Preferences(context: Context) {
 
     class object {
         private val AUTH_KEY = "auth"
+        private val SYNC_RECEIVER_KEY = "sync_receiver"
+        private val SYNC_SCHEDULED_KEY = "sync_scheduled"
     }
 
     public fun isValid(): Boolean {
@@ -49,6 +51,10 @@ public class Preferences(context: Context) {
     public fun isSyncEnabled(): Boolean = preferences.getBoolean(syncKey, true)
 
     public fun isSyncWifiOnly(): Boolean = preferences.getBoolean(syncWifiOnlyKey, true)
+
+    public fun isSyncReceiverEnabled(): Boolean = preferences.getBoolean(SYNC_RECEIVER_KEY, false)
+
+    public fun isSyncScheduled(): Boolean = preferences.getBoolean(SYNC_SCHEDULED_KEY, false)
 
     public fun setUrl(url: String) {
         val editor = preferences.edit()
@@ -80,6 +86,22 @@ public class Preferences(context: Context) {
         val editor = preferences.edit()
 
         editor.putBoolean(syncWifiOnlyKey, wifiOnly)
+
+        editor.apply()
+    }
+
+    public fun setSyncReceiverEnabled(enabled: Boolean) {
+        val editor = preferences.edit()
+
+        editor.putBoolean(SYNC_RECEIVER_KEY, enabled)
+
+        editor.apply()
+    }
+
+    public fun setSyncScheduled(scheduled: Boolean) {
+        val editor = preferences.edit()
+
+        editor.putBoolean(SYNC_SCHEDULED_KEY, scheduled)
 
         editor.apply()
     }
