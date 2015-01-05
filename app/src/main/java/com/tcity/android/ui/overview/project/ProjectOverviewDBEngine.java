@@ -16,9 +16,7 @@
 
 package com.tcity.android.ui.overview.project;
 
-import android.content.ContentValues;
 import android.content.Context;
-import android.database.Cursor;
 import android.os.Handler;
 import android.os.Message;
 import android.view.View;
@@ -29,10 +27,7 @@ import com.commonsware.cwac.merge.MergeAdapter;
 import com.tcity.android.AndroidPackage;
 import com.tcity.android.R;
 import com.tcity.android.Status;
-import com.tcity.android.app.DB;
-import com.tcity.android.db.CVUtils;
-import com.tcity.android.db.DBUtils;
-import com.tcity.android.db.Schema;
+import com.tcity.android.db.DB;
 import com.tcity.android.ui.adapter.BuildConfigurationClickListener;
 import com.tcity.android.ui.adapter.ProjectClickListener;
 import com.tcity.android.ui.engine.BuildConfigurationDBEngine;
@@ -68,10 +63,10 @@ class ProjectOverviewDBEngine {
     private final ProjectDBEngine myAllProjectsEngine;
 
     @NotNull
-    private final BuildConfigurationSchemaListener myBuildConfigurationSchemaListener;
+    private final BuildConfigurationsListener myBuildConfigurationsListener;
 
     @NotNull
-    private final ProjectSchemaListener myProjectSchemaListener;
+    private final ProjectsListener myProjectsListener;
 
     ProjectOverviewDBEngine(@NotNull String projectId,
                             @NotNull Context context,
@@ -88,10 +83,8 @@ class ProjectOverviewDBEngine {
                 root,
                 myBuildConfigurationClickListener,
                 context.getString(R.string.favourite) + " " + context.getString(R.string.build_configurations),
-                Schema.PARENT_ID_COLUMN + " = ? AND " + Schema.FAVOURITE_COLUMN + " = ?",
-                new String[]{
-                        projectId, CVUtils.toFavouriteContentValue(true)
-                }
+                projectId,
+                true
         );
 
         myAllBuildConfigurationsEngine = new BuildConfigurationDBEngine(
@@ -100,8 +93,8 @@ class ProjectOverviewDBEngine {
                 root,
                 myBuildConfigurationClickListener,
                 context.getString(R.string.build_configurations),
-                Schema.PARENT_ID_COLUMN + " = ?",
-                new String[]{projectId}
+                projectId,
+                false
         );
 
         String projectSectionName = calculateProjectSectionName(projectId, context);
@@ -112,10 +105,8 @@ class ProjectOverviewDBEngine {
                 root,
                 myProjectClickListener,
                 context.getString(R.string.favourite) + " " + projectSectionName,
-                Schema.PARENT_ID_COLUMN + " = ? AND " + Schema.FAVOURITE_COLUMN + " = ?",
-                new String[]{
-                        projectId, CVUtils.toFavouriteContentValue(true)
-                }
+                projectId,
+                true
         );
 
         myAllProjectsEngine = new ProjectDBEngine(
@@ -124,8 +115,8 @@ class ProjectOverviewDBEngine {
                 root,
                 myProjectClickListener,
                 projectSectionName,
-                Schema.PARENT_ID_COLUMN + " = ?",
-                new String[]{projectId}
+                projectId,
+                false
         );
 
         myMainAdapter.addView(myFavouriteBuildConfigurationsEngine.getHeader());
@@ -145,11 +136,11 @@ class ProjectOverviewDBEngine {
         handleHeader(myAllProjectsEngine);
         handleHeader(myAllBuildConfigurationsEngine);
 
-        myBuildConfigurationSchemaListener = new BuildConfigurationSchemaListener();
-        myProjectSchemaListener = new ProjectSchemaListener();
+        myBuildConfigurationsListener = new BuildConfigurationsListener();
+        myProjectsListener = new ProjectsListener();
 
-        myDB.addListener(Schema.PROJECT, myProjectSchemaListener);
-        myDB.addListener(Schema.BUILD_CONFIGURATION, myBuildConfigurationSchemaListener);
+        myDB.addProjectsListener(myProjectsListener);
+        myDB.addBuildConfigurationsListener(myBuildConfigurationsListener);
     }
 
     @NotNull
@@ -163,46 +154,18 @@ class ProjectOverviewDBEngine {
     }
 
     public void projectImageClick(@NotNull String id) {
-        ContentValues values = new ContentValues();
-
-        values.putAll(
-                CVUtils.toContentValues(Status.DEFAULT)
-        );
-
-        values.putAll(
-                CVUtils.toFavouriteContentValues(!isProjectFavourite(id))
-        );
-
-        myDB.update(
-                Schema.PROJECT,
-                values,
-                Schema.TC_ID_COLUMN + " = ?",
-                new String[]{id}
-        );
+        myDB.setProjectStatus(id, Status.DEFAULT);
+        myDB.setFavouriteProject(id, !isProjectFavourite(id));
     }
 
     public void buildConfigurationImageClick(@NotNull String id) {
-        ContentValues values = new ContentValues();
-
-        values.putAll(
-                CVUtils.toContentValues(Status.DEFAULT)
-        );
-
-        values.putAll(
-                CVUtils.toFavouriteContentValues(!isBuildConfigurationFavourite(id))
-        );
-
-        myDB.update(
-                Schema.BUILD_CONFIGURATION,
-                values,
-                Schema.TC_ID_COLUMN + " = ?",
-                new String[]{id}
-        );
+        myDB.setBuildConfigurationStatus(id, Status.DEFAULT);
+        myDB.setFavouriteBuildConfiguration(id, !isBuildConfigurationFavourite(id));
     }
 
     public void close() {
-        myDB.removeListener(Schema.PROJECT, myProjectSchemaListener);
-        myDB.removeListener(Schema.BUILD_CONFIGURATION, myBuildConfigurationSchemaListener);
+        myDB.removeProjectsListener(myProjectsListener);
+        myDB.removeBuildConfigurationsListener(myBuildConfigurationsListener);
 
         myFavouriteBuildConfigurationsEngine.close();
         myFavouriteProjectsEngine.close();
@@ -229,6 +192,7 @@ class ProjectOverviewDBEngine {
     }
 
     private boolean isProjectFavourite(@NotNull String id) {
+        /*
         Cursor cursor = myDB.query(
                 Schema.PROJECT,
                 new String[]{Schema.FAVOURITE_COLUMN},
@@ -244,9 +208,13 @@ class ProjectOverviewDBEngine {
         cursor.close();
 
         return result;
+        */
+        // TODO
+        return true;
     }
 
     private boolean isBuildConfigurationFavourite(@NotNull String id) {
+        /*
         Cursor cursor = myDB.query(
                 Schema.BUILD_CONFIGURATION,
                 new String[]{Schema.FAVOURITE_COLUMN},
@@ -262,6 +230,9 @@ class ProjectOverviewDBEngine {
         cursor.close();
 
         return result;
+        */
+        // TODO
+        return true;
     }
 
     private static class MyBuildConfigurationClickListener implements BuildConfigurationClickListener {
@@ -318,7 +289,7 @@ class ProjectOverviewDBEngine {
         }
     }
 
-    private class BuildConfigurationSchemaListener implements Schema.Listener {
+    private class BuildConfigurationsListener implements DB.Listener {
 
         @NotNull
         private final Handler myHandler = new Handler() {
@@ -342,7 +313,7 @@ class ProjectOverviewDBEngine {
         }
     }
 
-    private class ProjectSchemaListener implements Schema.Listener {
+    private class ProjectsListener implements DB.Listener {
 
         @NotNull
         private final Handler myHandler = new Handler() {

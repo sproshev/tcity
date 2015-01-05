@@ -20,9 +20,9 @@ import android.content.Context;
 import android.view.ViewGroup;
 import android.widget.ListAdapter;
 
-import com.tcity.android.app.DB;
 import com.tcity.android.app.Preferences;
 import com.tcity.android.background.rest.RestClient;
+import com.tcity.android.db.DB;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

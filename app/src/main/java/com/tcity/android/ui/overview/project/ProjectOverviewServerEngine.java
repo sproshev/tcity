@@ -20,7 +20,6 @@ import android.database.Cursor;
 import android.os.AsyncTask;
 import android.widget.Toast;
 
-import com.tcity.android.app.DB;
 import com.tcity.android.background.rest.RestClient;
 import com.tcity.android.background.runnable.chain.ExecutableRunnableChain;
 import com.tcity.android.background.runnable.chain.RunnableChain;
@@ -28,9 +27,8 @@ import com.tcity.android.background.runnable.primitive.BuildConfigurationStatusR
 import com.tcity.android.background.runnable.primitive.BuildConfigurationsRunnable;
 import com.tcity.android.background.runnable.primitive.ProjectStatusRunnable;
 import com.tcity.android.background.runnable.primitive.ProjectsRunnable;
-import com.tcity.android.db.CVUtils;
+import com.tcity.android.db.DB;
 import com.tcity.android.db.DBUtils;
-import com.tcity.android.db.Schema;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -45,12 +43,10 @@ class ProjectOverviewServerEngine {
 
     @NotNull
     private final ChainListener myChainListener;
-
-    @Nullable
-    private ExecutableRunnableChain myChain;
-
     @NotNull
     private final RestClient myRestClient;
+    @Nullable
+    private ExecutableRunnableChain myChain;
 
     ProjectOverviewServerEngine(@NotNull String projectId,
                                 @NotNull DB db,
@@ -131,13 +127,7 @@ class ProjectOverviewServerEngine {
 
     @NotNull
     private RunnableChain calculateProjectStatusesChain() {
-        Cursor cursor = myDb.query(
-                Schema.PROJECT,
-                new String[]{Schema.TC_ID_COLUMN},
-                Schema.PARENT_ID_COLUMN + " = ? AND " + Schema.FAVOURITE_COLUMN + " = ?",
-                new String[]{myProjectId, CVUtils.toFavouriteContentValue(true)},
-                null, null, null, null
-        );
+        Cursor cursor = myDb.getProjects(myProjectId, true);
 
         Runnable[] runnables = new Runnable[cursor.getCount()];
         int pos = 0;
@@ -157,13 +147,7 @@ class ProjectOverviewServerEngine {
 
     @NotNull
     private RunnableChain calculateBuildConfigurationStatusesChain() {
-        Cursor cursor = myDb.query(
-                Schema.BUILD_CONFIGURATION,
-                new String[]{Schema.TC_ID_COLUMN},
-                Schema.PARENT_ID_COLUMN + " = ? AND " + Schema.FAVOURITE_COLUMN + " = ?",
-                new String[]{myProjectId, CVUtils.toFavouriteContentValue(true)},
-                null, null, null, null
-        );
+        Cursor cursor = myDb.getBuildConfigurations(myProjectId, true);
 
         Runnable[] runnables = new Runnable[cursor.getCount()];
         int pos = 0;
@@ -182,6 +166,7 @@ class ProjectOverviewServerEngine {
     }
 
     private boolean isProjectFavourite(@NotNull String id) {
+        /*
         Cursor cursor = myDb.query(
                 Schema.PROJECT,
                 new String[]{Schema.FAVOURITE_COLUMN},
@@ -197,9 +182,13 @@ class ProjectOverviewServerEngine {
         cursor.close();
 
         return result;
+        */
+        // TODO
+        return true;
     }
 
     private boolean isBuildConfigurationFavourite(@NotNull String id) {
+        /*
         Cursor cursor = myDb.query(
                 Schema.BUILD_CONFIGURATION,
                 new String[]{Schema.FAVOURITE_COLUMN},
@@ -215,6 +204,9 @@ class ProjectOverviewServerEngine {
         cursor.close();
 
         return result;
+        */
+        // TODO
+        return true;
     }
 
     private static class ChainListener implements RunnableChain.Listener {

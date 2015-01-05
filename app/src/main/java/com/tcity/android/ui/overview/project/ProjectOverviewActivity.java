@@ -19,7 +19,6 @@ package com.tcity.android.ui.overview.project;
 import android.app.ActionBar;
 import android.app.ListActivity;
 import android.content.Intent;
-import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -33,11 +32,8 @@ import android.widget.TextView;
 import com.tcity.android.AndroidPackage;
 import com.tcity.android.R;
 import com.tcity.android.app.Application;
-import com.tcity.android.app.DB;
 import com.tcity.android.app.Preferences;
 import com.tcity.android.background.web.WebLocator;
-import com.tcity.android.db.DBUtils;
-import com.tcity.android.db.Schema;
 import com.tcity.android.ui.PreferenceActivity;
 import com.tcity.android.ui.overview.buildconfiguration.BuildConfigurationOverviewActivity;
 
@@ -197,6 +193,7 @@ public class ProjectOverviewActivity extends ListActivity implements SwipeRefres
 
     @NotNull
     private String calculateTitle() {
+        /*
         if (myProjectId.equals(AndroidPackage.getROOT_PROJECT_ID())) {
             return getString(R.string.projects);
         }
@@ -218,6 +215,9 @@ public class ProjectOverviewActivity extends ListActivity implements SwipeRefres
         cursor.close();
 
         return result;
+        */
+        // TODO
+        return "abc";
     }
 
     @NotNull
