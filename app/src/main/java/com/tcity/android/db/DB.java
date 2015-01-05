@@ -19,8 +19,12 @@ package com.tcity.android.db;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 
 import com.tcity.android.Status;
+import com.tcity.android.background.parser.Build;
+import com.tcity.android.background.parser.BuildConfiguration;
+import com.tcity.android.background.parser.Project;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -65,16 +69,86 @@ public class DB {
         notifyListeners(OverviewTable.BUILD);
     }
 
-    public void setProjects() {
-        // TODO
+    public void setProjects(@NotNull Collection<Project> projects) {
+        SQLiteDatabase db = myDBHelper.getWritableDatabase();
+        db.beginTransaction();
+
+        try {
+            db.delete(OverviewTable.PROJECT.getName(), null, null);
+
+            for (Project project : projects) {
+                ContentValues values = new ContentValues();
+                values.put(Column.TC_ID.getName(), project.getId());
+                values.put(Column.PARENT_ID.getName(), project.getParentId());
+                values.put(Column.NAME.getName(), project.getName());
+
+                db.insert(OverviewTable.PROJECT.getName(), null, values);
+            }
+
+            db.setTransactionSuccessful();
+
+            notifyListeners(OverviewTable.PROJECT);
+        } finally {
+            db.endTransaction();
+        }
     }
 
-    public void setBuildConfigurations(@NotNull String parentProjectId) {
-        // TODO
+    public void setBuildConfigurations(@NotNull String parentProjectId,
+                                       @NotNull Collection<BuildConfiguration> buildConfigurations) {
+        SQLiteDatabase db = myDBHelper.getWritableDatabase();
+        db.beginTransaction();
+
+        try {
+            db.delete(
+                    OverviewTable.BUILD_CONFIGURATION.getName(),
+                    Column.PARENT_ID.getName() + " = ?",
+                    new String[]{parentProjectId}
+            );
+
+            for (BuildConfiguration buildConfiguration : buildConfigurations) {
+                ContentValues values = new ContentValues();
+                values.put(Column.TC_ID.getName(), buildConfiguration.getId());
+                values.put(Column.PARENT_ID.getName(), buildConfiguration.getParentId());
+                values.put(Column.NAME.getName(), buildConfiguration.getName());
+
+                db.insert(OverviewTable.BUILD_CONFIGURATION.getName(), null, values);
+            }
+
+            db.setTransactionSuccessful();
+
+            notifyListeners(OverviewTable.BUILD_CONFIGURATION);
+        } finally {
+            db.endTransaction();
+        }
     }
 
-    public void setBuilds(@NotNull String parentBuildConfigurationId) {
-        // TODO
+    public void setBuilds(@NotNull String parentBuildConfigurationId,
+                          @NotNull Collection<Build> builds) {
+        SQLiteDatabase db = myDBHelper.getWritableDatabase();
+        db.beginTransaction();
+
+        try {
+            db.delete(
+                    OverviewTable.BUILD.getName(),
+                    Column.PARENT_ID.getName() + " = ?",
+                    new String[]{parentBuildConfigurationId}
+            );
+
+            for (Build build : builds) {
+                ContentValues values = new ContentValues();
+                values.put(Column.TC_ID.getName(), build.getId());
+                values.put(Column.PARENT_ID.getName(), build.getParentId());
+                values.put(Column.NAME.getName(), build.getName());
+
+                db.insert(OverviewTable.BUILD.getName(), null, values);
+            }
+
+            db.setTransactionSuccessful();
+
+            notifyListeners(OverviewTable.BUILD);
+        } finally {
+            db.endTransaction();
+        }
     }
 
     @NotNull
