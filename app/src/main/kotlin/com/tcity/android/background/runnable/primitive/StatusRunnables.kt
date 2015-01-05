@@ -21,51 +21,25 @@ import com.tcity.android.Status
 import org.apache.http.HttpStatus
 import org.apache.http.util.EntityUtils
 import android.database.sqlite.SQLiteException
-import com.tcity.android.db.Schema
-import com.tcity.android.app.DB
-import com.tcity.android.db.CVUtils
+import com.tcity.android.db.DB
 import com.tcity.android.background.runnable.HttpStatusException
-import org.apache.http.HttpResponse
 import com.tcity.android.background.rest.RestClient
 
 
 public class ProjectStatusRunnable(
-        id: String,
-        db: DB,
-        private val client: RestClient
-) : ProjectOrBuildConfigurationStatusRunnable(id, db, Schema.PROJECT) {
-
-    throws(javaClass<IOException>())
-    override fun getHttpResponse(): HttpResponse = client.getProjectStatus(id)
-}
-
-public class BuildConfigurationStatusRunnable(
-        id: String,
-        db: DB,
-        private val client: RestClient
-) : ProjectOrBuildConfigurationStatusRunnable(id, db, Schema.BUILD_CONFIGURATION) {
-
-    throws(javaClass<IOException>())
-    override fun getHttpResponse(): HttpResponse = client.getBuildConfigurationStatus(id)
-}
-
-private abstract class ProjectOrBuildConfigurationStatusRunnable(
-        protected val id: String,
+        private val id: String,
         private val db: DB,
-        private val schema: Schema
+        private val client: RestClient
 ) : Runnable {
 
     throws(javaClass<IOException>(), javaClass<SQLiteException>())
     override fun run() {
-        saveStatus(loadStatus())
+        db.setProjectStatus(id, loadStatus())
     }
 
     throws(javaClass<IOException>())
-    protected abstract fun getHttpResponse(): HttpResponse
-
-    throws(javaClass<IOException>())
     private fun loadStatus(): Status {
-        val response = getHttpResponse()
+        val response = client.getProjectStatus(id)
 
         val statusLine = response.getStatusLine()
 
@@ -77,14 +51,31 @@ private abstract class ProjectOrBuildConfigurationStatusRunnable(
             )
         }
     }
+}
 
-    throws(javaClass<SQLiteException>())
-    private fun saveStatus(status: Status) {
-        db.update(
-                schema,
-                CVUtils.toContentValues(status),
-                "${Schema.TC_ID_COLUMN} = ?",
-                array(id)
-        )
+public class BuildConfigurationStatusRunnable(
+        private val id: String,
+        private val db: DB,
+        private val client: RestClient
+) : Runnable {
+
+    throws(javaClass<IOException>(), javaClass<SQLiteException>())
+    override fun run() {
+        db.setBuildConfigurationStatus(id, loadStatus())
+    }
+
+    throws(javaClass<IOException>())
+    private fun loadStatus(): Status {
+        val response = client.getBuildConfigurationStatus(id)
+
+        val statusLine = response.getStatusLine()
+
+        if (statusLine.getStatusCode() != HttpStatus.SC_OK) {
+            throw HttpStatusException(statusLine)
+        } else {
+            return Status.valueOf(
+                    EntityUtils.toString(response.getEntity())
+            )
+        }
     }
 }
