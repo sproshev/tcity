@@ -78,7 +78,7 @@ public class DB {
     }
 
     @NotNull
-    public Cursor getProjects(@NotNull String parentProjectId, boolean isFavourite) {
+    public Cursor getProjects(@NotNull String parentProjectId, boolean onlyFavourite) {
         String mainTable = OverviewTable.PROJECT.getName();
         String favouriteTable = FavouriteTable.PROJECT.getName();
         String statusTable = StatusTable.PROJECT.getName();
@@ -88,12 +88,12 @@ public class DB {
                 favouriteTable,
                 statusTable,
                 parentProjectId,
-                isFavourite
+                onlyFavourite
         );
     }
 
     @NotNull
-    public Cursor getBuildConfigurations(@NotNull String parentProjectId, boolean isFavourite) {
+    public Cursor getBuildConfigurations(@NotNull String parentProjectId, boolean onlyFavourite) {
         String mainTable = OverviewTable.BUILD_CONFIGURATION.getName();
         String favouriteTable = FavouriteTable.BUILD_CONFIGURATION.getName();
         String statusTable = StatusTable.BUILD_CONFIGURATION.getName();
@@ -103,18 +103,18 @@ public class DB {
                 favouriteTable,
                 statusTable,
                 parentProjectId,
-                isFavourite
+                onlyFavourite
         );
     }
 
     @NotNull
-    public Cursor getBuilds(@NotNull String parentBuildConfigurationId, boolean isFavourite) {
+    public Cursor getBuilds(@NotNull String parentBuildConfigurationId, boolean onlyFavourite) {
         String mainTable = OverviewTable.BUILD.getName();
         String favouriteTable = FavouriteTable.BUILD.getName();
 
         String idColumn = Column.TC_ID.getName();
 
-        if (isFavourite) {
+        if (onlyFavourite) {
             return myDBHelper.getReadableDatabase().rawQuery(
                     "SELECT * FROM " + mainTable +
                             " INNER JOIN " + favouriteTable +
@@ -215,10 +215,10 @@ public class DB {
                                                     @NotNull String favouriteTable,
                                                     @NotNull String statusTable,
                                                     @NotNull String parentProjectId,
-                                                    boolean isFavourite) {
+                                                    boolean onlyFavourite) {
         String idColumn = Column.TC_ID.getName();
 
-        if (isFavourite) {
+        if (onlyFavourite) {
             return myDBHelper.getReadableDatabase().rawQuery(
                     "SELECT * FROM " + mainTable +
                             " INNER JOIN " + favouriteTable +

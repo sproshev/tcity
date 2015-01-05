@@ -43,7 +43,7 @@ public class ProjectDBEngine {
     private final Cursor myCursor;
 
     public ProjectDBEngine(@NotNull String parentProjectId,
-                           boolean isFavourite,
+                           boolean onlyFavourite,
                            @NotNull Context context,
                            @NotNull DB db,
                            @NotNull ViewGroup root,
@@ -54,7 +54,7 @@ public class ProjectDBEngine {
         myHeader = (TextView) inflater.inflate(R.layout.overview_separator, root, false);
         myHeader.setText(title);
 
-        myCursor = db.getProjects(parentProjectId, isFavourite);
+        myCursor = db.getProjects(parentProjectId, onlyFavourite);
 
         myAdapter = new ProjectAdapter(context, clickListener);
         myAdapter.changeCursor(myCursor);
