@@ -67,7 +67,7 @@ class ProjectOverviewServerEngine {
     }
 
     public void projectImageClick(@NotNull String id) {
-        if (isProjectFavourite(id)) {
+        if (myDb.isProjectFavourite(id)) {
             ExecutableRunnableChain statusTask = RunnableChain.getSingleRunnableChain(
                     new ProjectStatusRunnable(id, myDb, myRestClient)
             ).toAsyncTask(myChainListener);
@@ -78,7 +78,7 @@ class ProjectOverviewServerEngine {
     }
 
     public void buildConfigurationImageClick(@NotNull String id) {
-        if (isBuildConfigurationFavourite(id)) {
+        if (myDb.isBuildConfigurationFavourite(id)) {
             ExecutableRunnableChain statusTask = RunnableChain.getSingleRunnableChain(
                     new BuildConfigurationStatusRunnable(id, myDb, myRestClient)
             ).toAsyncTask(myChainListener);
@@ -163,50 +163,6 @@ class ProjectOverviewServerEngine {
         cursor.close();
 
         return RunnableChain.getOrRunnableChain(runnables);
-    }
-
-    private boolean isProjectFavourite(@NotNull String id) {
-        /*
-        Cursor cursor = myDb.query(
-                Schema.PROJECT,
-                new String[]{Schema.FAVOURITE_COLUMN},
-                Schema.TC_ID_COLUMN + " = ?",
-                new String[]{id},
-                null, null, null, null
-        );
-
-        cursor.moveToNext();
-
-        boolean result = DBUtils.getFavourite(cursor);
-
-        cursor.close();
-
-        return result;
-        */
-        // TODO
-        return true;
-    }
-
-    private boolean isBuildConfigurationFavourite(@NotNull String id) {
-        /*
-        Cursor cursor = myDb.query(
-                Schema.BUILD_CONFIGURATION,
-                new String[]{Schema.FAVOURITE_COLUMN},
-                Schema.TC_ID_COLUMN + " = ?",
-                new String[]{id},
-                null, null, null, null
-        );
-
-        cursor.moveToNext();
-
-        boolean result = DBUtils.getFavourite(cursor);
-
-        cursor.close();
-
-        return result;
-        */
-        // TODO
-        return true;
     }
 
     private static class ChainListener implements RunnableChain.Listener {

@@ -155,12 +155,12 @@ class ProjectOverviewDBEngine {
 
     public void projectImageClick(@NotNull String id) {
         myDB.setProjectStatus(id, Status.DEFAULT);
-        myDB.setFavouriteProject(id, !isProjectFavourite(id));
+        myDB.setFavouriteProject(id, !myDB.isProjectFavourite(id));
     }
 
     public void buildConfigurationImageClick(@NotNull String id) {
         myDB.setBuildConfigurationStatus(id, Status.DEFAULT);
-        myDB.setFavouriteBuildConfiguration(id, !isBuildConfigurationFavourite(id));
+        myDB.setFavouriteBuildConfiguration(id, !myDB.isBuildConfigurationFavourite(id));
     }
 
     public void close() {
@@ -189,50 +189,6 @@ class ProjectOverviewDBEngine {
 
     private void handleHeader(@NotNull BuildConfigurationDBEngine engine) {
         myMainAdapter.setActive(engine.getHeader(), !engine.empty());
-    }
-
-    private boolean isProjectFavourite(@NotNull String id) {
-        /*
-        Cursor cursor = myDB.query(
-                Schema.PROJECT,
-                new String[]{Schema.FAVOURITE_COLUMN},
-                Schema.TC_ID_COLUMN + " = ?",
-                new String[]{id},
-                null, null, null, null
-        );
-
-        cursor.moveToNext();
-
-        boolean result = DBUtils.getFavourite(cursor);
-
-        cursor.close();
-
-        return result;
-        */
-        // TODO
-        return true;
-    }
-
-    private boolean isBuildConfigurationFavourite(@NotNull String id) {
-        /*
-        Cursor cursor = myDB.query(
-                Schema.BUILD_CONFIGURATION,
-                new String[]{Schema.FAVOURITE_COLUMN},
-                Schema.TC_ID_COLUMN + " = ?",
-                new String[]{id},
-                null, null, null, null
-        );
-
-        cursor.moveToNext();
-
-        boolean result = DBUtils.getFavourite(cursor);
-
-        cursor.close();
-
-        return result;
-        */
-        // TODO
-        return true;
     }
 
     private static class MyBuildConfigurationClickListener implements BuildConfigurationClickListener {

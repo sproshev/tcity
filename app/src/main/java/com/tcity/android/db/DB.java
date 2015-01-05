@@ -57,10 +57,18 @@ public class DB {
         notifyListeners(OverviewTable.PROJECT);
     }
 
+    public boolean isProjectFavourite(@NotNull String id) {
+        return isFavourite(FavouriteTable.PROJECT, id);
+    }
+
     public void setFavouriteBuildConfiguration(@NotNull String id, boolean favourite) {
         setFavourite(FavouriteTable.BUILD_CONFIGURATION, id, favourite);
 
         notifyListeners(OverviewTable.BUILD_CONFIGURATION);
+    }
+
+    public boolean isBuildConfigurationFavourite(@NotNull String id) {
+        return isFavourite(FavouriteTable.BUILD_CONFIGURATION, id);
     }
 
     public void setFavouriteBuild(@NotNull String id, boolean favourite) {
@@ -139,6 +147,7 @@ public class DB {
                 values.put(Column.TC_ID.getName(), build.getId());
                 values.put(Column.PARENT_ID.getName(), build.getParentId());
                 values.put(Column.NAME.getName(), build.getName());
+                values.put(Column.STATUS.getName(), build.getStatus().toString());
 
                 db.insert(OverviewTable.BUILD.getName(), null, values);
             }
@@ -190,20 +199,34 @@ public class DB {
 
         if (onlyFavourite) {
             return myDBHelper.getReadableDatabase().rawQuery(
-                    "SELECT * FROM " + mainTable +
+                    "SELECT " +
+                            mainTable + "." + Column.ANDROID_ID.getName() + ", " +
+                            mainTable + "." + Column.TC_ID.getName() + ", " +
+                            mainTable + "." + Column.NAME.getName() + ", " +
+                            mainTable + "." + Column.PARENT_ID.getName() + ", " +
+                            mainTable + "." + Column.STATUS.getName() + ", " +
+                            favouriteTable + "." + Column.FAVOURITE.getName() +
+                            " FROM " + mainTable +
                             " INNER JOIN " + favouriteTable +
                             " ON " + mainTable + "." + idColumn + " = " + favouriteTable + "." + idColumn +
-                            " AND " + favouriteTable + "." + Column.FAVOURITE.getName() + " = true" +
-                            " WHERE " + mainTable + "." + Column.PARENT_ID.getName() + " = " + parentBuildConfigurationId,
-                    new String[]{}
+                            " AND " + favouriteTable + "." + Column.FAVOURITE.getName() +
+                            " WHERE " + mainTable + "." + Column.PARENT_ID.getName() + " = '" + parentBuildConfigurationId + "'",
+                    null
             );
         } else {
             return myDBHelper.getReadableDatabase().rawQuery(
-                    "SELECT * FROM " + mainTable +
+                    "SELECT " +
+                            mainTable + "." + Column.ANDROID_ID.getName() + ", " +
+                            mainTable + "." + Column.TC_ID.getName() + ", " +
+                            mainTable + "." + Column.NAME.getName() + ", " +
+                            mainTable + "." + Column.PARENT_ID.getName() + ", " +
+                            mainTable + "." + Column.STATUS.getName() + ", " +
+                            favouriteTable + "." + Column.FAVOURITE.getName() +
+                            " FROM " + mainTable +
                             " LEFT JOIN " + favouriteTable +
                             " ON " + mainTable + "." + idColumn + " = " + favouriteTable + "." + idColumn +
-                            " WHERE " + mainTable + "." + Column.PARENT_ID.getName() + " = " + parentBuildConfigurationId,
-                    new String[]{}
+                            " WHERE " + mainTable + "." + Column.PARENT_ID.getName() + " = '" + parentBuildConfigurationId + "'",
+                    null
             );
         }
     }
@@ -284,6 +307,32 @@ public class DB {
         }
     }
 
+    private boolean isFavourite(@NotNull FavouriteTable table, @NotNull String id) {
+        Cursor cursor = myDBHelper.getReadableDatabase().query(
+                table.getName(),
+                null,
+                Column.TC_ID.getName() + " = ?",
+                new String[]{id},
+                null,
+                null,
+                null
+        );
+
+        if (cursor.getCount() == 0) {
+            cursor.close();
+
+            return false;
+        } else {
+            cursor.moveToNext();
+
+            boolean result = DBUtils.getFavourite(cursor);
+
+            cursor.close();
+
+            return result;
+        }
+    }
+
     @NotNull
     private Cursor getProjectsOrBuildConfigurations(@NotNull String mainTable,
                                                     @NotNull String favouriteTable,
@@ -294,24 +343,38 @@ public class DB {
 
         if (onlyFavourite) {
             return myDBHelper.getReadableDatabase().rawQuery(
-                    "SELECT * FROM " + mainTable +
+                    "SELECT " +
+                            mainTable + "." + Column.ANDROID_ID.getName() + ", " +
+                            mainTable + "." + Column.TC_ID.getName() + ", " +
+                            mainTable + "." + Column.NAME.getName() + ", " +
+                            mainTable + "." + Column.PARENT_ID.getName() + ", " +
+                            favouriteTable + "." + Column.FAVOURITE.getName() + ", " +
+                            statusTable + "." + Column.STATUS.getName() +
+                            " FROM " + mainTable +
                             " INNER JOIN " + favouriteTable +
                             " ON " + mainTable + "." + idColumn + " = " + favouriteTable + "." + idColumn +
-                            " AND " + favouriteTable + "." + Column.FAVOURITE.getName() + " = true" +
+                            " AND " + favouriteTable + "." + Column.FAVOURITE.getName() +
                             " LEFT JOIN " + statusTable +
                             " ON " + mainTable + "." + idColumn + " = " + statusTable + "." + idColumn +
-                            " WHERE " + mainTable + "." + Column.PARENT_ID.getName() + " = " + parentProjectId,
-                    new String[]{}
+                            " WHERE " + mainTable + "." + Column.PARENT_ID.getName() + " = '" + parentProjectId + "'",
+                    null
             );
         } else {
             return myDBHelper.getReadableDatabase().rawQuery(
-                    "SELECT * FROM " + mainTable +
+                    "SELECT " +
+                            mainTable + "." + Column.ANDROID_ID.getName() + ", " +
+                            mainTable + "." + Column.TC_ID.getName() + ", " +
+                            mainTable + "." + Column.NAME.getName() + ", " +
+                            mainTable + "." + Column.PARENT_ID.getName() + ", " +
+                            favouriteTable + "." + Column.FAVOURITE.getName() + ", " +
+                            statusTable + "." + Column.STATUS.getName() +
+                            " FROM " + mainTable +
                             " LEFT JOIN " + favouriteTable +
                             " ON " + mainTable + "." + idColumn + " = " + favouriteTable + "." + idColumn +
                             " LEFT JOIN " + statusTable +
                             " ON " + mainTable + "." + idColumn + " = " + statusTable + "." + idColumn +
-                            " WHERE " + mainTable + "." + Column.PARENT_ID.getName() + " = " + parentProjectId,
-                    new String[]{}
+                            " WHERE " + mainTable + "." + Column.PARENT_ID.getName() + " = '" + parentProjectId + "'",
+                    null
             );
         }
     }
