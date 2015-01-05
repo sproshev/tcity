@@ -33,6 +33,7 @@ import com.tcity.android.R;
 import com.tcity.android.app.Application;
 import com.tcity.android.app.Preferences;
 import com.tcity.android.background.web.WebLocator;
+import com.tcity.android.db.DB;
 import com.tcity.android.ui.PreferenceActivity;
 
 import org.jetbrains.annotations.NotNull;
@@ -150,27 +151,9 @@ public class BuildConfigurationOverviewActivity extends ListActivity implements 
 
     @NotNull
     private String calculateTitle() {
-        /*
         DB db = ((Application) getApplication()).getDB();
 
-        Cursor cursor = db.query(
-                Schema.BUILD_CONFIGURATION,
-                new String[]{Schema.NAME_COLUMN},
-                Schema.TC_ID_COLUMN + " = ?",
-                new String[]{myBuildConfigurationId},
-                null, null, null, null
-        );
-
-        cursor.moveToNext();
-
-        String result = DBUtils.getName(cursor);
-
-        cursor.close();
-
-        return result;
-        */
-        // TODO
-        return "abc";
+        return db.getBuildConfigurationName(myBuildConfigurationId);
     }
 
     @NotNull

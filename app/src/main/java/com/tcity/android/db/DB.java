@@ -61,6 +61,11 @@ public class DB {
         return isFavourite(FavouriteTable.PROJECT, id);
     }
 
+    @NotNull
+    public String getProjectName(@NotNull String id) {
+        return getName(OverviewTable.PROJECT, id);
+    }
+
     public void setFavouriteBuildConfiguration(@NotNull String id, boolean favourite) {
         setFavourite(FavouriteTable.BUILD_CONFIGURATION, id, favourite);
 
@@ -69,6 +74,11 @@ public class DB {
 
     public boolean isBuildConfigurationFavourite(@NotNull String id) {
         return isFavourite(FavouriteTable.BUILD_CONFIGURATION, id);
+    }
+
+    @NotNull
+    public String getBuildConfigurationName(@NotNull String id) {
+        return getName(OverviewTable.BUILD_CONFIGURATION, id);
     }
 
     public void setFavouriteBuild(@NotNull String id, boolean favourite) {
@@ -331,6 +341,25 @@ public class DB {
 
             return result;
         }
+    }
+
+    @NotNull
+    private String getName(@NotNull OverviewTable table, @NotNull String id) {
+        Cursor cursor = myDBHelper.getReadableDatabase().query(
+                table.getName(),
+                new String[]{Column.NAME.getName()},
+                Column.TC_ID.getName() + " = ?",
+                new String[]{id},
+                null, null, null
+        );
+
+        cursor.moveToNext();
+
+        String result = DBUtils.getName(cursor);
+
+        cursor.close();
+
+        return result;
     }
 
     @NotNull

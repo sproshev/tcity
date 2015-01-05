@@ -41,11 +41,7 @@ public class DBUtils {
     public static boolean getFavourite(@NotNull Cursor cursor) {
         int columnIndex = cursor.getColumnIndex(Column.FAVOURITE.getName());
 
-        if (cursor.isNull(columnIndex)) {
-            return false;
-        } else {
-            return cursor.getInt(columnIndex) != 0;
-        }
+        return !cursor.isNull(columnIndex) && cursor.getInt(columnIndex) != 0;
     }
 
     @NotNull
