@@ -58,6 +58,7 @@ class BuildConfigurationOverviewDBEngine {
 
         myEngine = new BuildDBEngine(
                 buildConfigurationId,
+                false,
                 context,
                 db,
                 root,

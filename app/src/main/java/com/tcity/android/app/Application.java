@@ -16,6 +16,8 @@
 
 package com.tcity.android.app;
 
+import com.tcity.android.db.DB;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

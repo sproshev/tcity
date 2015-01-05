@@ -78,45 +78,45 @@ class ProjectOverviewDBEngine {
         myBuildConfigurationClickListener = new MyBuildConfigurationClickListener();
 
         myFavouriteBuildConfigurationsEngine = new BuildConfigurationDBEngine(
+                projectId,
+                true,
                 context,
                 db,
                 root,
                 myBuildConfigurationClickListener,
-                context.getString(R.string.favourite) + " " + context.getString(R.string.build_configurations),
-                projectId,
-                true
+                context.getString(R.string.favourite) + " " + context.getString(R.string.build_configurations)
         );
 
         myAllBuildConfigurationsEngine = new BuildConfigurationDBEngine(
+                projectId,
+                false,
                 context,
                 db,
                 root,
                 myBuildConfigurationClickListener,
-                context.getString(R.string.build_configurations),
-                projectId,
-                false
+                context.getString(R.string.build_configurations)
         );
 
         String projectSectionName = calculateProjectSectionName(projectId, context);
 
         myFavouriteProjectsEngine = new ProjectDBEngine(
+                projectId,
+                true,
                 context,
                 db,
                 root,
                 myProjectClickListener,
-                context.getString(R.string.favourite) + " " + projectSectionName,
-                projectId,
-                true
+                context.getString(R.string.favourite) + " " + projectSectionName
         );
 
         myAllProjectsEngine = new ProjectDBEngine(
+                projectId,
+                false,
                 context,
                 db,
                 root,
                 myProjectClickListener,
-                projectSectionName,
-                projectId,
-                false
+                projectSectionName
         );
 
         myMainAdapter.addView(myFavouriteBuildConfigurationsEngine.getHeader());

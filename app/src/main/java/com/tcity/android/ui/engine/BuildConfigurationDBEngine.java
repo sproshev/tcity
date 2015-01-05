@@ -42,13 +42,13 @@ public class BuildConfigurationDBEngine {
     @NotNull
     private final Cursor myCursor;
 
-    public BuildConfigurationDBEngine(@NotNull Context context,
+    public BuildConfigurationDBEngine(@NotNull String parentProjectId,
+                                      boolean isFavourite,
+                                      @NotNull Context context,
                                       @NotNull DB db,
                                       @NotNull ViewGroup root,
                                       @NotNull BuildConfigurationClickListener clickListener,
-                                      @NotNull String title,
-                                      @NotNull String parentProjectId,
-                                      boolean isFavourite) {
+                                      @NotNull String title) {
         LayoutInflater inflater = LayoutInflater.from(context);
 
         myHeader = (TextView) inflater.inflate(R.layout.overview_separator, root, false);
