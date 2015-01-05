@@ -24,8 +24,7 @@ import android.view.ViewGroup;
 import android.widget.ListAdapter;
 
 import com.commonsware.cwac.merge.MergeAdapter;
-import com.tcity.android.app.DB;
-import com.tcity.android.db.Schema;
+import com.tcity.android.db.DB;
 import com.tcity.android.ui.adapter.BuildClickListener;
 import com.tcity.android.ui.engine.BuildDBEngine;
 
@@ -47,7 +46,7 @@ class BuildConfigurationOverviewDBEngine {
     private final BuildDBEngine myEngine;
 
     @NotNull
-    private final Schema.Listener mySchemaListener;
+    private final DB.Listener myDBListener;
 
     BuildConfigurationOverviewDBEngine(@NotNull String buildConfigurationId,
                                        @NotNull Context context,
@@ -58,12 +57,11 @@ class BuildConfigurationOverviewDBEngine {
         myClickListener = new MyBuildClickListener();
 
         myEngine = new BuildDBEngine(
+                buildConfigurationId,
                 context,
                 db,
                 root,
-                myClickListener,
-                Schema.PARENT_ID_COLUMN + " = ?",
-                new String[]{buildConfigurationId}
+                myClickListener
         );
 
         myMainAdapter.addView(myEngine.getHeader());
@@ -71,9 +69,9 @@ class BuildConfigurationOverviewDBEngine {
 
         handleHeader();
 
-        mySchemaListener = new MySchemaListener();
+        myDBListener = new MySchemaListener();
 
-        myDB.addListener(Schema.BUILD, mySchemaListener);
+        myDB.addBuildsListener(myDBListener);
     }
 
     @NotNull
@@ -86,7 +84,7 @@ class BuildConfigurationOverviewDBEngine {
     }
 
     public void close() {
-        myDB.removeListener(Schema.BUILD, mySchemaListener);
+        myDB.removeBuildsListener(myDBListener);
 
         myEngine.close();
     }
@@ -115,7 +113,7 @@ class BuildConfigurationOverviewDBEngine {
         }
     }
 
-    private class MySchemaListener implements Schema.Listener {
+    private class MySchemaListener implements DB.Listener {
 
         @NotNull
         private final Handler myHandler = new Handler() {

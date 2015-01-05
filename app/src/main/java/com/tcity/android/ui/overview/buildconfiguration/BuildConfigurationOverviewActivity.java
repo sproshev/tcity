@@ -19,7 +19,6 @@ package com.tcity.android.ui.overview.buildconfiguration;
 import android.app.ActionBar;
 import android.app.ListActivity;
 import android.content.Intent;
-import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -32,11 +31,8 @@ import android.widget.TextView;
 
 import com.tcity.android.R;
 import com.tcity.android.app.Application;
-import com.tcity.android.app.DB;
 import com.tcity.android.app.Preferences;
 import com.tcity.android.background.web.WebLocator;
-import com.tcity.android.db.DBUtils;
-import com.tcity.android.db.Schema;
 import com.tcity.android.ui.PreferenceActivity;
 
 import org.jetbrains.annotations.NotNull;
@@ -154,6 +150,7 @@ public class BuildConfigurationOverviewActivity extends ListActivity implements 
 
     @NotNull
     private String calculateTitle() {
+        /*
         DB db = ((Application) getApplication()).getDB();
 
         Cursor cursor = db.query(
@@ -171,6 +168,9 @@ public class BuildConfigurationOverviewActivity extends ListActivity implements 
         cursor.close();
 
         return result;
+        */
+        // TODO
+        return "abc";
     }
 
     @NotNull
