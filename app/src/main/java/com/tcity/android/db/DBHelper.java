@@ -58,12 +58,30 @@ class DBHelper extends SQLiteOpenHelper {
         onCreate(db);
     }
 
+    @NotNull
+    private String getDescription(@NotNull Column column) {
+        switch (column) {
+            case TC_ID:
+                return column.getName() + " TEXT NOT NULL UNIQUE";
+            case NAME:
+            case PARENT_ID:
+            case STATUS:
+                return column.getName() + " TEXT NOT NULL";
+            case FAVOURITE:
+                return column.getName() + " INTEGER NOT NULL";
+            case ANDROID_ID:
+                return column.getName() + " INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL";
+            default:
+                throw new IllegalArgumentException();
+        }
+    }
+
     private void onFavouriteCreate(@NotNull FavouriteTable table,
                                    @NotNull SQLiteDatabase db) {
         db.execSQL(
                 "CREATE TABLE " + table.getName() + " (" +
-                        Column.TC_ID.getDescription() + ", " +
-                        Column.FAVOURITE.getDescription() +
+                        getDescription(Column.TC_ID) + ", " +
+                        getDescription(Column.FAVOURITE) +
                         ");"
         );
     }
@@ -71,11 +89,11 @@ class DBHelper extends SQLiteOpenHelper {
     private void onBuildOverviewCreate(@NotNull SQLiteDatabase db) {
         db.execSQL(
                 "CREATE TABLE " + OverviewTable.BUILD.getName() + " (" +
-                        Column.ANDROID_ID.getDescription() + ", " +
-                        Column.TC_ID.getDescription() + ", " +
-                        Column.NAME.getDescription() + ", " +
-                        Column.PARENT_ID.getDescription() + ", " +
-                        Column.STATUS.getDescription() +
+                        getDescription(Column.ANDROID_ID) + ", " +
+                        getDescription(Column.TC_ID) + ", " +
+                        getDescription(Column.NAME) + ", " +
+                        getDescription(Column.PARENT_ID) + ", " +
+                        getDescription(Column.STATUS) +
                         ");"
         );
     }
@@ -84,10 +102,10 @@ class DBHelper extends SQLiteOpenHelper {
                                                              @NotNull SQLiteDatabase db) {
         db.execSQL(
                 "CREATE TABLE " + table.getName() + " (" +
-                        Column.ANDROID_ID.getDescription() + ", " +
-                        Column.TC_ID.getDescription() + ", " +
-                        Column.NAME.getDescription() + ", " +
-                        Column.PARENT_ID.getDescription() +
+                        getDescription(Column.ANDROID_ID) + ", " +
+                        getDescription(Column.TC_ID) + ", " +
+                        getDescription(Column.NAME) + ", " +
+                        getDescription(Column.PARENT_ID) +
                         ");"
         );
     }
@@ -96,103 +114,10 @@ class DBHelper extends SQLiteOpenHelper {
                                                              @NotNull SQLiteDatabase db) {
         db.execSQL(
                 "CREATE TABLE " + table.getName() + " (" +
-                        Column.TC_ID.getDescription() + ", " +
-                        Column.STATUS.getDescription() +
+                        getDescription(Column.TC_ID) + ", " +
+                        getDescription(Column.STATUS) +
                         ");"
         );
     }
 
-    static enum FavouriteTable {
-        PROJECT, BUILD_CONFIGURATION, BUILD;
-
-        @NotNull
-        String getName() {
-            switch (this) {
-                case PROJECT:
-                    return "favourite_project";
-                case BUILD_CONFIGURATION:
-                    return "favourite_build_configuration";
-                case BUILD:
-                    return "favourite_build";
-                default:
-                    throw new IllegalArgumentException();
-            }
-        }
-    }
-
-    static enum OverviewTable {
-        PROJECT, BUILD_CONFIGURATION, BUILD;
-
-        @NotNull
-        String getName() {
-            switch (this) {
-                case PROJECT:
-                    return "project_overview";
-                case BUILD_CONFIGURATION:
-                    return "build_configuration_overview";
-                case BUILD:
-                    return "build_overview";
-                default:
-                    throw new IllegalArgumentException();
-            }
-        }
-    }
-
-    static enum StatusTable {
-        PROJECT, BUILD_CONFIGURATION;
-
-        @NotNull
-        String getName() {
-            switch (this) {
-                case PROJECT:
-                    return "project_status";
-                case BUILD_CONFIGURATION:
-                    return "build_configuration_status";
-                default:
-                    throw new IllegalArgumentException();
-            }
-        }
-    }
-
-    static enum Column {
-        TC_ID, NAME, PARENT_ID, STATUS, FAVOURITE, ANDROID_ID;
-
-        @NotNull
-        String getName() {
-            switch (this) {
-                case TC_ID:
-                    return "tc_id";
-                case NAME:
-                    return "name";
-                case PARENT_ID:
-                    return "parent_id";
-                case STATUS:
-                    return "status";
-                case FAVOURITE:
-                    return "favourite";
-                case ANDROID_ID:
-                    return "_id";
-                default:
-                    throw new IllegalArgumentException();
-            }
-        }
-
-        @NotNull
-        private String getDescription() {
-            switch (this) {
-                case TC_ID:
-                    return getName() + " TEXT NOT NULL UNIQUE";
-                case NAME:
-                case PARENT_ID:
-                case STATUS:
-                    return getName() + " TEXT NOT NULL";
-                case FAVOURITE:
-                    return getName() + " INTEGER NOT NULL";
-                case ANDROID_ID:
-                    return getName() + " INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL";
-                default:
-                    throw new IllegalArgumentException();
-            }
-        }
-    }
 }

@@ -29,30 +29,40 @@ public class DBUtils {
 
     @NotNull
     public static Status getStatus(@NotNull Cursor cursor) {
-        return Status.valueOf(
-                cursor.getString(
-                        cursor.getColumnIndex(Schema.STATUS_COLUMN)
-                )
-        );
+        int columnIndex = cursor.getColumnIndex(Column.STATUS.getName());
+
+        if (cursor.isNull(columnIndex)) {
+            return Status.DEFAULT;
+        } else {
+            return Status.valueOf(cursor.getString(columnIndex));
+        }
     }
 
     public static boolean getFavourite(@NotNull Cursor cursor) {
-        return cursor.getInt(
-                cursor.getColumnIndex(Schema.FAVOURITE_COLUMN)
-        ) != 0;
+        int columnIndex = cursor.getColumnIndex(Column.FAVOURITE.getName());
+
+        if (cursor.isNull(columnIndex)) {
+            return false;
+        } else {
+            return cursor.getInt(columnIndex) != 0;
+        }
     }
 
     @NotNull
     public static String getId(@NotNull Cursor cursor) {
         return cursor.getString(
-                cursor.getColumnIndex(Schema.TC_ID_COLUMN)
+                cursor.getColumnIndex(
+                        Column.TC_ID.getName()
+                )
         );
     }
 
     @NotNull
     public static String getName(@NotNull Cursor cursor) {
         return cursor.getString(
-                cursor.getColumnIndex(Schema.NAME_COLUMN)
+                cursor.getColumnIndex(
+                        Column.NAME.getName()
+                )
         );
     }
 }
