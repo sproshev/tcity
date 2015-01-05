@@ -22,7 +22,7 @@ import java.io.IOException
 
 throws(javaClass<IOException>())
 public fun parseBuildConfigurations(stream: InputStream): List<BuildConfiguration> {
-    return parseConcepts(stream, "buildType", ::parseBuildConfiguration)
+    return parse(stream, "buildType", ::parseBuildConfiguration)
 }
 
 throws(javaClass<IOException>())

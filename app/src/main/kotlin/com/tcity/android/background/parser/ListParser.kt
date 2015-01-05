@@ -23,9 +23,11 @@ import java.io.IOException
 import java.util.ArrayList
 
 throws(javaClass<IOException>())
-private fun <T : Concept> parseConcepts(
+private fun <T> parse(
         stream: InputStream,
-        key: String, parser: (JsonReader) -> T
+        key: String,
+        parser: (JsonReader) -> T,
+        filter: (T) -> Boolean = { true }
 ): List<T> {
     val reader = JsonReader(InputStreamReader(stream))
 
@@ -45,7 +47,11 @@ private fun <T : Concept> parseConcepts(
                     reader.beginArray()
 
                     while (reader.hasNext()) {
-                        result!!.add(parser(reader))
+                        val value = parser(reader)
+
+                        if (filter(value)) {
+                            result!!.add(value)
+                        }
                     }
 
                     reader.endArray()

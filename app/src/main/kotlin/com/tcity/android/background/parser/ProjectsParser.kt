@@ -23,7 +23,7 @@ import com.tcity.android.ROOT_PROJECT_ID
 
 throws(javaClass<IOException>())
 public fun parseProjects(stream: InputStream): List<Project> {
-    return parseConcepts(stream, "project", ::parseProject)
+    return parse(stream, "project", ::parseProject, { !it.id.equals(ROOT_PROJECT_ID) })
 }
 
 throws(javaClass<IOException>())

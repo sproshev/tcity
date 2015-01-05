@@ -23,7 +23,7 @@ import com.tcity.android.Status
 
 throws(javaClass<IOException>())
 public fun parseBuilds(stream: InputStream): List<Build> {
-    return parseConcepts(stream, "build", ::parseBuild)
+    return parse(stream, "build", ::parseBuild)
 }
 
 throws(javaClass<IOException>())
