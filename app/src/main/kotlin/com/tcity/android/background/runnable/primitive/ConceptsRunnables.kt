@@ -16,26 +16,13 @@
 
 package com.tcity.android.background.runnable.primitive
 
-import com.tcity.android.background.parser.Concept
 import java.io.IOException
 import org.apache.http.HttpStatus
 import android.database.sqlite.SQLiteException
-import java.util.Collections
-import com.tcity.android.app.DB
-import java.io.InputStream
+import com.tcity.android.db.DB
 import com.tcity.android.background.parser.parseBuildConfigurations
-import com.tcity.android.db.Schema
 import com.tcity.android.background.parser.parseBuilds
-import java.util.ArrayList
-import android.content.ContentValues
-import java.util.HashMap
-import com.tcity.android.db.CVUtils
-import com.tcity.android.db.DBUtils
-import com.tcity.android.db.SelectionUtils
-import com.tcity.android.ROOT_PROJECT_ID
-import com.tcity.android.Status
 import com.tcity.android.background.runnable.HttpStatusException
-import org.apache.http.HttpResponse
 import com.tcity.android.background.parser.Build
 import com.tcity.android.background.rest.RestClient
 import com.tcity.android.background.parser.BuildConfiguration
@@ -44,122 +31,75 @@ import com.tcity.android.background.parser.parseProjects
 
 
 public class ProjectsRunnable(
-        db: DB,
-        private val client: RestClient
-) : ConceptsRunnable<Project>(null, db, Schema.PROJECT, setOf(ROOT_PROJECT_ID)) {
-
-    throws(javaClass<IOException>())
-    override fun getHttpResponse() = client.getProjects()
-
-    throws(javaClass<IOException>())
-    override fun parseConcepts(stream: InputStream) = parseProjects(stream)
-}
-
-public class BuildConfigurationsRunnable(
-        projectId: String,
-        db: DB,
-        private val client: RestClient
-) : ConceptsRunnable<BuildConfiguration>(projectId, db, Schema.BUILD_CONFIGURATION) {
-
-    throws(javaClass<IOException>())
-    override fun getHttpResponse(): HttpResponse = client.getBuildConfigurations(parentId)
-
-    throws(javaClass<IOException>())
-    override fun parseConcepts(stream: InputStream) = parseBuildConfigurations(stream)
-}
-
-public class BuildsRunnable(
-        buildConfigurationId: String,
-        db: DB,
-        private val client: RestClient
-) : ConceptsRunnable<Build>(buildConfigurationId, db, Schema.BUILD) {
-
-    throws(javaClass<IOException>())
-    override fun getHttpResponse() = client.getBuilds(parentId)
-
-    throws(javaClass<IOException>())
-    override fun parseConcepts(stream: InputStream) = parseBuilds(stream)
-}
-
-private abstract class ConceptsRunnable<T : Concept>(
-        protected val parentId: String?,
         private val db: DB,
-        private val schema: Schema,
-        private val ignoredConceptIds: Set<String> = Collections.emptySet()
+        private val client: RestClient
 ) : Runnable {
 
     throws(javaClass<IOException>(), javaClass<SQLiteException>())
     override fun run() {
-        saveConcepts(loadConcepts())
+        db.setProjects(loadConcepts())
     }
 
     throws(javaClass<IOException>())
-    protected abstract fun getHttpResponse(): HttpResponse
-
-    throws(javaClass<IOException>())
-    protected abstract fun parseConcepts(stream: InputStream): Collection<T>
-
-    throws(javaClass<IOException>())
-    private fun loadConcepts(): Collection<T> {
-        val response = getHttpResponse()
+    private fun loadConcepts(): Collection<Project> {
+        val response = client.getProjects()
 
         val statusLine = response.getStatusLine()
 
         if (statusLine.getStatusCode() != HttpStatus.SC_OK) {
             throw HttpStatusException(statusLine)
         } else {
-            return parseConcepts(response.getEntity().getContent())
+            return parseProjects(response.getEntity().getContent())
         }
     }
+}
 
-    throws(javaClass<SQLiteException>())
-    private fun saveConcepts(concepts: Collection<T>) {
-        val favouriteIdToStatus = loadFavouriteIdToStatus()
-        val result = ArrayList<ContentValues>()
+public class BuildConfigurationsRunnable(
+        private val projectId: String,
+        private val db: DB,
+        private val client: RestClient
+) : Runnable {
 
-        concepts.forEach {
-            if (!ignoredConceptIds.contains(it.id)) {
-                val values = CVUtils.toContentValues(it)
-
-                if (favouriteIdToStatus.contains(it.id)) {
-                    values.putAll(CVUtils.toFavouriteContentValues(true))
-
-                    if (it.status == Status.DEFAULT) {
-                        values.putAll(
-                                CVUtils.toContentValues(
-                                        favouriteIdToStatus.get(it.id)!!
-                                )
-                        )
-                    }
-                }
-
-                result.add(values)
-            }
-        }
-
-        db.set(schema, result, parentId)
+    throws(javaClass<IOException>(), javaClass<SQLiteException>())
+    override fun run() {
+        db.setBuildConfigurations(projectId, loadConcepts())
     }
 
-    throws(javaClass<SQLiteException>())
-    private fun loadFavouriteIdToStatus(): Map<String, Status> {
-        val result = HashMap<String, Status>()
+    throws(javaClass<IOException>())
+    private fun loadConcepts(): Collection<BuildConfiguration> {
+        val response = client.getBuildConfigurations(projectId)
 
-        val cursor = db.query(
-                schema,
-                array(Schema.TC_ID_COLUMN, Schema.STATUS_COLUMN),
-                SelectionUtils.getSelection(parentId, Schema.PARENT_ID_COLUMN, Schema.FAVOURITE_COLUMN),
-                SelectionUtils.getSelectionArgs(parentId, CVUtils.toFavouriteContentValue(true))
-        )
+        val statusLine = response.getStatusLine()
 
-        while (cursor.moveToNext()) {
-            result.put(
-                    DBUtils.getId(cursor),
-                    DBUtils.getStatus(cursor)
-            )
+        if (statusLine.getStatusCode() != HttpStatus.SC_OK) {
+            throw HttpStatusException(statusLine)
+        } else {
+            return parseBuildConfigurations(response.getEntity().getContent())
         }
+    }
+}
 
-        cursor.close()
+public class BuildsRunnable(
+        private val buildConfigurationId: String,
+        private val db: DB,
+        private val client: RestClient
+) : Runnable {
 
-        return result
+    throws(javaClass<IOException>(), javaClass<SQLiteException>())
+    override fun run() {
+        db.setBuilds(buildConfigurationId, loadConcepts())
+    }
+
+    throws(javaClass<IOException>())
+    private fun loadConcepts(): Collection<Build> {
+        val response = client.getBuilds(buildConfigurationId)
+
+        val statusLine = response.getStatusLine()
+
+        if (statusLine.getStatusCode() != HttpStatus.SC_OK) {
+            throw HttpStatusException(statusLine)
+        } else {
+            return parseBuilds(response.getEntity().getContent())
+        }
     }
 }
