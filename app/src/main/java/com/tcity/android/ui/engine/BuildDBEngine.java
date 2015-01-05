@@ -17,41 +17,67 @@
 package com.tcity.android.ui.engine;
 
 import android.content.Context;
+import android.database.Cursor;
+import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import android.widget.CursorAdapter;
+import android.widget.ListAdapter;
+import android.widget.TextView;
 
 import com.tcity.android.R;
-import com.tcity.android.app.DB;
-import com.tcity.android.db.Schema;
+import com.tcity.android.db.DB;
 import com.tcity.android.ui.adapter.BuildAdapter;
 import com.tcity.android.ui.adapter.BuildClickListener;
 
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-public class BuildDBEngine extends DBEngine {
+public class BuildDBEngine {
 
-    public BuildDBEngine(@NotNull Context context,
+    @NotNull
+    private final TextView myHeader;
+
+    @NotNull
+    private final CursorAdapter myAdapter;
+
+    @NotNull
+    private final Cursor myCursor;
+
+    public BuildDBEngine(@NotNull String parentBuildConfiguration,
+                         @NotNull Context context,
                          @NotNull DB db,
                          @NotNull ViewGroup root,
-                         @NotNull BuildClickListener clickListener,
-                         @Nullable String selection,
-                         @Nullable String[] selectionArgs) {
-        super(
-                context,
-                db,
-                root,
-                context.getString(R.string.builds),
-                Schema.BUILD,
-                selection,
-                selectionArgs,
-                calculateAdapter(context, clickListener)
-        );
+                         @NotNull BuildClickListener clickListener) {
+        LayoutInflater inflater = LayoutInflater.from(context);
+
+        myHeader = (TextView) inflater.inflate(R.layout.overview_separator, root, false);
+        myHeader.setText(R.string.builds);
+
+        myCursor = db.getBuilds(parentBuildConfiguration, true);
+
+        myAdapter = new BuildAdapter(context, clickListener);
+        myAdapter.changeCursor(myCursor);
     }
 
     @NotNull
-    private static CursorAdapter calculateAdapter(@NotNull Context context,
-                                                  @NotNull BuildClickListener clickListener) {
-        return new BuildAdapter(context, clickListener);
+    public TextView getHeader() {
+        return myHeader;
+    }
+
+    @NotNull
+    public ListAdapter getAdapter() {
+        return myAdapter;
+    }
+
+    public boolean empty() {
+        return myCursor.getCount() == 0;
+    }
+
+    public void requery() {
+        //noinspection deprecation
+        myCursor.requery();
+    }
+
+    public void close() {
+        myAdapter.changeCursor(null);
     }
 }

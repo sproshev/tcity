@@ -17,41 +17,69 @@
 package com.tcity.android.ui.engine;
 
 import android.content.Context;
+import android.database.Cursor;
+import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import android.widget.CursorAdapter;
+import android.widget.ListAdapter;
+import android.widget.TextView;
 
-import com.tcity.android.app.DB;
-import com.tcity.android.db.Schema;
+import com.tcity.android.R;
+import com.tcity.android.db.DB;
 import com.tcity.android.ui.adapter.ProjectAdapter;
 import com.tcity.android.ui.adapter.ProjectClickListener;
 
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-public class ProjectDBEngine extends DBEngine {
+public class ProjectDBEngine {
+
+    @NotNull
+    private final TextView myHeader;
+
+    @NotNull
+    private final CursorAdapter myAdapter;
+
+    @NotNull
+    private final Cursor myCursor;
 
     public ProjectDBEngine(@NotNull Context context,
                            @NotNull DB db,
                            @NotNull ViewGroup root,
                            @NotNull ProjectClickListener clickListener,
                            @NotNull String title,
-                           @Nullable String selection,
-                           @Nullable String[] selectionArgs) {
-        super(
-                context,
-                db,
-                root,
-                title,
-                Schema.PROJECT,
-                selection,
-                selectionArgs,
-                calculateAdapter(context, clickListener)
-        );
+                           @NotNull String parentProjectId,
+                           boolean isFavourite) {
+        LayoutInflater inflater = LayoutInflater.from(context);
+
+        myHeader = (TextView) inflater.inflate(R.layout.overview_separator, root, false);
+        myHeader.setText(title);
+
+        myCursor = db.getProjects(parentProjectId, isFavourite);
+
+        myAdapter = new ProjectAdapter(context, clickListener);
+        myAdapter.changeCursor(myCursor);
     }
 
     @NotNull
-    private static CursorAdapter calculateAdapter(@NotNull Context context,
-                                                  @NotNull ProjectClickListener clickListener) {
-        return new ProjectAdapter(context, clickListener);
+    public TextView getHeader() {
+        return myHeader;
+    }
+
+    @NotNull
+    public ListAdapter getAdapter() {
+        return myAdapter;
+    }
+
+    public boolean empty() {
+        return myCursor.getCount() == 0;
+    }
+
+    public void requery() {
+        //noinspection deprecation
+        myCursor.requery();
+    }
+
+    public void close() {
+        myAdapter.changeCursor(null);
     }
 }

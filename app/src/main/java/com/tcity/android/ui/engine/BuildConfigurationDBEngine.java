@@ -17,41 +17,69 @@
 package com.tcity.android.ui.engine;
 
 import android.content.Context;
+import android.database.Cursor;
+import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import android.widget.CursorAdapter;
+import android.widget.ListAdapter;
+import android.widget.TextView;
 
-import com.tcity.android.app.DB;
-import com.tcity.android.db.Schema;
+import com.tcity.android.R;
+import com.tcity.android.db.DB;
 import com.tcity.android.ui.adapter.BuildConfigurationAdapter;
 import com.tcity.android.ui.adapter.BuildConfigurationClickListener;
 
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-public class BuildConfigurationDBEngine extends DBEngine {
+public class BuildConfigurationDBEngine {
+
+    @NotNull
+    private final TextView myHeader;
+
+    @NotNull
+    private final CursorAdapter myAdapter;
+
+    @NotNull
+    private final Cursor myCursor;
 
     public BuildConfigurationDBEngine(@NotNull Context context,
                                       @NotNull DB db,
                                       @NotNull ViewGroup root,
                                       @NotNull BuildConfigurationClickListener clickListener,
                                       @NotNull String title,
-                                      @Nullable String selection,
-                                      @Nullable String[] selectionArgs) {
-        super(
-                context,
-                db,
-                root,
-                title,
-                Schema.BUILD_CONFIGURATION,
-                selection,
-                selectionArgs,
-                calculateAdapter(context, clickListener)
-        );
+                                      @NotNull String parentProjectId,
+                                      boolean isFavourite) {
+        LayoutInflater inflater = LayoutInflater.from(context);
+
+        myHeader = (TextView) inflater.inflate(R.layout.overview_separator, root, false);
+        myHeader.setText(title);
+
+        myCursor = db.getBuildConfigurations(parentProjectId, isFavourite);
+
+        myAdapter = new BuildConfigurationAdapter(context, clickListener);
+        myAdapter.changeCursor(myCursor);
     }
 
     @NotNull
-    private static CursorAdapter calculateAdapter(@NotNull Context context,
-                                                  @NotNull BuildConfigurationClickListener clickListener) {
-        return new BuildConfigurationAdapter(context, clickListener);
+    public TextView getHeader() {
+        return myHeader;
+    }
+
+    @NotNull
+    public ListAdapter getAdapter() {
+        return myAdapter;
+    }
+
+    public boolean empty() {
+        return myCursor.getCount() == 0;
+    }
+
+    public void requery() {
+        //noinspection deprecation
+        myCursor.requery();
+    }
+
+    public void close() {
+        myAdapter.changeCursor(null);
     }
 }
