@@ -29,6 +29,7 @@
 
     <string name="empty">Empty</string>
     <string name="loading">Loading</string>
+    <string name="network_is_unavailable">Network is unavailable</string>
 
     <string name="share_link">Share link</string>
     <string name="open_in_browser">Open in browser</string>

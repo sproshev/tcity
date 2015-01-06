@@ -18,7 +18,10 @@ package com.tcity.android.ui.overview.project;
 
 import android.app.ActionBar;
 import android.app.ListActivity;
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -80,16 +83,22 @@ public class ProjectOverviewActivity extends ListActivity implements SwipeRefres
         myEngine.setActivity(this);
         setListAdapter(myEngine.getAdapter());
 
-        Handler handler = new Handler();
-        handler.postDelayed(
-                new Runnable() {
-                    @Override
-                    public void run() {
-                        myEngine.refresh();
-                    }
-                },
-                1000
-        ); // https://code.google.com/p/android/issues/detail?id=77712
+        if (isNetworkAvailable()) {
+            if (!myLayout.isRefreshing()) {
+                Handler handler = new Handler();
+                handler.postDelayed(
+                        new Runnable() {
+                            @Override
+                            public void run() {
+                                myEngine.refresh();
+                            }
+                        },
+                        1000
+                ); // https://code.google.com/p/android/issues/detail?id=77712
+            }
+        } else {
+            ((TextView) getListView().getEmptyView()).setText(R.string.network_is_unavailable);
+        }
     }
 
     @SuppressWarnings("deprecation")
@@ -227,6 +236,14 @@ public class ProjectOverviewActivity extends ListActivity implements SwipeRefres
         }
 
         return result;
+    }
+
+    private boolean isNetworkAvailable() {
+        ConnectivityManager manager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        NetworkInfo networkInfo = manager.getActiveNetworkInfo();
+
+        return networkInfo != null && networkInfo.isConnectedOrConnecting();
     }
 
     private class PopupMenuListener implements PopupMenu.OnMenuItemClickListener {
