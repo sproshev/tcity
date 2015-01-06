@@ -38,7 +38,7 @@ public class SplashActivity extends Activity {
         super.onStart();
 
         if (!new Preferences(this).isValid()) {
-            // startActivity(new Intent(this, LoginActivity.class)); TODO
+            startActivity(new Intent(this, LoginActivity.class));
         } else {
             startActivity(new Intent(this, ProjectOverviewActivity.class));
         }

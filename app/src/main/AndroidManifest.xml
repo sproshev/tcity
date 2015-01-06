@@ -36,7 +36,14 @@
         <activity android:name=".ui.overview.buildconfiguration.BuildConfigurationOverviewActivity"/>
         <activity android:name=".ui.PreferenceActivity"/>
 
-        <activity android:name=".ui.SplashActivity">
+        <activity
+            android:name=".ui.LoginActivity"
+            android:theme="@android:style/Theme.Holo.Light.NoActionBar"/>
+
+        <activity
+            android:name=".ui.SplashActivity"
+            android:theme="@android:style/Theme.Holo.Light.NoActionBar">
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
