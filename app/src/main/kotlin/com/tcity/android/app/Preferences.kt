@@ -105,4 +105,8 @@ public class Preferences(context: Context) {
 
         editor.apply()
     }
+
+    public fun reset() {
+        preferences.edit().clear().apply()
+    }
 }

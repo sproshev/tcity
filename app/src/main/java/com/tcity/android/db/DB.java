@@ -266,6 +266,21 @@ public class DB {
         notifyListeners(Constants.BUILD_CONFIGURATION_OVERVIEW_TABLE);
     }
 
+    public void reset() {
+        SQLiteDatabase db = myDBHelper.getWritableDatabase();
+
+        db.delete(Constants.FAVOURITE_PROJECT_TABLE, null, null);
+        db.delete(Constants.FAVOURITE_BUILD_CONFIGURATION_TABLE, null, null);
+        db.delete(Constants.FAVOURITE_BUILD_TABLE, null, null);
+
+        db.delete(Constants.PROJECT_OVERVIEW_TABLE, null, null);
+        db.delete(Constants.BUILD_CONFIGURATION_OVERVIEW_TABLE, null, null);
+        db.delete(Constants.BUILD_OVERVIEW_TABLE, null, null);
+
+        db.delete(Constants.PROJECT_STATUS_TABLE, null, null);
+        db.delete(Constants.BUILD_CONFIGURATION_STATUS_TABLE, null, null);
+    }
+
     private void setFavourite(@NotNull String table,
                               @NotNull String id,
                               boolean favourite) {
