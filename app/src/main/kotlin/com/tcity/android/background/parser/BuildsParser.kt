@@ -20,6 +20,7 @@ import java.io.InputStream
 import android.util.JsonReader
 import java.io.IOException
 import com.tcity.android.Status
+import com.tcity.android.db.Build
 
 throws(javaClass<IOException>())
 public fun parseBuilds(stream: InputStream): List<Build> {

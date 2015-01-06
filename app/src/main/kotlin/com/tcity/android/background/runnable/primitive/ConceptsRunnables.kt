@@ -23,11 +23,11 @@ import com.tcity.android.db.DB
 import com.tcity.android.background.parser.parseBuildConfigurations
 import com.tcity.android.background.parser.parseBuilds
 import com.tcity.android.background.runnable.HttpStatusException
-import com.tcity.android.background.parser.Build
 import com.tcity.android.background.rest.RestClient
-import com.tcity.android.background.parser.BuildConfiguration
-import com.tcity.android.background.parser.Project
 import com.tcity.android.background.parser.parseProjects
+import com.tcity.android.db.Project
+import com.tcity.android.db.BuildConfiguration
+import com.tcity.android.db.Build
 
 
 public class ProjectsRunnable(

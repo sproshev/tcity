@@ -19,11 +19,11 @@ package com.tcity.android.background.parser
 import java.io.IOException
 import java.io.InputStream
 import android.util.JsonReader
-import com.tcity.android.ROOT_PROJECT_ID
+import com.tcity.android.db.Project
 
 throws(javaClass<IOException>())
 public fun parseProjects(stream: InputStream): List<Project> {
-    return parse(stream, "project", ::parseProject, { !it.id.equals(ROOT_PROJECT_ID) })
+    return parse(stream, "project", ::parseProject, { !it.id.equals(Project.ROOT_PROJECT_ID) })
 }
 
 throws(javaClass<IOException>())
@@ -45,8 +45,8 @@ private fun parseProject(reader: JsonReader): Project {
 
     reader.endObject()
 
-    if (id == ROOT_PROJECT_ID) {
-        parentId = ROOT_PROJECT_ID
+    if (id == Project.ROOT_PROJECT_ID) {
+        parentId = Project.ROOT_PROJECT_ID
     }
 
     if (id == null) {

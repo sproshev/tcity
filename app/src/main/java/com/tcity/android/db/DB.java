@@ -22,9 +22,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.tcity.android.Status;
-import com.tcity.android.background.parser.Build;
-import com.tcity.android.background.parser.BuildConfiguration;
-import com.tcity.android.background.parser.Project;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -96,9 +93,9 @@ public class DB {
 
             for (Project project : projects) {
                 ContentValues values = new ContentValues();
-                values.put(Column.TC_ID.getName(), project.getId());
-                values.put(Column.PARENT_ID.getName(), project.getParentId());
-                values.put(Column.NAME.getName(), project.getName());
+                values.put(Column.TC_ID.getName(), project.id);
+                values.put(Column.PARENT_ID.getName(), project.parentProjectId);
+                values.put(Column.NAME.getName(), project.name);
 
                 db.insert(OverviewTable.PROJECT.getName(), null, values);
             }
@@ -125,9 +122,9 @@ public class DB {
 
             for (BuildConfiguration buildConfiguration : buildConfigurations) {
                 ContentValues values = new ContentValues();
-                values.put(Column.TC_ID.getName(), buildConfiguration.getId());
-                values.put(Column.PARENT_ID.getName(), buildConfiguration.getParentId());
-                values.put(Column.NAME.getName(), buildConfiguration.getName());
+                values.put(Column.TC_ID.getName(), buildConfiguration.id);
+                values.put(Column.PARENT_ID.getName(), buildConfiguration.parentProjectId);
+                values.put(Column.NAME.getName(), buildConfiguration.name);
 
                 db.insert(OverviewTable.BUILD_CONFIGURATION.getName(), null, values);
             }
@@ -154,10 +151,10 @@ public class DB {
 
             for (Build build : builds) {
                 ContentValues values = new ContentValues();
-                values.put(Column.TC_ID.getName(), build.getId());
-                values.put(Column.PARENT_ID.getName(), build.getParentId());
-                values.put(Column.NAME.getName(), build.getName());
-                values.put(Column.STATUS.getName(), build.getStatus().toString());
+                values.put(Column.TC_ID.getName(), build.id);
+                values.put(Column.PARENT_ID.getName(), build.parentBuildConfigurationId);
+                values.put(Column.NAME.getName(), build.name);
+                values.put(Column.STATUS.getName(), build.status.toString());
 
                 db.insert(OverviewTable.BUILD.getName(), null, values);
             }

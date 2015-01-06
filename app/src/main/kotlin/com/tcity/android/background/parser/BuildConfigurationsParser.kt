@@ -19,6 +19,7 @@ package com.tcity.android.background.parser
 import java.io.InputStream
 import android.util.JsonReader
 import java.io.IOException
+import com.tcity.android.db.BuildConfiguration
 
 throws(javaClass<IOException>())
 public fun parseBuildConfigurations(stream: InputStream): List<BuildConfiguration> {

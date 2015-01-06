@@ -24,10 +24,10 @@ import android.view.ViewGroup;
 import android.widget.ListAdapter;
 
 import com.commonsware.cwac.merge.MergeAdapter;
-import com.tcity.android.AndroidPackage;
 import com.tcity.android.R;
 import com.tcity.android.Status;
 import com.tcity.android.db.DB;
+import com.tcity.android.db.Project;
 import com.tcity.android.ui.adapter.BuildConfigurationClickListener;
 import com.tcity.android.ui.adapter.ProjectClickListener;
 import com.tcity.android.ui.engine.BuildConfigurationDBEngine;
@@ -176,7 +176,7 @@ class ProjectOverviewDBEngine {
     @NotNull
     private String calculateProjectSectionName(@NotNull String projectId,
                                                @NotNull Context context) {
-        if (projectId.equals(AndroidPackage.getROOT_PROJECT_ID())) {
+        if (projectId.equals(Project.ROOT_PROJECT_ID)) {
             return context.getString(R.string.projects);
         } else {
             return context.getString(R.string.subprojects);

@@ -14,15 +14,27 @@
  * limitations under the License.
  */
 
-package com.tcity.android
+package com.tcity.android.db;
 
-public val ROOT_PROJECT_ID: String = "_Root"
+import org.jetbrains.annotations.NotNull;
 
-public enum class Status {
-    FAILURE
-    SUCCESS
-    UNKNOWN
+public class Project {
 
-    DEFAULT
+    @NotNull
+    public static final String ROOT_PROJECT_ID = "_Root";
+
+    @NotNull
+    public final String id;
+
+    @NotNull
+    public final String name;
+
+    @NotNull
+    public final String parentProjectId;
+
+    public Project(@NotNull String id, @NotNull String name, @NotNull String parentProjectId) {
+        this.id = id;
+        this.name = name;
+        this.parentProjectId = parentProjectId;
+    }
 }
-
