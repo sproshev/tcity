@@ -22,6 +22,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Toast;
@@ -53,6 +54,9 @@ public class LoginActivity extends Activity {
     @NotNull
     private EditText myPasswordEditText;
 
+    @NotNull
+    private CheckBox myHttpsCheckBox;
+
     @Nullable
     private ExecutableRunnableChain myChain;
 
@@ -76,6 +80,8 @@ public class LoginActivity extends Activity {
         myUrlEditText = (EditText) findViewById(R.id.url);
         myLoginEditText = (EditText) findViewById(R.id.login);
         myPasswordEditText = (EditText) findViewById(R.id.password);
+
+        myHttpsCheckBox = (CheckBox) findViewById(R.id.https);
 
         myChainListener = calculateChainListener();
     }
@@ -131,12 +137,14 @@ public class LoginActivity extends Activity {
             myUrlEditText.setEnabled(false);
             myLoginEditText.setEnabled(false);
             myPasswordEditText.setEnabled(false);
+            myHttpsCheckBox.setEnabled(false);
             myProgressBar.setVisibility(View.VISIBLE);
         } else {
             mySignInButton.setVisibility(View.VISIBLE);
             myUrlEditText.setEnabled(true);
             myLoginEditText.setEnabled(true);
             myPasswordEditText.setEnabled(true);
+            myHttpsCheckBox.setEnabled(true);
             myProgressBar.setVisibility(View.GONE);
         }
     }
@@ -147,7 +155,13 @@ public class LoginActivity extends Activity {
         String password = myPasswordEditText.getText().toString();
 
         Preferences preferences = new Preferences(LoginActivity.this);
-        preferences.setUrl(url);
+
+        if (myHttpsCheckBox.isChecked()) {
+            preferences.setUrl("https://" + url);
+        } else {
+            preferences.setUrl("http://" + url);
+        }
+
         preferences.setAuth(login, password);
 
         if (myChain == null) {

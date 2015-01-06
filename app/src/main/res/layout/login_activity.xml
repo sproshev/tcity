@@ -55,6 +55,25 @@
         android:inputType="textPassword"
         android:padding="8dp"/>
 
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <CheckBox
+            android:id="@+id/https"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="true"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/https"
+            android:textAllCaps="true"
+            />
+
+    </LinearLayout>
+
     <Button
         android:id="@+id/sign_in"
         android:layout_width="wrap_content"
