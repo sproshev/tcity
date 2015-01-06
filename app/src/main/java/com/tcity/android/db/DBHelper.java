@@ -30,30 +30,30 @@ class DBHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(@NotNull SQLiteDatabase db) {
-        onFavouriteCreate(FavouriteTable.PROJECT, db);
-        onFavouriteCreate(FavouriteTable.BUILD_CONFIGURATION, db);
-        onFavouriteCreate(FavouriteTable.BUILD, db);
+        onFavouriteCreate(Constants.FAVOURITE_PROJECT_TABLE, db);
+        onFavouriteCreate(Constants.FAVOURITE_BUILD_CONFIGURATION_TABLE, db);
+        onFavouriteCreate(Constants.FAVOURITE_BUILD_TABLE, db);
 
         onProjectOrBuildConfigurationOverviewCreate(OverviewTable.PROJECT, db);
         onProjectOrBuildConfigurationOverviewCreate(OverviewTable.BUILD_CONFIGURATION, db);
         onBuildOverviewCreate(db);
 
-        onProjectOrBuildConfigurationStatusesCreate(StatusTable.PROJECT, db);
-        onProjectOrBuildConfigurationStatusesCreate(StatusTable.BUILD_CONFIGURATION, db);
+        onProjectOrBuildConfigurationStatusesCreate(Constants.PROJECT_STATUS_TABLE, db);
+        onProjectOrBuildConfigurationStatusesCreate(Constants.BUILD_CONFIGURATION_STATUS_TABLE, db);
     }
 
     @Override
     public void onUpgrade(@NotNull SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL("DROP TABLE IF EXISTS " + FavouriteTable.PROJECT.getName() + ";");
-        db.execSQL("DROP TABLE IF EXISTS " + FavouriteTable.BUILD_CONFIGURATION.getName() + ";");
-        db.execSQL("DROP TABLE IF EXISTS " + FavouriteTable.BUILD.getName() + ";");
+        db.execSQL("DROP TABLE IF EXISTS " + Constants.FAVOURITE_PROJECT_TABLE + ";");
+        db.execSQL("DROP TABLE IF EXISTS " + Constants.FAVOURITE_BUILD_CONFIGURATION_TABLE + ";");
+        db.execSQL("DROP TABLE IF EXISTS " + Constants.FAVOURITE_BUILD_TABLE + ";");
 
         db.execSQL("DROP TABLE IF EXISTS " + OverviewTable.PROJECT.getName() + ";");
         db.execSQL("DROP TABLE IF EXISTS " + OverviewTable.BUILD_CONFIGURATION.getName() + ";");
         db.execSQL("DROP TABLE IF EXISTS " + OverviewTable.BUILD.getName() + ";");
 
-        db.execSQL("DROP TABLE IF EXISTS " + StatusTable.PROJECT.getName() + ";");
-        db.execSQL("DROP TABLE IF EXISTS " + StatusTable.BUILD_CONFIGURATION.getName() + ";");
+        db.execSQL("DROP TABLE IF EXISTS " + Constants.PROJECT_STATUS_TABLE + ";");
+        db.execSQL("DROP TABLE IF EXISTS " + Constants.BUILD_CONFIGURATION_STATUS_TABLE + ";");
 
         onCreate(db);
     }
@@ -76,10 +76,10 @@ class DBHelper extends SQLiteOpenHelper {
         }
     }
 
-    private void onFavouriteCreate(@NotNull FavouriteTable table,
+    private void onFavouriteCreate(@NotNull String table,
                                    @NotNull SQLiteDatabase db) {
         db.execSQL(
-                "CREATE TABLE " + table.getName() + " (" +
+                "CREATE TABLE " + table + " (" +
                         getDescription(Column.TC_ID) + ", " +
                         getDescription(Column.FAVOURITE) +
                         ");"
@@ -110,10 +110,10 @@ class DBHelper extends SQLiteOpenHelper {
         );
     }
 
-    private void onProjectOrBuildConfigurationStatusesCreate(@NotNull StatusTable table,
+    private void onProjectOrBuildConfigurationStatusesCreate(@NotNull String table,
                                                              @NotNull SQLiteDatabase db) {
         db.execSQL(
-                "CREATE TABLE " + table.getName() + " (" +
+                "CREATE TABLE " + table + " (" +
                         getDescription(Column.TC_ID) + ", " +
                         getDescription(Column.STATUS) +
                         ");"

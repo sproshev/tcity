@@ -18,20 +18,23 @@ package com.tcity.android.db;
 
 import org.jetbrains.annotations.NotNull;
 
-enum FavouriteTable {
-    PROJECT, BUILD_CONFIGURATION, BUILD;
+class Constants {
 
     @NotNull
-    String getName() {
-        switch (this) {
-            case PROJECT:
-                return "favourite_project";
-            case BUILD_CONFIGURATION:
-                return "favourite_build_configuration";
-            case BUILD:
-                return "favourite_build";
-            default:
-                throw new IllegalArgumentException();
-        }
+    static final String PROJECT_STATUS_TABLE = "project_status";
+
+    @NotNull
+    static final String BUILD_CONFIGURATION_STATUS_TABLE = "build_configuration_status";
+
+    @NotNull
+    static final String FAVOURITE_PROJECT_TABLE = "favourite_project";
+
+    @NotNull
+    static final String FAVOURITE_BUILD_CONFIGURATION_TABLE = "favourite_build_configuration";
+
+    @NotNull
+    static final String FAVOURITE_BUILD_TABLE = "favourite_build";
+
+    private Constants() {
     }
 }
