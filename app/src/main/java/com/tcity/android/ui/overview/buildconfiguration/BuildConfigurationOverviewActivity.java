@@ -52,12 +52,15 @@ public class BuildConfigurationOverviewActivity extends ListActivity implements 
     @NotNull
     private BuildConfigurationOverviewEngine myEngine;
 
+    private boolean myRecreating;
+
     // LIFECYCLE - Begin
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        myRecreating = false;
         myBuildConfigurationId = getIntent().getStringExtra(INTENT_KEY);
 
         setContentView(R.layout.overview);
@@ -90,6 +93,8 @@ public class BuildConfigurationOverviewActivity extends ListActivity implements 
     @SuppressWarnings("deprecation")
     @Override
     public Object onRetainNonConfigurationInstance() {
+        myRecreating = true;
+
         return myEngine;
     }
 
@@ -108,6 +113,10 @@ public class BuildConfigurationOverviewActivity extends ListActivity implements 
         super.onDestroy();
 
         myEngine.setActivity(null);
+
+        if (!myRecreating) {
+            myEngine.close();
+        }
     }
 
     // LIFECYCLE - End
@@ -158,7 +167,7 @@ public class BuildConfigurationOverviewActivity extends ListActivity implements 
 
     @NotNull
     private BuildConfigurationOverviewEngine calculateEngine() {
-        @SuppressWarnings("deprecation")
+        //noinspection deprecation
         BuildConfigurationOverviewEngine result = (BuildConfigurationOverviewEngine) getLastNonConfigurationInstance();
 
         if (result == null) {

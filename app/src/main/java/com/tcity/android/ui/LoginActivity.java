@@ -80,7 +80,6 @@ public class LoginActivity extends Activity {
         myUrlEditText = (EditText) findViewById(R.id.url);
         myLoginEditText = (EditText) findViewById(R.id.login);
         myPasswordEditText = (EditText) findViewById(R.id.password);
-
         myHttpsCheckBox = (CheckBox) findViewById(R.id.https);
 
         myChainListener = calculateChainListener();
@@ -117,6 +116,7 @@ public class LoginActivity extends Activity {
         myChainListener.myActivity = null;
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public Object onRetainNonConfigurationInstance() {
         return myChainListener;
@@ -126,6 +126,7 @@ public class LoginActivity extends Activity {
 
     @NotNull
     private ChainListener calculateChainListener() {
+        //noinspection deprecation
         ChainListener result = (ChainListener) getLastNonConfigurationInstance();
 
         return result != null ? result : new ChainListener();
@@ -150,19 +151,7 @@ public class LoginActivity extends Activity {
     }
 
     private void refresh() {
-        String url = myUrlEditText.getText().toString();
-        String login = myLoginEditText.getText().toString();
-        String password = myPasswordEditText.getText().toString();
-
-        Preferences preferences = new Preferences(LoginActivity.this);
-
-        if (myHttpsCheckBox.isChecked()) {
-            preferences.setUrl("https://" + url);
-        } else {
-            preferences.setUrl("http://" + url);
-        }
-
-        preferences.setAuth(login, password);
+        saveCredentials();
 
         if (myChain == null) {
             myChain = calculateExecutableChain();
@@ -176,6 +165,22 @@ public class LoginActivity extends Activity {
             myChainListener.onStarted();
             myChain.execute();
         }
+    }
+
+    private void saveCredentials() {
+        String url = myUrlEditText.getText().toString();
+        String login = myLoginEditText.getText().toString();
+        String password = myPasswordEditText.getText().toString();
+
+        Preferences preferences = new Preferences(LoginActivity.this);
+
+        if (myHttpsCheckBox.isChecked()) {
+            preferences.setUrl("https://" + url);
+        } else {
+            preferences.setUrl("http://" + url);
+        }
+
+        preferences.setAuth(login, password);
     }
 
     @NotNull

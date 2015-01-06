@@ -54,12 +54,15 @@ public class ProjectOverviewActivity extends ListActivity implements SwipeRefres
     @NotNull
     private ProjectOverviewEngine myEngine;
 
+    private boolean myRecreating;
+
     // LIFECYCLE - Begin
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        myRecreating = false;
         myProjectId = calculateProjectId();
 
         setContentView(R.layout.overview);
@@ -92,6 +95,8 @@ public class ProjectOverviewActivity extends ListActivity implements SwipeRefres
     @SuppressWarnings("deprecation")
     @Override
     public Object onRetainNonConfigurationInstance() {
+        myRecreating = true;
+
         return myEngine;
     }
 
@@ -110,6 +115,10 @@ public class ProjectOverviewActivity extends ListActivity implements SwipeRefres
         super.onDestroy();
 
         myEngine.setActivity(null);
+
+        if (!myRecreating) {
+            myEngine.close();
+        }
     }
 
     // LIFECYCLE - End
@@ -205,7 +214,7 @@ public class ProjectOverviewActivity extends ListActivity implements SwipeRefres
 
     @NotNull
     private ProjectOverviewEngine calculateEngine() {
-        @SuppressWarnings("deprecation")
+        //noinspection deprecation
         ProjectOverviewEngine result = (ProjectOverviewEngine) getLastNonConfigurationInstance();
 
         if (result == null) {

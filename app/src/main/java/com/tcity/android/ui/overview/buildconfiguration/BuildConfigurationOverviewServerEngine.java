@@ -58,7 +58,7 @@ class BuildConfigurationOverviewServerEngine {
     public void setActivity(@Nullable BuildConfigurationOverviewActivity activity) {
         myChainListener.myActivity = activity;
 
-        if (myChainListener.count != 0 && activity != null) {
+        if (myChainListener.myCount != 0 && activity != null) {
             activity.setRefreshing(true);
         }
     }
@@ -90,10 +90,10 @@ class BuildConfigurationOverviewServerEngine {
         @Nullable
         private BuildConfigurationOverviewActivity myActivity;
 
-        private int count;
+        private int myCount;
 
         public void onStarted() {
-            count++;
+            myCount++;
 
             if (myActivity != null) {
                 myActivity.setRefreshing(true);
@@ -102,11 +102,11 @@ class BuildConfigurationOverviewServerEngine {
 
         @Override
         public void onFinished() {
-            if (count != 0) {
-                count--;
+            if (myCount != 0) {
+                myCount--;
             }
 
-            if (myActivity != null && count == 0) {
+            if (myActivity != null && myCount == 0) {
                 myActivity.setRefreshing(false);
             }
         }

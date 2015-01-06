@@ -61,7 +61,7 @@ class ProjectOverviewServerEngine {
     public void setActivity(@Nullable ProjectOverviewActivity activity) {
         myChainListener.myActivity = activity;
 
-        if (myChainListener.count != 0 && activity != null) {
+        if (myChainListener.myCount != 0 && activity != null) {
             activity.setRefreshing(true);
         }
     }
@@ -170,10 +170,10 @@ class ProjectOverviewServerEngine {
         @Nullable
         private ProjectOverviewActivity myActivity;
 
-        private int count;
+        private int myCount;
 
         public void onStarted() {
-            count++;
+            myCount++;
 
             if (myActivity != null) {
                 myActivity.setRefreshing(true);
@@ -182,11 +182,11 @@ class ProjectOverviewServerEngine {
 
         @Override
         public void onFinished() {
-            if (count != 0) {
-                count--;
+            if (myCount != 0) {
+                myCount--;
             }
 
-            if (myActivity != null && count == 0) {
+            if (myActivity != null && myCount == 0) {
                 myActivity.setRefreshing(false);
             }
         }
