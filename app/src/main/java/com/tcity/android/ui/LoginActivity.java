@@ -17,6 +17,8 @@
 package com.tcity.android.ui;
 
 import android.app.Activity;
+import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -26,8 +28,13 @@ import android.widget.Toast;
 
 import com.tcity.android.R;
 import com.tcity.android.app.Preferences;
+import com.tcity.android.background.rest.RestClient;
+import com.tcity.android.background.runnable.chain.ExecutableRunnableChain;
+import com.tcity.android.background.runnable.chain.RunnableChain;
+import com.tcity.android.background.runnable.primitive.LoginRunnable;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class LoginActivity extends Activity {
 
@@ -46,8 +53,13 @@ public class LoginActivity extends Activity {
     @NotNull
     private EditText myPasswordEditText;
 
+    @Nullable
+    private ExecutableRunnableChain myChain;
+
     @NotNull
-    private Preferences myPreferences;
+    private ChainListener myChainListener;
+
+    /* LIFECYCLE - BEGIN */
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,14 +77,56 @@ public class LoginActivity extends Activity {
         myLoginEditText = (EditText) findViewById(R.id.login);
         myPasswordEditText = (EditText) findViewById(R.id.password);
 
-        myPreferences = new Preferences(this);
-
-        myUrlEditText.setText(myPreferences.getUrl());
-        myLoginEditText.setText(myPreferences.getLogin());
+        myChainListener = calculateChainListener();
     }
 
-    private void updateLoadingMode(boolean enable) {
-        if (enable) {
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        if (myChainListener.myLoginResult == LoginResult.SUCCESS) {
+            Intent intent = new Intent(this, SplashActivity.class);
+
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+            startActivity(intent);
+        } else {
+            if (myChainListener.myLoginResult == LoginResult.RUNNING) {
+                setRefreshing(true);
+            }
+
+            if (myChainListener.myLoginResult == LoginResult.FAILED) {
+                new Preferences(this).reset();
+            }
+
+            myChainListener.myActivity = this;
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        myChainListener.myActivity = null;
+    }
+
+    @Override
+    public Object onRetainNonConfigurationInstance() {
+        return myChainListener;
+    }
+
+    /* LIFECYCLE - END */
+
+    @NotNull
+    private ChainListener calculateChainListener() {
+        ChainListener result = (ChainListener) getLastNonConfigurationInstance();
+
+        return result != null ? result : new ChainListener();
+    }
+
+    private void setRefreshing(boolean refreshing) {
+        if (refreshing) {
             mySignInButton.setVisibility(View.GONE);
             myUrlEditText.setEnabled(false);
             myLoginEditText.setEnabled(false);
@@ -87,30 +141,106 @@ public class LoginActivity extends Activity {
         }
     }
 
+    private void refresh() {
+        String url = myUrlEditText.getText().toString();
+        String login = myLoginEditText.getText().toString();
+        String password = myPasswordEditText.getText().toString();
+
+        Preferences preferences = new Preferences(LoginActivity.this);
+        preferences.setUrl(url);
+        preferences.setAuth(login, password);
+
+        if (myChain == null) {
+            myChain = calculateExecutableChain();
+        }
+
+        if (myChain.getStatus() != AsyncTask.Status.RUNNING) {
+            if (myChain.getStatus() == AsyncTask.Status.FINISHED) {
+                myChain = calculateExecutableChain();
+            }
+
+            myChainListener.onStarted();
+            myChain.execute();
+        }
+    }
+
+    @NotNull
+    private ExecutableRunnableChain calculateExecutableChain() {
+        return RunnableChain.getSingleRunnableChain(
+                new LoginRunnable(
+                        new RestClient(
+                                new Preferences(this)
+                        )
+                )
+        ).toAsyncTask(myChainListener);
+    }
+
     private class SignInClickListener implements View.OnClickListener {
 
         @Override
         public void onClick(@NotNull View v) {
-            String url = myUrlEditText.getText().toString();
-            String login = myLoginEditText.getText().toString();
-            String password = myPasswordEditText.getText().toString();
-
-            if (url.length() == 0) {
+            if (myUrlEditText.length() == 0) {
                 showToast(R.string.url_is_empty);
-            } else if (login.length() == 0) {
+            } else if (myLoginEditText.length() == 0) {
                 showToast(R.string.login_is_empty);
-            } else if (password.length() == 0) {
+            } else if (myPasswordEditText.length() == 0) {
                 showToast(R.string.password_is_empty);
             } else {
-//                TODO
-//                myPreferences.setUrl(url);
-//                myPreferences.setAuth(login, password);
-//                updateLoadingMode(true);
+                refresh();
             }
         }
 
         private void showToast(int resId) {
             Toast.makeText(LoginActivity.this, resId, Toast.LENGTH_LONG).show();
         }
+    }
+
+    private static class ChainListener implements RunnableChain.Listener {
+
+        @Nullable
+        private LoginActivity myActivity;
+
+        private LoginResult myLoginResult = LoginResult.PENDING;
+
+        public void onStarted() {
+            myLoginResult = LoginResult.RUNNING;
+
+            if (myActivity != null) {
+                myActivity.setRefreshing(true);
+            }
+        }
+
+        @Override
+        public void onFinished() {
+            if (myLoginResult == LoginResult.FAILED) {
+                return;
+            }
+
+            myLoginResult = LoginResult.SUCCESS;
+
+            if (myActivity != null) {
+                Intent intent = new Intent(myActivity, SplashActivity.class);
+
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+                myActivity.startActivity(intent);
+            }
+        }
+
+        @Override
+        public void onException(@NotNull Exception e) {
+            myLoginResult = LoginResult.FAILED;
+
+            if (myActivity != null) {
+                myActivity.setRefreshing(false);
+
+                Toast.makeText(myActivity, e.getMessage(), Toast.LENGTH_LONG).show();
+            }
+        }
+    }
+
+    private static enum LoginResult {
+        PENDING, RUNNING, SUCCESS, FAILED
     }
 }
