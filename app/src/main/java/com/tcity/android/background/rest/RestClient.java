@@ -47,6 +47,13 @@ public class RestClient {
     }
 
     @NotNull
+    public HttpResponse getRoot() throws IOException {
+        return getPlain(
+                RestLocator.getRoot(myPreferences)
+        );
+    }
+
+    @NotNull
     public HttpResponse getProjects() throws IOException {
         return getJson(
                 RestLocator.getProjectsUrl(myPreferences)

@@ -29,6 +29,11 @@ class RestLocator {
     }
 
     @NotNull
+    public static String getRoot(@NotNull Preferences preferences) {
+        return preferences.getUrl() + REST_PREFIX;
+    }
+
+    @NotNull
     public static String getProjectsUrl(@NotNull Preferences preferences) {
         return preferences.getUrl() + REST_PREFIX + "projects";
     }
@@ -42,8 +47,8 @@ class RestLocator {
     @NotNull
     public static String getBuildsUrl(@NotNull String buildConfigurationId,
                                       @NotNull Preferences preferences) {
-        return preferences.getUrl() + REST_PREFIX + "builds/?locator=" +
-                "buildType:(id:" + buildConfigurationId + ")," +
+        return preferences.getUrl() + REST_PREFIX + "buildTypes/id:" + buildConfigurationId + "/builds/" +
+                "?locator=" +
                 "running:any," +
                 "branch:(branched:any)";
     }
