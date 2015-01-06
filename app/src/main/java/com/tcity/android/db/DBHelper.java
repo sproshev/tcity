@@ -34,8 +34,8 @@ class DBHelper extends SQLiteOpenHelper {
         onFavouriteCreate(Constants.FAVOURITE_BUILD_CONFIGURATION_TABLE, db);
         onFavouriteCreate(Constants.FAVOURITE_BUILD_TABLE, db);
 
-        onProjectOrBuildConfigurationOverviewCreate(OverviewTable.PROJECT, db);
-        onProjectOrBuildConfigurationOverviewCreate(OverviewTable.BUILD_CONFIGURATION, db);
+        onProjectOrBuildConfigurationOverviewCreate(Constants.PROJECT_OVERVIEW_TABLE, db);
+        onProjectOrBuildConfigurationOverviewCreate(Constants.BUILD_CONFIGURATION_OVERVIEW_TABLE, db);
         onBuildOverviewCreate(db);
 
         onProjectOrBuildConfigurationStatusesCreate(Constants.PROJECT_STATUS_TABLE, db);
@@ -48,9 +48,9 @@ class DBHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + Constants.FAVOURITE_BUILD_CONFIGURATION_TABLE + ";");
         db.execSQL("DROP TABLE IF EXISTS " + Constants.FAVOURITE_BUILD_TABLE + ";");
 
-        db.execSQL("DROP TABLE IF EXISTS " + OverviewTable.PROJECT.getName() + ";");
-        db.execSQL("DROP TABLE IF EXISTS " + OverviewTable.BUILD_CONFIGURATION.getName() + ";");
-        db.execSQL("DROP TABLE IF EXISTS " + OverviewTable.BUILD.getName() + ";");
+        db.execSQL("DROP TABLE IF EXISTS " + Constants.PROJECT_OVERVIEW_TABLE + ";");
+        db.execSQL("DROP TABLE IF EXISTS " + Constants.BUILD_CONFIGURATION_OVERVIEW_TABLE + ";");
+        db.execSQL("DROP TABLE IF EXISTS " + Constants.BUILD_OVERVIEW_TABLE + ";");
 
         db.execSQL("DROP TABLE IF EXISTS " + Constants.PROJECT_STATUS_TABLE + ";");
         db.execSQL("DROP TABLE IF EXISTS " + Constants.BUILD_CONFIGURATION_STATUS_TABLE + ";");
@@ -88,7 +88,7 @@ class DBHelper extends SQLiteOpenHelper {
 
     private void onBuildOverviewCreate(@NotNull SQLiteDatabase db) {
         db.execSQL(
-                "CREATE TABLE " + OverviewTable.BUILD.getName() + " (" +
+                "CREATE TABLE " + Constants.BUILD_OVERVIEW_TABLE + " (" +
                         getDescription(Column.ANDROID_ID) + ", " +
                         getDescription(Column.TC_ID) + ", " +
                         getDescription(Column.NAME) + ", " +
@@ -98,10 +98,10 @@ class DBHelper extends SQLiteOpenHelper {
         );
     }
 
-    private void onProjectOrBuildConfigurationOverviewCreate(@NotNull OverviewTable table,
+    private void onProjectOrBuildConfigurationOverviewCreate(@NotNull String table,
                                                              @NotNull SQLiteDatabase db) {
         db.execSQL(
-                "CREATE TABLE " + table.getName() + " (" +
+                "CREATE TABLE " + table + " (" +
                         getDescription(Column.ANDROID_ID) + ", " +
                         getDescription(Column.TC_ID) + ", " +
                         getDescription(Column.NAME) + ", " +

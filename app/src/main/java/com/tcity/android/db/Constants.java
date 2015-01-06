@@ -35,6 +35,15 @@ class Constants {
     @NotNull
     static final String FAVOURITE_BUILD_TABLE = "favourite_build";
 
+    @NotNull
+    static final String PROJECT_OVERVIEW_TABLE = "project_overview";
+
+    @NotNull
+    static final String BUILD_CONFIGURATION_OVERVIEW_TABLE = "build_configuration_overview";
+
+    @NotNull
+    static final String BUILD_OVERVIEW_TABLE = "build_overview";
+
     private Constants() {
     }
 }

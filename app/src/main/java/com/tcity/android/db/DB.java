@@ -37,21 +37,21 @@ public class DB {
     private final DBHelper myDBHelper;
 
     @NotNull
-    private final Map<OverviewTable, Collection<Listener>> myListeners;
+    private final Map<String, Collection<Listener>> myListeners;
 
     public DB(@NotNull Context context) {
         myDBHelper = new DBHelper(context);
         myListeners = new HashMap<>();
 
-        myListeners.put(OverviewTable.PROJECT, new LinkedList<Listener>());
-        myListeners.put(OverviewTable.BUILD_CONFIGURATION, new LinkedList<Listener>());
-        myListeners.put(OverviewTable.BUILD, new LinkedList<Listener>());
+        myListeners.put(Constants.PROJECT_OVERVIEW_TABLE, new LinkedList<Listener>());
+        myListeners.put(Constants.BUILD_CONFIGURATION_OVERVIEW_TABLE, new LinkedList<Listener>());
+        myListeners.put(Constants.BUILD_OVERVIEW_TABLE, new LinkedList<Listener>());
     }
 
     public void setFavouriteProject(@NotNull String id, boolean favourite) {
         setFavourite(Constants.FAVOURITE_PROJECT_TABLE, id, favourite);
 
-        notifyListeners(OverviewTable.PROJECT);
+        notifyListeners(Constants.PROJECT_OVERVIEW_TABLE);
     }
 
     public boolean isProjectFavourite(@NotNull String id) {
@@ -60,13 +60,13 @@ public class DB {
 
     @NotNull
     public String getProjectName(@NotNull String id) {
-        return getName(OverviewTable.PROJECT, id);
+        return getName(Constants.PROJECT_OVERVIEW_TABLE, id);
     }
 
     public void setFavouriteBuildConfiguration(@NotNull String id, boolean favourite) {
         setFavourite(Constants.FAVOURITE_BUILD_CONFIGURATION_TABLE, id, favourite);
 
-        notifyListeners(OverviewTable.BUILD_CONFIGURATION);
+        notifyListeners(Constants.BUILD_CONFIGURATION_OVERVIEW_TABLE);
     }
 
     public boolean isBuildConfigurationFavourite(@NotNull String id) {
@@ -75,13 +75,13 @@ public class DB {
 
     @NotNull
     public String getBuildConfigurationName(@NotNull String id) {
-        return getName(OverviewTable.BUILD_CONFIGURATION, id);
+        return getName(Constants.BUILD_CONFIGURATION_OVERVIEW_TABLE, id);
     }
 
     public void setFavouriteBuild(@NotNull String id, boolean favourite) {
         setFavourite(Constants.FAVOURITE_BUILD_TABLE, id, favourite);
 
-        notifyListeners(OverviewTable.BUILD);
+        notifyListeners(Constants.BUILD_OVERVIEW_TABLE);
     }
 
     public void setProjects(@NotNull Collection<Project> projects) {
@@ -89,7 +89,7 @@ public class DB {
         db.beginTransaction();
 
         try {
-            db.delete(OverviewTable.PROJECT.getName(), null, null);
+            db.delete(Constants.PROJECT_OVERVIEW_TABLE, null, null);
 
             for (Project project : projects) {
                 ContentValues values = new ContentValues();
@@ -97,12 +97,12 @@ public class DB {
                 values.put(Column.PARENT_ID.getName(), project.parentProjectId);
                 values.put(Column.NAME.getName(), project.name);
 
-                db.insert(OverviewTable.PROJECT.getName(), null, values);
+                db.insert(Constants.PROJECT_OVERVIEW_TABLE, null, values);
             }
 
             db.setTransactionSuccessful();
 
-            notifyListeners(OverviewTable.PROJECT);
+            notifyListeners(Constants.PROJECT_OVERVIEW_TABLE);
         } finally {
             db.endTransaction();
         }
@@ -115,7 +115,7 @@ public class DB {
 
         try {
             db.delete(
-                    OverviewTable.BUILD_CONFIGURATION.getName(),
+                    Constants.BUILD_CONFIGURATION_OVERVIEW_TABLE,
                     Column.PARENT_ID.getName() + " = ?",
                     new String[]{parentProjectId}
             );
@@ -126,12 +126,12 @@ public class DB {
                 values.put(Column.PARENT_ID.getName(), buildConfiguration.parentProjectId);
                 values.put(Column.NAME.getName(), buildConfiguration.name);
 
-                db.insert(OverviewTable.BUILD_CONFIGURATION.getName(), null, values);
+                db.insert(Constants.BUILD_CONFIGURATION_OVERVIEW_TABLE, null, values);
             }
 
             db.setTransactionSuccessful();
 
-            notifyListeners(OverviewTable.BUILD_CONFIGURATION);
+            notifyListeners(Constants.BUILD_CONFIGURATION_OVERVIEW_TABLE);
         } finally {
             db.endTransaction();
         }
@@ -144,7 +144,7 @@ public class DB {
 
         try {
             db.delete(
-                    OverviewTable.BUILD.getName(),
+                    Constants.BUILD_OVERVIEW_TABLE,
                     Column.PARENT_ID.getName() + " = ?",
                     new String[]{parentBuildConfigurationId}
             );
@@ -156,12 +156,12 @@ public class DB {
                 values.put(Column.NAME.getName(), build.name);
                 values.put(Column.STATUS.getName(), build.status.toString());
 
-                db.insert(OverviewTable.BUILD.getName(), null, values);
+                db.insert(Constants.BUILD_OVERVIEW_TABLE, null, values);
             }
 
             db.setTransactionSuccessful();
 
-            notifyListeners(OverviewTable.BUILD);
+            notifyListeners(Constants.BUILD_OVERVIEW_TABLE);
         } finally {
             db.endTransaction();
         }
@@ -169,10 +169,8 @@ public class DB {
 
     @NotNull
     public Cursor getProjects(@NotNull String parentProjectId, boolean onlyFavourite) {
-        String mainTable = OverviewTable.PROJECT.getName();
-
         return getProjectsOrBuildConfigurations(
-                mainTable,
+                Constants.PROJECT_OVERVIEW_TABLE,
                 Constants.FAVOURITE_PROJECT_TABLE,
                 Constants.PROJECT_STATUS_TABLE,
                 parentProjectId,
@@ -182,10 +180,8 @@ public class DB {
 
     @NotNull
     public Cursor getBuildConfigurations(@NotNull String parentProjectId, boolean onlyFavourite) {
-        String mainTable = OverviewTable.BUILD_CONFIGURATION.getName();
-
         return getProjectsOrBuildConfigurations(
-                mainTable,
+                Constants.BUILD_CONFIGURATION_OVERVIEW_TABLE,
                 Constants.FAVOURITE_BUILD_CONFIGURATION_TABLE,
                 Constants.BUILD_CONFIGURATION_STATUS_TABLE,
                 parentProjectId,
@@ -195,7 +191,7 @@ public class DB {
 
     @NotNull
     public Cursor getBuilds(@NotNull String parentBuildConfigurationId, boolean onlyFavourite) {
-        String mainTable = OverviewTable.BUILD.getName();
+        String mainTable = Constants.BUILD_OVERVIEW_TABLE;
         String favouriteTable = Constants.FAVOURITE_BUILD_TABLE;
 
         String idColumn = Column.TC_ID.getName();
@@ -235,39 +231,39 @@ public class DB {
     }
 
     public synchronized void addProjectsListener(@NotNull Listener listener) {
-        myListeners.get(OverviewTable.PROJECT).add(listener);
+        myListeners.get(Constants.PROJECT_OVERVIEW_TABLE).add(listener);
     }
 
     public synchronized void addBuildConfigurationsListener(@NotNull Listener listener) {
-        myListeners.get(OverviewTable.BUILD_CONFIGURATION).add(listener);
+        myListeners.get(Constants.BUILD_CONFIGURATION_OVERVIEW_TABLE).add(listener);
     }
 
     public synchronized void addBuildsListener(@NotNull Listener listener) {
-        myListeners.get(OverviewTable.BUILD).add(listener);
+        myListeners.get(Constants.BUILD_OVERVIEW_TABLE).add(listener);
     }
 
     public synchronized void removeProjectsListener(@NotNull Listener listener) {
-        myListeners.get(OverviewTable.PROJECT).remove(listener);
+        myListeners.get(Constants.PROJECT_OVERVIEW_TABLE).remove(listener);
     }
 
     public synchronized void removeBuildConfigurationsListener(@NotNull Listener listener) {
-        myListeners.get(OverviewTable.BUILD_CONFIGURATION).remove(listener);
+        myListeners.get(Constants.BUILD_CONFIGURATION_OVERVIEW_TABLE).remove(listener);
     }
 
     public synchronized void removeBuildsListener(@NotNull Listener listener) {
-        myListeners.get(OverviewTable.BUILD).remove(listener);
+        myListeners.get(Constants.BUILD_OVERVIEW_TABLE).remove(listener);
     }
 
     public void setProjectStatus(@NotNull String id, @Nullable Status status) {
         setProjectOrBuildConfigurationStatus(Constants.PROJECT_STATUS_TABLE, id, status);
 
-        notifyListeners(OverviewTable.PROJECT);
+        notifyListeners(Constants.PROJECT_OVERVIEW_TABLE);
     }
 
     public void setBuildConfigurationStatus(@NotNull String id, @Nullable Status status) {
         setProjectOrBuildConfigurationStatus(Constants.BUILD_CONFIGURATION_STATUS_TABLE, id, status);
 
-        notifyListeners(OverviewTable.BUILD_CONFIGURATION);
+        notifyListeners(Constants.BUILD_CONFIGURATION_OVERVIEW_TABLE);
     }
 
     private void setFavourite(@NotNull String table,
@@ -337,9 +333,9 @@ public class DB {
     }
 
     @NotNull
-    private String getName(@NotNull OverviewTable table, @NotNull String id) {
+    private String getName(@NotNull String table, @NotNull String id) {
         Cursor cursor = myDBHelper.getReadableDatabase().query(
-                table.getName(),
+                table,
                 new String[]{Column.NAME.getName()},
                 Column.TC_ID.getName() + " = ?",
                 new String[]{id},
@@ -443,7 +439,7 @@ public class DB {
         }
     }
 
-    private void notifyListeners(@NotNull OverviewTable table) {
+    private void notifyListeners(@NotNull String table) {
         for (Listener listener : myListeners.get(table)) {
             listener.onChanged();
         }
