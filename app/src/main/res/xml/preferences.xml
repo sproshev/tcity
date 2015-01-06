@@ -54,4 +54,14 @@
 
     </PreferenceCategory>
 
+    <PreferenceCategory android:title="@string/logout">
+
+        <Preference
+            android:key="@string/logout_pref_key"
+            android:title="@string/logout"
+            android:summary="@string/click_to_remove_all_data_and_go_to_login_activity"
+            />
+
+    </PreferenceCategory>
+
 </PreferenceScreen>

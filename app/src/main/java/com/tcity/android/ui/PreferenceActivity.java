@@ -17,11 +17,13 @@
 package com.tcity.android.ui;
 
 import android.app.ActionBar;
+import android.content.Intent;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.Preference;
 
 import com.tcity.android.R;
+import com.tcity.android.app.Application;
 import com.tcity.android.app.Preferences;
 import com.tcity.android.sync.SyncUtils;
 
@@ -61,6 +63,10 @@ public class PreferenceActivity extends android.preference.PreferenceActivity {
         //noinspection deprecation
         CheckBoxPreference wifiPreference = (CheckBoxPreference) findPreference(getString(R.string.sync_wifi_only_pref_key));
         wifiPreference.setOnPreferenceChangeListener(new WifiPreferenceListener());
+
+        //noinspection deprecation
+        Preference logoutPreference = findPreference(getString(R.string.logout_pref_key));
+        logoutPreference.setOnPreferenceClickListener(new LogoutPreferenceListener());
     }
 
     private class SyncPreferenceListener implements Preference.OnPreferenceChangeListener {
@@ -86,6 +92,22 @@ public class PreferenceActivity extends android.preference.PreferenceActivity {
         public boolean onPreferenceChange(@Nullable Preference preference,
                                           @NotNull Object newValue) {
             SyncUtils.updateSync(PreferenceActivity.this, (boolean) newValue);
+
+            return true;
+        }
+    }
+
+    private class LogoutPreferenceListener implements Preference.OnPreferenceClickListener {
+
+        @Override
+        public boolean onPreferenceClick(@Nullable Preference preference) {
+            ((Application) getApplication()).getDB().reset();
+            new Preferences(PreferenceActivity.this).reset();
+
+            Intent intent = new Intent(PreferenceActivity.this, SplashActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
 
             return true;
         }
