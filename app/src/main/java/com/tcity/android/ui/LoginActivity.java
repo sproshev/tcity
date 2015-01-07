@@ -18,6 +18,7 @@ package com.tcity.android.ui;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
@@ -39,6 +40,15 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class LoginActivity extends Activity {
+
+    @NotNull
+    private static final String TEMP_PREFERENCES_NAME = "login_activity";
+
+    @NotNull
+    private static final String URL_PREFERENCES_KEY = "url";
+
+    @NotNull
+    private static final String LOGIN_PREFERENCES_KEY = "login";
 
     @NotNull
     private ProgressBar myProgressBar;
@@ -64,6 +74,9 @@ public class LoginActivity extends Activity {
     @NotNull
     private LoginChainListener myChainListener;
 
+    @NotNull
+    private SharedPreferences mySharedPreferences;
+
     /* LIFECYCLE - BEGIN */
 
     @Override
@@ -84,6 +97,10 @@ public class LoginActivity extends Activity {
         myHttpsCheckBox = (CheckBox) findViewById(R.id.https);
 
         myChainListener = calculateChainListener();
+
+        mySharedPreferences = getSharedPreferences(TEMP_PREFERENCES_NAME, MODE_PRIVATE);
+        myUrlEditText.setText(mySharedPreferences.getString(URL_PREFERENCES_KEY, null));
+        myLoginEditText.setText(mySharedPreferences.getString(LOGIN_PREFERENCES_KEY, null));
     }
 
     @Override
@@ -114,6 +131,16 @@ public class LoginActivity extends Activity {
         myChainListener.setActivity(null);
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        SharedPreferences.Editor editor = mySharedPreferences.edit();
+        editor.putString(URL_PREFERENCES_KEY, myUrlEditText.getText().toString());
+        editor.putString(LOGIN_PREFERENCES_KEY, myLoginEditText.getText().toString());
+        editor.apply();
+    }
+
     @SuppressWarnings("deprecation")
     @Override
     public Object onRetainNonConfigurationInstance() {
@@ -127,6 +154,8 @@ public class LoginActivity extends Activity {
     }
 
     void onSuccessfulLogin() {
+        mySharedPreferences.edit().clear().apply();
+
         Intent intent = new Intent(this, SplashActivity.class);
 
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -189,6 +218,11 @@ public class LoginActivity extends Activity {
         String url = myUrlEditText.getText().toString();
         String login = myLoginEditText.getText().toString();
         String password = myPasswordEditText.getText().toString();
+
+        SharedPreferences.Editor editor = mySharedPreferences.edit();
+        editor.putString(URL_PREFERENCES_KEY, url);
+        editor.putString(LOGIN_PREFERENCES_KEY, login);
+        editor.apply();
 
         Preferences preferences = new Preferences(LoginActivity.this);
 
