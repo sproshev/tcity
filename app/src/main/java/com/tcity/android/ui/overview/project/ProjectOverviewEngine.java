@@ -38,9 +38,18 @@ class ProjectOverviewEngine {
     ProjectOverviewEngine(@NotNull String projectId,
                           @NotNull Context context,
                           @NotNull DB db,
-                          @NotNull ViewGroup root) {
+                          @NotNull ViewGroup root,
+                          boolean init) {
         myDBEngine = new ProjectOverviewDBEngine(projectId, context, db, root);
-        myServerEngine = new ProjectOverviewServerEngine(projectId, db, new RestClient(new Preferences(context)));
+
+        Preferences preferences = new Preferences(context);
+        myServerEngine = new ProjectOverviewServerEngine(
+                projectId,
+                db,
+                new RestClient(preferences),
+                preferences,
+                init
+        );
     }
 
     @NotNull

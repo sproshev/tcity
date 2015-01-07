@@ -77,6 +77,8 @@ public class LoginActivity extends Activity {
     @NotNull
     private SharedPreferences mySharedPreferences;
 
+    private boolean myRedirecting;
+
     /* LIFECYCLE - BEGIN */
 
     @Override
@@ -101,6 +103,8 @@ public class LoginActivity extends Activity {
         mySharedPreferences = getSharedPreferences(TEMP_PREFERENCES_NAME, MODE_PRIVATE);
         myUrlEditText.setText(mySharedPreferences.getString(URL_PREFERENCES_KEY, null));
         myLoginEditText.setText(mySharedPreferences.getString(LOGIN_PREFERENCES_KEY, null));
+
+        myRedirecting = false;
     }
 
     @Override
@@ -135,10 +139,12 @@ public class LoginActivity extends Activity {
     protected void onDestroy() {
         super.onDestroy();
 
-        SharedPreferences.Editor editor = mySharedPreferences.edit();
-        editor.putString(URL_PREFERENCES_KEY, myUrlEditText.getText().toString());
-        editor.putString(LOGIN_PREFERENCES_KEY, myLoginEditText.getText().toString());
-        editor.apply();
+        if (!myRedirecting) {
+            SharedPreferences.Editor editor = mySharedPreferences.edit();
+            editor.putString(URL_PREFERENCES_KEY, myUrlEditText.getText().toString());
+            editor.putString(LOGIN_PREFERENCES_KEY, myLoginEditText.getText().toString());
+            editor.apply();
+        }
     }
 
     @SuppressWarnings("deprecation")
@@ -160,6 +166,9 @@ public class LoginActivity extends Activity {
 
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        intent.putExtra(SplashActivity.INIT_INTENT_KEY, true);
+
+        myRedirecting = true;
 
         startActivity(intent);
     }

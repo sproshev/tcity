@@ -20,11 +20,13 @@ import android.database.Cursor;
 import android.os.AsyncTask;
 import android.widget.Toast;
 
+import com.tcity.android.app.Preferences;
 import com.tcity.android.background.rest.RestClient;
 import com.tcity.android.background.runnable.chain.ExecutableRunnableChain;
 import com.tcity.android.background.runnable.chain.RunnableChain;
 import com.tcity.android.background.runnable.primitive.BuildConfigurationStatusRunnable;
 import com.tcity.android.background.runnable.primitive.BuildConfigurationsRunnable;
+import com.tcity.android.background.runnable.primitive.FavouriteProjectsRunnable;
 import com.tcity.android.background.runnable.primitive.ProjectStatusRunnable;
 import com.tcity.android.background.runnable.primitive.ProjectsRunnable;
 import com.tcity.android.db.DB;
@@ -42,20 +44,31 @@ class ProjectOverviewServerEngine {
     private final DB myDb;
 
     @NotNull
-    private final ChainListener myChainListener;
-    @NotNull
     private final RestClient myRestClient;
+
+    @NotNull
+    private final Preferences myPreferences;
+
+    private boolean myInit;
+
+    @NotNull
+    private final ChainListener myChainListener;
+
     @Nullable
     private ExecutableRunnableChain myChain;
 
     ProjectOverviewServerEngine(@NotNull String projectId,
                                 @NotNull DB db,
-                                @NotNull RestClient restClient) {
+                                @NotNull RestClient restClient,
+                                @NotNull Preferences preferences,
+                                boolean init) {
         myProjectId = projectId;
         myDb = db;
+        myRestClient = restClient;
+        myPreferences = preferences;
+        myInit = init;
 
         myChainListener = new ChainListener();
-        myRestClient = restClient;
     }
 
     public void setActivity(@Nullable ProjectOverviewActivity activity) {
@@ -113,16 +126,32 @@ class ProjectOverviewServerEngine {
                 new BuildConfigurationsRunnable(myProjectId, myDb, myRestClient)
         );
 
-        return RunnableChain.getOrRunnableChain(
-                RunnableChain.getAndRunnableChain(
-                        projectsChain,
-                        calculateProjectStatusesChain()
-                ),
-                RunnableChain.getAndRunnableChain(
-                        buildConfigurationsChain,
-                        calculateBuildConfigurationStatusesChain()
-                )
-        ).toAsyncTask(myChainListener);
+        RunnableChain fullProjectsChain = RunnableChain.getAndRunnableChain(
+                projectsChain,
+                calculateProjectStatusesChain()
+        );
+
+        RunnableChain fullBuildConfigurationChain = RunnableChain.getAndRunnableChain(
+                buildConfigurationsChain,
+                calculateBuildConfigurationStatusesChain()
+        );
+
+        if (myInit) {
+            myInit = false;
+
+            return RunnableChain.getOrRunnableChain(
+                    RunnableChain.getSingleRunnableChain(
+                            new FavouriteProjectsRunnable(myPreferences.getLogin(), myDb, myRestClient)
+                    ),
+                    fullProjectsChain,
+                    fullBuildConfigurationChain
+            ).toAsyncTask(myChainListener);
+        } else {
+            return RunnableChain.getOrRunnableChain(
+                    fullProjectsChain,
+                    fullBuildConfigurationChain
+            ).toAsyncTask(myChainListener);
+        }
     }
 
     @NotNull
