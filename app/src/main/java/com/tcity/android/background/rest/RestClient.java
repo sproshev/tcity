@@ -54,6 +54,20 @@ public class RestClient {
     }
 
     @NotNull
+    public HttpResponse getUserProperties(@NotNull String login) throws IOException {
+        return getJson(
+                RestLocator.getUserProperties(login, myPreferences)
+        );
+    }
+
+    @NotNull
+    public HttpResponse getProjectDetails(@NotNull String internalId) throws IOException {
+        return getJson(
+                RestLocator.getProjectDetailsUrl(internalId, myPreferences)
+        );
+    }
+
+    @NotNull
     public HttpResponse getProjects() throws IOException {
         return getJson(
                 RestLocator.getProjectsUrl(myPreferences)

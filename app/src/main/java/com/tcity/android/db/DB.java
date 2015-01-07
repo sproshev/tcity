@@ -54,6 +54,28 @@ public class DB {
         notifyListeners(Constants.PROJECT_OVERVIEW_TABLE);
     }
 
+    public void initFavouriteProjects(@NotNull Collection<String> ids) {
+        SQLiteDatabase db = myDBHelper.getWritableDatabase();
+
+        db.beginTransaction();
+
+        try {
+            for (String id : ids) {
+                ContentValues values = new ContentValues();
+                values.put(Column.TC_ID.getName(), id);
+                values.put(Column.FAVOURITE.getName(), true);
+
+                db.insert(Constants.FAVOURITE_PROJECT_TABLE, null, values);
+            }
+
+            db.setTransactionSuccessful();
+
+            notifyListeners(Constants.PROJECT_OVERVIEW_TABLE);
+        } finally {
+            db.endTransaction();
+        }
+    }
+
     public boolean isProjectFavourite(@NotNull String id) {
         return isFavourite(Constants.FAVOURITE_PROJECT_TABLE, id);
     }

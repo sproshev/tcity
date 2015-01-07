@@ -34,6 +34,18 @@ class RestLocator {
     }
 
     @NotNull
+    public static String getUserProperties(@NotNull String login,
+                                           @NotNull Preferences preferences) {
+        return preferences.getUrl() + REST_PREFIX + "users/username:" + login + "/properties";
+    }
+
+    @NotNull
+    public static String getProjectDetailsUrl(@NotNull String internalId,
+                                              @NotNull Preferences preferences) {
+        return preferences.getUrl() + REST_PREFIX + "projects/internalId:" + internalId;
+    }
+
+    @NotNull
     public static String getProjectsUrl(@NotNull Preferences preferences) {
         return preferences.getUrl() + REST_PREFIX + "projects";
     }
