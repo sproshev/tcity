@@ -101,10 +101,12 @@ public class PreferenceActivity extends android.preference.PreferenceActivity {
 
         @Override
         public boolean onPreferenceClick(@Nullable Preference preference) {
-            ((Application) getApplication()).getDB().reset();
-            new Preferences(PreferenceActivity.this).reset();
+            PreferenceActivity context = PreferenceActivity.this;
 
-            Intent intent = new Intent(PreferenceActivity.this, SplashActivity.class);
+            ((Application) getApplication()).getDB().reset();
+            new Preferences(context).reset();
+
+            Intent intent = new Intent(context, SplashActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(intent);

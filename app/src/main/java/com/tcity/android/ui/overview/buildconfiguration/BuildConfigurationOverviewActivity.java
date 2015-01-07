@@ -88,7 +88,7 @@ public class BuildConfigurationOverviewActivity extends ListActivity implements 
                         new Runnable() {
                             @Override
                             public void run() {
-                                myEngine.refresh();
+                                onRefresh();
                             }
                         },
                         1000
@@ -144,7 +144,11 @@ public class BuildConfigurationOverviewActivity extends ListActivity implements 
             if (refreshing) {
                 emptyView.setText(R.string.loading);
             } else {
-                emptyView.setText(R.string.empty);
+                if (isNetworkAvailable()) {
+                    emptyView.setText(R.string.empty);
+                } else {
+                    emptyView.setText(R.string.network_is_unavailable);
+                }
             }
         }
     }

@@ -20,7 +20,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 
-import com.tcity.android.R;
 import com.tcity.android.app.Preferences;
 import com.tcity.android.ui.overview.project.ProjectOverviewActivity;
 
@@ -29,13 +28,6 @@ public class SplashActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        setContentView(R.layout.splash_activity);
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
 
         if (!new Preferences(this).isValid()) {
             startActivity(new Intent(this, LoginActivity.class));
