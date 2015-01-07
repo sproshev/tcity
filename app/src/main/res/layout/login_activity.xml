@@ -88,8 +88,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:indeterminate="true"
-        android:maxWidth="342dp"
-        android:minWidth="342dp"
-        android:padding="8dp"/>
+        android:maxWidth="350dp"
+        android:minWidth="350dp"
+        android:paddingLeft="4dp"
+        android:paddingRight="4dp"
+        android:paddingTop="20dp"
+        android:paddingBottom="10dp"/>
 
 </LinearLayout>

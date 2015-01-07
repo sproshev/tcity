@@ -35,7 +35,7 @@
         android:paddingEnd="8dp"
 
         android:gravity="center_vertical"
-        android:textAppearance="?android:attr/textAppearanceListItem"/>
+        android:textAppearance="?android:attr/textAppearanceListItemSmall"/>
 
     <ImageButton
         android:id="@+id/build_options"

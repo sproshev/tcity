@@ -33,6 +33,7 @@ import com.tcity.android.background.rest.RestClient;
 import com.tcity.android.background.runnable.chain.ExecutableRunnableChain;
 import com.tcity.android.background.runnable.chain.RunnableChain;
 import com.tcity.android.background.runnable.primitive.LoginRunnable;
+import com.tcity.android.ui.LoginChainListener.LoginResult;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -61,7 +62,7 @@ public class LoginActivity extends Activity {
     private ExecutableRunnableChain myChain;
 
     @NotNull
-    private ChainListener myChainListener;
+    private LoginChainListener myChainListener;
 
     /* LIFECYCLE - BEGIN */
 
@@ -89,23 +90,20 @@ public class LoginActivity extends Activity {
     protected void onResume() {
         super.onResume();
 
-        if (myChainListener.myLoginResult == LoginResult.SUCCESS) {
-            Intent intent = new Intent(this, SplashActivity.class);
+        LoginResult loginResult = myChainListener.getResult();
 
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-
-            startActivity(intent);
+        if (loginResult == LoginResult.SUCCESS) {
+            onSuccessfulLogin();
         } else {
-            if (myChainListener.myLoginResult == LoginResult.RUNNING) {
-                setRefreshing(true);
+            if (loginResult == LoginResult.RUNNING) {
+                onRunningLogin();
             }
 
-            if (myChainListener.myLoginResult == LoginResult.FAILED) {
-                new Preferences(this).reset();
+            if (loginResult == LoginResult.FAILED) {
+                onFailedLogin(myChainListener.getException());
             }
 
-            myChainListener.myActivity = this;
+            myChainListener.setActivity(this);
         }
     }
 
@@ -113,7 +111,7 @@ public class LoginActivity extends Activity {
     protected void onPause() {
         super.onPause();
 
-        myChainListener.myActivity = null;
+        myChainListener.setActivity(null);
     }
 
     @SuppressWarnings("deprecation")
@@ -124,30 +122,50 @@ public class LoginActivity extends Activity {
 
     /* LIFECYCLE - END */
 
-    @NotNull
-    private ChainListener calculateChainListener() {
-        //noinspection deprecation
-        ChainListener result = (ChainListener) getLastNonConfigurationInstance();
+    void onRunningLogin() {
+        setRefreshing(true);
+    }
 
-        return result != null ? result : new ChainListener();
+    void onSuccessfulLogin() {
+        Intent intent = new Intent(this, SplashActivity.class);
+
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+        startActivity(intent);
+    }
+
+    void onFailedLogin(@Nullable Exception e) {
+        setRefreshing(false);
+
+        new Preferences(this).reset();
+
+        if (e != null) {
+            Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
+        }
+    }
+
+    @NotNull
+    private LoginChainListener calculateChainListener() {
+        //noinspection deprecation
+        LoginChainListener result = (LoginChainListener) getLastNonConfigurationInstance();
+
+        return result != null ? result : new LoginChainListener();
     }
 
     private void setRefreshing(boolean refreshing) {
         if (refreshing) {
             mySignInButton.setVisibility(View.GONE);
-            myUrlEditText.setEnabled(false);
-            myLoginEditText.setEnabled(false);
-            myPasswordEditText.setEnabled(false);
-            myHttpsCheckBox.setEnabled(false);
             myProgressBar.setVisibility(View.VISIBLE);
         } else {
             mySignInButton.setVisibility(View.VISIBLE);
-            myUrlEditText.setEnabled(true);
-            myLoginEditText.setEnabled(true);
-            myPasswordEditText.setEnabled(true);
-            myHttpsCheckBox.setEnabled(true);
             myProgressBar.setVisibility(View.GONE);
         }
+
+        myUrlEditText.setEnabled(!refreshing);
+        myLoginEditText.setEnabled(!refreshing);
+        myPasswordEditText.setEnabled(!refreshing);
+        myHttpsCheckBox.setEnabled(!refreshing);
     }
 
     private void refresh() {
@@ -212,54 +230,5 @@ public class LoginActivity extends Activity {
         private void showToast(int resId) {
             Toast.makeText(LoginActivity.this, resId, Toast.LENGTH_LONG).show();
         }
-    }
-
-    private static class ChainListener implements RunnableChain.Listener {
-
-        @Nullable
-        private LoginActivity myActivity;
-
-        private LoginResult myLoginResult = LoginResult.PENDING;
-
-        public void onStarted() {
-            myLoginResult = LoginResult.RUNNING;
-
-            if (myActivity != null) {
-                myActivity.setRefreshing(true);
-            }
-        }
-
-        @Override
-        public void onFinished() {
-            if (myLoginResult == LoginResult.FAILED) {
-                return;
-            }
-
-            myLoginResult = LoginResult.SUCCESS;
-
-            if (myActivity != null) {
-                Intent intent = new Intent(myActivity, SplashActivity.class);
-
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-
-                myActivity.startActivity(intent);
-            }
-        }
-
-        @Override
-        public void onException(@NotNull Exception e) {
-            myLoginResult = LoginResult.FAILED;
-
-            if (myActivity != null) {
-                myActivity.setRefreshing(false);
-
-                Toast.makeText(myActivity, e.getMessage(), Toast.LENGTH_LONG).show();
-            }
-        }
-    }
-
-    private static enum LoginResult {
-        PENDING, RUNNING, SUCCESS, FAILED
     }
 }

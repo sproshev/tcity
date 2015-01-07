@@ -54,7 +54,7 @@
         android:paddingRight="4dp"
 
         android:gravity="center_vertical"
-        android:textAppearance="?android:attr/textAppearanceListItem"/>
+        android:textAppearance="?android:attr/textAppearanceListItemSmall"/>
 
     <ImageButton
         android:id="@+id/project_or_build_configuration_options"
