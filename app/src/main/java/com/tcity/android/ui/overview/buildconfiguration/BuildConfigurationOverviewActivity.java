@@ -153,6 +153,10 @@ public class BuildConfigurationOverviewActivity extends ListActivity implements 
         }
     }
 
+    void imageClick(@NotNull String id) {
+        myEngine.imageClick(id);
+    }
+
     void nameClick(@NotNull String id) {
         // TODO
     }

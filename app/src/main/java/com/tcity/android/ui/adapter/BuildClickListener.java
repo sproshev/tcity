@@ -22,7 +22,9 @@ import org.jetbrains.annotations.NotNull;
 
 public interface BuildClickListener {
 
-    public void onNameClick(@NotNull String id);
+    public void onImageClick(@NotNull String id);
+
+    public void onDescriptionClick(@NotNull String id);
 
     public void onOptionsClick(@NotNull String id, @NotNull View anchor);
 }

@@ -23,6 +23,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CursorAdapter;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -34,13 +35,25 @@ import org.jetbrains.annotations.Nullable;
 
 public class BuildAdapter extends CursorAdapter {
 
+    private static final int FAVOURITE_IMAGE = android.R.drawable.star_big_on;
+    private static final int NOT_FAVOURITE_IMAGE = android.R.drawable.star_big_off;
+
     @NotNull
     private final BuildClickListener myClickListener;
+
+    @NotNull
+    private final String myFavouriteDescription;
+
+    @NotNull
+    private final String myNotFavouriteDescription;
 
     public BuildAdapter(@NotNull Context context, @NotNull BuildClickListener listener) {
         super(context, null, true);
 
         myClickListener = listener;
+
+        myFavouriteDescription = context.getString(R.string.build_was_marked_as_favourite);
+        myNotFavouriteDescription = context.getString(R.string.build_was_not_marked_as_favourite);
     }
 
     @NotNull
@@ -52,6 +65,7 @@ public class BuildAdapter extends CursorAdapter {
 
         result.setTag(
                 new ViewHolder(
+                        (ImageButton) result.findViewById(R.id.build_favourite),
                         (LinearLayout) result.findViewById(R.id.build_description_layout),
                         (TextView) result.findViewById(R.id.build_name),
                         (TextView) result.findViewById(R.id.build_branch),
@@ -69,12 +83,31 @@ public class BuildAdapter extends CursorAdapter {
         String id = DBUtils.getId(cursor);
         Drawable background = AdapterUtils.getBackground(DBUtils.getStatus(cursor), context);
 
+        bindImage(holder.image, id, DBUtils.getFavourite(cursor), background);
         bindDescription(holder.description, id, background);
 
         holder.name.setText(DBUtils.getName(cursor));
 
         bindBranch(holder.branch, DBUtils.getBranch(cursor));
         bindOptions(holder.options, id, background);
+    }
+
+    private void bindImage(@NotNull ImageButton imageView,
+                           @NotNull String id,
+                           boolean favourite,
+                           @Nullable Drawable background) {
+        imageView.setOnClickListener(new ImageListener(myClickListener, id));
+
+        if (favourite) {
+            imageView.setContentDescription(myFavouriteDescription);
+            imageView.setImageResource(FAVOURITE_IMAGE);
+        } else {
+            imageView.setContentDescription(myNotFavouriteDescription);
+            imageView.setImageResource(NOT_FAVOURITE_IMAGE);
+        }
+
+        //noinspection deprecation
+        imageView.setBackgroundDrawable(background);
     }
 
     private void bindDescription(@NotNull LinearLayout layout,
@@ -121,7 +154,27 @@ public class BuildAdapter extends CursorAdapter {
 
         @Override
         public void onClick(@NotNull View v) {
-            myClickListener.onNameClick(myId);
+            myClickListener.onDescriptionClick(myId);
+        }
+    }
+
+    private static class ImageListener implements View.OnClickListener {
+
+        @NotNull
+        private final BuildClickListener myClickListener;
+
+        @NotNull
+        private final String myId;
+
+        private ImageListener(@NotNull BuildClickListener clickListener,
+                              @NotNull String id) {
+            myClickListener = clickListener;
+            myId = id;
+        }
+
+        @Override
+        public void onClick(@NotNull View v) {
+            myClickListener.onImageClick(myId);
         }
     }
 
@@ -148,6 +201,9 @@ public class BuildAdapter extends CursorAdapter {
     private static class ViewHolder {
 
         @NotNull
+        public final ImageButton image;
+
+        @NotNull
         public final LinearLayout description;
 
         @NotNull
@@ -159,10 +215,12 @@ public class BuildAdapter extends CursorAdapter {
         @NotNull
         public final View options;
 
-        private ViewHolder(@NotNull LinearLayout description,
+        private ViewHolder(@NotNull ImageButton image,
+                           @NotNull LinearLayout description,
                            @NotNull TextView name,
                            @NotNull TextView branch,
                            @NotNull View options) {
+            this.image = image;
             this.description = description;
             this.name = name;
             this.branch = branch;

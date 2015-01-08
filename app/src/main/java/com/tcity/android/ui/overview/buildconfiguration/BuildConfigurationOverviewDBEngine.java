@@ -84,6 +84,10 @@ class BuildConfigurationOverviewDBEngine {
         myClickListener.myActivity = activity;
     }
 
+    public void imageClick(@NotNull String id) {
+        myDB.setFavouriteBuild(id, !myDB.isBuildFavourite(id));
+    }
+
     public void close() {
         myDB.removeBuildsListener(myDBListener);
 
@@ -100,7 +104,14 @@ class BuildConfigurationOverviewDBEngine {
         private BuildConfigurationOverviewActivity myActivity;
 
         @Override
-        public void onNameClick(@NotNull String id) {
+        public void onImageClick(@NotNull String id) {
+            if (myActivity != null) {
+                myActivity.imageClick(id);
+            }
+        }
+
+        @Override
+        public void onDescriptionClick(@NotNull String id) {
             if (myActivity != null) {
                 myActivity.nameClick(id);
             }

@@ -58,6 +58,10 @@ class BuildConfigurationOverviewEngine {
         myServerEngine.setActivity(activity);
     }
 
+    public void imageClick(@NotNull String id) {
+        myDBEngine.imageClick(id);
+    }
+
     public void refresh() {
         myServerEngine.refresh();
     }

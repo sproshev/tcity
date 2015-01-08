@@ -16,11 +16,26 @@
   -->
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:tools="http://schemas.android.com/tools"
 
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
 
               android:minHeight="?android:attr/listPreferredItemHeight">
+
+    <ImageButton
+        android:id="@+id/build_favourite"
+
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+
+        android:paddingLeft="8dp"
+        android:paddingRight="4dp"
+
+        android:background="@null"
+
+        tools:ignore="ContentDescription"/>
+    <!-- content description will be set dynamically -->
 
     <LinearLayout
         android:id="@+id/build_description_layout"
@@ -32,7 +47,7 @@
         android:orientation="vertical"
         android:gravity="center_vertical"
 
-        android:paddingStart="8dp"
+        android:paddingStart="4dp"
         android:paddingEnd="4dp">
 
         <TextView

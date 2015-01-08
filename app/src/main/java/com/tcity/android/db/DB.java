@@ -106,6 +106,10 @@ public class DB {
         notifyListeners(Constants.BUILD_OVERVIEW_TABLE);
     }
 
+    public boolean isBuildFavourite(@NotNull String id) {
+        return isFavourite(Constants.FAVOURITE_BUILD_TABLE, id);
+    }
+
     public void setProjects(@NotNull Collection<Project> projects) {
         SQLiteDatabase db = myDBHelper.getWritableDatabase();
         db.beginTransaction();
