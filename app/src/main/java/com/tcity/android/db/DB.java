@@ -177,6 +177,7 @@ public class DB {
                 values.put(Column.PARENT_ID.getName(), build.parentBuildConfigurationId);
                 values.put(Column.NAME.getName(), build.name);
                 values.put(Column.STATUS.getName(), build.status.toString());
+                values.put(Column.BRANCH.getName(), build.branch);
 
                 db.insert(Constants.BUILD_OVERVIEW_TABLE, null, values);
             }
@@ -226,6 +227,7 @@ public class DB {
                             mainTable + "." + Column.NAME.getName() + ", " +
                             mainTable + "." + Column.PARENT_ID.getName() + ", " +
                             mainTable + "." + Column.STATUS.getName() + ", " +
+                            mainTable + "." + Column.BRANCH.getName() + ", " +
                             favouriteTable + "." + Column.FAVOURITE.getName() +
                             " FROM " + mainTable +
                             " INNER JOIN " + favouriteTable +
@@ -242,6 +244,7 @@ public class DB {
                             mainTable + "." + Column.NAME.getName() + ", " +
                             mainTable + "." + Column.PARENT_ID.getName() + ", " +
                             mainTable + "." + Column.STATUS.getName() + ", " +
+                            mainTable + "." + Column.BRANCH.getName() + ", " +
                             favouriteTable + "." + Column.FAVOURITE.getName() +
                             " FROM " + mainTable +
                             " LEFT JOIN " + favouriteTable +

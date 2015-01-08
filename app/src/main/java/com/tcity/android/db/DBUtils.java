@@ -21,6 +21,7 @@ import android.database.Cursor;
 import com.tcity.android.Status;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class DBUtils {
 
@@ -60,5 +61,16 @@ public class DBUtils {
                         Column.NAME.getName()
                 )
         );
+    }
+
+    @Nullable
+    public static String getBranch(@NotNull Cursor cursor) {
+        int columnIndex = cursor.getColumnIndex(Column.BRANCH.getName());
+
+        if (cursor.isNull(columnIndex)) {
+            return null;
+        } else {
+            return cursor.getString(columnIndex);
+        }
     }
 }

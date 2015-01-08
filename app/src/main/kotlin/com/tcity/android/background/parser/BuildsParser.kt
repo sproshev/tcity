@@ -35,6 +35,7 @@ private fun parseBuild(reader: JsonReader): Build {
     var name: String? = null
     var parentId: String? = null
     var status: Status? = null
+    var branch: String? = null
 
     while (reader.hasNext()) {
         when (reader.nextName()) {
@@ -42,6 +43,7 @@ private fun parseBuild(reader: JsonReader): Build {
             "number" -> name = reader.nextString()
             "buildTypeId" -> parentId = reader.nextString()
             "status" -> status = Status.valueOf(reader.nextString())
+            "branchName" -> branch = reader.nextString()
             else -> reader.skipValue()
         }
     }
@@ -64,7 +66,7 @@ private fun parseBuild(reader: JsonReader): Build {
         throw IOException("Invalid build json: \"status\" is absent")
     }
 
-    return Build(id!!, name!!, parentId!!, status!!)
+    return Build(id!!, name!!, parentId!!, status!!, branch)
 }
 
 

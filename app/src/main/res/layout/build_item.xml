@@ -20,36 +20,48 @@
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
 
-              android:minHeight="?android:attr/listPreferredItemHeight"
-              android:orientation="horizontal">
+              android:minHeight="?android:attr/listPreferredItemHeight">
 
-    <TextView
-        android:id="@+id/build_name"
+    <LinearLayout
+        android:id="@+id/build_description_layout"
 
         android:layout_width="0dp"
         android:layout_height="match_parent"
-        android:layout_gravity="center_vertical"
         android:layout_weight="1"
 
-        android:paddingLeft="16dp"
-
-        android:paddingRight="8dp"
-        android:paddingEnd="8dp"
-
+        android:orientation="vertical"
         android:gravity="center_vertical"
-        android:textAppearance="?android:attr/textAppearanceListItemSmall"/>
+
+        android:paddingLeft="8dp"
+        android:paddingRight="4dp">
+
+        <TextView
+            android:id="@+id/build_name"
+
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+
+            android:textAppearance="?android:attr/textAppearanceListItemSmall"/>
+
+        <TextView
+            android:id="@+id/build_branch"
+
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+
+            android:textColor="#323232"
+            android:textSize="14sp"/>
+
+    </LinearLayout>
 
     <ImageButton
         android:id="@+id/build_options"
 
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:layout_gravity="center_vertical"
 
-        android:paddingLeft="8dp"
-
-        android:paddingRight="16dp"
-        android:paddingEnd="8dp"
+        android:paddingLeft="4dp"
+        android:paddingRight="8dp"
 
         android:background="@null"
         android:contentDescription="@string/options"

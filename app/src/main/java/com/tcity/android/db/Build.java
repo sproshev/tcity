@@ -19,6 +19,7 @@ package com.tcity.android.db;
 import com.tcity.android.Status;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class Build {
 
@@ -34,13 +35,18 @@ public class Build {
     @NotNull
     public final Status status;
 
+    @Nullable
+    public final String branch;
+
     public Build(@NotNull String id,
                  @NotNull String name,
                  @NotNull String parentBuildConfigurationId,
-                 @NotNull Status status) {
+                 @NotNull Status status,
+                 @Nullable String branch) {
         this.id = id;
         this.name = name;
         this.parentBuildConfigurationId = parentBuildConfigurationId;
         this.status = status;
+        this.branch = branch;
     }
 }

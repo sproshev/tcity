@@ -71,6 +71,8 @@ class DBHelper extends SQLiteOpenHelper {
                 return column.getName() + " INTEGER NOT NULL";
             case ANDROID_ID:
                 return column.getName() + " INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL";
+            case BRANCH:
+                return column.getName() + " TEXT";
             default:
                 throw new IllegalArgumentException();
         }
@@ -93,7 +95,8 @@ class DBHelper extends SQLiteOpenHelper {
                         getDescription(Column.TC_ID) + ", " +
                         getDescription(Column.NAME) + ", " +
                         getDescription(Column.PARENT_ID) + ", " +
-                        getDescription(Column.STATUS) +
+                        getDescription(Column.STATUS) + ", " +
+                        getDescription(Column.BRANCH) +
                         ");"
         );
     }

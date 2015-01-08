@@ -23,6 +23,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CursorAdapter;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.tcity.android.R;
@@ -51,7 +52,9 @@ public class BuildAdapter extends CursorAdapter {
 
         result.setTag(
                 new ViewHolder(
+                        (LinearLayout) result.findViewById(R.id.build_description_layout),
                         (TextView) result.findViewById(R.id.build_name),
+                        (TextView) result.findViewById(R.id.build_branch),
                         result.findViewById(R.id.build_options)
                 )
         );
@@ -66,19 +69,31 @@ public class BuildAdapter extends CursorAdapter {
         String id = DBUtils.getId(cursor);
         Drawable background = AdapterUtils.getBackground(DBUtils.getStatus(cursor), context);
 
-        bindName(holder.name, id, DBUtils.getName(cursor), background);
+        bindDescription(holder.description, id, background);
+
+        holder.name.setText(DBUtils.getName(cursor));
+
+        bindBranch(holder.branch, DBUtils.getBranch(cursor));
         bindOptions(holder.options, id, background);
     }
 
-    private void bindName(@NotNull TextView nameView,
-                          @NotNull String id,
-                          @NotNull String name,
-                          @Nullable Drawable background) {
-        nameView.setText(name);
-        nameView.setOnClickListener(new NameListener(myClickListener, id));
+    private void bindDescription(@NotNull LinearLayout layout,
+                                 @NotNull String id,
+                                 @Nullable Drawable background) {
+        layout.setOnClickListener(new DescriptionListener(myClickListener, id));
 
         //noinspection deprecation
-        nameView.setBackgroundDrawable(background);
+        layout.setBackgroundDrawable(background);
+    }
+
+    private void bindBranch(@NotNull TextView branchView,
+                           @Nullable String branch) {
+        if (branch == null) {
+            branchView.setVisibility(View.GONE);
+        } else {
+            branchView.setVisibility(View.VISIBLE);
+            branchView.setText(branch);
+        }
     }
 
     private void bindOptions(@NotNull View optionsView,
@@ -90,7 +105,7 @@ public class BuildAdapter extends CursorAdapter {
         optionsView.setBackgroundDrawable(background);
     }
 
-    private static class NameListener implements View.OnClickListener {
+    private static class DescriptionListener implements View.OnClickListener {
 
         @NotNull
         private final BuildClickListener myClickListener;
@@ -98,8 +113,8 @@ public class BuildAdapter extends CursorAdapter {
         @NotNull
         private final String myId;
 
-        private NameListener(@NotNull BuildClickListener clickListener,
-                             @NotNull String id) {
+        private DescriptionListener(@NotNull BuildClickListener clickListener,
+                                    @NotNull String id) {
             myClickListener = clickListener;
             myId = id;
         }
@@ -133,13 +148,24 @@ public class BuildAdapter extends CursorAdapter {
     private static class ViewHolder {
 
         @NotNull
+        public final LinearLayout description;
+
+        @NotNull
         public final TextView name;
+
+        @NotNull
+        public final TextView branch;
 
         @NotNull
         public final View options;
 
-        private ViewHolder(@NotNull TextView name, @NotNull View options) {
+        private ViewHolder(@NotNull LinearLayout description,
+                           @NotNull TextView name,
+                           @NotNull TextView branch,
+                           @NotNull View options) {
+            this.description = description;
             this.name = name;
+            this.branch = branch;
             this.options = options;
         }
     }

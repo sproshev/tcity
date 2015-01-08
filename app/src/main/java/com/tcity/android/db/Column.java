@@ -19,7 +19,7 @@ package com.tcity.android.db;
 import org.jetbrains.annotations.NotNull;
 
 enum Column {
-    TC_ID, NAME, PARENT_ID, STATUS, FAVOURITE, ANDROID_ID;
+    TC_ID, NAME, PARENT_ID, STATUS, FAVOURITE, ANDROID_ID, BRANCH;
 
     @NotNull
     String getName() {
@@ -36,6 +36,8 @@ enum Column {
                 return "favourite";
             case ANDROID_ID:
                 return "_id";
+            case BRANCH:
+                return "branch";
             default:
                 throw new IllegalArgumentException();
         }
