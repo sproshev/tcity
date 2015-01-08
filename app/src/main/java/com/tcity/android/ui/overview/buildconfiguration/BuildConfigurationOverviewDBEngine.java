@@ -24,6 +24,7 @@ import android.view.ViewGroup;
 import android.widget.ListAdapter;
 
 import com.commonsware.cwac.merge.MergeAdapter;
+import com.tcity.android.R;
 import com.tcity.android.db.DB;
 import com.tcity.android.ui.adapter.BuildClickListener;
 import com.tcity.android.ui.engine.BuildDBEngine;
@@ -43,7 +44,10 @@ class BuildConfigurationOverviewDBEngine {
     private final MyBuildClickListener myClickListener;
 
     @NotNull
-    private final BuildDBEngine myEngine;
+    private final BuildDBEngine myFavouriteEngine;
+
+    @NotNull
+    private final BuildDBEngine myAllEngine;
 
     @NotNull
     private final DB.Listener myDBListener;
@@ -56,19 +60,33 @@ class BuildConfigurationOverviewDBEngine {
         myMainAdapter = new MergeAdapter();
         myClickListener = new MyBuildClickListener();
 
-        myEngine = new BuildDBEngine(
+        myFavouriteEngine = new BuildDBEngine(
+                buildConfigurationId,
+                true,
+                context,
+                db,
+                root,
+                myClickListener,
+                context.getString(R.string.favourite) + " " + context.getString(R.string.builds)
+        );
+
+        myAllEngine = new BuildDBEngine(
                 buildConfigurationId,
                 false,
                 context,
                 db,
                 root,
-                myClickListener
+                myClickListener,
+                context.getString(R.string.builds)
         );
 
-        myMainAdapter.addView(myEngine.getHeader());
-        myMainAdapter.addAdapter(myEngine.getAdapter());
+        myMainAdapter.addView(myFavouriteEngine.getHeader());
+        myMainAdapter.addAdapter(myFavouriteEngine.getAdapter());
 
-        handleHeader();
+        myMainAdapter.addView(myAllEngine.getHeader());
+        myMainAdapter.addAdapter(myAllEngine.getAdapter());
+
+        handleHeaders();
 
         myDBListener = new MySchemaListener();
 
@@ -91,11 +109,13 @@ class BuildConfigurationOverviewDBEngine {
     public void close() {
         myDB.removeBuildsListener(myDBListener);
 
-        myEngine.close();
+        myFavouriteEngine.close();
+        myAllEngine.close();
     }
 
-    private void handleHeader() {
-        myMainAdapter.setActive(myEngine.getHeader(), !myEngine.empty());
+    private void handleHeaders() {
+        myMainAdapter.setActive(myFavouriteEngine.getHeader(), !myFavouriteEngine.empty());
+        myMainAdapter.setActive(myAllEngine.getHeader(), !myAllEngine.empty());
     }
 
     private static class MyBuildClickListener implements BuildClickListener {
@@ -133,9 +153,10 @@ class BuildConfigurationOverviewDBEngine {
             public void handleMessage(@NotNull Message msg) {
                 super.handleMessage(msg);
 
-                myEngine.requery();
+                myFavouriteEngine.requery();
+                myAllEngine.requery();
 
-                handleHeader();
+                handleHeaders();
 
                 myMainAdapter.notifyDataSetChanged();
             }
