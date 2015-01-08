@@ -90,13 +90,13 @@ public class LoginActivity extends Activity {
         myProgressBar = (ProgressBar) findViewById(android.R.id.progress);
         myProgressBar.setVisibility(View.GONE);
 
-        mySignInButton = (Button) findViewById(R.id.sign_in);
+        mySignInButton = (Button) findViewById(R.id.sign_in_submit);
         mySignInButton.setOnClickListener(new SignInClickListener());
 
-        myUrlEditText = (EditText) findViewById(R.id.url);
-        myLoginEditText = (EditText) findViewById(R.id.login);
-        myPasswordEditText = (EditText) findViewById(R.id.password);
-        myHttpsCheckBox = (CheckBox) findViewById(R.id.https);
+        myUrlEditText = (EditText) findViewById(R.id.sign_in_url);
+        myLoginEditText = (EditText) findViewById(R.id.sign_in_login);
+        myPasswordEditText = (EditText) findViewById(R.id.sign_in_password);
+        myHttpsCheckBox = (CheckBox) findViewById(R.id.sign_in_https);
 
         myChainListener = calculateChainListener();
 

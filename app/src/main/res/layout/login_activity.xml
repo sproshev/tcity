@@ -29,7 +29,7 @@
         android:textSize="48sp"/>
 
     <EditText
-        android:id="@+id/url"
+        android:id="@+id/sign_in_url"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:width="350dp"
@@ -38,7 +38,7 @@
         android:padding="8dp"/>
 
     <EditText
-        android:id="@+id/login"
+        android:id="@+id/sign_in_login"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:width="350dp"
@@ -47,7 +47,7 @@
         android:padding="8dp"/>
 
     <EditText
-        android:id="@+id/password"
+        android:id="@+id/sign_in_password"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:width="350dp"
@@ -60,7 +60,7 @@
         android:layout_height="wrap_content">
 
         <CheckBox
-            android:id="@+id/https"
+            android:id="@+id/sign_in_https"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:checked="true"/>
@@ -75,7 +75,7 @@
     </LinearLayout>
 
     <Button
-        android:id="@+id/sign_in"
+        android:id="@+id/sign_in_submit"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:width="350dp"

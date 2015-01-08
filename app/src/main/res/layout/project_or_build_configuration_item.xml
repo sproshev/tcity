@@ -22,20 +22,16 @@
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
 
-              android:minHeight="?android:attr/listPreferredItemHeight"
-              android:orientation="horizontal">
+              android:minHeight="?android:attr/listPreferredItemHeight">
 
     <ImageButton
         android:id="@+id/project_or_build_configuration_favourite"
 
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:layout_gravity="center_vertical"
 
         android:paddingLeft="8dp"
-
         android:paddingRight="4dp"
-        android:paddingEnd="4dp"
 
         android:background="@null"
 
@@ -47,7 +43,6 @@
 
         android:layout_width="0dp"
         android:layout_height="match_parent"
-        android:layout_gravity="center_vertical"
         android:layout_weight="1"
 
         android:paddingLeft="4dp"
@@ -61,12 +56,9 @@
 
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:layout_gravity="center_vertical"
 
         android:paddingLeft="4dp"
-
         android:paddingRight="8dp"
-        android:paddingEnd="8dp"
 
         android:background="@null"
         android:contentDescription="@string/options"
