@@ -72,7 +72,11 @@ class BuildConfigurationOverviewServerEngine {
         myChainListener.myException = null;
     }
 
-    void refresh() {
+    void refresh(boolean force) {
+        if (!force && isOverviewExpired()) {
+            return;
+        }
+
         if (myChain == null) {
             myChain = calculateExecutableChain();
         }
@@ -85,6 +89,10 @@ class BuildConfigurationOverviewServerEngine {
             myChainListener.onStarted();
             myChain.execute();
         }
+    }
+
+    private boolean isOverviewExpired() {
+        return myDb.getBuildConfigurationLastUpdate(myBuildConfigurationId) >= System.currentTimeMillis() - 60 * 1000;
     }
 
     @NotNull

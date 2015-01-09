@@ -82,9 +82,7 @@ public class BuildConfigurationOverviewActivity extends ListActivity implements 
         setListAdapter(myEngine.getAdapter());
 
         if (isNetworkAvailable()) {
-            if (!myEngine.isRefreshing()) {
-                onRefresh();
-            }
+            myEngine.refresh(false);
         } else {
             ((TextView) getListView().getEmptyView()).setText(R.string.network_is_unavailable);
         }
@@ -150,7 +148,7 @@ public class BuildConfigurationOverviewActivity extends ListActivity implements 
 
     @Override
     public void onRefresh() {
-        myEngine.refresh();
+        myEngine.refresh(true);
     }
 
     void setRefreshing(final boolean refreshing) {

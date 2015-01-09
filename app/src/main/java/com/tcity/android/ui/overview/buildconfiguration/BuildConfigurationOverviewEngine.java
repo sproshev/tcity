@@ -75,8 +75,8 @@ class BuildConfigurationOverviewEngine {
         myDBEngine.imageClick(id);
     }
 
-    void refresh() {
-        myServerEngine.refresh();
+    void refresh(boolean force) {
+        myServerEngine.refresh(force);
     }
 
     void close() {
