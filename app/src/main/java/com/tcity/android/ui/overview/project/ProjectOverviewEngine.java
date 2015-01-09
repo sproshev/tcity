@@ -53,30 +53,30 @@ class ProjectOverviewEngine {
     }
 
     @NotNull
-    public ListAdapter getAdapter() {
+    ListAdapter getAdapter() {
         return myDBEngine.getAdapter();
     }
 
-    public void setActivity(@Nullable ProjectOverviewActivity activity) {
+    void setActivity(@Nullable ProjectOverviewActivity activity) {
         myDBEngine.setActivity(activity);
         myServerEngine.setActivity(activity);
     }
 
-    public void projectImageClick(@NotNull String id) {
+    void projectImageClick(@NotNull String id) {
         myDBEngine.projectImageClick(id);
         myServerEngine.projectImageClick(id);
     }
 
-    public void buildConfigurationImageClick(@NotNull String id) {
+    void buildConfigurationImageClick(@NotNull String id) {
         myDBEngine.buildConfigurationImageClick(id);
         myServerEngine.buildConfigurationImageClick(id);
     }
 
-    public void refresh() {
+    void refresh() {
         myServerEngine.refresh();
     }
 
-    public void close() {
+    void close() {
         myDBEngine.close();
     }
 }

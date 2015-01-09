@@ -144,26 +144,26 @@ class ProjectOverviewDBEngine {
     }
 
     @NotNull
-    public ListAdapter getAdapter() {
+    ListAdapter getAdapter() {
         return myMainAdapter;
     }
 
-    public void setActivity(@Nullable ProjectOverviewActivity activity) {
+    void setActivity(@Nullable ProjectOverviewActivity activity) {
         myProjectClickListener.myActivity = activity;
         myBuildConfigurationClickListener.myActivity = activity;
     }
 
-    public void projectImageClick(@NotNull String id) {
+    void projectImageClick(@NotNull String id) {
         myDB.setProjectStatus(id, Status.DEFAULT);
         myDB.setFavouriteProject(id, !myDB.isProjectFavourite(id));
     }
 
-    public void buildConfigurationImageClick(@NotNull String id) {
+    void buildConfigurationImageClick(@NotNull String id) {
         myDB.setBuildConfigurationStatus(id, Status.DEFAULT);
         myDB.setFavouriteBuildConfiguration(id, !myDB.isBuildConfigurationFavourite(id));
     }
 
-    public void close() {
+    void close() {
         myDB.removeProjectsListener(myProjectsListener);
         myDB.removeBuildConfigurationsListener(myBuildConfigurationsListener);
 

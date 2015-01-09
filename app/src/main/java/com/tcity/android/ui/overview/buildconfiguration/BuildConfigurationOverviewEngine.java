@@ -49,24 +49,24 @@ class BuildConfigurationOverviewEngine {
     }
 
     @NotNull
-    public ListAdapter getAdapter() {
+    ListAdapter getAdapter() {
         return myDBEngine.getAdapter();
     }
 
-    public void setActivity(@Nullable BuildConfigurationOverviewActivity activity) {
+    void setActivity(@Nullable BuildConfigurationOverviewActivity activity) {
         myDBEngine.setActivity(activity);
         myServerEngine.setActivity(activity);
     }
 
-    public void imageClick(@NotNull String id) {
+    void imageClick(@NotNull String id) {
         myDBEngine.imageClick(id);
     }
 
-    public void refresh() {
+    void refresh() {
         myServerEngine.refresh();
     }
 
-    public void close() {
+    void close() {
         myDBEngine.close();
     }
 }

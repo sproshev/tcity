@@ -71,7 +71,7 @@ class ProjectOverviewServerEngine {
         myChainListener = new ChainListener();
     }
 
-    public void setActivity(@Nullable ProjectOverviewActivity activity) {
+    void setActivity(@Nullable ProjectOverviewActivity activity) {
         myChainListener.myActivity = activity;
 
         if (myChainListener.myCount != 0 && activity != null) {
@@ -79,7 +79,7 @@ class ProjectOverviewServerEngine {
         }
     }
 
-    public void projectImageClick(@NotNull String id) {
+    void projectImageClick(@NotNull String id) {
         if (myDb.isProjectFavourite(id)) {
             ExecutableRunnableChain statusTask = RunnableChain.getSingleRunnableChain(
                     new ProjectStatusRunnable(id, myDb, myRestClient)
@@ -90,7 +90,7 @@ class ProjectOverviewServerEngine {
         }
     }
 
-    public void buildConfigurationImageClick(@NotNull String id) {
+    void buildConfigurationImageClick(@NotNull String id) {
         if (myDb.isBuildConfigurationFavourite(id)) {
             ExecutableRunnableChain statusTask = RunnableChain.getSingleRunnableChain(
                     new BuildConfigurationStatusRunnable(id, myDb, myRestClient)
@@ -101,7 +101,7 @@ class ProjectOverviewServerEngine {
         }
     }
 
-    public void refresh() {
+    void refresh() {
         if (myChain == null) {
             myChain = calculateExecutableChain();
         }
@@ -201,7 +201,7 @@ class ProjectOverviewServerEngine {
 
         private int myCount;
 
-        public void onStarted() {
+        void onStarted() {
             myCount++;
 
             if (myActivity != null) {

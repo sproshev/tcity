@@ -29,36 +29,36 @@ class RestLocator {
     }
 
     @NotNull
-    public static String getRoot(@NotNull Preferences preferences) {
+    static String getRoot(@NotNull Preferences preferences) {
         return preferences.getUrl() + REST_PREFIX;
     }
 
     @NotNull
-    public static String getUserProperties(@NotNull String login,
-                                           @NotNull Preferences preferences) {
+    static String getUserProperties(@NotNull String login,
+                                    @NotNull Preferences preferences) {
         return preferences.getUrl() + REST_PREFIX + "users/username:" + login + "/properties";
     }
 
     @NotNull
-    public static String getProjectDetailsUrl(@NotNull String internalId,
-                                              @NotNull Preferences preferences) {
+    static String getProjectDetailsUrl(@NotNull String internalId,
+                                       @NotNull Preferences preferences) {
         return preferences.getUrl() + REST_PREFIX + "projects/internalId:" + internalId;
     }
 
     @NotNull
-    public static String getProjectsUrl(@NotNull Preferences preferences) {
+    static String getProjectsUrl(@NotNull Preferences preferences) {
         return preferences.getUrl() + REST_PREFIX + "projects";
     }
 
     @NotNull
-    public static String getBuildConfigurationsUrl(@NotNull String projectId,
-                                                   @NotNull Preferences preferences) {
+    static String getBuildConfigurationsUrl(@NotNull String projectId,
+                                            @NotNull Preferences preferences) {
         return preferences.getUrl() + REST_PREFIX + "projects/id:" + projectId + "/buildTypes";
     }
 
     @NotNull
-    public static String getBuildsUrl(@NotNull String buildConfigurationId,
-                                      @NotNull Preferences preferences) {
+    static String getBuildsUrl(@NotNull String buildConfigurationId,
+                               @NotNull Preferences preferences) {
         return preferences.getUrl() + REST_PREFIX + "buildTypes/id:" + buildConfigurationId + "/builds/" +
                 "?locator=" +
                 "running:any," +
@@ -66,13 +66,13 @@ class RestLocator {
     }
 
     @NotNull
-    public static String getProjectStatusUrl(@NotNull String id, @NotNull Preferences preferences) {
+    static String getProjectStatusUrl(@NotNull String id, @NotNull Preferences preferences) {
         return preferences.getUrl() + REST_PREFIX + "projects/id:" + id + "/status";
     }
 
     @NotNull
-    public static String getBuildConfigurationStatusUrl(@NotNull String id,
-                                                        @NotNull Preferences preferences) {
+    static String getBuildConfigurationStatusUrl(@NotNull String id,
+                                                 @NotNull Preferences preferences) {
         return preferences.getUrl() + REST_PREFIX + "buildTypes/id:" + id + "/status";
     }
 }

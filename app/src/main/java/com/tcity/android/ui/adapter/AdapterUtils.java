@@ -31,7 +31,7 @@ class AdapterUtils {
     }
 
     @Nullable
-    public static Drawable getBackground(@NotNull Status status, @NotNull Context context) {
+    static Drawable getBackground(@NotNull Status status, @NotNull Context context) {
         Drawable background = loadBackground(status, context);
 
         if (background != null) {

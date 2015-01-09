@@ -55,7 +55,7 @@ class BuildConfigurationOverviewServerEngine {
         myChainListener = new ChainListener();
     }
 
-    public void setActivity(@Nullable BuildConfigurationOverviewActivity activity) {
+    void setActivity(@Nullable BuildConfigurationOverviewActivity activity) {
         myChainListener.myActivity = activity;
 
         if (myChainListener.myCount != 0 && activity != null) {
@@ -63,7 +63,7 @@ class BuildConfigurationOverviewServerEngine {
         }
     }
 
-    public void refresh() {
+    void refresh() {
         if (myChain == null) {
             myChain = calculateExecutableChain();
         }
@@ -92,7 +92,7 @@ class BuildConfigurationOverviewServerEngine {
 
         private int myCount;
 
-        public void onStarted() {
+        void onStarted() {
             myCount++;
 
             if (myActivity != null) {

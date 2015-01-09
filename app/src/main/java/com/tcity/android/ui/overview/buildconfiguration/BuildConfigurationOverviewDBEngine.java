@@ -94,19 +94,19 @@ class BuildConfigurationOverviewDBEngine {
     }
 
     @NotNull
-    public ListAdapter getAdapter() {
+    ListAdapter getAdapter() {
         return myMainAdapter;
     }
 
-    public void setActivity(@Nullable BuildConfigurationOverviewActivity activity) {
+    void setActivity(@Nullable BuildConfigurationOverviewActivity activity) {
         myClickListener.myActivity = activity;
     }
 
-    public void imageClick(@NotNull String id) {
+    void imageClick(@NotNull String id) {
         myDB.setFavouriteBuild(id, !myDB.isBuildFavourite(id));
     }
 
-    public void close() {
+    void close() {
         myDB.removeBuildsListener(myDBListener);
 
         myFavouriteEngine.close();

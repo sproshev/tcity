@@ -32,7 +32,7 @@ class LoginChainListener implements RunnableChain.Listener {
     @Nullable
     private Exception myException;
 
-    public void onStarted() {
+    void onStarted() {
         myLoginResult = LoginResult.RUNNING;
         myException = null;
 
