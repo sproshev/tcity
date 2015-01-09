@@ -44,9 +44,13 @@ class AdapterUtils {
     @Nullable
     private static Drawable loadBackground(@NotNull Status status, @NotNull Context context) {
         switch (status) {
+            case RUNNING:
+                return context.getResources().getDrawable(R.color.blue);
             case SUCCESS:
                 return context.getResources().getDrawable(R.color.green);
             case FAILURE:
+            case ERROR:
+            case WARNING:
                 return context.getResources().getDrawable(R.color.red);
             default:
                 return null;

@@ -17,7 +17,10 @@
 package com.tcity.android
 
 public enum class Status {
+    RUNNING
+    ERROR
     FAILURE
+    WARNING
     SUCCESS
     UNKNOWN
 
