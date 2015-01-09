@@ -39,11 +39,11 @@ class BuildConfigurationOverviewServerEngine {
     @NotNull
     private final ChainListener myChainListener;
 
-    @Nullable
-    private ExecutableRunnableChain myChain;
-
     @NotNull
     private final RestClient myRestClient;
+
+    @Nullable
+    private ExecutableRunnableChain myChain;
 
     BuildConfigurationOverviewServerEngine(@NotNull String buildConfigurationId,
                                            @NotNull DB db,
@@ -57,10 +57,19 @@ class BuildConfigurationOverviewServerEngine {
 
     void setActivity(@Nullable BuildConfigurationOverviewActivity activity) {
         myChainListener.myActivity = activity;
+    }
 
-        if (myChainListener.myCount != 0 && activity != null) {
-            activity.setRefreshing(true);
-        }
+    boolean isRefreshing() {
+        return myChainListener.myRunning;
+    }
+
+    @Nullable
+    Exception getException() {
+        return myChainListener.myException;
+    }
+
+    void resetException() {
+        myChainListener.myException = null;
     }
 
     void refresh() {
@@ -90,10 +99,14 @@ class BuildConfigurationOverviewServerEngine {
         @Nullable
         private BuildConfigurationOverviewActivity myActivity;
 
-        private int myCount;
+        private boolean myRunning;
+
+        @Nullable
+        private Exception myException;
 
         void onStarted() {
-            myCount++;
+            myRunning = true;
+            myException = null;
 
             if (myActivity != null) {
                 myActivity.setRefreshing(true);
@@ -102,17 +115,17 @@ class BuildConfigurationOverviewServerEngine {
 
         @Override
         public void onFinished() {
-            if (myCount != 0) {
-                myCount--;
-            }
+            myRunning = false;
 
-            if (myActivity != null && myCount == 0) {
+            if (myActivity != null) {
                 myActivity.setRefreshing(false);
             }
         }
 
         @Override
         public void onException(@NotNull Exception e) {
+            myException = e;
+
             if (myActivity != null) {
                 Toast.makeText(myActivity, e.getMessage(), Toast.LENGTH_LONG).show();
             }

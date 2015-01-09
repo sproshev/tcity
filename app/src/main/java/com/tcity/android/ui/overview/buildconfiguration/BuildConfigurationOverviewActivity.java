@@ -31,6 +31,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.PopupMenu;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.tcity.android.R;
 import com.tcity.android.app.Application;
@@ -78,25 +79,37 @@ public class BuildConfigurationOverviewActivity extends ListActivity implements 
         myLayout.setOnRefreshListener(this);
 
         myEngine = calculateEngine();
-        myEngine.setActivity(this);
         setListAdapter(myEngine.getAdapter());
 
         if (isNetworkAvailable()) {
-            if (!myLayout.isRefreshing()) {
-                Handler handler = new Handler();
-                handler.postDelayed(
-                        new Runnable() {
-                            @Override
-                            public void run() {
-                                onRefresh();
-                            }
-                        },
-                        1000
-                ); // https://code.google.com/p/android/issues/detail?id=77712
+            if (!myEngine.isRefreshing()) {
+                onRefresh();
             }
         } else {
             ((TextView) getListView().getEmptyView()).setText(R.string.network_is_unavailable);
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        if (myEngine.isRefreshing()) {
+            setRefreshing(true);
+        } else {
+            setRefreshing(false);
+
+            //noinspection ThrowableResultOfMethodCallIgnored
+            Exception e = myEngine.getException();
+
+            if (e != null) {
+                myEngine.resetException();
+
+                Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
+            }
+        }
+
+        myEngine.setActivity(this);
     }
 
     @SuppressWarnings("deprecation")
@@ -118,10 +131,15 @@ public class BuildConfigurationOverviewActivity extends ListActivity implements 
     }
 
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
+    protected void onPause() {
+        super.onPause();
 
         myEngine.setActivity(null);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
 
         if (!myRecreating) {
             myEngine.close();
@@ -135,22 +153,29 @@ public class BuildConfigurationOverviewActivity extends ListActivity implements 
         myEngine.refresh();
     }
 
-    void setRefreshing(boolean refreshing) {
-        if (myLayout.isRefreshing() ^ refreshing) {
-            myLayout.setRefreshing(refreshing);
+    void setRefreshing(final boolean refreshing) {
+        new Handler().postDelayed(
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        if (myLayout.isRefreshing() ^ refreshing) {
+                            myLayout.setRefreshing(refreshing);
 
-            TextView emptyView = (TextView) getListView().getEmptyView();
+                            TextView emptyView = (TextView) getListView().getEmptyView();
 
-            if (refreshing) {
-                emptyView.setText(R.string.loading);
-            } else {
-                if (isNetworkAvailable()) {
-                    emptyView.setText(R.string.empty);
-                } else {
-                    emptyView.setText(R.string.network_is_unavailable);
-                }
-            }
-        }
+                            if (refreshing) {
+                                emptyView.setText(R.string.loading);
+                            } else {
+                                if (isNetworkAvailable()) {
+                                    emptyView.setText(R.string.empty);
+                                } else {
+                                    emptyView.setText(R.string.network_is_unavailable);
+                                }
+                            }
+                        }
+                    }
+                }, 500
+        );  // https://code.google.com/p/android/issues/detail?id=77712
     }
 
     void imageClick(@NotNull String id) {

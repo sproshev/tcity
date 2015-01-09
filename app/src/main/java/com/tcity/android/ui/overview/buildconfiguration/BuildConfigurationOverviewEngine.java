@@ -58,6 +58,19 @@ class BuildConfigurationOverviewEngine {
         myServerEngine.setActivity(activity);
     }
 
+    boolean isRefreshing() {
+        return myServerEngine.isRefreshing();
+    }
+
+    @Nullable
+    Exception getException() {
+        return myServerEngine.getException();
+    }
+
+    void resetException() {
+        myServerEngine.resetException();
+    }
+
     void imageClick(@NotNull String id) {
         myDBEngine.imageClick(id);
     }

@@ -121,7 +121,7 @@ public class LoginActivity extends Activity {
             }
 
             if (loginResult == LoginResult.FAILED) {
-                onFailedLogin(myChainListener.getException());
+                onFailedLogin();
             }
 
             myChainListener.setActivity(this);
@@ -173,12 +173,17 @@ public class LoginActivity extends Activity {
         startActivity(intent);
     }
 
-    void onFailedLogin(@Nullable Exception e) {
+    void onFailedLogin() {
         setRefreshing(false);
 
         new Preferences(this).reset();
 
+        //noinspection ThrowableResultOfMethodCallIgnored
+        Exception e = myChainListener.getException();
+
         if (e != null) {
+            myChainListener.resetException();
+
             Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
         }
     }

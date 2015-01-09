@@ -34,7 +34,7 @@ class LoginChainListener implements RunnableChain.Listener {
 
     void onStarted() {
         myLoginResult = LoginResult.RUNNING;
-        myException = null;
+        resetException();
 
         if (myActivity != null) {
             myActivity.onRunningLogin();
@@ -58,7 +58,7 @@ class LoginChainListener implements RunnableChain.Listener {
         myException = e;
 
         if (myActivity != null) {
-            myActivity.onFailedLogin(e);
+            myActivity.onFailedLogin();
         }
     }
 
@@ -70,6 +70,10 @@ class LoginChainListener implements RunnableChain.Listener {
     @Nullable
     Exception getException() {
         return myException;
+    }
+
+    void resetException() {
+        myException = null;
     }
 
     void setActivity(@Nullable LoginActivity activity) {
