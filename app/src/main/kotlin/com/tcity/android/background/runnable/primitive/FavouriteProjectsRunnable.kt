@@ -44,7 +44,7 @@ public class FavouriteProjectsRunnable(
             val internalIds = parseInternalIds(response.getEntity().getContent())
 
             if (internalIds != null) {
-                db.initFavouriteProjects(loadIds(internalIds))
+                db.addFavouriteProjects(loadIds(internalIds))
             }
         }
     }

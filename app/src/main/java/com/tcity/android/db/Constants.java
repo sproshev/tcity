@@ -44,6 +44,9 @@ class Constants {
     @NotNull
     static final String BUILD_OVERVIEW_TABLE = "build_overview";
 
+    @NotNull
+    static final String BUILD_CONFIGURATION_LAST_UPDATE_TABLE = "build_configuration_last_update";
+
     private Constants() {
     }
 }

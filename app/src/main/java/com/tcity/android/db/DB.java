@@ -54,18 +54,42 @@ public class DB {
         notifyListeners(Constants.PROJECT_OVERVIEW_TABLE);
     }
 
-    public void initFavouriteProjects(@NotNull Collection<String> ids) {
+    public void addFavouriteProjects(@NotNull Collection<String> ids) {
         SQLiteDatabase db = myDBHelper.getWritableDatabase();
 
         db.beginTransaction();
 
         try {
             for (String id : ids) {
-                ContentValues values = new ContentValues();
-                values.put(Column.TC_ID.getName(), id);
-                values.put(Column.FAVOURITE.getName(), true);
+                Cursor cursor = db.query(
+                        Constants.FAVOURITE_PROJECT_TABLE,
+                        null,
+                        Column.TC_ID.getName() + " = ?",
+                        new String[]{id},
+                        null,
+                        null,
+                        null
+                );
 
-                db.insert(Constants.FAVOURITE_PROJECT_TABLE, null, values);
+                if (cursor.getCount() == 0) {
+                    ContentValues values = new ContentValues();
+                    values.put(Column.TC_ID.getName(), id);
+                    values.put(Column.FAVOURITE.getName(), true);
+
+                    db.insert(Constants.FAVOURITE_PROJECT_TABLE, null, values);
+                } else {
+                    ContentValues values = new ContentValues();
+                    values.put(Column.FAVOURITE.getName(), true);
+
+                    db.update(
+                            Constants.FAVOURITE_PROJECT_TABLE,
+                            values,
+                            Column.TC_ID.getName() + " = ?",
+                            new String[]{id}
+                    );
+                }
+
+                cursor.close();
             }
 
             db.setTransactionSuccessful();
@@ -308,6 +332,64 @@ public class DB {
 
         db.delete(Constants.PROJECT_STATUS_TABLE, null, null);
         db.delete(Constants.BUILD_CONFIGURATION_STATUS_TABLE, null, null);
+    }
+
+    public void setBuildConfigurationLastUpdate(@NotNull String id, long time) {
+        Cursor cursor = myDBHelper.getReadableDatabase().query(
+                Constants.BUILD_CONFIGURATION_LAST_UPDATE_TABLE,
+                null,
+                Column.TC_ID.getName() + " = ?",
+                new String[]{id},
+                null,
+                null,
+                null
+        );
+
+        if (cursor.getCount() == 0) {
+            ContentValues values = new ContentValues();
+            values.put(Column.TC_ID.getName(), id);
+            values.put(Column.LAST_UPDATE.getName(), time);
+
+            myDBHelper.getWritableDatabase().insert(Constants.BUILD_CONFIGURATION_LAST_UPDATE_TABLE, null, values);
+        } else {
+            ContentValues values = new ContentValues();
+            values.put(Column.LAST_UPDATE.getName(), time);
+
+            myDBHelper.getWritableDatabase().update(
+                    Constants.BUILD_CONFIGURATION_LAST_UPDATE_TABLE,
+                    values,
+                    Column.TC_ID.getName() + " = ?",
+                    new String[]{id}
+            );
+        }
+
+        cursor.close();
+    }
+
+    public long getBuildConfigurationLastUpdate(@NotNull String id) {
+        Cursor cursor = myDBHelper.getReadableDatabase().query(
+                Constants.BUILD_CONFIGURATION_LAST_UPDATE_TABLE,
+                null,
+                Column.TC_ID.getName() + " = ?",
+                new String[]{id},
+                null,
+                null,
+                null
+        );
+
+        if (cursor.getCount() == 0) {
+            cursor.close();
+
+            return Long.MIN_VALUE;
+        } else {
+            cursor.moveToNext();
+
+            long result = cursor.getLong(cursor.getColumnIndex(Column.LAST_UPDATE.getName()));
+
+            cursor.close();
+
+            return result;
+        }
     }
 
     private void setFavourite(@NotNull String table,
