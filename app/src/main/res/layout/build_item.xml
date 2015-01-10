@@ -15,15 +15,18 @@
   ~ limitations under the License.
   -->
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              xmlns:tools="http://schemas.android.com/tools"
+<LinearLayout
+    android:id="@+id/build_item_layout"
 
-              android:layout_width="match_parent"
-              android:layout_height="wrap_content"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
 
-              android:minHeight="?android:attr/listPreferredItemHeight">
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
 
-    <ImageButton
+    android:minHeight="?android:attr/listPreferredItemHeight">
+
+<ImageButton
         android:id="@+id/build_favourite"
 
         android:layout_width="wrap_content"

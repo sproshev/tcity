@@ -18,7 +18,6 @@ package com.tcity.android.ui.adapter;
 
 import android.content.Context;
 import android.database.Cursor;
-import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -65,6 +64,7 @@ public class BuildAdapter extends CursorAdapter {
 
         result.setTag(
                 new ViewHolder(
+                        (LinearLayout) result.findViewById(R.id.build_item_layout),
                         (ImageButton) result.findViewById(R.id.build_favourite),
                         (LinearLayout) result.findViewById(R.id.build_description_layout),
                         (TextView) result.findViewById(R.id.build_name),
@@ -81,21 +81,23 @@ public class BuildAdapter extends CursorAdapter {
         ViewHolder holder = (ViewHolder) view.getTag();
 
         String id = DBUtils.getId(cursor);
-        Drawable background = AdapterUtils.getBackground(DBUtils.getStatus(cursor), context);
 
-        bindImage(holder.image, id, DBUtils.getFavourite(cursor), background);
-        bindDescription(holder.description, id, background);
-
-        holder.name.setText(DBUtils.getName(cursor));
-
+        bindImage(holder.image, id, DBUtils.getFavourite(cursor));
         bindBranch(holder.branch, DBUtils.getBranch(cursor));
-        bindOptions(holder.options, id, background);
+
+        //noinspection deprecation
+        holder.main.setBackgroundDrawable(
+                AdapterUtils.getBackground(DBUtils.getStatus(cursor), context)
+        );
+
+        holder.description.setOnClickListener(new DescriptionListener(myClickListener, id));
+        holder.name.setText(DBUtils.getName(cursor));
+        holder.options.setOnClickListener(new OptionsListener(myClickListener, id));
     }
 
     private void bindImage(@NotNull ImageButton imageView,
                            @NotNull String id,
-                           boolean favourite,
-                           @Nullable Drawable background) {
+                           boolean favourite) {
         imageView.setOnClickListener(new ImageListener(myClickListener, id));
 
         if (favourite) {
@@ -105,18 +107,6 @@ public class BuildAdapter extends CursorAdapter {
             imageView.setContentDescription(myNotFavouriteDescription);
             imageView.setImageResource(NOT_FAVOURITE_IMAGE);
         }
-
-        //noinspection deprecation
-        imageView.setBackgroundDrawable(background);
-    }
-
-    private void bindDescription(@NotNull LinearLayout layout,
-                                 @NotNull String id,
-                                 @Nullable Drawable background) {
-        layout.setOnClickListener(new DescriptionListener(myClickListener, id));
-
-        //noinspection deprecation
-        layout.setBackgroundDrawable(background);
     }
 
     private void bindBranch(@NotNull TextView branchView,
@@ -127,15 +117,6 @@ public class BuildAdapter extends CursorAdapter {
             branchView.setVisibility(View.VISIBLE);
             branchView.setText(branch);
         }
-    }
-
-    private void bindOptions(@NotNull View optionsView,
-                             @NotNull String id,
-                             @Nullable Drawable background) {
-        optionsView.setOnClickListener(new OptionsListener(myClickListener, id));
-
-        //noinspection deprecation
-        optionsView.setBackgroundDrawable(background);
     }
 
     private static class DescriptionListener implements View.OnClickListener {
@@ -201,6 +182,9 @@ public class BuildAdapter extends CursorAdapter {
     private static class ViewHolder {
 
         @NotNull
+        public final LinearLayout main;
+
+        @NotNull
         public final ImageButton image;
 
         @NotNull
@@ -215,11 +199,13 @@ public class BuildAdapter extends CursorAdapter {
         @NotNull
         public final View options;
 
-        private ViewHolder(@NotNull ImageButton image,
+        private ViewHolder(@NotNull LinearLayout main,
+                           @NotNull ImageButton image,
                            @NotNull LinearLayout description,
                            @NotNull TextView name,
                            @NotNull TextView branch,
                            @NotNull View options) {
+            this.main = main;
             this.image = image;
             this.description = description;
             this.name = name;
