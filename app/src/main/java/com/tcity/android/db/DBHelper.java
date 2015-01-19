@@ -41,7 +41,8 @@ class DBHelper extends SQLiteOpenHelper {
         onProjectOrBuildConfigurationStatusesCreate(Constants.PROJECT_STATUS_TABLE, db);
         onProjectOrBuildConfigurationStatusesCreate(Constants.BUILD_CONFIGURATION_STATUS_TABLE, db);
 
-        onBuildConfigurationLastUpdatedCreate(Constants.BUILD_CONFIGURATION_LAST_UPDATE_TABLE, db);
+        onBuildConfigurationTimeCreate(Constants.BUILD_CONFIGURATION_LAST_UPDATE_TABLE, db);
+        onBuildConfigurationTimeCreate(Constants.BUILD_CONFIGURATION_SYNC_LIMIT_TABLE, db);
     }
 
     @Override
@@ -58,6 +59,7 @@ class DBHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + Constants.BUILD_CONFIGURATION_STATUS_TABLE + ";");
 
         db.execSQL("DROP TABLE IF EXISTS " + Constants.BUILD_CONFIGURATION_LAST_UPDATE_TABLE + ";");
+        db.execSQL("DROP TABLE IF EXISTS " + Constants.BUILD_CONFIGURATION_SYNC_LIMIT_TABLE + ";");
 
         onCreate(db);
     }
@@ -72,7 +74,7 @@ class DBHelper extends SQLiteOpenHelper {
             case STATUS:
                 return column.getName() + " TEXT NOT NULL";
             case FAVOURITE:
-            case LAST_UPDATE:
+            case TIME:
                 return column.getName() + " INTEGER NOT NULL";
             case ANDROID_ID:
                 return column.getName() + " INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL";
@@ -128,12 +130,12 @@ class DBHelper extends SQLiteOpenHelper {
         );
     }
 
-    private void onBuildConfigurationLastUpdatedCreate(@NotNull String table,
-                                                       @NotNull SQLiteDatabase db) {
+    private void onBuildConfigurationTimeCreate(@NotNull String table,
+                                                @NotNull SQLiteDatabase db) {
         db.execSQL(
                 "CREATE TABLE " + table + " (" +
                         getDescription(Column.TC_ID) + ", " +
-                        getDescription(Column.LAST_UPDATE) +
+                        getDescription(Column.TIME) +
                         ");"
         );
     }

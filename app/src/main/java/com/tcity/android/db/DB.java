@@ -48,6 +48,8 @@ public class DB {
         myListeners.put(Constants.BUILD_OVERVIEW_TABLE, new LinkedList<Listener>());
     }
 
+    // PROJECT - BEGIN
+
     public void setFavouriteProject(@NotNull String id, boolean favourite) {
         setFavourite(Constants.FAVOURITE_PROJECT_TABLE, id, favourite);
 
@@ -109,31 +111,6 @@ public class DB {
         return getName(Constants.PROJECT_OVERVIEW_TABLE, id);
     }
 
-    public void setFavouriteBuildConfiguration(@NotNull String id, boolean favourite) {
-        setFavourite(Constants.FAVOURITE_BUILD_CONFIGURATION_TABLE, id, favourite);
-
-        notifyListeners(Constants.BUILD_CONFIGURATION_OVERVIEW_TABLE);
-    }
-
-    public boolean isBuildConfigurationFavourite(@NotNull String id) {
-        return isFavourite(Constants.FAVOURITE_BUILD_CONFIGURATION_TABLE, id);
-    }
-
-    @NotNull
-    public String getBuildConfigurationName(@NotNull String id) {
-        return getName(Constants.BUILD_CONFIGURATION_OVERVIEW_TABLE, id);
-    }
-
-    public void setFavouriteBuild(@NotNull String id, boolean favourite) {
-        setFavourite(Constants.FAVOURITE_BUILD_TABLE, id, favourite);
-
-        notifyListeners(Constants.BUILD_OVERVIEW_TABLE);
-    }
-
-    public boolean isBuildFavourite(@NotNull String id) {
-        return isFavourite(Constants.FAVOURITE_BUILD_TABLE, id);
-    }
-
     public void setProjects(@NotNull Collection<Project> projects) {
         SQLiteDatabase db = myDBHelper.getWritableDatabase();
         db.beginTransaction();
@@ -156,6 +133,42 @@ public class DB {
         } finally {
             db.endTransaction();
         }
+    }
+
+    @NotNull
+    public Cursor getProjects(@Nullable String parentProjectId, boolean onlyFavourite) {
+        return getProjectsOrBuildConfigurations(
+                Constants.PROJECT_OVERVIEW_TABLE,
+                Constants.FAVOURITE_PROJECT_TABLE,
+                Constants.PROJECT_STATUS_TABLE,
+                parentProjectId,
+                onlyFavourite
+        );
+    }
+
+    public void setProjectStatus(@NotNull String id, @Nullable Status status) {
+        setProjectOrBuildConfigurationStatus(Constants.PROJECT_STATUS_TABLE, id, status);
+
+        notifyListeners(Constants.PROJECT_OVERVIEW_TABLE);
+    }
+
+    // PROJECT - END
+
+    // BUILD CONFIGURATION - BEGIN
+
+    public void setFavouriteBuildConfiguration(@NotNull String id, boolean favourite) {
+        setFavourite(Constants.FAVOURITE_BUILD_CONFIGURATION_TABLE, id, favourite);
+
+        notifyListeners(Constants.BUILD_CONFIGURATION_OVERVIEW_TABLE);
+    }
+
+    public boolean isBuildConfigurationFavourite(@NotNull String id) {
+        return isFavourite(Constants.FAVOURITE_BUILD_CONFIGURATION_TABLE, id);
+    }
+
+    @NotNull
+    public String getBuildConfigurationName(@NotNull String id) {
+        return getName(Constants.BUILD_CONFIGURATION_OVERVIEW_TABLE, id);
     }
 
     public void setBuildConfigurations(@NotNull String parentProjectId,
@@ -187,6 +200,53 @@ public class DB {
         }
     }
 
+    @NotNull
+    public Cursor getBuildConfigurations(@Nullable String parentProjectId, boolean onlyFavourite) {
+        return getProjectsOrBuildConfigurations(
+                Constants.BUILD_CONFIGURATION_OVERVIEW_TABLE,
+                Constants.FAVOURITE_BUILD_CONFIGURATION_TABLE,
+                Constants.BUILD_CONFIGURATION_STATUS_TABLE,
+                parentProjectId,
+                onlyFavourite
+        );
+    }
+
+    public void setBuildConfigurationStatus(@NotNull String id, @Nullable Status status) {
+        setProjectOrBuildConfigurationStatus(Constants.BUILD_CONFIGURATION_STATUS_TABLE, id, status);
+
+        notifyListeners(Constants.BUILD_CONFIGURATION_OVERVIEW_TABLE);
+    }
+
+    public void setBuildConfigurationLastUpdate(@NotNull String id, long time) {
+        setTime(id, time, Constants.BUILD_CONFIGURATION_LAST_UPDATE_TABLE);
+    }
+
+    public long getBuildConfigurationLastUpdate(@NotNull String id) {
+        return getTime(Constants.BUILD_CONFIGURATION_LAST_UPDATE_TABLE, id);
+    }
+
+    public void setBuildConfigurationSyncLimit(@NotNull String id, long time) {
+        setTime(id, time, Constants.BUILD_CONFIGURATION_SYNC_LIMIT_TABLE);
+    }
+
+    public long getBuildConfigurationSyncLimit(@NotNull String id) {
+        return getTime(Constants.BUILD_CONFIGURATION_SYNC_LIMIT_TABLE, id);
+    }
+
+    // BUILD CONFIGURATION - END
+
+    // BUILD - BEGIN
+
+    public void setFavouriteBuild(@NotNull String id, boolean favourite) {
+        setFavourite(Constants.FAVOURITE_BUILD_TABLE, id, favourite);
+
+        notifyListeners(Constants.BUILD_OVERVIEW_TABLE);
+    }
+
+    public boolean isBuildFavourite(@NotNull String id) {
+        return isFavourite(Constants.FAVOURITE_BUILD_TABLE, id);
+    }
+
     public void setBuilds(@NotNull String parentBuildConfigurationId,
                           @NotNull Collection<Build> builds) {
         SQLiteDatabase db = myDBHelper.getWritableDatabase();
@@ -216,28 +276,6 @@ public class DB {
         } finally {
             db.endTransaction();
         }
-    }
-
-    @NotNull
-    public Cursor getProjects(@NotNull String parentProjectId, boolean onlyFavourite) {
-        return getProjectsOrBuildConfigurations(
-                Constants.PROJECT_OVERVIEW_TABLE,
-                Constants.FAVOURITE_PROJECT_TABLE,
-                Constants.PROJECT_STATUS_TABLE,
-                parentProjectId,
-                onlyFavourite
-        );
-    }
-
-    @NotNull
-    public Cursor getBuildConfigurations(@NotNull String parentProjectId, boolean onlyFavourite) {
-        return getProjectsOrBuildConfigurations(
-                Constants.BUILD_CONFIGURATION_OVERVIEW_TABLE,
-                Constants.FAVOURITE_BUILD_CONFIGURATION_TABLE,
-                Constants.BUILD_CONFIGURATION_STATUS_TABLE,
-                parentProjectId,
-                onlyFavourite
-        );
     }
 
     @NotNull
@@ -283,6 +321,8 @@ public class DB {
         }
     }
 
+    // BUILD - END
+
     public synchronized void addProjectsListener(@NotNull Listener listener) {
         myListeners.get(Constants.PROJECT_OVERVIEW_TABLE).add(listener);
     }
@@ -307,18 +347,6 @@ public class DB {
         myListeners.get(Constants.BUILD_OVERVIEW_TABLE).remove(listener);
     }
 
-    public void setProjectStatus(@NotNull String id, @Nullable Status status) {
-        setProjectOrBuildConfigurationStatus(Constants.PROJECT_STATUS_TABLE, id, status);
-
-        notifyListeners(Constants.PROJECT_OVERVIEW_TABLE);
-    }
-
-    public void setBuildConfigurationStatus(@NotNull String id, @Nullable Status status) {
-        setProjectOrBuildConfigurationStatus(Constants.BUILD_CONFIGURATION_STATUS_TABLE, id, status);
-
-        notifyListeners(Constants.BUILD_CONFIGURATION_OVERVIEW_TABLE);
-    }
-
     public void reset() {
         SQLiteDatabase db = myDBHelper.getWritableDatabase();
 
@@ -332,64 +360,9 @@ public class DB {
 
         db.delete(Constants.PROJECT_STATUS_TABLE, null, null);
         db.delete(Constants.BUILD_CONFIGURATION_STATUS_TABLE, null, null);
-    }
 
-    public void setBuildConfigurationLastUpdate(@NotNull String id, long time) {
-        Cursor cursor = myDBHelper.getReadableDatabase().query(
-                Constants.BUILD_CONFIGURATION_LAST_UPDATE_TABLE,
-                null,
-                Column.TC_ID.getName() + " = ?",
-                new String[]{id},
-                null,
-                null,
-                null
-        );
-
-        if (cursor.getCount() == 0) {
-            ContentValues values = new ContentValues();
-            values.put(Column.TC_ID.getName(), id);
-            values.put(Column.LAST_UPDATE.getName(), time);
-
-            myDBHelper.getWritableDatabase().insert(Constants.BUILD_CONFIGURATION_LAST_UPDATE_TABLE, null, values);
-        } else {
-            ContentValues values = new ContentValues();
-            values.put(Column.LAST_UPDATE.getName(), time);
-
-            myDBHelper.getWritableDatabase().update(
-                    Constants.BUILD_CONFIGURATION_LAST_UPDATE_TABLE,
-                    values,
-                    Column.TC_ID.getName() + " = ?",
-                    new String[]{id}
-            );
-        }
-
-        cursor.close();
-    }
-
-    public long getBuildConfigurationLastUpdate(@NotNull String id) {
-        Cursor cursor = myDBHelper.getReadableDatabase().query(
-                Constants.BUILD_CONFIGURATION_LAST_UPDATE_TABLE,
-                null,
-                Column.TC_ID.getName() + " = ?",
-                new String[]{id},
-                null,
-                null,
-                null
-        );
-
-        if (cursor.getCount() == 0) {
-            cursor.close();
-
-            return Long.MIN_VALUE;
-        } else {
-            cursor.moveToNext();
-
-            long result = cursor.getLong(cursor.getColumnIndex(Column.LAST_UPDATE.getName()));
-
-            cursor.close();
-
-            return result;
-        }
+        db.delete(Constants.BUILD_CONFIGURATION_LAST_UPDATE_TABLE, null, null);
+        db.delete(Constants.BUILD_CONFIGURATION_SYNC_LIMIT_TABLE, null, null);
     }
 
     private void setFavourite(@NotNull String table,
@@ -481,46 +454,43 @@ public class DB {
     private Cursor getProjectsOrBuildConfigurations(@NotNull String mainTable,
                                                     @NotNull String favouriteTable,
                                                     @NotNull String statusTable,
-                                                    @NotNull String parentProjectId,
+                                                    @Nullable String parentProjectId,
                                                     boolean onlyFavourite) {
         String idColumn = Column.TC_ID.getName();
+        String query = "SELECT " +
+                mainTable + "." + Column.ANDROID_ID.getName() + ", " +
+                mainTable + "." + Column.TC_ID.getName() + ", " +
+                mainTable + "." + Column.NAME.getName() + ", " +
+                mainTable + "." + Column.PARENT_ID.getName() + ", " +
+                favouriteTable + "." + Column.FAVOURITE.getName() + ", " +
+                statusTable + "." + Column.STATUS.getName() +
+                " FROM " + mainTable + " " +
+                (
+                        onlyFavourite
+                                ?
+                                "INNER"
+                                :
+                                "LEFT"
+                ) + " JOIN " + favouriteTable +
+                " ON " + mainTable + "." + idColumn + " = " + favouriteTable + "." + idColumn +
+                (
+                        onlyFavourite
+                                ?
+                                " AND " + favouriteTable + "." + Column.FAVOURITE.getName()
+                                :
+                                ""
+                ) +
+                " LEFT JOIN " + statusTable +
+                " ON " + mainTable + "." + idColumn + " = " + statusTable + "." + idColumn +
+                (
+                        parentProjectId != null
+                                ?
+                                " WHERE " + mainTable + "." + Column.PARENT_ID.getName() + " = '" + parentProjectId + "'"
+                                :
+                                ""
+                );
 
-        if (onlyFavourite) {
-            return myDBHelper.getReadableDatabase().rawQuery(
-                    "SELECT " +
-                            mainTable + "." + Column.ANDROID_ID.getName() + ", " +
-                            mainTable + "." + Column.TC_ID.getName() + ", " +
-                            mainTable + "." + Column.NAME.getName() + ", " +
-                            mainTable + "." + Column.PARENT_ID.getName() + ", " +
-                            favouriteTable + "." + Column.FAVOURITE.getName() + ", " +
-                            statusTable + "." + Column.STATUS.getName() +
-                            " FROM " + mainTable +
-                            " INNER JOIN " + favouriteTable +
-                            " ON " + mainTable + "." + idColumn + " = " + favouriteTable + "." + idColumn +
-                            " AND " + favouriteTable + "." + Column.FAVOURITE.getName() +
-                            " LEFT JOIN " + statusTable +
-                            " ON " + mainTable + "." + idColumn + " = " + statusTable + "." + idColumn +
-                            " WHERE " + mainTable + "." + Column.PARENT_ID.getName() + " = '" + parentProjectId + "'",
-                    null
-            );
-        } else {
-            return myDBHelper.getReadableDatabase().rawQuery(
-                    "SELECT " +
-                            mainTable + "." + Column.ANDROID_ID.getName() + ", " +
-                            mainTable + "." + Column.TC_ID.getName() + ", " +
-                            mainTable + "." + Column.NAME.getName() + ", " +
-                            mainTable + "." + Column.PARENT_ID.getName() + ", " +
-                            favouriteTable + "." + Column.FAVOURITE.getName() + ", " +
-                            statusTable + "." + Column.STATUS.getName() +
-                            " FROM " + mainTable +
-                            " LEFT JOIN " + favouriteTable +
-                            " ON " + mainTable + "." + idColumn + " = " + favouriteTable + "." + idColumn +
-                            " LEFT JOIN " + statusTable +
-                            " ON " + mainTable + "." + idColumn + " = " + statusTable + "." + idColumn +
-                            " WHERE " + mainTable + "." + Column.PARENT_ID.getName() + " = '" + parentProjectId + "'",
-                    null
-            );
-        }
+        return myDBHelper.getReadableDatabase().rawQuery(query, null);
     }
 
     private void setProjectOrBuildConfigurationStatus(@NotNull String table,
@@ -562,6 +532,64 @@ public class DB {
             }
 
             cursor.close();
+        }
+    }
+
+    private void setTime(@NotNull String id, long time, @NotNull String table) {
+        Cursor cursor = myDBHelper.getReadableDatabase().query(
+                table,
+                null,
+                Column.TC_ID.getName() + " = ?",
+                new String[]{id},
+                null,
+                null,
+                null
+        );
+
+        if (cursor.getCount() == 0) {
+            ContentValues values = new ContentValues();
+            values.put(Column.TC_ID.getName(), id);
+            values.put(Column.TIME.getName(), time);
+
+            myDBHelper.getWritableDatabase().insert(table, null, values);
+        } else {
+            ContentValues values = new ContentValues();
+            values.put(Column.TIME.getName(), time);
+
+            myDBHelper.getWritableDatabase().update(
+                    table,
+                    values,
+                    Column.TC_ID.getName() + " = ?",
+                    new String[]{id}
+            );
+        }
+
+        cursor.close();
+    }
+
+    private long getTime(@NotNull String table, @NotNull String id) {
+        Cursor cursor = myDBHelper.getReadableDatabase().query(
+                table,
+                null,
+                Column.TC_ID.getName() + " = ?",
+                new String[]{id},
+                null,
+                null,
+                null
+        );
+
+        if (cursor.getCount() == 0) {
+            cursor.close();
+
+            return Long.MIN_VALUE;
+        } else {
+            cursor.moveToNext();
+
+            long result = cursor.getLong(cursor.getColumnIndex(Column.TIME.getName()));
+
+            cursor.close();
+
+            return result;
         }
     }
 

@@ -47,6 +47,9 @@ class Constants {
     @NotNull
     static final String BUILD_CONFIGURATION_LAST_UPDATE_TABLE = "build_configuration_last_update";
 
+    @NotNull
+    static final String BUILD_CONFIGURATION_SYNC_LIMIT_TABLE = "build_configuration_sync_limit";
+
     private Constants() {
     }
 }
