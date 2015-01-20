@@ -35,6 +35,14 @@ public class SyncUtils {
     private SyncUtils() {
     }
 
+    public static void initSync(@NotNull Context context) {
+        enableSync(context, true);
+
+        Preferences preferences = new Preferences(context);
+        preferences.setSyncEnabled(true);
+        preferences.setSyncWifiOnly(true);
+    }
+
     public static void enableSync(@NotNull Context context, boolean wifiOnly) {
         enableReceiver(context);
         scheduleAlarm(context, wifiOnly);
@@ -71,7 +79,7 @@ public class SyncUtils {
             manager.setInexactRepeating(
                     AlarmManager.RTC,
                     System.currentTimeMillis() + AlarmManager.INTERVAL_FIFTEEN_MINUTES / 3,
-                    AlarmManager.INTERVAL_FIFTEEN_MINUTES,
+                    AlarmManager.INTERVAL_HALF_HOUR,
                     getPendingIntent(context)
             );
 
