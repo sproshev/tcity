@@ -21,6 +21,7 @@ import android.util.JsonReader
 import java.io.InputStreamReader
 import java.io.IOException
 import java.util.ArrayList
+import java.util.Collections
 
 throws(javaClass<IOException>())
 private fun <T> parse(
@@ -68,6 +69,8 @@ private fun <T> parse(
 
     if (result != null) {
         return result!!
+    } else if (capacity == 0) {
+        return Collections.emptyList()
     } else {
         throw IOException("Invalid json: \"$key\" is absent")
     }

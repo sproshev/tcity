@@ -55,6 +55,15 @@ public class DBUtils {
     }
 
     @NotNull
+    public static String getParentId(@NotNull Cursor cursor) {
+        return cursor.getString(
+                cursor.getColumnIndex(
+                        Column.PARENT_ID.getName()
+                )
+        );
+    }
+
+    @NotNull
     public static String getName(@NotNull Cursor cursor) {
         return cursor.getString(
                 cursor.getColumnIndex(

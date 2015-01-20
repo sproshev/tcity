@@ -39,11 +39,9 @@ public class SyncReceiver extends BroadcastReceiver {
                 SyncUtils.updateSync(context, preferences.isSyncWifiOnly());
             }
         } else {
-            onAlarm(context);
+            context.startService(
+                    new Intent(context, SyncService.class)
+            );
         }
-    }
-
-    private void onAlarm(@NotNull Context context) {
-        // TODO start service
     }
 }

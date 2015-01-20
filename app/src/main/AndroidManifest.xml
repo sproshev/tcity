@@ -60,6 +60,8 @@
             </intent-filter>
         </receiver>
 
+        <service android:name=".sync.SyncService"/>
+
     </application>
 
 </manifest>
