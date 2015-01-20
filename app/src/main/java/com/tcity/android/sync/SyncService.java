@@ -19,6 +19,7 @@ package com.tcity.android.sync;
 import android.app.IntentService;
 import android.app.Notification;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Intent;
 import android.database.Cursor;
 import android.util.Log;
@@ -32,6 +33,7 @@ import com.tcity.android.background.runnable.HttpStatusException;
 import com.tcity.android.db.Build;
 import com.tcity.android.db.DB;
 import com.tcity.android.db.DBUtils;
+import com.tcity.android.ui.overview.buildconfiguration.BuildConfigurationOverviewActivity;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -111,10 +113,35 @@ public class SyncService extends IntentService {
 
         if (!builds.isEmpty()) {
             Notification.Builder builder = new Notification.Builder(this);
+
             String description = myDB.getProjectName(parentId) + " - " + myDB.getBuildConfigurationName(id);
+
+            Intent activityIntent = new Intent(this, BuildConfigurationOverviewActivity.class);
+            activityIntent.putExtra(BuildConfigurationOverviewActivity.INTENT_KEY, id);
+            activityIntent.setAction(Long.toString(System.currentTimeMillis()));
+
+            PendingIntent contentIntent = PendingIntent.getActivity(
+                    this,
+                    0,
+                    activityIntent,
+                    0
+            );
+
+            Intent serviceIntent = new Intent(this, SyncLimitService.class);
+            serviceIntent.putExtra(SyncLimitService.INTENT_KEY, id);
+            serviceIntent.setAction(Long.toString(System.currentTimeMillis()));
+
+            PendingIntent deleteIntent = PendingIntent.getService(
+                    this,
+                    0,
+                    serviceIntent,
+                    0
+            );
 
             //noinspection deprecation
             Notification notification = builder
+                    .setContentIntent(contentIntent)
+                    .setDeleteIntent(deleteIntent)
                     .setSmallIcon(R.drawable.ic_launcher)
                     .setContentTitle(builds.size() + " new builds")
                     .setContentText(description)

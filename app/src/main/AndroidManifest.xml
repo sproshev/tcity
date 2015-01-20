@@ -61,6 +61,7 @@
         </receiver>
 
         <service android:name=".sync.SyncService"/>
+        <service android:name=".sync.SyncLimitService"/>
 
     </application>
 
