@@ -20,6 +20,11 @@ import com.tcity.android.app.Preferences;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 class RestLocator {
 
     @NotNull
@@ -63,6 +68,24 @@ class RestLocator {
                 "?locator=" +
                 "running:any," +
                 "branch:(branched:any)";
+    }
+
+    @NotNull
+    static String getBuildsUrl(@NotNull String buildConfigurationId,
+                               long sinceMillis,
+                               @NotNull Preferences preferences) {
+        try {
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd'T'hhmmssZ");
+            String sinceDate = formatter.format(new Date(sinceMillis));
+
+            return preferences.getUrl() + REST_PREFIX + "buildTypes/id:" + buildConfigurationId + "/builds/" +
+                    "?locator=" +
+                    "running:any," +
+                    "branch:(branched:any)," +
+                    "sinceDate:" + URLEncoder.encode(sinceDate, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @NotNull

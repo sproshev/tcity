@@ -89,6 +89,14 @@ public class RestClient {
     }
 
     @NotNull
+    public HttpResponse getBuilds(@NotNull String buildConfigurationId,
+                                  long sinceMillis) throws IOException {
+        return getJson(
+                RestLocator.getBuildsUrl(buildConfigurationId, sinceMillis, myPreferences)
+        );
+    }
+
+    @NotNull
     public HttpResponse getProjectStatus(@NotNull String id) throws IOException {
         return getPlain(
                 RestLocator.getProjectStatusUrl(id, myPreferences)
