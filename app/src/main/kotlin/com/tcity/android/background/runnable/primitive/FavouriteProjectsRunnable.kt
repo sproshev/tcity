@@ -34,6 +34,15 @@ public class FavouriteProjectsRunnable(
 
     throws(javaClass<IOException>())
     override fun run() {
+        val internalIds = loadInternalIds()
+
+        if (internalIds != null) {
+            db.addFavouriteProjects(loadIds(internalIds))
+        }
+    }
+
+    throws(javaClass<IOException>())
+    private fun loadInternalIds(): Array<String>? {
         val response = client.getUserProperties(login)
 
         val statusLine = response.getStatusLine()
@@ -41,11 +50,7 @@ public class FavouriteProjectsRunnable(
         if (statusLine.getStatusCode() != HttpStatus.SC_OK) {
             throw HttpStatusException(statusLine)
         } else {
-            val internalIds = parseInternalIds(response.getEntity().getContent())
-
-            if (internalIds != null) {
-                db.addFavouriteProjects(loadIds(internalIds))
-            }
+            return parseInternalIds(response.getEntity().getContent())
         }
     }
 
@@ -81,7 +86,7 @@ public class FavouriteProjectsRunnable(
 
             while (reader.hasNext()) {
                 when (reader.nextName()) {
-                    "property" -> return findProperty(reader)?.split(':')
+                    "property" -> return getFavouriteProjectsProperty(reader)?.split(':')
                     else -> reader.skipValue()
                 }
             }
@@ -117,7 +122,7 @@ public class FavouriteProjectsRunnable(
     }
 
     throws(javaClass<IOException>())
-    private fun findProperty(reader: JsonReader): String? {
+    private fun getFavouriteProjectsProperty(reader: JsonReader): String? {
         reader.beginArray()
 
         while (reader.hasNext()) {

@@ -75,7 +75,7 @@ class RestLocator {
                                long sinceMillis,
                                @NotNull Preferences preferences) {
         try {
-            SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd'T'hhmmssZ");
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd'T'HHmmssZ");
             String sinceDate = formatter.format(new Date(sinceMillis));
 
             return preferences.getUrl() + REST_PREFIX + "buildTypes/id:" + buildConfigurationId + "/builds/" +

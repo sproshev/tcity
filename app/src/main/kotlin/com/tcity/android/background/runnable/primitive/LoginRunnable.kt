@@ -22,9 +22,7 @@ import org.apache.http.HttpStatus
 import com.tcity.android.background.runnable.HttpStatusException
 
 
-public class LoginRunnable(
-        private val client: RestClient
-) : Runnable {
+public class LoginRunnable(private val client: RestClient) : Runnable {
 
     throws(javaClass<IOException>())
     override fun run() {

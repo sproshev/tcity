@@ -114,6 +114,7 @@ public class SyncService extends IntentService {
         if (!builds.isEmpty()) {
             Notification.Builder builder = new Notification.Builder(this);
 
+            String title = builds.size() + " new build" + (builds.size() == 1 ? "" : "s");
             String description = myDB.getProjectName(parentId) + " - " + myDB.getBuildConfigurationName(id);
 
             Intent activityIntent = new Intent(this, BuildConfigurationOverviewActivity.class);
@@ -140,11 +141,11 @@ public class SyncService extends IntentService {
 
             //noinspection deprecation
             Notification notification = builder
+                    .setSmallIcon(R.drawable.ic_launcher)
+                    .setContentTitle(title)
+                    .setContentText(description)
                     .setContentIntent(contentIntent)
                     .setDeleteIntent(deleteIntent)
-                    .setSmallIcon(R.drawable.ic_launcher)
-                    .setContentTitle(builds.size() + " new builds")
-                    .setContentText(description)
                     .setAutoCancel(true)
                     .getNotification();
 
