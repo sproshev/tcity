@@ -93,18 +93,10 @@ public class BuildConfigurationOverviewActivity extends ListActivity implements 
         super.onResume();
 
         if (myEngine.isRefreshing()) {
-            setRefreshing(true);
+            onRefreshRunning();
         } else {
-            setRefreshing(false);
-
-            //noinspection ThrowableResultOfMethodCallIgnored
-            Exception e = myEngine.getException();
-
-            if (e != null) {
-                myEngine.resetException();
-
-                Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
-            }
+            onRefreshException();
+            onRefreshFinished();
         }
 
         myEngine.setActivity(this);
@@ -141,7 +133,16 @@ public class BuildConfigurationOverviewActivity extends ListActivity implements 
 
         if (!myRecreating) {
             myEngine.close();
+
+            //noinspection ConstantConditions
+            myEngine = null;
         }
+
+        //noinspection ConstantConditions
+        myLayout = null;
+
+        //noinspection ConstantConditions
+        myBuildConfigurationId = null;
     }
 
     // LIFECYCLE - End
@@ -151,29 +152,31 @@ public class BuildConfigurationOverviewActivity extends ListActivity implements 
         myEngine.refresh(true);
     }
 
-    void setRefreshing(final boolean refreshing) {
-        new Handler().postDelayed(
-                new Runnable() {
-                    @Override
-                    public void run() {
-                        if (myLayout.isRefreshing() ^ refreshing) {
-                            myLayout.setRefreshing(refreshing);
+    void onRefreshRunning() {
+        setRefreshing(true);
+    }
 
-                            TextView emptyView = (TextView) getListView().getEmptyView();
+    void onRefreshFinished() {
+        setRefreshing(false);
 
-                            if (refreshing) {
-                                emptyView.setText(R.string.loading);
-                            } else {
-                                if (isNetworkAvailable()) {
-                                    emptyView.setText(R.string.empty);
-                                } else {
-                                    emptyView.setText(R.string.network_is_unavailable);
-                                }
-                            }
-                        }
-                    }
-                }, 500
-        );  // https://code.google.com/p/android/issues/detail?id=77712
+        //noinspection ThrowableResultOfMethodCallIgnored
+        if (myEngine.getException() == null) {
+            ((Application) getApplication()).getDB().setBuildConfigurationSyncLimit(
+                    myBuildConfigurationId,
+                    System.currentTimeMillis()
+            );
+        }
+
+        myEngine.resetException();
+    }
+
+    void onRefreshException() {
+        //noinspection ThrowableResultOfMethodCallIgnored
+        Exception e = myEngine.getException();
+
+        if (e != null) {
+            Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
+        }
     }
 
     void imageClick(@NotNull String id) {
@@ -228,6 +231,31 @@ public class BuildConfigurationOverviewActivity extends ListActivity implements 
         NetworkInfo networkInfo = manager.getActiveNetworkInfo();
 
         return networkInfo != null && networkInfo.isConnectedOrConnecting();
+    }
+
+    private void setRefreshing(final boolean refreshing) {
+        new Handler().postDelayed(
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        if (myLayout.isRefreshing() ^ refreshing) {
+                            myLayout.setRefreshing(refreshing);
+
+                            TextView emptyView = (TextView) getListView().getEmptyView();
+
+                            if (refreshing) {
+                                emptyView.setText(R.string.loading);
+                            } else {
+                                if (isNetworkAvailable()) {
+                                    emptyView.setText(R.string.empty);
+                                } else {
+                                    emptyView.setText(R.string.network_is_unavailable);
+                                }
+                            }
+                        }
+                    }
+                }, 500
+        );  // https://code.google.com/p/android/issues/detail?id=77712
     }
 
     private class PopupMenuListener implements PopupMenu.OnMenuItemClickListener {

@@ -17,7 +17,6 @@
 package com.tcity.android.ui.overview.buildconfiguration;
 
 import android.os.AsyncTask;
-import android.widget.Toast;
 
 import com.tcity.android.background.rest.RestClient;
 import com.tcity.android.background.runnable.chain.ExecutableRunnableChain;
@@ -117,7 +116,7 @@ class BuildConfigurationOverviewServerEngine {
             myException = null;
 
             if (myActivity != null) {
-                myActivity.setRefreshing(true);
+                myActivity.onRefreshRunning();
             }
         }
 
@@ -126,7 +125,7 @@ class BuildConfigurationOverviewServerEngine {
             myRunning = false;
 
             if (myActivity != null) {
-                myActivity.setRefreshing(false);
+                myActivity.onRefreshFinished();
             }
         }
 
@@ -135,7 +134,7 @@ class BuildConfigurationOverviewServerEngine {
             myException = e;
 
             if (myActivity != null) {
-                Toast.makeText(myActivity, e.getMessage(), Toast.LENGTH_LONG).show();
+                myActivity.onRefreshException();
             }
         }
     }

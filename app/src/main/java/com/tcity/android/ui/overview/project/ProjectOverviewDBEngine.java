@@ -161,6 +161,8 @@ class ProjectOverviewDBEngine {
     void buildConfigurationImageClick(@NotNull String id) {
         myDB.setBuildConfigurationStatus(id, Status.DEFAULT);
         myDB.setFavouriteBuildConfiguration(id, !myDB.isBuildConfigurationFavourite(id));
+
+        initSyncLimit(id);
     }
 
     void close() {
@@ -189,6 +191,15 @@ class ProjectOverviewDBEngine {
 
     private void handleHeader(@NotNull BuildConfigurationDBEngine engine) {
         myMainAdapter.setActive(engine.getHeader(), !engine.empty());
+    }
+
+    private void initSyncLimit(@NotNull String buildConfigurationId) {
+        if (myDB.getBuildConfigurationSyncLimit(buildConfigurationId) == Long.MIN_VALUE) {
+            myDB.setBuildConfigurationSyncLimit(
+                    buildConfigurationId,
+                    System.currentTimeMillis()
+            );
+        }
     }
 
     private static class MyBuildConfigurationClickListener implements BuildConfigurationClickListener {
