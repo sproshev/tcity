@@ -42,7 +42,7 @@ class DBHelper extends SQLiteOpenHelper {
         onProjectOrBuildConfigurationStatusesCreate(Constants.BUILD_CONFIGURATION_STATUS_TABLE, db);
 
         onBuildConfigurationTimeCreate(Constants.BUILD_CONFIGURATION_LAST_UPDATE_TABLE, db);
-        onBuildConfigurationTimeCreate(Constants.BUILD_CONFIGURATION_SYNC_LIMIT_TABLE, db);
+        onBuildConfigurationTimeCreate(Constants.BUILD_CONFIGURATION_SYNC_BOUND_TABLE, db);
     }
 
     @Override
@@ -59,7 +59,7 @@ class DBHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + Constants.BUILD_CONFIGURATION_STATUS_TABLE + ";");
 
         db.execSQL("DROP TABLE IF EXISTS " + Constants.BUILD_CONFIGURATION_LAST_UPDATE_TABLE + ";");
-        db.execSQL("DROP TABLE IF EXISTS " + Constants.BUILD_CONFIGURATION_SYNC_LIMIT_TABLE + ";");
+        db.execSQL("DROP TABLE IF EXISTS " + Constants.BUILD_CONFIGURATION_SYNC_BOUND_TABLE + ";");
 
         onCreate(db);
     }

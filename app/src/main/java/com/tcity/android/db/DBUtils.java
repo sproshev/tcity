@@ -28,6 +28,8 @@ public class DBUtils {
     private DBUtils() {
     }
 
+    public static final long UNDEFINED_TIME = Long.MIN_VALUE;
+
     @NotNull
     public static Status getStatus(@NotNull Cursor cursor) {
         int columnIndex = cursor.getColumnIndex(Column.STATUS.getName());

@@ -86,12 +86,13 @@ public class SyncService extends IntentService {
         try {
             String id = DBUtils.getId(cursor);
 
-            long sinceMillis = Math.max(
-                    myDB.getBuildConfigurationLastUpdate(id),
-                    myDB.getBuildConfigurationSyncLimit(id)
-            );
+            long syncBound = myDB.getBuildConfigurationSyncBound(id);
 
-            HttpResponse response = myClient.getBuilds(id, sinceMillis);
+            if (syncBound == DBUtils.UNDEFINED_TIME) {
+                return;
+            }
+
+            HttpResponse response = myClient.getBuilds(id, syncBound);
             StatusLine statusLine = response.getStatusLine();
 
             if (statusLine.getStatusCode() != HttpStatus.SC_OK) {
@@ -128,8 +129,8 @@ public class SyncService extends IntentService {
                     0
             );
 
-            Intent serviceIntent = new Intent(this, SyncLimitService.class);
-            serviceIntent.putExtra(SyncLimitService.INTENT_KEY, id);
+            Intent serviceIntent = new Intent(this, SyncBoundService.class);
+            serviceIntent.putExtra(SyncBoundService.INTENT_KEY, id);
             serviceIntent.setAction(Long.toString(System.currentTimeMillis()));
 
             PendingIntent deleteIntent = PendingIntent.getService(

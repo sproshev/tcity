@@ -27,6 +27,7 @@ import com.commonsware.cwac.merge.MergeAdapter;
 import com.tcity.android.R;
 import com.tcity.android.Status;
 import com.tcity.android.db.DB;
+import com.tcity.android.db.DBUtils;
 import com.tcity.android.db.Project;
 import com.tcity.android.ui.adapter.BuildConfigurationClickListener;
 import com.tcity.android.ui.adapter.ProjectClickListener;
@@ -194,8 +195,8 @@ class ProjectOverviewDBEngine {
     }
 
     private void initSyncLimit(@NotNull String buildConfigurationId) {
-        if (myDB.getBuildConfigurationSyncLimit(buildConfigurationId) == Long.MIN_VALUE) {
-            myDB.setBuildConfigurationSyncLimit(
+        if (myDB.getBuildConfigurationSyncBound(buildConfigurationId) == DBUtils.UNDEFINED_TIME) {
+            myDB.setBuildConfigurationSyncBound(
                     buildConfigurationId,
                     System.currentTimeMillis()
             );

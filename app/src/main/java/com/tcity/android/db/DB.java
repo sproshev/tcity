@@ -159,6 +159,14 @@ public class DB {
     public void setFavouriteBuildConfiguration(@NotNull String id, boolean favourite) {
         setFavourite(Constants.FAVOURITE_BUILD_CONFIGURATION_TABLE, id, favourite);
 
+        if (!favourite) {
+            myDBHelper.getWritableDatabase().delete(
+                    Constants.BUILD_CONFIGURATION_SYNC_BOUND_TABLE,
+                    Column.TC_ID.getName() + " = ?",
+                    new String[]{id}
+            );
+        }
+
         notifyListeners(Constants.BUILD_CONFIGURATION_OVERVIEW_TABLE);
     }
 
@@ -225,12 +233,12 @@ public class DB {
         return getTime(Constants.BUILD_CONFIGURATION_LAST_UPDATE_TABLE, id);
     }
 
-    public void setBuildConfigurationSyncLimit(@NotNull String id, long time) {
-        setTime(id, time, Constants.BUILD_CONFIGURATION_SYNC_LIMIT_TABLE);
+    public void setBuildConfigurationSyncBound(@NotNull String id, long time) {
+        setTime(id, time, Constants.BUILD_CONFIGURATION_SYNC_BOUND_TABLE);
     }
 
-    public long getBuildConfigurationSyncLimit(@NotNull String id) {
-        return getTime(Constants.BUILD_CONFIGURATION_SYNC_LIMIT_TABLE, id);
+    public long getBuildConfigurationSyncBound(@NotNull String id) {
+        return getTime(Constants.BUILD_CONFIGURATION_SYNC_BOUND_TABLE, id);
     }
 
     // BUILD CONFIGURATION - END
@@ -362,7 +370,7 @@ public class DB {
         db.delete(Constants.BUILD_CONFIGURATION_STATUS_TABLE, null, null);
 
         db.delete(Constants.BUILD_CONFIGURATION_LAST_UPDATE_TABLE, null, null);
-        db.delete(Constants.BUILD_CONFIGURATION_SYNC_LIMIT_TABLE, null, null);
+        db.delete(Constants.BUILD_CONFIGURATION_SYNC_BOUND_TABLE, null, null);
     }
 
     private void setFavourite(@NotNull String table,
@@ -581,7 +589,7 @@ public class DB {
         if (cursor.getCount() == 0) {
             cursor.close();
 
-            return Long.MIN_VALUE;
+            return DBUtils.UNDEFINED_TIME;
         } else {
             cursor.moveToNext();
 

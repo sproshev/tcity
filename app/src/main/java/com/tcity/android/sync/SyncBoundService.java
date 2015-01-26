@@ -24,13 +24,13 @@ import com.tcity.android.db.DB;
 
 import org.jetbrains.annotations.NotNull;
 
-public class SyncLimitService extends IntentService {
+public class SyncBoundService extends IntentService {
 
     @NotNull
     public static final String INTENT_KEY = "BUILD_CONFIGURATION_ID";
 
-    public SyncLimitService() {
-        super(SyncLimitService.class.getSimpleName());
+    public SyncBoundService() {
+        super(SyncBoundService.class.getSimpleName());
     }
 
     @Override
@@ -38,7 +38,7 @@ public class SyncLimitService extends IntentService {
         DB db = ((Application) getApplication()).getDB();
         String buildConfigurationId = intent.getStringExtra(INTENT_KEY);
 
-        db.setBuildConfigurationSyncLimit(
+        db.setBuildConfigurationSyncBound(
                 buildConfigurationId,
                 System.currentTimeMillis()
         );

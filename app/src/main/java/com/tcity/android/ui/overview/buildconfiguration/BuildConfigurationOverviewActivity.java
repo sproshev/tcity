@@ -170,16 +170,6 @@ public class BuildConfigurationOverviewActivity extends ListActivity implements 
 
     void onRefreshFinished() {
         setRefreshing(false);
-
-        //noinspection ThrowableResultOfMethodCallIgnored
-        if (myEngine.getException() == null) {
-            ((Application) getApplication()).getDB().setBuildConfigurationSyncLimit(
-                    myBuildConfigurationId,
-                    System.currentTimeMillis()
-            );
-        }
-
-        myEngine.resetException();
     }
 
     void onRefreshException() {
@@ -188,6 +178,8 @@ public class BuildConfigurationOverviewActivity extends ListActivity implements 
 
         if (e != null) {
             Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
+
+            myEngine.resetException();
         }
     }
 
