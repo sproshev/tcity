@@ -18,7 +18,6 @@ package com.tcity.android.ui.overview.project;
 
 import android.database.Cursor;
 import android.os.AsyncTask;
-import android.widget.Toast;
 
 import com.tcity.android.app.Preferences;
 import com.tcity.android.background.rest.RestClient;
@@ -49,10 +48,10 @@ class ProjectOverviewServerEngine {
     @NotNull
     private final Preferences myPreferences;
 
-    private boolean myInit;
-
     @NotNull
     private final ChainListener myChainListener;
+
+    private boolean myInit;
 
     @Nullable
     private ExecutableRunnableChain myChain;
@@ -73,10 +72,19 @@ class ProjectOverviewServerEngine {
 
     void setActivity(@Nullable ProjectOverviewActivity activity) {
         myChainListener.myActivity = activity;
+    }
 
-        if (myChainListener.myCount != 0 && activity != null) {
-            activity.setRefreshing(true);
-        }
+    boolean isRefreshing() {
+        return myChainListener.myCount != 0;
+    }
+
+    @Nullable
+    Exception getException() {
+        return myChainListener.myException;
+    }
+
+    void resetException() {
+        myChainListener.myException = null;
     }
 
     void projectImageClick(@NotNull String id) {
@@ -201,12 +209,19 @@ class ProjectOverviewServerEngine {
 
         private int myCount;
 
-        void onStarted() {
-            myCount++;
+        @Nullable
+        private Exception myException;
 
-            if (myActivity != null) {
-                myActivity.setRefreshing(true);
+        void onStarted() {
+            if (myCount == 0) {
+                myException = null;
             }
+
+            if (myActivity != null && myCount == 0) {
+                myActivity.onRefreshRunning();
+            }
+
+            myCount++;
         }
 
         @Override
@@ -216,14 +231,16 @@ class ProjectOverviewServerEngine {
             }
 
             if (myActivity != null && myCount == 0) {
-                myActivity.setRefreshing(false);
+                myActivity.onRefreshFinished();
             }
         }
 
         @Override
         public void onException(@NotNull Exception e) {
+            myException = e;
+
             if (myActivity != null) {
-                Toast.makeText(myActivity, e.getMessage(), Toast.LENGTH_LONG).show();
+                myActivity.onRefreshException();
             }
         }
     }

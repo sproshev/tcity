@@ -62,6 +62,19 @@ class ProjectOverviewEngine {
         myServerEngine.setActivity(activity);
     }
 
+    boolean isRefreshing() {
+        return myServerEngine.isRefreshing();
+    }
+
+    @Nullable
+    Exception getException() {
+        return myServerEngine.getException();
+    }
+
+    void resetException() {
+        myServerEngine.resetException();
+    }
+
     void projectImageClick(@NotNull String id) {
         myDBEngine.projectImageClick(id);
         myServerEngine.projectImageClick(id);

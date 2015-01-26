@@ -31,6 +31,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.PopupMenu;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.tcity.android.R;
 import com.tcity.android.app.Application;
@@ -88,25 +89,27 @@ public class ProjectOverviewActivity extends ListActivity implements SwipeRefres
         myLayout.setOnRefreshListener(this);
 
         myEngine = calculateEngine();
-        myEngine.setActivity(this);
         setListAdapter(myEngine.getAdapter());
 
         if (isNetworkAvailable()) {
-            if (!myLayout.isRefreshing()) {
-                Handler handler = new Handler();
-                handler.postDelayed(
-                        new Runnable() {
-                            @Override
-                            public void run() {
-                                onRefresh();
-                            }
-                        },
-                        1000
-                ); // https://code.google.com/p/android/issues/detail?id=77712
-            }
+            myEngine.refresh();
         } else {
             ((TextView) getListView().getEmptyView()).setText(R.string.network_is_unavailable);
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        if (myEngine.isRefreshing()) {
+            onRefreshRunning();
+        } else {
+            onRefreshException();
+            onRefreshFinished();
+        }
+
+        myEngine.setActivity(this);
     }
 
     @SuppressWarnings("deprecation")
@@ -128,14 +131,28 @@ public class ProjectOverviewActivity extends ListActivity implements SwipeRefres
     }
 
     @Override
+    protected void onPause() {
+        super.onPause();
+
+        myEngine.setActivity(null);
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
 
-        myEngine.setActivity(null);
-
         if (!myRecreating) {
             myEngine.close();
+
+            //noinspection ConstantConditions
+            myEngine = null;
         }
+
+        //noinspection ConstantConditions
+        myLayout = null;
+
+        //noinspection ConstantConditions
+        myProjectId = null;
     }
 
     // LIFECYCLE - End
@@ -156,21 +173,22 @@ public class ProjectOverviewActivity extends ListActivity implements SwipeRefres
         myEngine.refresh();
     }
 
-    void setRefreshing(boolean refreshing) {
-        if (myLayout.isRefreshing() ^ refreshing) {
-            myLayout.setRefreshing(refreshing);
+    void onRefreshRunning() {
+        setRefreshing(true);
+    }
 
-            TextView emptyView = (TextView) getListView().getEmptyView();
+    void onRefreshFinished() {
+        setRefreshing(false);
+    }
 
-            if (refreshing) {
-                emptyView.setText(R.string.loading);
-            } else {
-                if (isNetworkAvailable()) {
-                    emptyView.setText(R.string.empty);
-                } else {
-                    emptyView.setText(R.string.network_is_unavailable);
-                }
-            }
+    void onRefreshException() {
+        //noinspection ThrowableResultOfMethodCallIgnored
+        Exception e = myEngine.getException();
+
+        if (e != null) {
+            Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
+
+            myEngine.resetException();
         }
     }
 
@@ -272,6 +290,31 @@ public class ProjectOverviewActivity extends ListActivity implements SwipeRefres
         NetworkInfo networkInfo = manager.getActiveNetworkInfo();
 
         return networkInfo != null && networkInfo.isConnectedOrConnecting();
+    }
+
+    private void setRefreshing(final boolean refreshing) {
+        new Handler().postDelayed(
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        if (myLayout.isRefreshing() ^ refreshing) {
+                            myLayout.setRefreshing(refreshing);
+
+                            TextView emptyView = (TextView) getListView().getEmptyView();
+
+                            if (refreshing) {
+                                emptyView.setText(R.string.loading);
+                            } else {
+                                if (isNetworkAvailable()) {
+                                    emptyView.setText(R.string.empty);
+                                } else {
+                                    emptyView.setText(R.string.network_is_unavailable);
+                                }
+                            }
+                        }
+                    }
+                }, 500
+        );  // https://code.google.com/p/android/issues/detail?id=77712
     }
 
     private class PopupMenuListener implements PopupMenu.OnMenuItemClickListener {
