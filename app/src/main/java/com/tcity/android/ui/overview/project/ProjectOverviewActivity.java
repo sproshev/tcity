@@ -77,6 +77,10 @@ public class ProjectOverviewActivity extends ListActivity implements SwipeRefres
         ActionBar bar = getActionBar();
         if (bar != null) {
             bar.setTitle(calculateTitle());
+
+            if (!isRootProject()) {
+                bar.setDisplayHomeAsUpEnabled(true);
+            }
         }
 
         myLayout = (SwipeRefreshLayout) findViewById(R.id.overview);
@@ -135,6 +139,17 @@ public class ProjectOverviewActivity extends ListActivity implements SwipeRefres
     }
 
     // LIFECYCLE - End
+
+    @Override
+    public boolean onOptionsItemSelected(@NotNull MenuItem item) {
+        if (item.getItemId() == android.R.id.home && !isRootProject()) {
+            finish();
+
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
 
     @Override
     public void onRefresh() {
@@ -220,13 +235,17 @@ public class ProjectOverviewActivity extends ListActivity implements SwipeRefres
 
     @NotNull
     private String calculateTitle() {
-        if (myProjectId.equals(Project.ROOT_PROJECT_ID)) {
+        if (isRootProject()) {
             return getString(R.string.projects);
         }
 
         DB db = ((Application) getApplication()).getDB();
 
         return db.getProjectName(myProjectId);
+    }
+
+    private boolean isRootProject() {
+        return myProjectId.equals(Project.ROOT_PROJECT_ID);
     }
 
     @NotNull

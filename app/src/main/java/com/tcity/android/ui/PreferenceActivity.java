@@ -21,6 +21,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.Preference;
+import android.view.MenuItem;
 
 import com.tcity.android.R;
 import com.tcity.android.app.Application;
@@ -39,6 +40,7 @@ public class PreferenceActivity extends android.preference.PreferenceActivity {
         ActionBar bar = getActionBar();
         if (bar != null) {
             bar.setTitle(R.string.settings);
+            bar.setDisplayHomeAsUpEnabled(true);
         }
 
         //noinspection deprecation
@@ -67,6 +69,17 @@ public class PreferenceActivity extends android.preference.PreferenceActivity {
         //noinspection deprecation
         Preference logoutPreference = findPreference(getString(R.string.logout_pref_key));
         logoutPreference.setOnPreferenceClickListener(new LogoutPreferenceListener());
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NotNull MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            finish();
+
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
     private class SyncPreferenceListener implements Preference.OnPreferenceChangeListener {
@@ -102,6 +115,8 @@ public class PreferenceActivity extends android.preference.PreferenceActivity {
         @Override
         public boolean onPreferenceClick(@Nullable Preference preference) {
             PreferenceActivity context = PreferenceActivity.this;
+
+            SyncUtils.disableSync(context);
 
             ((Application) getApplication()).getDB().reset();
             new Preferences(context).reset();

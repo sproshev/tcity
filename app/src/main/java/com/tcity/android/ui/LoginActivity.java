@@ -141,8 +141,8 @@ public class LoginActivity extends Activity {
 
         if (!myRedirecting) {
             SharedPreferences.Editor editor = mySharedPreferences.edit();
-            editor.putString(URL_PREFERENCES_KEY, myUrlEditText.getText().toString());
-            editor.putString(LOGIN_PREFERENCES_KEY, myLoginEditText.getText().toString());
+            editor.putString(URL_PREFERENCES_KEY, getText(myUrlEditText));
+            editor.putString(LOGIN_PREFERENCES_KEY, getText(myLoginEditText));
             editor.apply();
         }
     }
@@ -229,9 +229,9 @@ public class LoginActivity extends Activity {
     }
 
     private void saveCredentials() {
-        String url = myUrlEditText.getText().toString();
-        String login = myLoginEditText.getText().toString();
-        String password = myPasswordEditText.getText().toString();
+        String url = getText(myUrlEditText);
+        String login = getText(myLoginEditText);
+        String password = getText(myPasswordEditText);
 
         SharedPreferences.Editor editor = mySharedPreferences.edit();
         editor.putString(URL_PREFERENCES_KEY, url);
@@ -260,15 +260,20 @@ public class LoginActivity extends Activity {
         ).toAsyncTask(myChainListener);
     }
 
+    @NotNull
+    private String getText(@NotNull EditText editText) {
+        return editText.getText().toString().trim();
+    }
+
     private class SignInClickListener implements View.OnClickListener {
 
         @Override
         public void onClick(@NotNull View v) {
-            if (myUrlEditText.length() == 0) {
+            if (myUrlEditText.length() == 0 || getText(myUrlEditText).length() == 0) {
                 showToast(R.string.url_is_empty);
-            } else if (myLoginEditText.length() == 0) {
+            } else if (myLoginEditText.length() == 0 || getText(myLoginEditText).length() == 0) {
                 showToast(R.string.login_is_empty);
-            } else if (myPasswordEditText.length() == 0) {
+            } else if (myPasswordEditText.length() == 0 || getText(myPasswordEditText).length() == 0) {
                 showToast(R.string.password_is_empty);
             } else {
                 refresh();

@@ -72,6 +72,7 @@ public class BuildConfigurationOverviewActivity extends ListActivity implements 
         ActionBar bar = getActionBar();
         if (bar != null) {
             bar.setTitle(calculateTitle());
+            bar.setDisplayHomeAsUpEnabled(true);
         }
 
         myLayout = (SwipeRefreshLayout) findViewById(R.id.overview);
@@ -146,6 +147,17 @@ public class BuildConfigurationOverviewActivity extends ListActivity implements 
     }
 
     // LIFECYCLE - End
+
+    @Override
+    public boolean onOptionsItemSelected(@NotNull MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            finish();
+
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
 
     @Override
     public void onRefresh() {
