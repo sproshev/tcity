@@ -113,6 +113,8 @@ public class SyncService extends IntentService {
         List<Build> builds = ParserPackage.parseBuilds(response.getEntity().getContent());
 
         if (!builds.isEmpty()) {
+            myDB.appendBuilds(builds);
+
             Notification.Builder builder = new Notification.Builder(this);
 
             String title = builds.size() + " new build" + (builds.size() == 1 ? "" : "s");

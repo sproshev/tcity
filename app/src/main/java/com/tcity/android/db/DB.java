@@ -95,11 +95,11 @@ public class DB {
             }
 
             db.setTransactionSuccessful();
-
-            notifyListeners(Constants.PROJECT_OVERVIEW_TABLE);
         } finally {
             db.endTransaction();
         }
+
+        notifyListeners(Constants.PROJECT_OVERVIEW_TABLE);
     }
 
     public boolean isProjectFavourite(@NotNull String id) {
@@ -128,11 +128,11 @@ public class DB {
             }
 
             db.setTransactionSuccessful();
-
-            notifyListeners(Constants.PROJECT_OVERVIEW_TABLE);
         } finally {
             db.endTransaction();
         }
+
+        notifyListeners(Constants.PROJECT_OVERVIEW_TABLE);
     }
 
     @NotNull
@@ -201,11 +201,11 @@ public class DB {
             }
 
             db.setTransactionSuccessful();
-
-            notifyListeners(Constants.BUILD_CONFIGURATION_OVERVIEW_TABLE);
         } finally {
             db.endTransaction();
         }
+
+        notifyListeners(Constants.BUILD_CONFIGURATION_OVERVIEW_TABLE);
     }
 
     @NotNull
@@ -279,11 +279,28 @@ public class DB {
             }
 
             db.setTransactionSuccessful();
-
-            notifyListeners(Constants.BUILD_OVERVIEW_TABLE);
         } finally {
             db.endTransaction();
         }
+
+        notifyListeners(Constants.BUILD_OVERVIEW_TABLE);
+    }
+
+    public void appendBuilds(@NotNull Collection<Build> builds) {
+        SQLiteDatabase db = myDBHelper.getWritableDatabase();
+        db.beginTransaction();
+
+        try {
+            for (Build build : builds) {
+                appendBuild(build);
+            }
+
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
+        }
+
+        notifyListeners(Constants.BUILD_OVERVIEW_TABLE);
     }
 
     @NotNull
@@ -599,6 +616,42 @@ public class DB {
 
             return result;
         }
+    }
+
+    private void appendBuild(@NotNull Build build) {
+        Cursor cursor = myDBHelper.getReadableDatabase().query(
+                Constants.BUILD_OVERVIEW_TABLE,
+                null,
+                Column.TC_ID.getName() + " = ?",
+                new String[]{build.id},
+                null, null, null
+        );
+
+        if (cursor.getCount() == 0) {
+            ContentValues values = new ContentValues();
+            values.put(Column.TC_ID.getName(), build.id);
+            values.put(Column.PARENT_ID.getName(), build.parentBuildConfigurationId);
+            values.put(Column.NAME.getName(), build.name);
+            values.put(Column.STATUS.getName(), build.status.toString());
+            values.put(Column.BRANCH.getName(), build.branch);
+
+            myDBHelper.getWritableDatabase().insert(Constants.BUILD_OVERVIEW_TABLE, null, values);
+        } else {
+            ContentValues values = new ContentValues();
+            values.put(Column.PARENT_ID.getName(), build.parentBuildConfigurationId);
+            values.put(Column.NAME.getName(), build.name);
+            values.put(Column.STATUS.getName(), build.status.toString());
+            values.put(Column.BRANCH.getName(), build.branch);
+
+            myDBHelper.getWritableDatabase().update(
+                    Constants.BUILD_OVERVIEW_TABLE,
+                    values,
+                    Column.TC_ID + " = ?",
+                    new String[]{build.id}
+            );
+        }
+
+        cursor.close();
     }
 
     private void notifyListeners(@NotNull String table) {
