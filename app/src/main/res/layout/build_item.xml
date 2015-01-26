@@ -16,8 +16,6 @@
   -->
 
 <LinearLayout
-    android:id="@+id/build_item_layout"
-
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
 
@@ -26,7 +24,7 @@
 
     android:minHeight="?android:attr/listPreferredItemHeight">
 
-<ImageButton
+    <ImageButton
         android:id="@+id/build_favourite"
 
         android:layout_width="wrap_content"

@@ -17,43 +17,33 @@
 package com.tcity.android.ui.adapter;
 
 import android.content.Context;
-import android.graphics.drawable.Drawable;
 
 import com.tcity.android.R;
 import com.tcity.android.Status;
 
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 class AdapterUtils {
 
     private AdapterUtils() {
     }
 
-    @Nullable
-    static Drawable getBackground(@NotNull Status status, @NotNull Context context) {
-        Drawable background = loadBackground(status, context);
-
-        if (background != null) {
-            background.setAlpha(40);
-        }
-
-        return background;
+    static int loadColor(@NotNull Status status, @NotNull Context context) {
+        return context.getResources().getColor(loadColorResource(status));
     }
 
-    @Nullable
-    private static Drawable loadBackground(@NotNull Status status, @NotNull Context context) {
+    private static int loadColorResource(@NotNull Status status) {
         switch (status) {
             case RUNNING:
-                return context.getResources().getDrawable(R.color.blue);
+                return R.color.blue;
             case SUCCESS:
-                return context.getResources().getDrawable(R.color.green);
+                return R.color.green;
             case FAILURE:
             case ERROR:
             case WARNING:
-                return context.getResources().getDrawable(R.color.red);
+                return R.color.red;
             default:
-                return null;
+                return android.R.color.black;
         }
     }
 }

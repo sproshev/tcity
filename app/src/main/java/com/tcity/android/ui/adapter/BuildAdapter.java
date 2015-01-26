@@ -34,8 +34,8 @@ import org.jetbrains.annotations.Nullable;
 
 public class BuildAdapter extends CursorAdapter {
 
-    private static final int FAVOURITE_IMAGE = android.R.drawable.star_big_on;
-    private static final int NOT_FAVOURITE_IMAGE = android.R.drawable.star_big_off;
+    private static final int FAVOURITE_IMAGE = android.R.drawable.btn_star_big_on;
+    private static final int NOT_FAVOURITE_IMAGE = android.R.drawable.btn_star_big_off;
 
     @NotNull
     private final BuildClickListener myClickListener;
@@ -64,7 +64,6 @@ public class BuildAdapter extends CursorAdapter {
 
         result.setTag(
                 new ViewHolder(
-                        (LinearLayout) result.findViewById(R.id.build_item_layout),
                         (ImageButton) result.findViewById(R.id.build_favourite),
                         (LinearLayout) result.findViewById(R.id.build_description_layout),
                         (TextView) result.findViewById(R.id.build_name),
@@ -85,13 +84,12 @@ public class BuildAdapter extends CursorAdapter {
         bindImage(holder.image, id, DBUtils.getFavourite(cursor));
         bindBranch(holder.branch, DBUtils.getBranch(cursor));
 
-        //noinspection deprecation
-        holder.main.setBackgroundDrawable(
-                AdapterUtils.getBackground(DBUtils.getStatus(cursor), context)
+        holder.name.setText(DBUtils.getName(cursor));
+        holder.name.setTextColor(
+                AdapterUtils.loadColor(DBUtils.getStatus(cursor), context)
         );
 
         holder.description.setOnClickListener(new DescriptionListener(myClickListener, id));
-        holder.name.setText(DBUtils.getName(cursor));
         holder.options.setOnClickListener(new OptionsListener(myClickListener, id));
     }
 
@@ -182,9 +180,6 @@ public class BuildAdapter extends CursorAdapter {
     private static class ViewHolder {
 
         @NotNull
-        public final LinearLayout main;
-
-        @NotNull
         public final ImageButton image;
 
         @NotNull
@@ -199,13 +194,11 @@ public class BuildAdapter extends CursorAdapter {
         @NotNull
         public final View options;
 
-        private ViewHolder(@NotNull LinearLayout main,
-                           @NotNull ImageButton image,
+        private ViewHolder(@NotNull ImageButton image,
                            @NotNull LinearLayout description,
                            @NotNull TextView name,
                            @NotNull TextView branch,
                            @NotNull View options) {
-            this.main = main;
             this.image = image;
             this.description = description;
             this.name = name;

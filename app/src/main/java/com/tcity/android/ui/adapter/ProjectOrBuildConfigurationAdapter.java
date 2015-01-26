@@ -18,7 +18,6 @@ package com.tcity.android.ui.adapter;
 
 import android.content.Context;
 import android.database.Cursor;
-import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,6 +26,7 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.tcity.android.R;
+import com.tcity.android.Status;
 import com.tcity.android.db.DBUtils;
 
 import org.jetbrains.annotations.NotNull;
@@ -34,8 +34,8 @@ import org.jetbrains.annotations.Nullable;
 
 class ProjectOrBuildConfigurationAdapter extends CursorAdapter {
 
-    private static final int FAVOURITE_IMAGE = android.R.drawable.star_big_on;
-    private static final int NOT_FAVOURITE_IMAGE = android.R.drawable.star_big_off;
+    private static final int FAVOURITE_IMAGE = android.R.drawable.btn_star_big_on;
+    private static final int NOT_FAVOURITE_IMAGE = android.R.drawable.btn_star_big_off;
 
     @NotNull
     private final ProjectOrBuildConfigurationClickListener myClickListener;
@@ -85,17 +85,22 @@ class ProjectOrBuildConfigurationAdapter extends CursorAdapter {
         ViewHolder holder = (ViewHolder) view.getTag();
 
         String id = DBUtils.getId(cursor);
-        Drawable background = AdapterUtils.getBackground(DBUtils.getStatus(cursor), context);
 
-        bindImage(holder.image, id, DBUtils.getFavourite(cursor), background);
-        bindName(holder.name, id, DBUtils.getName(cursor), background);
-        bindOptions(holder.options, id, background);
+        bindImage(holder.image, id, DBUtils.getFavourite(cursor));
+        holder.options.setOnClickListener(new OptionsListener(myClickListener, id));
+
+        bindName(
+                holder.name,
+                id,
+                DBUtils.getName(cursor),
+                DBUtils.getStatus(cursor),
+                context
+        );
     }
 
     private void bindImage(@NotNull ImageButton imageView,
                            @NotNull String id,
-                           boolean favourite,
-                           @Nullable Drawable background) {
+                           boolean favourite) {
         imageView.setOnClickListener(new ImageListener(myClickListener, id));
 
         if (favourite) {
@@ -105,29 +110,16 @@ class ProjectOrBuildConfigurationAdapter extends CursorAdapter {
             imageView.setContentDescription(myNotFavouriteDescription);
             imageView.setImageResource(NOT_FAVOURITE_IMAGE);
         }
-
-        //noinspection deprecation
-        imageView.setBackgroundDrawable(background);
     }
 
     private void bindName(@NotNull TextView nameView,
                           @NotNull String id,
                           @NotNull String name,
-                          @Nullable Drawable background) {
+                          @NotNull Status status,
+                          @NotNull Context context) {
         nameView.setText(name);
         nameView.setOnClickListener(new NameListener(myClickListener, id));
-
-        //noinspection deprecation
-        nameView.setBackgroundDrawable(background);
-    }
-
-    private void bindOptions(@NotNull View optionsView,
-                             @NotNull String id,
-                             @Nullable Drawable background) {
-        optionsView.setOnClickListener(new OptionsListener(myClickListener, id));
-
-        //noinspection deprecation
-        optionsView.setBackgroundDrawable(background);
+        nameView.setTextColor(AdapterUtils.loadColor(status, context));
     }
 
     private static class NameListener implements View.OnClickListener {
