@@ -39,15 +39,17 @@ class RestLocator {
     }
 
     @NotNull
-    static String getUserProperties(@NotNull String login,
-                                    @NotNull Preferences preferences) {
-        return preferences.getUrl() + REST_PREFIX + "users/username:" + login + "/properties";
+    static String getOverviewProjects(@NotNull String login,
+                                      @NotNull Preferences preferences) {
+        return preferences.getUrl() + REST_PREFIX +
+                "users/username:" + login +
+                "/properties/overview.preferredProjects";
     }
 
     @NotNull
-    static String getProjectDetailsUrl(@NotNull String internalId,
-                                       @NotNull Preferences preferences) {
-        return preferences.getUrl() + REST_PREFIX + "projects/internalId:" + internalId;
+    static String getProjectId(@NotNull String internalId,
+                               @NotNull Preferences preferences) {
+        return preferences.getUrl() + REST_PREFIX + "projects/internalId:" + internalId + "/id";
     }
 
     @NotNull
@@ -64,7 +66,8 @@ class RestLocator {
     @NotNull
     static String getBuildsUrl(@NotNull String buildConfigurationId,
                                @NotNull Preferences preferences) {
-        return preferences.getUrl() + REST_PREFIX + "buildTypes/id:" + buildConfigurationId + "/builds/" +
+        return preferences.getUrl() + REST_PREFIX +
+                "buildTypes/id:" + buildConfigurationId + "/builds/" +
                 "?locator=" +
                 "running:any," +
                 "branch:(branched:any)";
@@ -78,7 +81,8 @@ class RestLocator {
             SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd'T'HHmmssZ");
             String sinceDate = formatter.format(new Date(sinceMillis));
 
-            return preferences.getUrl() + REST_PREFIX + "buildTypes/id:" + buildConfigurationId + "/builds/" +
+            return preferences.getUrl() + REST_PREFIX +
+                    "buildTypes/id:" + buildConfigurationId + "/builds/" +
                     "?locator=" +
                     "running:any," +
                     "branch:(branched:any)," +

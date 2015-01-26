@@ -54,16 +54,16 @@ public class RestClient {
     }
 
     @NotNull
-    public HttpResponse getUserProperties(@NotNull String login) throws IOException {
-        return getJson(
-                RestLocator.getUserProperties(login, myPreferences)
+    public HttpResponse getOverviewProjects(@NotNull String login) throws IOException {
+        return getPlain(
+                RestLocator.getOverviewProjects(login, myPreferences)
         );
     }
 
     @NotNull
-    public HttpResponse getProjectDetails(@NotNull String internalId) throws IOException {
-        return getJson(
-                RestLocator.getProjectDetailsUrl(internalId, myPreferences)
+    public HttpResponse getProjectId(@NotNull String internalId) throws IOException {
+        return getPlain(
+                RestLocator.getProjectId(internalId, myPreferences)
         );
     }
 

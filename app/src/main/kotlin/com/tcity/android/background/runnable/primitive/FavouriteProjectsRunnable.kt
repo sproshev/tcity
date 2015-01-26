@@ -20,11 +20,10 @@ import com.tcity.android.db.DB
 import com.tcity.android.background.rest.RestClient
 import org.apache.http.HttpStatus
 import com.tcity.android.background.runnable.HttpStatusException
-import java.io.InputStream
-import android.util.JsonReader
-import java.io.InputStreamReader
 import java.io.IOException
 import java.util.ArrayList
+import org.apache.http.util.EntityUtils
+import org.apache.http.ParseException
 
 public class FavouriteProjectsRunnable(
         private val login: String,
@@ -32,34 +31,30 @@ public class FavouriteProjectsRunnable(
         private val client: RestClient
 ) : Runnable {
 
-    throws(javaClass<IOException>())
+    throws(javaClass<IOException>(), javaClass<ParseException>())
     override fun run() {
-        val internalIds = loadInternalIds()
-
-        if (internalIds != null) {
-            db.addFavouriteProjects(loadIds(internalIds))
-        }
+        db.addFavouriteProjects(loadIds(loadInternalIds()))
     }
 
-    throws(javaClass<IOException>())
-    private fun loadInternalIds(): Array<String>? {
-        val response = client.getUserProperties(login)
+    throws(javaClass<IOException>(), javaClass<ParseException>())
+    private fun loadInternalIds(): Array<String> {
+        val response = client.getOverviewProjects(login)
 
         val statusLine = response.getStatusLine()
 
         if (statusLine.getStatusCode() != HttpStatus.SC_OK) {
             throw HttpStatusException(statusLine)
         } else {
-            return parseInternalIds(response.getEntity().getContent())
+            return EntityUtils.toString(response.getEntity()).split(':')
         }
     }
 
-    throws(javaClass<IOException>())
+    throws(javaClass<IOException>(), javaClass<ParseException>())
     private fun loadIds(internalIds: Array<String>): List<String> {
         val result = ArrayList<String>(internalIds.size())
 
         internalIds.forEach {
-            val response = client.getProjectDetails(it)
+            val response = client.getProjectId(it)
 
             val statusLine = response.getStatusLine()
 
@@ -67,94 +62,11 @@ public class FavouriteProjectsRunnable(
                 throw HttpStatusException(statusLine)
             } else {
                 result.add(
-                        parseId(
-                                response.getEntity().getContent()
-                        )
+                        EntityUtils.toString(response.getEntity())
                 )
             }
         }
 
         return result
-    }
-
-    throws(javaClass<IOException>())
-    private fun parseInternalIds(stream: InputStream): Array<String>? {
-        val reader = JsonReader(InputStreamReader(stream))
-
-        try {
-            reader.beginObject()
-
-            while (reader.hasNext()) {
-                when (reader.nextName()) {
-                    "property" -> return getFavouriteProjectsProperty(reader)?.split(':')
-                    else -> reader.skipValue()
-                }
-            }
-
-            reader.endObject()
-        } finally {
-            reader.close()
-        }
-
-        return array()
-    }
-
-    throws(javaClass<IOException>())
-    private fun parseId(stream: InputStream): String {
-        val reader = JsonReader(InputStreamReader(stream))
-
-        try {
-            reader.beginObject()
-
-            while (reader.hasNext()) {
-                when (reader.nextName()) {
-                    "id" -> return reader.nextString()
-                    else -> reader.skipValue()
-                }
-            }
-
-            reader.endObject()
-        } finally {
-            reader.close()
-        }
-
-        throw IOException("Invalid project details json: \"id\" is absent")
-    }
-
-    throws(javaClass<IOException>())
-    private fun getFavouriteProjectsProperty(reader: JsonReader): String? {
-        reader.beginArray()
-
-        while (reader.hasNext()) {
-            val property = parseProperty(reader)
-
-            if (property.first.equals("overview.preferredProjects") && property.second != null) {
-                return property.second!!
-            }
-        }
-
-        reader.endArray()
-
-        return null
-    }
-
-    throws(javaClass<IOException>())
-    private fun parseProperty(reader: JsonReader): Pair<String?, String?> {
-        reader.beginObject()
-
-        var name: String? = null
-        var value: String? = null
-
-        while (reader.hasNext()) {
-            when (reader.nextName()) {
-                "name" -> name = reader.nextString()
-                "value" -> value = reader.nextString()
-                else -> reader.skipValue()
-            }
-        }
-
-        reader.endObject()
-
-        return name.to(value)
     }
 }
