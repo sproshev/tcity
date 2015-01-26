@@ -24,6 +24,7 @@ import java.io.IOException
 import java.util.ArrayList
 import org.apache.http.util.EntityUtils
 import org.apache.http.ParseException
+import android.util.Log
 
 public class FavouriteProjectsRunnable(
         private val login: String,
@@ -33,7 +34,11 @@ public class FavouriteProjectsRunnable(
 
     throws(javaClass<IOException>(), javaClass<ParseException>())
     override fun run() {
-        db.addFavouriteProjects(loadIds(loadInternalIds()))
+        val newIds = loadIds(loadInternalIds()).filter { !db.isProjectFavourite(it) }
+
+        db.addFavouriteProjects(newIds)
+
+        loadStatusesQuietly(newIds)
     }
 
     throws(javaClass<IOException>(), javaClass<ParseException>())
@@ -68,5 +73,17 @@ public class FavouriteProjectsRunnable(
         }
 
         return result
+    }
+
+    private fun loadStatusesQuietly(ids: Collection<String>) {
+        ids.forEach {
+            try {
+                ProjectStatusRunnable(it, db, client).run()
+            } catch (e: Exception) {
+                Log.i(
+                        javaClass<FavouriteProjectsRunnable>().getSimpleName(), e.getMessage(), e
+                )
+            }
+        }
     }
 }
