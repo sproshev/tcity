@@ -166,7 +166,6 @@ public class LoginActivity extends Activity {
 
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        intent.putExtra(SplashActivity.INIT_INTENT_KEY, true);
 
         myRedirecting = true;
 

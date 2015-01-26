@@ -38,8 +38,7 @@ class ProjectOverviewEngine {
     ProjectOverviewEngine(@NotNull String projectId,
                           @NotNull Context context,
                           @NotNull DB db,
-                          @NotNull ViewGroup root,
-                          boolean init) {
+                          @NotNull ViewGroup root) {
         myDBEngine = new ProjectOverviewDBEngine(projectId, context, db, root);
 
         Preferences preferences = new Preferences(context);
@@ -47,8 +46,7 @@ class ProjectOverviewEngine {
                 projectId,
                 db,
                 new RestClient(preferences),
-                preferences,
-                init
+                preferences
         );
     }
 
@@ -85,8 +83,8 @@ class ProjectOverviewEngine {
         myServerEngine.buildConfigurationImageClick(id);
     }
 
-    void refresh() {
-        myServerEngine.refresh();
+    void refresh(boolean force) {
+        myServerEngine.refresh(force);
     }
 
     void close() {

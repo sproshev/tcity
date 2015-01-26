@@ -21,15 +21,9 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import com.tcity.android.app.Preferences;
-import com.tcity.android.sync.SyncUtils;
 import com.tcity.android.ui.overview.project.ProjectOverviewActivity;
 
-import org.jetbrains.annotations.NotNull;
-
 public class SplashActivity extends Activity {
-
-    @NotNull
-    public static final String INIT_INTENT_KEY = "INIT";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,18 +32,7 @@ public class SplashActivity extends Activity {
         if (!new Preferences(this).isValid()) {
             startActivity(new Intent(this, LoginActivity.class));
         } else {
-            Intent intent = new Intent(this, ProjectOverviewActivity.class);
-
-            if (getIntent().getBooleanExtra(INIT_INTENT_KEY, false)) {
-                intent.putExtra(
-                        INIT_INTENT_KEY,
-                        true
-                );
-
-                SyncUtils.initSync(this);
-            }
-
-            startActivity(intent);
+            startActivity(new Intent(this, ProjectOverviewActivity.class));
         }
 
         finish();

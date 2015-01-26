@@ -40,7 +40,6 @@ import com.tcity.android.background.web.WebLocator;
 import com.tcity.android.db.DB;
 import com.tcity.android.db.Project;
 import com.tcity.android.ui.PreferenceActivity;
-import com.tcity.android.ui.SplashActivity;
 import com.tcity.android.ui.overview.buildconfiguration.BuildConfigurationOverviewActivity;
 
 import org.jetbrains.annotations.NotNull;
@@ -61,8 +60,6 @@ public class ProjectOverviewActivity extends ListActivity implements SwipeRefres
 
     private boolean myRecreating;
 
-    private boolean myInit;
-
     // LIFECYCLE - Begin
 
     @Override
@@ -70,7 +67,6 @@ public class ProjectOverviewActivity extends ListActivity implements SwipeRefres
         super.onCreate(savedInstanceState);
 
         myRecreating = false;
-        myInit = getIntent().getBooleanExtra(SplashActivity.INIT_INTENT_KEY, false);
         myProjectId = calculateProjectId();
 
         setContentView(R.layout.overview);
@@ -92,7 +88,7 @@ public class ProjectOverviewActivity extends ListActivity implements SwipeRefres
         setListAdapter(myEngine.getAdapter());
 
         if (isNetworkAvailable()) {
-            myEngine.refresh();
+            myEngine.refresh(false);
         } else {
             ((TextView) getListView().getEmptyView()).setText(R.string.network_is_unavailable);
         }
@@ -170,7 +166,7 @@ public class ProjectOverviewActivity extends ListActivity implements SwipeRefres
 
     @Override
     public void onRefresh() {
-        myEngine.refresh();
+        myEngine.refresh(true);
     }
 
     void onRefreshRunning() {
@@ -276,8 +272,7 @@ public class ProjectOverviewActivity extends ListActivity implements SwipeRefres
                     myProjectId,
                     this,
                     ((Application) getApplication()).getDB(),
-                    getListView(),
-                    myInit
+                    getListView()
             );
         }
 

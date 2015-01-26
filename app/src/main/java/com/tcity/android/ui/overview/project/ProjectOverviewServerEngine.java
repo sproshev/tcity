@@ -51,21 +51,17 @@ class ProjectOverviewServerEngine {
     @NotNull
     private final ChainListener myChainListener;
 
-    private boolean myInit;
-
     @Nullable
     private ExecutableRunnableChain myChain;
 
     ProjectOverviewServerEngine(@NotNull String projectId,
                                 @NotNull DB db,
                                 @NotNull RestClient restClient,
-                                @NotNull Preferences preferences,
-                                boolean init) {
+                                @NotNull Preferences preferences) {
         myProjectId = projectId;
         myDb = db;
         myRestClient = restClient;
         myPreferences = preferences;
-        myInit = init;
 
         myChainListener = new ChainListener();
     }
@@ -109,7 +105,16 @@ class ProjectOverviewServerEngine {
         }
     }
 
-    void refresh() {
+    void refresh(boolean force) {
+        if (!force &&
+                !areProjectsExpired() &&
+                !areBuildConfigurationsExpired() &&
+                !expiredProjectStatusExists() &&
+                !expiredBuildConfigurationStatusExists() &&
+                !areFavouriteProjectsExpired()) {
+            return;
+        }
+
         if (myChain == null) {
             myChain = calculateExecutableChain();
         }
@@ -124,8 +129,30 @@ class ProjectOverviewServerEngine {
         }
     }
 
+    private boolean areProjectsExpired() {
+        return true;
+    }
+
+    private boolean areBuildConfigurationsExpired() {
+        return true;
+    }
+
+    private boolean expiredProjectStatusExists() {
+        return true;
+    }
+
+    private boolean expiredBuildConfigurationStatusExists() {
+        return true;
+    }
+
+    private boolean areFavouriteProjectsExpired() {
+        return true;
+    }
+
     @NotNull
     private ExecutableRunnableChain calculateExecutableChain() {
+        // TODO customize
+
         RunnableChain projectsChain = RunnableChain.getSingleRunnableChain(
                 new ProjectsRunnable(myDb, myRestClient)
         );
@@ -144,22 +171,13 @@ class ProjectOverviewServerEngine {
                 calculateBuildConfigurationStatusesChain()
         );
 
-        if (myInit) {
-            myInit = false;
-
-            return RunnableChain.getOrRunnableChain(
-                    RunnableChain.getSingleRunnableChain(
-                            new FavouriteProjectsRunnable(myPreferences.getLogin(), myDb, myRestClient)
-                    ),
-                    fullProjectsChain,
-                    fullBuildConfigurationChain
-            ).toAsyncTask(myChainListener);
-        } else {
-            return RunnableChain.getOrRunnableChain(
-                    fullProjectsChain,
-                    fullBuildConfigurationChain
-            ).toAsyncTask(myChainListener);
-        }
+        return RunnableChain.getOrRunnableChain(
+                RunnableChain.getSingleRunnableChain(
+                        new FavouriteProjectsRunnable(myPreferences.getLogin(), myDb, myRestClient)
+                ),
+                fullProjectsChain,
+                fullBuildConfigurationChain
+        ).toAsyncTask(myChainListener);
     }
 
     @NotNull
