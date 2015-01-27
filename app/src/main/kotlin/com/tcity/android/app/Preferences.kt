@@ -20,6 +20,7 @@ import android.content.Context
 import android.preference.PreferenceManager
 import android.util.Base64
 import com.tcity.android.R
+import com.tcity.android.db.DBUtils
 
 
 public class Preferences(context: Context) {
@@ -36,6 +37,7 @@ public class Preferences(context: Context) {
         private val AUTH_KEY = "auth"
         private val SYNC_RECEIVER_KEY = "sync_receiver"
         private val SYNC_SCHEDULED_KEY = "sync_scheduled"
+        private val FAVOURITE_PROJECTS_LAST_UPDATE_KEY = "favourite_projects_last_update"
     }
 
     public fun isValid(): Boolean {
@@ -55,6 +57,10 @@ public class Preferences(context: Context) {
     public fun isSyncReceiverEnabled(): Boolean = preferences.getBoolean(SYNC_RECEIVER_KEY, false)
 
     public fun isSyncScheduled(): Boolean = preferences.getBoolean(SYNC_SCHEDULED_KEY, false)
+
+    public fun getFavouriteProjectsLastUpdate(): Long {
+        return preferences.getLong(FAVOURITE_PROJECTS_LAST_UPDATE_KEY, DBUtils.UNDEFINED_TIME)
+    }
 
     public fun setUrl(url: String) {
         val editor = preferences.edit()
@@ -102,6 +108,14 @@ public class Preferences(context: Context) {
         val editor = preferences.edit()
 
         editor.putBoolean(SYNC_SCHEDULED_KEY, scheduled)
+
+        editor.apply()
+    }
+
+    public fun setFavouriteProjectsLastUpdate(time: Long) {
+        val editor = preferences.edit()
+
+        editor.putLong(FAVOURITE_PROJECTS_LAST_UPDATE_KEY, time)
 
         editor.apply()
     }

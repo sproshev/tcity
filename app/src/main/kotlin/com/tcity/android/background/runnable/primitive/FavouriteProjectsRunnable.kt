@@ -25,11 +25,12 @@ import java.util.ArrayList
 import org.apache.http.util.EntityUtils
 import org.apache.http.ParseException
 import android.util.Log
+import com.tcity.android.app.Preferences
 
 public class FavouriteProjectsRunnable(
-        private val login: String,
         private val db: DB,
-        private val client: RestClient
+        private val client: RestClient,
+        private val preferences: Preferences
 ) : Runnable {
 
     throws(javaClass<IOException>(), javaClass<ParseException>())
@@ -39,11 +40,13 @@ public class FavouriteProjectsRunnable(
         db.addFavouriteProjects(newIds)
 
         loadStatusesQuietly(newIds)
+
+        preferences.setFavouriteProjectsLastUpdate(System.currentTimeMillis())
     }
 
     throws(javaClass<IOException>(), javaClass<ParseException>())
     private fun loadInternalIds(): Array<String> {
-        val response = client.getOverviewProjects(login)
+        val response = client.getOverviewProjects(preferences.getLogin())
 
         val statusLine = response.getStatusLine()
 

@@ -16,6 +16,7 @@
 
 package com.tcity.android.ui.overview.project;
 
+import android.app.AlarmManager;
 import android.database.Cursor;
 import android.os.AsyncTask;
 
@@ -146,7 +147,8 @@ class ProjectOverviewServerEngine {
     }
 
     private boolean areFavouriteProjectsExpired() {
-        return true;
+        return myPreferences.getFavouriteProjectsLastUpdate()
+                < System.currentTimeMillis() - AlarmManager.INTERVAL_DAY * 3;
     }
 
     @NotNull
@@ -173,7 +175,9 @@ class ProjectOverviewServerEngine {
 
         return RunnableChain.getOrRunnableChain(
                 RunnableChain.getSingleRunnableChain(
-                        new FavouriteProjectsRunnable(myPreferences.getLogin(), myDb, myRestClient)
+                        new FavouriteProjectsRunnable(
+                                myDb, myRestClient, myPreferences
+                        )
                 ),
                 fullProjectsChain,
                 fullBuildConfigurationChain
