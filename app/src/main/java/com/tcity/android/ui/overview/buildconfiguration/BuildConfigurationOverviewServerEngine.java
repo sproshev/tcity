@@ -16,6 +16,7 @@
 
 package com.tcity.android.ui.overview.buildconfiguration;
 
+import android.app.AlarmManager;
 import android.os.AsyncTask;
 
 import com.tcity.android.background.rest.RestClient;
@@ -72,7 +73,7 @@ class BuildConfigurationOverviewServerEngine {
     }
 
     void refresh(boolean force) {
-        if (!force && isOverviewExpired()) {
+        if (!force && !areBuildsExpired()) {
             return;
         }
 
@@ -90,8 +91,9 @@ class BuildConfigurationOverviewServerEngine {
         }
     }
 
-    private boolean isOverviewExpired() {
-        return myDb.getBuildConfigurationLastUpdate(myBuildConfigurationId) >= System.currentTimeMillis() - 60 * 1000;
+    private boolean areBuildsExpired() {
+        return myDb.getBuildConfigurationLastUpdate(myBuildConfigurationId)
+                < System.currentTimeMillis() - AlarmManager.INTERVAL_FIFTEEN_MINUTES / 3;
     }
 
     @NotNull

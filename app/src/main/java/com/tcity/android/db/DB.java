@@ -63,35 +63,7 @@ public class DB {
 
         try {
             for (String id : ids) {
-                Cursor cursor = db.query(
-                        Constants.FAVOURITE_PROJECT_TABLE,
-                        null,
-                        Column.TC_ID.getName() + " = ?",
-                        new String[]{id},
-                        null,
-                        null,
-                        null
-                );
-
-                if (cursor.getCount() == 0) {
-                    ContentValues values = new ContentValues();
-                    values.put(Column.TC_ID.getName(), id);
-                    values.put(Column.FAVOURITE.getName(), true);
-
-                    db.insert(Constants.FAVOURITE_PROJECT_TABLE, null, values);
-                } else {
-                    ContentValues values = new ContentValues();
-                    values.put(Column.FAVOURITE.getName(), true);
-
-                    db.update(
-                            Constants.FAVOURITE_PROJECT_TABLE,
-                            values,
-                            Column.TC_ID.getName() + " = ?",
-                            new String[]{id}
-                    );
-                }
-
-                cursor.close();
+                setFavourite(Constants.FAVOURITE_PROJECT_TABLE, id, true);
             }
 
             db.setTransactionSuccessful();
@@ -410,16 +382,14 @@ public class DB {
                     null
             );
 
+            ContentValues values = new ContentValues();
+            values.put(Column.FAVOURITE.getName(), true);
+
             if (cursor.getCount() == 0) {
-                ContentValues values = new ContentValues();
                 values.put(Column.TC_ID.getName(), id);
-                values.put(Column.FAVOURITE.getName(), true);
 
                 myDBHelper.getWritableDatabase().insert(table, null, values);
             } else {
-                ContentValues values = new ContentValues();
-                values.put(Column.FAVOURITE.getName(), true);
-
                 myDBHelper.getWritableDatabase().update(
                         table,
                         values,
@@ -538,16 +508,14 @@ public class DB {
                     null
             );
 
+            ContentValues values = new ContentValues();
+            values.put(Column.STATUS.getName(), status.toString());
+
             if (cursor.getCount() == 0) {
-                ContentValues values = new ContentValues();
                 values.put(Column.TC_ID.getName(), id);
-                values.put(Column.STATUS.getName(), status.toString());
 
                 myDBHelper.getWritableDatabase().insert(table, null, values);
             } else {
-                ContentValues values = new ContentValues();
-                values.put(Column.STATUS.getName(), status.toString());
-
                 myDBHelper.getWritableDatabase().update(
                         table,
                         values,
@@ -571,16 +539,14 @@ public class DB {
                 null
         );
 
+        ContentValues values = new ContentValues();
+        values.put(Column.TIME.getName(), time);
+
         if (cursor.getCount() == 0) {
-            ContentValues values = new ContentValues();
             values.put(Column.TC_ID.getName(), id);
-            values.put(Column.TIME.getName(), time);
 
             myDBHelper.getWritableDatabase().insert(table, null, values);
         } else {
-            ContentValues values = new ContentValues();
-            values.put(Column.TIME.getName(), time);
-
             myDBHelper.getWritableDatabase().update(
                     table,
                     values,
@@ -627,22 +593,17 @@ public class DB {
                 null, null, null
         );
 
+        ContentValues values = new ContentValues();
+        values.put(Column.PARENT_ID.getName(), build.parentBuildConfigurationId);
+        values.put(Column.NAME.getName(), build.name);
+        values.put(Column.STATUS.getName(), build.status.toString());
+        values.put(Column.BRANCH.getName(), build.branch);
+
         if (cursor.getCount() == 0) {
-            ContentValues values = new ContentValues();
             values.put(Column.TC_ID.getName(), build.id);
-            values.put(Column.PARENT_ID.getName(), build.parentBuildConfigurationId);
-            values.put(Column.NAME.getName(), build.name);
-            values.put(Column.STATUS.getName(), build.status.toString());
-            values.put(Column.BRANCH.getName(), build.branch);
 
             myDBHelper.getWritableDatabase().insert(Constants.BUILD_OVERVIEW_TABLE, null, values);
         } else {
-            ContentValues values = new ContentValues();
-            values.put(Column.PARENT_ID.getName(), build.parentBuildConfigurationId);
-            values.put(Column.NAME.getName(), build.name);
-            values.put(Column.STATUS.getName(), build.status.toString());
-            values.put(Column.BRANCH.getName(), build.branch);
-
             myDBHelper.getWritableDatabase().update(
                     Constants.BUILD_OVERVIEW_TABLE,
                     values,
