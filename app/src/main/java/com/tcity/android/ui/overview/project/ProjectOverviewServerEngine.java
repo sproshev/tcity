@@ -36,6 +36,9 @@ import com.tcity.android.db.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.List;
+
 class ProjectOverviewServerEngine {
 
     @NotNull
@@ -118,12 +121,12 @@ class ProjectOverviewServerEngine {
         }
 
         if (myChain == null) {
-            myChain = calculateExecutableChain();
+            myChain = calculateExecutableChain(force);
         }
 
         if (myChain.getStatus() != AsyncTask.Status.RUNNING) {
             if (myChain.getStatus() == AsyncTask.Status.FINISHED) {
-                myChain = calculateExecutableChain();
+                myChain = calculateExecutableChain(force);
             }
 
             myChainListener.onStarted();
@@ -187,76 +190,117 @@ class ProjectOverviewServerEngine {
     }
 
     @NotNull
-    private ExecutableRunnableChain calculateExecutableChain() {
-        // TODO customize
-
-        RunnableChain projectsChain = RunnableChain.getSingleRunnableChain(
-                new ProjectsRunnable(myDb, myRestClient)
-        );
-
-        RunnableChain buildConfigurationsChain = RunnableChain.getSingleRunnableChain(
-                new BuildConfigurationsRunnable(myProjectId, myDb, myRestClient)
-        );
-
+    private ExecutableRunnableChain calculateExecutableChain(boolean force) {
         RunnableChain fullProjectsChain = RunnableChain.getAndRunnableChain(
-                projectsChain,
-                calculateProjectStatusesChain()
+                getProjectsChain(force),
+                calculateProjectStatusesChain(force)
         );
 
         RunnableChain fullBuildConfigurationChain = RunnableChain.getAndRunnableChain(
-                buildConfigurationsChain,
-                calculateBuildConfigurationStatusesChain()
+                getBuildConfigurationsChain(force),
+                calculateBuildConfigurationStatusesChain(force)
         );
 
         return RunnableChain.getOrRunnableChain(
-                RunnableChain.getSingleRunnableChain(
-                        new FavouriteProjectsRunnable(
-                                myDb, myRestClient, myPreferences
-                        )
-                ),
+                getFavouriteProjectsChain(force),
                 fullProjectsChain,
                 fullBuildConfigurationChain
         ).toAsyncTask(myChainListener);
     }
 
     @NotNull
-    private RunnableChain calculateProjectStatusesChain() {
-        Cursor cursor = myDb.getProjects(myProjectId, true);
-
-        Runnable[] runnables = new Runnable[cursor.getCount()];
-        int pos = 0;
-
-        while (cursor.moveToNext()) {
-            runnables[pos] = new ProjectStatusRunnable(
-                    DBUtils.getId(cursor), myDb, myRestClient
-            );
-
-            pos++;
+    private RunnableChain getProjectsChain(boolean force) {
+        if (!force && !areProjectsExpired()) {
+            return RunnableChain.getSingleRunnableChain(new EmptyRunnable());
         }
 
-        cursor.close();
-
-        return RunnableChain.getOrRunnableChain(runnables);
+        return RunnableChain.getSingleRunnableChain(
+                new ProjectsRunnable(myDb, myRestClient)
+        );
     }
 
     @NotNull
-    private RunnableChain calculateBuildConfigurationStatusesChain() {
-        Cursor cursor = myDb.getBuildConfigurations(myProjectId, true);
+    private RunnableChain getBuildConfigurationsChain(boolean force) {
+        if (!force && !areBuildConfigurationsExpired()) {
+            return RunnableChain.getSingleRunnableChain(new EmptyRunnable());
+        }
 
-        Runnable[] runnables = new Runnable[cursor.getCount()];
-        int pos = 0;
+        return RunnableChain.getSingleRunnableChain(
+                new BuildConfigurationsRunnable(myProjectId, myDb, myRestClient)
+        );
+    }
+
+    @NotNull
+    private RunnableChain getFavouriteProjectsChain(boolean force) {
+        if (!force && !areFavouriteProjectsExpired()) {
+            return RunnableChain.getSingleRunnableChain(new EmptyRunnable());
+        }
+
+        return RunnableChain.getSingleRunnableChain(
+                new FavouriteProjectsRunnable(
+                        myDb, myRestClient, myPreferences
+                )
+        );
+    }
+
+    @NotNull
+    private RunnableChain calculateProjectStatusesChain(boolean force) {
+        if (!force && !expiredProjectStatusExists()) {
+            return RunnableChain.getSingleRunnableChain(new EmptyRunnable());
+        }
+
+        Cursor cursor = myDb.getProjects(myProjectId, true);
+
+        List<Runnable> runnables = new ArrayList<>();
 
         while (cursor.moveToNext()) {
-            runnables[pos] = new BuildConfigurationStatusRunnable(
-                    DBUtils.getId(cursor), myDb, myRestClient
-            );
+            String id = DBUtils.getId(cursor);
 
-            pos++;
+            if (force || myDb.getProjectStatusLastUpdate(id)
+                    < System.currentTimeMillis() - AlarmManager.INTERVAL_FIFTEEN_MINUTES / 3) {
+                runnables.add(
+                        new ProjectStatusRunnable(
+                                id, myDb, myRestClient
+                        )
+                );
+            }
         }
 
         cursor.close();
 
-        return RunnableChain.getOrRunnableChain(runnables);
+        Runnable[] result = new Runnable[runnables.size()];
+
+        return RunnableChain.getOrRunnableChain(runnables.toArray(result));
+    }
+
+    @NotNull
+    private RunnableChain calculateBuildConfigurationStatusesChain(boolean force) {
+        if (!force && !expiredBuildConfigurationStatusExists()) {
+            return RunnableChain.getSingleRunnableChain(new EmptyRunnable());
+        }
+
+        Cursor cursor = myDb.getBuildConfigurations(myProjectId, true);
+
+        List<Runnable> runnables = new ArrayList<>();
+
+        while (cursor.moveToNext()) {
+            String id = DBUtils.getId(cursor);
+
+            if (force || myDb.getBuildConfigurationStatusLastUpdate(id)
+                    < System.currentTimeMillis() - AlarmManager.INTERVAL_FIFTEEN_MINUTES / 3) {
+                runnables.add(
+                        new BuildConfigurationStatusRunnable(
+                                id, myDb, myRestClient
+                        )
+                );
+            }
+        }
+
+        cursor.close();
+
+        Runnable[] result = new Runnable[runnables.size()];
+
+        return RunnableChain.getOrRunnableChain(runnables.toArray(result));
     }
 
     private static class ChainListener implements RunnableChain.Listener {
@@ -299,6 +343,13 @@ class ProjectOverviewServerEngine {
             if (myActivity != null) {
                 myActivity.onRefreshException();
             }
+        }
+    }
+
+    private static class EmptyRunnable implements Runnable {
+
+        @Override
+        public void run() {
         }
     }
 }
