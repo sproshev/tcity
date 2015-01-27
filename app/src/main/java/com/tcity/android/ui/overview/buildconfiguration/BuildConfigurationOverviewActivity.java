@@ -38,6 +38,7 @@ import com.tcity.android.app.Application;
 import com.tcity.android.app.Preferences;
 import com.tcity.android.background.web.WebLocator;
 import com.tcity.android.db.DB;
+import com.tcity.android.db.DBUtils;
 import com.tcity.android.ui.PreferenceActivity;
 
 import org.jetbrains.annotations.NotNull;
@@ -67,11 +68,6 @@ public class BuildConfigurationOverviewActivity extends ListActivity implements 
         myRecreating = false;
         myBuildConfigurationId = getIntent().getStringExtra(INTENT_KEY);
 
-        ((Application) getApplication()).getDB().setBuildConfigurationSyncBound(
-                myBuildConfigurationId,
-                System.currentTimeMillis()
-        ); // TODO
-
         setContentView(R.layout.overview);
 
         ActionBar bar = getActionBar();
@@ -79,6 +75,8 @@ public class BuildConfigurationOverviewActivity extends ListActivity implements 
             bar.setTitle(calculateTitle());
             bar.setDisplayHomeAsUpEnabled(true);
         }
+
+        updateSyncBound();
 
         myLayout = (SwipeRefreshLayout) findViewById(R.id.overview);
         myLayout.setColorSchemeResources(R.color.green, R.color.red);
@@ -175,6 +173,13 @@ public class BuildConfigurationOverviewActivity extends ListActivity implements 
 
     void onRefreshFinished() {
         setRefreshing(false);
+
+        //noinspection ThrowableResultOfMethodCallIgnored
+        if (myEngine.getException() == null) {
+            updateSyncBound();
+        }
+
+        myEngine.resetException();
     }
 
     void onRefreshException() {
@@ -183,8 +188,6 @@ public class BuildConfigurationOverviewActivity extends ListActivity implements 
 
         if (e != null) {
             Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
-
-            myEngine.resetException();
         }
     }
 
@@ -215,6 +218,18 @@ public class BuildConfigurationOverviewActivity extends ListActivity implements 
         DB db = ((Application) getApplication()).getDB();
 
         return db.getBuildConfigurationName(myBuildConfigurationId);
+    }
+
+    private void updateSyncBound() {
+        DB db = ((Application) getApplication()).getDB();
+        long lastUpdate = db.getBuildConfigurationLastUpdate(myBuildConfigurationId);
+
+        if (db.isBuildConfigurationFavourite(myBuildConfigurationId) && lastUpdate != DBUtils.UNDEFINED_TIME) {
+            db.setBuildConfigurationSyncBound(
+                    myBuildConfigurationId,
+                    lastUpdate
+            );
+        }
     }
 
     @NotNull

@@ -131,24 +131,12 @@ public class SyncService extends IntentService {
                     0
             );
 
-            Intent serviceIntent = new Intent(this, SyncBoundService.class);
-            serviceIntent.putExtra(SyncBoundService.INTENT_KEY, id);
-            serviceIntent.setAction(Long.toString(System.currentTimeMillis()));
-
-            PendingIntent deleteIntent = PendingIntent.getService(
-                    this,
-                    0,
-                    serviceIntent,
-                    0
-            );
-
             //noinspection deprecation
             Notification notification = builder
                     .setSmallIcon(R.drawable.ic_launcher)
                     .setContentTitle(title)
                     .setContentText(description)
                     .setContentIntent(contentIntent)
-                    .setDeleteIntent(deleteIntent)
                     .setAutoCancel(true)
                     .getNotification();
 
