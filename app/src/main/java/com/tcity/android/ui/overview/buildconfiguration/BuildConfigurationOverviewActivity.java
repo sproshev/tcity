@@ -67,6 +67,11 @@ public class BuildConfigurationOverviewActivity extends ListActivity implements 
         myRecreating = false;
         myBuildConfigurationId = getIntent().getStringExtra(INTENT_KEY);
 
+        ((Application) getApplication()).getDB().setBuildConfigurationSyncBound(
+                myBuildConfigurationId,
+                System.currentTimeMillis()
+        ); // TODO
+
         setContentView(R.layout.overview);
 
         ActionBar bar = getActionBar();

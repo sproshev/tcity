@@ -88,11 +88,6 @@ public class BuildsRunnable(
     throws(javaClass<IOException>(), javaClass<SQLiteException>())
     override fun run() {
         db.setBuilds(buildConfigurationId, loadConcepts())
-
-        val currentTimeMillis = System.currentTimeMillis()
-
-        db.setBuildConfigurationLastUpdate(buildConfigurationId, currentTimeMillis)
-        db.setBuildConfigurationSyncBound(buildConfigurationId, currentTimeMillis)
     }
 
     throws(javaClass<IOException>())

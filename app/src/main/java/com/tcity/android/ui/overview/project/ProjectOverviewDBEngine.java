@@ -27,7 +27,6 @@ import com.commonsware.cwac.merge.MergeAdapter;
 import com.tcity.android.R;
 import com.tcity.android.Status;
 import com.tcity.android.db.DB;
-import com.tcity.android.db.DBUtils;
 import com.tcity.android.db.Project;
 import com.tcity.android.ui.adapter.BuildConfigurationClickListener;
 import com.tcity.android.ui.adapter.ProjectClickListener;
@@ -162,8 +161,6 @@ class ProjectOverviewDBEngine {
     void buildConfigurationImageClick(@NotNull String id) {
         myDB.setBuildConfigurationStatus(id, Status.DEFAULT);
         myDB.setFavouriteBuildConfiguration(id, !myDB.isBuildConfigurationFavourite(id));
-
-        initSyncLimit(id);
     }
 
     void close() {
@@ -192,15 +189,6 @@ class ProjectOverviewDBEngine {
 
     private void handleHeader(@NotNull BuildConfigurationDBEngine engine) {
         myMainAdapter.setActive(engine.getHeader(), !engine.empty());
-    }
-
-    private void initSyncLimit(@NotNull String buildConfigurationId) {
-        if (myDB.getBuildConfigurationSyncBound(buildConfigurationId) == DBUtils.UNDEFINED_TIME) {
-            myDB.setBuildConfigurationSyncBound(
-                    buildConfigurationId,
-                    System.currentTimeMillis()
-            );
-        }
     }
 
     private static class MyBuildConfigurationClickListener implements BuildConfigurationClickListener {

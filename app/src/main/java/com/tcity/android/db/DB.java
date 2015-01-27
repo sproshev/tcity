@@ -129,15 +129,22 @@ public class DB {
     // BUILD CONFIGURATION - BEGIN
 
     public void setFavouriteBuildConfiguration(@NotNull String id, boolean favourite) {
-        setFavourite(Constants.FAVOURITE_BUILD_CONFIGURATION_TABLE, id, favourite);
-
         if (!favourite) {
             myDBHelper.getWritableDatabase().delete(
                     Constants.BUILD_CONFIGURATION_SYNC_BOUND_TABLE,
                     Column.TC_ID.getName() + " = ?",
                     new String[]{id}
             );
+        } else {
+            if (getBuildConfigurationSyncBound(id) == DBUtils.UNDEFINED_TIME) {
+                setBuildConfigurationSyncBound(
+                        id,
+                        System.currentTimeMillis()
+                );
+            }
         }
+
+        setFavourite(Constants.FAVOURITE_BUILD_CONFIGURATION_TABLE, id, favourite);
 
         notifyListeners(Constants.BUILD_CONFIGURATION_OVERVIEW_TABLE);
     }
@@ -197,20 +204,20 @@ public class DB {
         notifyListeners(Constants.BUILD_CONFIGURATION_OVERVIEW_TABLE);
     }
 
-    public void setBuildConfigurationLastUpdate(@NotNull String id, long time) {
-        setTime(id, time, Constants.BUILD_CONFIGURATION_LAST_UPDATE_TABLE);
-    }
-
     public long getBuildConfigurationLastUpdate(@NotNull String id) {
         return getTime(Constants.BUILD_CONFIGURATION_LAST_UPDATE_TABLE, id);
     }
 
-    public void setBuildConfigurationSyncBound(@NotNull String id, long time) {
-        setTime(id, time, Constants.BUILD_CONFIGURATION_SYNC_BOUND_TABLE);
+    private void setBuildConfigurationLastUpdate(@NotNull String id, long time) {
+        setTime(id, time, Constants.BUILD_CONFIGURATION_LAST_UPDATE_TABLE);
     }
 
     public long getBuildConfigurationSyncBound(@NotNull String id) {
         return getTime(Constants.BUILD_CONFIGURATION_SYNC_BOUND_TABLE, id);
+    }
+
+    public void setBuildConfigurationSyncBound(@NotNull String id, long time) {
+        setTime(id, time, Constants.BUILD_CONFIGURATION_SYNC_BOUND_TABLE);
     }
 
     // BUILD CONFIGURATION - END
@@ -249,6 +256,8 @@ public class DB {
 
                 db.insert(Constants.BUILD_OVERVIEW_TABLE, null, values);
             }
+
+            setBuildConfigurationLastUpdate(parentBuildConfigurationId, System.currentTimeMillis());
 
             db.setTransactionSuccessful();
         } finally {
@@ -611,6 +620,8 @@ public class DB {
                     new String[]{build.id}
             );
         }
+
+        setBuildConfigurationLastUpdate(build.parentBuildConfigurationId, System.currentTimeMillis());
 
         cursor.close();
     }
