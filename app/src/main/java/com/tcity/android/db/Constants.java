@@ -45,13 +45,10 @@ class Constants {
     static final String BUILD_OVERVIEW_TABLE = "build_overview";
 
     @NotNull
-    static final String BUILD_CONFIGURATION_LAST_UPDATE_TABLE = "build_configuration_last_update";
+    static final String PROJECT_TIME_TABLE = "project_time";
 
     @NotNull
-    static final String BUILD_CONFIGURATION_SYNC_BOUND_TABLE = "build_configuration_sync_bound";
-
-    @NotNull
-    static final String PROJECT_LAST_UPDATE_TABLE = "project_last_update";
+    static final String BUILD_CONFIGURATION_TIME_TABLE = "build_configuration_time";
 
     private Constants() {
     }

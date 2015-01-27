@@ -38,13 +38,11 @@ class DBHelper extends SQLiteOpenHelper {
         onProjectOrBuildConfigurationOverviewCreate(Constants.BUILD_CONFIGURATION_OVERVIEW_TABLE, db);
         onBuildOverviewCreate(db);
 
-        onProjectOrBuildConfigurationStatusesCreate(Constants.PROJECT_STATUS_TABLE, db);
-        onProjectOrBuildConfigurationStatusesCreate(Constants.BUILD_CONFIGURATION_STATUS_TABLE, db);
+        onProjectOrBuildConfigurationStatusCreate(Constants.PROJECT_STATUS_TABLE, db);
+        onProjectOrBuildConfigurationStatusCreate(Constants.BUILD_CONFIGURATION_STATUS_TABLE, db);
 
-        onTimeCreate(Constants.BUILD_CONFIGURATION_LAST_UPDATE_TABLE, db);
-        onTimeCreate(Constants.BUILD_CONFIGURATION_SYNC_BOUND_TABLE, db);
-
-        onTimeCreate(Constants.PROJECT_LAST_UPDATE_TABLE, db);
+        onProjectTimeCreate(db);
+        onBuildConfigurationTimeCreate(db);
     }
 
     @Override
@@ -60,10 +58,8 @@ class DBHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + Constants.PROJECT_STATUS_TABLE + ";");
         db.execSQL("DROP TABLE IF EXISTS " + Constants.BUILD_CONFIGURATION_STATUS_TABLE + ";");
 
-        db.execSQL("DROP TABLE IF EXISTS " + Constants.BUILD_CONFIGURATION_LAST_UPDATE_TABLE + ";");
-        db.execSQL("DROP TABLE IF EXISTS " + Constants.BUILD_CONFIGURATION_SYNC_BOUND_TABLE + ";");
-
-        db.execSQL("DROP TABLE IF EXISTS " + Constants.PROJECT_LAST_UPDATE_TABLE);
+        db.execSQL("DROP TABLE IF EXISTS " + Constants.PROJECT_TIME_TABLE + ";");
+        db.execSQL("DROP TABLE IF EXISTS " + Constants.BUILD_CONFIGURATION_TIME_TABLE + ";");
 
         onCreate(db);
     }
@@ -78,8 +74,11 @@ class DBHelper extends SQLiteOpenHelper {
             case STATUS:
                 return column.getName() + " TEXT NOT NULL";
             case FAVOURITE:
-            case TIME:
                 return column.getName() + " INTEGER NOT NULL";
+            case LAST_UPDATE:
+            case SYNC_BOUND:
+            case STATUS_UPDATE:
+                return column.getName() + " INTEGER";
             case ANDROID_ID:
                 return column.getName() + " INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL";
             case BRANCH:
@@ -124,23 +123,33 @@ class DBHelper extends SQLiteOpenHelper {
         );
     }
 
-    private void onProjectOrBuildConfigurationStatusesCreate(@NotNull String table,
-                                                             @NotNull SQLiteDatabase db) {
+    private void onProjectOrBuildConfigurationStatusCreate(@NotNull String table,
+                                                           @NotNull SQLiteDatabase db) {
         db.execSQL(
                 "CREATE TABLE " + table + " (" +
                         getDescription(Column.TC_ID) + ", " +
-                        getDescription(Column.STATUS) + ", " +
-                        getDescription(Column.TIME) +
+                        getDescription(Column.STATUS) +
                         ");"
         );
     }
 
-    private void onTimeCreate(@NotNull String table,
-                              @NotNull SQLiteDatabase db) {
+    private void onProjectTimeCreate(@NotNull SQLiteDatabase db) {
         db.execSQL(
-                "CREATE TABLE " + table + " (" +
+                "CREATE TABLE " + Constants.PROJECT_TIME_TABLE + " (" +
                         getDescription(Column.TC_ID) + ", " +
-                        getDescription(Column.TIME) +
+                        getDescription(Column.LAST_UPDATE) + ", " +
+                        getDescription(Column.STATUS_UPDATE) +
+                        ");"
+        );
+    }
+
+    private void onBuildConfigurationTimeCreate(@NotNull SQLiteDatabase db) {
+        db.execSQL(
+                "CREATE TABLE " + Constants.BUILD_CONFIGURATION_TIME_TABLE + " (" +
+                        getDescription(Column.TC_ID) + ", " +
+                        getDescription(Column.LAST_UPDATE) + ", " +
+                        getDescription(Column.SYNC_BOUND) + ", " +
+                        getDescription(Column.STATUS_UPDATE) +
                         ");"
         );
     }

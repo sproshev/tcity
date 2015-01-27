@@ -123,19 +123,21 @@ public class DB {
     public void setProjectStatus(@NotNull String id, @Nullable Status status) {
         setProjectOrBuildConfigurationStatus(Constants.PROJECT_STATUS_TABLE, id, status);
 
+        setTime(Constants.PROJECT_TIME_TABLE, Column.STATUS_UPDATE, id, System.currentTimeMillis());
+
         notifyListeners(Constants.PROJECT_OVERVIEW_TABLE);
     }
 
     public long getProjectStatusLastUpdate(@NotNull String id) {
-        return getTime(Constants.PROJECT_STATUS_TABLE, id);
+        return getTime(Constants.PROJECT_TIME_TABLE, Column.STATUS_UPDATE, id);
     }
 
     public long getProjectLastUpdate(@NotNull String id) {
-        return getTime(Constants.PROJECT_LAST_UPDATE_TABLE, id);
+        return getTime(Constants.PROJECT_TIME_TABLE, Column.LAST_UPDATE, id);
     }
 
     private void setProjectLastUpdate(@NotNull String id, long time) {
-        setTime(id, time, Constants.PROJECT_LAST_UPDATE_TABLE);
+        setTime(Constants.PROJECT_TIME_TABLE, Column.LAST_UPDATE, id, time);
     }
 
     // PROJECT - END
@@ -144,11 +146,7 @@ public class DB {
 
     public void setFavouriteBuildConfiguration(@NotNull String id, boolean favourite) {
         if (!favourite) {
-            myDBHelper.getWritableDatabase().delete(
-                    Constants.BUILD_CONFIGURATION_SYNC_BOUND_TABLE,
-                    Column.TC_ID.getName() + " = ?",
-                    new String[]{id}
-            );
+            setBuildConfigurationSyncBound(id, DBUtils.UNDEFINED_TIME);
         } else {
             if (getBuildConfigurationSyncBound(id) == DBUtils.UNDEFINED_TIME) {
                 setBuildConfigurationSyncBound(
@@ -217,27 +215,34 @@ public class DB {
     public void setBuildConfigurationStatus(@NotNull String id, @Nullable Status status) {
         setProjectOrBuildConfigurationStatus(Constants.BUILD_CONFIGURATION_STATUS_TABLE, id, status);
 
+        setTime(
+                Constants.BUILD_CONFIGURATION_TIME_TABLE,
+                Column.STATUS_UPDATE,
+                id,
+                System.currentTimeMillis()
+        );
+
         notifyListeners(Constants.BUILD_CONFIGURATION_OVERVIEW_TABLE);
     }
 
     public long getBuildConfigurationStatusLastUpdate(@NotNull String id) {
-        return getTime(Constants.BUILD_CONFIGURATION_STATUS_TABLE, id);
+        return getTime(Constants.BUILD_CONFIGURATION_TIME_TABLE, Column.STATUS_UPDATE, id);
     }
 
     public long getBuildConfigurationLastUpdate(@NotNull String id) {
-        return getTime(Constants.BUILD_CONFIGURATION_LAST_UPDATE_TABLE, id);
+        return getTime(Constants.BUILD_CONFIGURATION_TIME_TABLE, Column.LAST_UPDATE, id);
     }
 
     private void setBuildConfigurationLastUpdate(@NotNull String id, long time) {
-        setTime(id, time, Constants.BUILD_CONFIGURATION_LAST_UPDATE_TABLE);
+        setTime(Constants.BUILD_CONFIGURATION_TIME_TABLE, Column.LAST_UPDATE, id, time);
     }
 
     public long getBuildConfigurationSyncBound(@NotNull String id) {
-        return getTime(Constants.BUILD_CONFIGURATION_SYNC_BOUND_TABLE, id);
+        return getTime(Constants.BUILD_CONFIGURATION_TIME_TABLE, Column.SYNC_BOUND, id);
     }
 
     public void setBuildConfigurationSyncBound(@NotNull String id, long time) {
-        setTime(id, time, Constants.BUILD_CONFIGURATION_SYNC_BOUND_TABLE);
+        setTime(Constants.BUILD_CONFIGURATION_TIME_TABLE, Column.SYNC_BOUND, id, time);
     }
 
     // BUILD CONFIGURATION - END
@@ -387,10 +392,8 @@ public class DB {
         db.delete(Constants.PROJECT_STATUS_TABLE, null, null);
         db.delete(Constants.BUILD_CONFIGURATION_STATUS_TABLE, null, null);
 
-        db.delete(Constants.BUILD_CONFIGURATION_LAST_UPDATE_TABLE, null, null);
-        db.delete(Constants.BUILD_CONFIGURATION_SYNC_BOUND_TABLE, null, null);
-
-        db.delete(Constants.PROJECT_LAST_UPDATE_TABLE, null, null);
+        db.delete(Constants.PROJECT_TIME_TABLE, null, null);
+        db.delete(Constants.BUILD_CONFIGURATION_TIME_TABLE, null, null);
     }
 
     private void setFavourite(@NotNull String table,
@@ -541,7 +544,6 @@ public class DB {
 
             ContentValues values = new ContentValues();
             values.put(Column.STATUS.getName(), status.toString());
-            values.put(Column.TIME.getName(), System.currentTimeMillis());
 
             if (cursor.getCount() == 0) {
                 values.put(Column.TC_ID.getName(), id);
@@ -560,7 +562,10 @@ public class DB {
         }
     }
 
-    private void setTime(@NotNull String id, long time, @NotNull String table) {
+    private void setTime(@NotNull String table,
+                         @NotNull Column column,
+                         @NotNull String id,
+                         long time) {
         Cursor cursor = myDBHelper.getReadableDatabase().query(
                 table,
                 null,
@@ -572,7 +577,7 @@ public class DB {
         );
 
         ContentValues values = new ContentValues();
-        values.put(Column.TIME.getName(), time);
+        values.put(column.getName(), time);
 
         if (cursor.getCount() == 0) {
             values.put(Column.TC_ID.getName(), id);
@@ -590,7 +595,7 @@ public class DB {
         cursor.close();
     }
 
-    private long getTime(@NotNull String table, @NotNull String id) {
+    private long getTime(@NotNull String table, @NotNull Column column, @NotNull String id) {
         Cursor cursor = myDBHelper.getReadableDatabase().query(
                 table,
                 null,
@@ -601,18 +606,23 @@ public class DB {
                 null
         );
 
-        if (cursor.getCount() == 0) {
+        //noinspection TryFinallyCanBeTryWithResources
+        try {
+            if (cursor.getCount() == 0) {
+                return DBUtils.UNDEFINED_TIME;
+            } else {
+                cursor.moveToNext();
+
+                int columnIndex = cursor.getColumnIndex(column.getName());
+
+                if (cursor.isNull(columnIndex)) {
+                    return DBUtils.UNDEFINED_TIME;
+                } else {
+                    return cursor.getLong(columnIndex);
+                }
+            }
+        } finally {
             cursor.close();
-
-            return DBUtils.UNDEFINED_TIME;
-        } else {
-            cursor.moveToNext();
-
-            long result = cursor.getLong(cursor.getColumnIndex(Column.TIME.getName()));
-
-            cursor.close();
-
-            return result;
         }
     }
 
