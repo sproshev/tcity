@@ -139,11 +139,43 @@ class ProjectOverviewServerEngine {
     }
 
     private boolean expiredProjectStatusExists() {
-        return true;
+        Cursor cursor = myDb.getProjects(myProjectId, true);
+
+        //noinspection TryFinallyCanBeTryWithResources
+        try {
+            while (cursor.moveToNext()) {
+                String id = DBUtils.getId(cursor);
+
+                if (myDb.getProjectStatusLastUpdate(id)
+                        < System.currentTimeMillis() - AlarmManager.INTERVAL_FIFTEEN_MINUTES / 3) {
+                    return true;
+                }
+            }
+        } finally {
+            cursor.close();
+        }
+
+        return false;
     }
 
     private boolean expiredBuildConfigurationStatusExists() {
-        return true;
+        Cursor cursor = myDb.getBuildConfigurations(myProjectId, true);
+
+        //noinspection TryFinallyCanBeTryWithResources
+        try {
+            while (cursor.moveToNext()) {
+                String id = DBUtils.getId(cursor);
+
+                if (myDb.getBuildConfigurationStatusLastUpdate(id)
+                        < System.currentTimeMillis() - AlarmManager.INTERVAL_FIFTEEN_MINUTES / 3) {
+                    return true;
+                }
+            }
+        } finally {
+            cursor.close();
+        }
+
+        return false;
     }
 
     private boolean areFavouriteProjectsExpired() {

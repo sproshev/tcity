@@ -124,6 +124,10 @@ public class DB {
         notifyListeners(Constants.PROJECT_OVERVIEW_TABLE);
     }
 
+    public long getProjectStatusLastUpdate(@NotNull String id) {
+        return getTime(Constants.PROJECT_STATUS_TABLE, id);
+    }
+
     // PROJECT - END
 
     // BUILD CONFIGURATION - BEGIN
@@ -202,6 +206,10 @@ public class DB {
         setProjectOrBuildConfigurationStatus(Constants.BUILD_CONFIGURATION_STATUS_TABLE, id, status);
 
         notifyListeners(Constants.BUILD_CONFIGURATION_OVERVIEW_TABLE);
+    }
+
+    public long getBuildConfigurationStatusLastUpdate(@NotNull String id) {
+        return getTime(Constants.BUILD_CONFIGURATION_STATUS_TABLE, id);
     }
 
     public long getBuildConfigurationLastUpdate(@NotNull String id) {
@@ -519,6 +527,7 @@ public class DB {
 
             ContentValues values = new ContentValues();
             values.put(Column.STATUS.getName(), status.toString());
+            values.put(Column.TIME.getName(), System.currentTimeMillis());
 
             if (cursor.getCount() == 0) {
                 values.put(Column.TC_ID.getName(), id);

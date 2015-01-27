@@ -125,7 +125,8 @@ class DBHelper extends SQLiteOpenHelper {
         db.execSQL(
                 "CREATE TABLE " + table + " (" +
                         getDescription(Column.TC_ID) + ", " +
-                        getDescription(Column.STATUS) +
+                        getDescription(Column.STATUS) + ", " +
+                        getDescription(Column.TIME) +
                         ");"
         );
     }
