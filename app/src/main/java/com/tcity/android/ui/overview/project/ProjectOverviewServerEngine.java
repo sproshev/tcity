@@ -16,7 +16,6 @@
 
 package com.tcity.android.ui.overview.project;
 
-import android.app.AlarmManager;
 import android.database.Cursor;
 import android.os.AsyncTask;
 
@@ -31,7 +30,7 @@ import com.tcity.android.background.runnable.primitive.ProjectStatusRunnable;
 import com.tcity.android.background.runnable.primitive.ProjectsRunnable;
 import com.tcity.android.db.DB;
 import com.tcity.android.db.DBUtils;
-import com.tcity.android.db.Project;
+import com.tcity.android.ui.ExpirationUtils;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -112,11 +111,11 @@ class ProjectOverviewServerEngine {
 
     void refresh(boolean force) {
         if (!force &&
-                !areProjectsExpired() &&
-                !areBuildConfigurationsExpired() &&
+                !ExpirationUtils.areProjectsExpired(myDb) &&
+                !ExpirationUtils.areBuildConfigurationsExpired(myDb, myProjectId) &&
                 !expiredProjectStatusExists() &&
                 !expiredBuildConfigurationStatusExists() &&
-                !areFavouriteProjectsExpired()) {
+                !ExpirationUtils.areFavouriteProjectsExpired(myPreferences)) {
             return;
         }
 
@@ -134,16 +133,6 @@ class ProjectOverviewServerEngine {
         }
     }
 
-    private boolean areProjectsExpired() {
-        return myDb.getProjectLastUpdate(Project.ROOT_PROJECT_ID)
-                < System.currentTimeMillis() - AlarmManager.INTERVAL_DAY * 3;
-    }
-
-    private boolean areBuildConfigurationsExpired() {
-        return myDb.getProjectLastUpdate(myProjectId)
-                < System.currentTimeMillis() - AlarmManager.INTERVAL_DAY;
-    }
-
     private boolean expiredProjectStatusExists() {
         Cursor cursor = myDb.getProjects(myProjectId, true);
 
@@ -152,8 +141,7 @@ class ProjectOverviewServerEngine {
             while (cursor.moveToNext()) {
                 String id = DBUtils.getId(cursor);
 
-                if (myDb.getProjectStatusLastUpdate(id)
-                        < System.currentTimeMillis() - AlarmManager.INTERVAL_FIFTEEN_MINUTES / 3) {
+                if (ExpirationUtils.isProjectStatusExpired(myDb, id)) {
                     return true;
                 }
             }
@@ -172,8 +160,7 @@ class ProjectOverviewServerEngine {
             while (cursor.moveToNext()) {
                 String id = DBUtils.getId(cursor);
 
-                if (myDb.getBuildConfigurationStatusLastUpdate(id)
-                        < System.currentTimeMillis() - AlarmManager.INTERVAL_FIFTEEN_MINUTES / 3) {
+                if (ExpirationUtils.isBuildConfigurationStatusExpired(myDb, id)) {
                     return true;
                 }
             }
@@ -182,11 +169,6 @@ class ProjectOverviewServerEngine {
         }
 
         return false;
-    }
-
-    private boolean areFavouriteProjectsExpired() {
-        return myPreferences.getFavouriteProjectsLastUpdate()
-                < System.currentTimeMillis() - AlarmManager.INTERVAL_DAY * 3;
     }
 
     @NotNull
@@ -210,7 +192,7 @@ class ProjectOverviewServerEngine {
 
     @NotNull
     private RunnableChain getProjectsChain(boolean force) {
-        if (!force && !areProjectsExpired()) {
+        if (!force && !ExpirationUtils.areProjectsExpired(myDb)) {
             return RunnableChain.getSingleRunnableChain(new EmptyRunnable());
         }
 
@@ -221,7 +203,7 @@ class ProjectOverviewServerEngine {
 
     @NotNull
     private RunnableChain getBuildConfigurationsChain(boolean force) {
-        if (!force && !areBuildConfigurationsExpired()) {
+        if (!force && !ExpirationUtils.areBuildConfigurationsExpired(myDb, myProjectId)) {
             return RunnableChain.getSingleRunnableChain(new EmptyRunnable());
         }
 
@@ -232,7 +214,7 @@ class ProjectOverviewServerEngine {
 
     @NotNull
     private RunnableChain getFavouriteProjectsChain(boolean force) {
-        if (!force && !areFavouriteProjectsExpired()) {
+        if (!force && !ExpirationUtils.areFavouriteProjectsExpired(myPreferences)) {
             return RunnableChain.getSingleRunnableChain(new EmptyRunnable());
         }
 
@@ -256,8 +238,7 @@ class ProjectOverviewServerEngine {
         while (cursor.moveToNext()) {
             String id = DBUtils.getId(cursor);
 
-            if (force || myDb.getProjectStatusLastUpdate(id)
-                    < System.currentTimeMillis() - AlarmManager.INTERVAL_FIFTEEN_MINUTES / 3) {
+            if (force || ExpirationUtils.isProjectStatusExpired(myDb, id)) {
                 runnables.add(
                         new ProjectStatusRunnable(
                                 id, myDb, myRestClient
@@ -286,8 +267,7 @@ class ProjectOverviewServerEngine {
         while (cursor.moveToNext()) {
             String id = DBUtils.getId(cursor);
 
-            if (force || myDb.getBuildConfigurationStatusLastUpdate(id)
-                    < System.currentTimeMillis() - AlarmManager.INTERVAL_FIFTEEN_MINUTES / 3) {
+            if (force || ExpirationUtils.isBuildConfigurationStatusExpired(myDb, id)) {
                 runnables.add(
                         new BuildConfigurationStatusRunnable(
                                 id, myDb, myRestClient

@@ -16,7 +16,6 @@
 
 package com.tcity.android.ui.overview.buildconfiguration;
 
-import android.app.AlarmManager;
 import android.os.AsyncTask;
 
 import com.tcity.android.background.rest.RestClient;
@@ -24,6 +23,7 @@ import com.tcity.android.background.runnable.chain.ExecutableRunnableChain;
 import com.tcity.android.background.runnable.chain.RunnableChain;
 import com.tcity.android.background.runnable.primitive.BuildsRunnable;
 import com.tcity.android.db.DB;
+import com.tcity.android.ui.ExpirationUtils;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -73,7 +73,7 @@ class BuildConfigurationOverviewServerEngine {
     }
 
     void refresh(boolean force) {
-        if (!force && !areBuildsExpired()) {
+        if (!force && !ExpirationUtils.areBuildsExpired(myDb, myBuildConfigurationId)) {
             return;
         }
 
@@ -89,11 +89,6 @@ class BuildConfigurationOverviewServerEngine {
             myChainListener.onStarted();
             myChain.execute();
         }
-    }
-
-    private boolean areBuildsExpired() {
-        return myDb.getBuildConfigurationLastUpdate(myBuildConfigurationId)
-                < System.currentTimeMillis() - AlarmManager.INTERVAL_FIFTEEN_MINUTES / 3;
     }
 
     @NotNull
