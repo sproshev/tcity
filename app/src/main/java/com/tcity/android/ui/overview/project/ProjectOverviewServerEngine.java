@@ -31,6 +31,7 @@ import com.tcity.android.background.runnable.primitive.ProjectStatusRunnable;
 import com.tcity.android.background.runnable.primitive.ProjectsRunnable;
 import com.tcity.android.db.DB;
 import com.tcity.android.db.DBUtils;
+import com.tcity.android.db.Project;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -131,11 +132,13 @@ class ProjectOverviewServerEngine {
     }
 
     private boolean areProjectsExpired() {
-        return true;
+        return myDb.getProjectLastUpdate(Project.ROOT_PROJECT_ID)
+                < System.currentTimeMillis() - AlarmManager.INTERVAL_DAY * 3;
     }
 
     private boolean areBuildConfigurationsExpired() {
-        return true;
+        return myDb.getProjectLastUpdate(myProjectId)
+                < System.currentTimeMillis() - AlarmManager.INTERVAL_DAY;
     }
 
     private boolean expiredProjectStatusExists() {

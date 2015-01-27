@@ -99,6 +99,8 @@ public class DB {
                 db.insert(Constants.PROJECT_OVERVIEW_TABLE, null, values);
             }
 
+            setProjectLastUpdate(Project.ROOT_PROJECT_ID, System.currentTimeMillis());
+
             db.setTransactionSuccessful();
         } finally {
             db.endTransaction();
@@ -126,6 +128,14 @@ public class DB {
 
     public long getProjectStatusLastUpdate(@NotNull String id) {
         return getTime(Constants.PROJECT_STATUS_TABLE, id);
+    }
+
+    public long getProjectLastUpdate(@NotNull String id) {
+        return getTime(Constants.PROJECT_LAST_UPDATE_TABLE, id);
+    }
+
+    private void setProjectLastUpdate(@NotNull String id, long time) {
+        setTime(id, time, Constants.PROJECT_LAST_UPDATE_TABLE);
     }
 
     // PROJECT - END
@@ -182,6 +192,8 @@ public class DB {
 
                 db.insert(Constants.BUILD_CONFIGURATION_OVERVIEW_TABLE, null, values);
             }
+
+            setProjectLastUpdate(parentProjectId, System.currentTimeMillis());
 
             db.setTransactionSuccessful();
         } finally {
@@ -377,6 +389,8 @@ public class DB {
 
         db.delete(Constants.BUILD_CONFIGURATION_LAST_UPDATE_TABLE, null, null);
         db.delete(Constants.BUILD_CONFIGURATION_SYNC_BOUND_TABLE, null, null);
+
+        db.delete(Constants.PROJECT_LAST_UPDATE_TABLE, null, null);
     }
 
     private void setFavourite(@NotNull String table,

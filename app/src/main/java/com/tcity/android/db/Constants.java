@@ -50,6 +50,9 @@ class Constants {
     @NotNull
     static final String BUILD_CONFIGURATION_SYNC_BOUND_TABLE = "build_configuration_sync_bound";
 
+    @NotNull
+    static final String PROJECT_LAST_UPDATE_TABLE = "project_last_update";
+
     private Constants() {
     }
 }

@@ -41,8 +41,10 @@ class DBHelper extends SQLiteOpenHelper {
         onProjectOrBuildConfigurationStatusesCreate(Constants.PROJECT_STATUS_TABLE, db);
         onProjectOrBuildConfigurationStatusesCreate(Constants.BUILD_CONFIGURATION_STATUS_TABLE, db);
 
-        onBuildConfigurationTimeCreate(Constants.BUILD_CONFIGURATION_LAST_UPDATE_TABLE, db);
-        onBuildConfigurationTimeCreate(Constants.BUILD_CONFIGURATION_SYNC_BOUND_TABLE, db);
+        onTimeCreate(Constants.BUILD_CONFIGURATION_LAST_UPDATE_TABLE, db);
+        onTimeCreate(Constants.BUILD_CONFIGURATION_SYNC_BOUND_TABLE, db);
+
+        onTimeCreate(Constants.PROJECT_LAST_UPDATE_TABLE, db);
     }
 
     @Override
@@ -60,6 +62,8 @@ class DBHelper extends SQLiteOpenHelper {
 
         db.execSQL("DROP TABLE IF EXISTS " + Constants.BUILD_CONFIGURATION_LAST_UPDATE_TABLE + ";");
         db.execSQL("DROP TABLE IF EXISTS " + Constants.BUILD_CONFIGURATION_SYNC_BOUND_TABLE + ";");
+
+        db.execSQL("DROP TABLE IF EXISTS " + Constants.PROJECT_LAST_UPDATE_TABLE);
 
         onCreate(db);
     }
@@ -131,8 +135,8 @@ class DBHelper extends SQLiteOpenHelper {
         );
     }
 
-    private void onBuildConfigurationTimeCreate(@NotNull String table,
-                                                @NotNull SQLiteDatabase db) {
+    private void onTimeCreate(@NotNull String table,
+                              @NotNull SQLiteDatabase db) {
         db.execSQL(
                 "CREATE TABLE " + table + " (" +
                         getDescription(Column.TC_ID) + ", " +
