@@ -17,11 +17,20 @@
 package com.tcity.android.ui.info;
 
 import android.os.AsyncTask;
+import android.util.JsonReader;
 
+import com.tcity.android.background.rest.RestClient;
+import com.tcity.android.background.runnable.HttpStatusException;
+
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
+import org.apache.http.StatusLine;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashMap;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 class BuildInfoTask extends AsyncTask<Void, Void, Void> {
@@ -32,6 +41,9 @@ class BuildInfoTask extends AsyncTask<Void, Void, Void> {
     @NotNull
     private final BuildInfoFragment myFragment;
 
+    @NotNull
+    private final RestClient myClient;
+
     @Nullable
     private Exception myException;
 
@@ -39,24 +51,27 @@ class BuildInfoTask extends AsyncTask<Void, Void, Void> {
     private Map<String, String> myResult;
 
     BuildInfoTask(@NotNull String buildId,
-                  @NotNull BuildInfoFragment fragment) {
+                  @NotNull BuildInfoFragment fragment,
+                  @NotNull RestClient client) {
         myBuildId = buildId;
         myFragment = fragment;
+        myClient = client;
     }
 
     @Override
     protected Void doInBackground(@NotNull Void... params) {
-        myResult = new HashMap<>();
-        myResult.put("k1", "v1");
-        myResult.put("k2", "v2");
-        myResult.put("k3", "v3");
-        myResult.put("k4", "v4");
-        myResult.put("k5", "v5");
-        myResult.put("k6", "v6");
-        myResult.put("k7", "v7");
-        myResult.put("k8", "v8");
-        myResult.put("k9", "v9");
-        myResult.put("k10", "v10");
+        try {
+            HttpResponse response = myClient.getBuildInfo(myBuildId);
+            StatusLine statusLine = response.getStatusLine();
+
+            if (statusLine.getStatusCode() != HttpStatus.SC_OK) {
+                throw new HttpStatusException(statusLine);
+            } else {
+                handleResponse(response);
+            }
+        } catch (Exception e) {
+            myException = e;
+        }
 
         return null;
     }
@@ -83,5 +98,146 @@ class BuildInfoTask extends AsyncTask<Void, Void, Void> {
     @Nullable
     Map<String, String> getResult() {
         return myResult;
+    }
+
+    private void handleResponse(@NotNull HttpResponse response) throws IOException {
+        JsonReader reader = new JsonReader(new InputStreamReader(response.getEntity().getContent()));
+
+        String status = null;
+        boolean isRunning = false;
+        String branch = null;
+        boolean isBranchDefault = false;
+        String result = null;
+        String waitReason = null;
+        String queued = null;
+        String started = null;
+        String finished = null;
+        String agent = null;
+
+        try {
+            reader.beginObject();
+
+            while (reader.hasNext()) {
+                switch (reader.nextName()) {
+                    case "status":
+                        status = reader.nextString();
+                        break;
+                    case "running":
+                        isRunning = reader.nextBoolean();
+                        break;
+                    case "branchName":
+                        branch = reader.nextString();
+                        break;
+                    case "defaultBranch":
+                        isBranchDefault = reader.nextBoolean();
+                        break;
+                    case "statusText":
+                        result = reader.nextString();
+                        break;
+                    case "waitReason":
+                        waitReason = reader.nextString();
+                        break;
+                    case "queuedDate":
+                        queued = reader.nextString();
+                        break;
+                    case "startDate":
+                        started = reader.nextString();
+                        break;
+                    case "finishDate":
+                        finished = reader.nextString();
+                        break;
+                    case "agent":
+                        agent = getAgentName(reader);
+                        break;
+                    default:
+                        reader.skipValue();
+                }
+            }
+
+            reader.endObject();
+
+            calculateResult(
+                    status,
+                    isRunning,
+                    branch,
+                    isBranchDefault,
+                    result,
+                    waitReason,
+                    queued,
+                    started,
+                    finished,
+                    agent
+            );
+        } finally {
+            reader.close();
+        }
+    }
+
+    private void calculateResult(@Nullable String status,
+                                 boolean isRunning,
+                                 @Nullable String branch,
+                                 boolean isBranchDefault,
+                                 @Nullable String result,
+                                 @Nullable String waitReason,
+                                 @Nullable String queued,
+                                 @Nullable String started,
+                                 @Nullable String finished,
+                                 @Nullable String agent) {
+        myResult = new LinkedHashMap<>();
+
+        if (isRunning) {
+            myResult.put("Status", Status.RUNNING.toString());
+        } else if (status != null) {
+            myResult.put("Status", status);
+        }
+
+        if (branch != null) {
+            myResult.put("Branch", branch + (isBranchDefault ? " (default)" : ""));
+        }
+
+        if (result != null) {
+            myResult.put("Result", result);
+        }
+
+        if (waitReason != null) {
+            myResult.put("Wait Reason", waitReason);
+        }
+
+        if (queued != null) {
+            myResult.put("Queued", queued);
+        }
+
+        if (started != null) {
+            myResult.put("Started", started);
+        }
+
+        if (finished != null) {
+            myResult.put("Finished", finished);
+        }
+
+        if (agent != null) {
+            myResult.put("Agent", agent);
+        }
+    }
+
+    @Nullable
+    private String getAgentName(@NotNull JsonReader reader) throws IOException {
+        reader.beginObject();
+
+        String result = null;
+
+        while (reader.hasNext()) {
+            switch (reader.nextName()) {
+                case "name":
+                    result = reader.nextString();
+                    break;
+                default:
+                    reader.skipValue();
+            }
+        }
+
+        reader.endObject();
+
+        return result;
     }
 }

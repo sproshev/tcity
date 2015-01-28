@@ -32,6 +32,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.tcity.android.R;
+import com.tcity.android.app.Preferences;
+import com.tcity.android.background.rest.RestClient;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -74,6 +76,8 @@ public class BuildInfoFragment extends ListFragment implements SwipeRefreshLayou
 
         myAdapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1);
         getListView().setAdapter(myAdapter);
+        getListView().setDivider(null);
+        getListView().setSelector(android.R.color.transparent);
 
         if (isNetworkAvailable()) {
             onRefresh();
@@ -102,15 +106,17 @@ public class BuildInfoFragment extends ListFragment implements SwipeRefreshLayou
 
     @Override
     public void onRefresh() {
-        if (myTask == null) {
-            myTask = new BuildInfoTask(myBuildId, this);
+        if (myTask == null || myTask.getStatus() == AsyncTask.Status.FINISHED) {
+            myTask = new BuildInfoTask(
+                    myBuildId,
+                    this,
+                    new RestClient(
+                            new Preferences(getActivity())
+                    )
+            );
         }
 
         if (myTask.getStatus() != AsyncTask.Status.RUNNING) {
-            if (myTask.getStatus() == AsyncTask.Status.FINISHED) {
-                myTask = new BuildInfoTask(myBuildId, this);
-            }
-
             myTask.execute();
         }
     }

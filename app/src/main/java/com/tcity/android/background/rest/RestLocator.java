@@ -102,4 +102,9 @@ class RestLocator {
                                                  @NotNull Preferences preferences) {
         return preferences.getUrl() + REST_PREFIX + "buildTypes/id:" + id + "/status";
     }
+
+    @NotNull
+    static String getBuildInfoUrl(@NotNull String id, @NotNull Preferences preferences) {
+        return preferences.getUrl() + REST_PREFIX + "builds/id:" + id;
+    }
 }
