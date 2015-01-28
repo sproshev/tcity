@@ -83,6 +83,11 @@ public class DB {
         return getName(Constants.PROJECT_OVERVIEW_TABLE, id);
     }
 
+    @NotNull
+    public String getProjectParentId(@NotNull String id) {
+        return getParentId(Constants.PROJECT_OVERVIEW_TABLE, id);
+    }
+
     public void setProjects(@NotNull Collection<Project> projects) {
         SQLiteDatabase db = myDBHelper.getWritableDatabase();
         db.beginTransaction();
@@ -168,6 +173,11 @@ public class DB {
     @NotNull
     public String getBuildConfigurationName(@NotNull String id) {
         return getName(Constants.BUILD_CONFIGURATION_OVERVIEW_TABLE, id);
+    }
+
+    @NotNull
+    public String getBuildConfigurationParentId(@NotNull String id) {
+        return getParentId(Constants.BUILD_CONFIGURATION_OVERVIEW_TABLE, id);
     }
 
     public void setBuildConfigurations(@NotNull String parentProjectId,
@@ -473,6 +483,25 @@ public class DB {
         cursor.moveToNext();
 
         String result = DBUtils.getName(cursor);
+
+        cursor.close();
+
+        return result;
+    }
+
+    @NotNull
+    private String getParentId(@NotNull String table, @NotNull String id) {
+        Cursor cursor = myDBHelper.getReadableDatabase().query(
+                table,
+                new String[]{Column.PARENT_ID.getName()},
+                Column.TC_ID.getName() + " = ?",
+                new String[]{id},
+                null, null, null
+        );
+
+        cursor.moveToNext();
+
+        String result = DBUtils.getParentId(cursor);
 
         cursor.close();
 

@@ -42,6 +42,7 @@ import com.tcity.android.db.DBUtils;
 import com.tcity.android.ui.PreferenceActivity;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class BuildConfigurationOverviewActivity extends ListActivity implements SwipeRefreshLayout.OnRefreshListener {
 
@@ -73,6 +74,7 @@ public class BuildConfigurationOverviewActivity extends ListActivity implements 
         ActionBar bar = getActionBar();
         if (bar != null) {
             bar.setTitle(calculateTitle());
+            bar.setSubtitle(calculateSubtitle());
             bar.setDisplayHomeAsUpEnabled(true);
         }
 
@@ -223,6 +225,13 @@ public class BuildConfigurationOverviewActivity extends ListActivity implements 
         DB db = ((Application) getApplication()).getDB();
 
         return db.getBuildConfigurationName(myBuildConfigurationId);
+    }
+
+    @Nullable
+    private String calculateSubtitle() {
+        DB db = ((Application) getApplication()).getDB();
+
+        return db.getProjectName(db.getBuildConfigurationParentId(myBuildConfigurationId));
     }
 
     private void updateSyncBound() {

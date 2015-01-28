@@ -43,6 +43,7 @@ import com.tcity.android.ui.PreferenceActivity;
 import com.tcity.android.ui.overview.buildconfiguration.BuildConfigurationOverviewActivity;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class ProjectOverviewActivity extends ListActivity implements SwipeRefreshLayout.OnRefreshListener {
 
@@ -74,8 +75,9 @@ public class ProjectOverviewActivity extends ListActivity implements SwipeRefres
         ActionBar bar = getActionBar();
         if (bar != null) {
             bar.setTitle(calculateTitle());
+            bar.setSubtitle(calculateSubtitle());
 
-            if (!isRootProject()) {
+            if (!isRootProject(myProjectId)) {
                 bar.setDisplayHomeAsUpEnabled(true);
             }
         }
@@ -160,7 +162,7 @@ public class ProjectOverviewActivity extends ListActivity implements SwipeRefres
 
     @Override
     public boolean onOptionsItemSelected(@NotNull MenuItem item) {
-        if (item.getItemId() == android.R.id.home && !isRootProject()) {
+        if (item.getItemId() == android.R.id.home && !isRootProject(myProjectId)) {
             finish();
 
             return true;
@@ -254,7 +256,7 @@ public class ProjectOverviewActivity extends ListActivity implements SwipeRefres
 
     @NotNull
     private String calculateTitle() {
-        if (isRootProject()) {
+        if (isRootProject(myProjectId)) {
             return getString(R.string.projects);
         }
 
@@ -263,8 +265,25 @@ public class ProjectOverviewActivity extends ListActivity implements SwipeRefres
         return db.getProjectName(myProjectId);
     }
 
-    private boolean isRootProject() {
-        return myProjectId.equals(Project.ROOT_PROJECT_ID);
+    @Nullable
+    private String calculateSubtitle() {
+        if (isRootProject(myProjectId)) {
+            return null;
+        }
+
+        DB db = ((Application) getApplication()).getDB();
+
+        String parentId = db.getProjectParentId(myProjectId);
+
+        if (isRootProject(parentId)) {
+            return null;
+        }
+
+        return db.getProjectName(parentId);
+    }
+
+    private boolean isRootProject(@NotNull String id) {
+        return id.equals(Project.ROOT_PROJECT_ID);
     }
 
     @NotNull
