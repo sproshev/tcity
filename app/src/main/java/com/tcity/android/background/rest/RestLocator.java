@@ -107,4 +107,9 @@ class RestLocator {
     static String getBuildInfoUrl(@NotNull String id, @NotNull Preferences preferences) {
         return preferences.getUrl() + REST_PREFIX + "builds/id:" + id;
     }
+
+    @NotNull
+    static String getBuildTestsUrl(@NotNull String id, @NotNull Preferences preferences) {
+        return preferences.getUrl() + REST_PREFIX + "testOccurrences?locator=build:" + id;
+    }
 }

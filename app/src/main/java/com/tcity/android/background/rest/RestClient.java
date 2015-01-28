@@ -118,6 +118,13 @@ public class RestClient {
     }
 
     @NotNull
+    public HttpResponse getBuildTests(@NotNull String id) throws IOException {
+        return getJson(
+                RestLocator.getBuildTestsUrl(id, myPreferences)
+        );
+    }
+
+    @NotNull
     private HttpResponse getJson(@NotNull String path) throws IOException {
         return get(path, "application/json");
     }
