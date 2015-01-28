@@ -43,7 +43,7 @@ public class BuildTestsFragment extends Fragment implements SwipeRefreshLayout.O
     public View onCreateView(@NotNull LayoutInflater inflater,
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.build_tab_fragment, container, false);
+        return inflater.inflate(R.layout.overview, container, false);
     }
 
     @Override
@@ -52,7 +52,7 @@ public class BuildTestsFragment extends Fragment implements SwipeRefreshLayout.O
 
         myBuildId = getArguments().getString(BuildHostActivity.ID_INTENT_KEY);
 
-        myLayout = (SwipeRefreshLayout) getActivity().findViewById(R.id.tab_layout);
+        myLayout = (SwipeRefreshLayout) getActivity().findViewById(R.id.overview);
         myLayout.setColorSchemeResources(R.color.green, R.color.red);
         myLayout.setOnRefreshListener(this);
     }

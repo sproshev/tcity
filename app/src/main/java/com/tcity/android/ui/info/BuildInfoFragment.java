@@ -17,6 +17,9 @@
 package com.tcity.android.ui.info;
 
 import android.app.ListFragment;
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -25,6 +28,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.tcity.android.R;
@@ -55,7 +59,7 @@ public class BuildInfoFragment extends ListFragment implements SwipeRefreshLayou
     public View onCreateView(@NotNull LayoutInflater inflater,
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.build_tab_fragment, container, false);
+        return inflater.inflate(R.layout.overview, container, false);
     }
 
     @Override
@@ -64,14 +68,18 @@ public class BuildInfoFragment extends ListFragment implements SwipeRefreshLayou
 
         myBuildId = getArguments().getString(BuildHostActivity.ID_INTENT_KEY);
 
-        myLayout = (SwipeRefreshLayout) getActivity().findViewById(R.id.tab_layout);
+        myLayout = (SwipeRefreshLayout) getActivity().findViewById(R.id.overview);
         myLayout.setColorSchemeResources(R.color.green, R.color.red);
         myLayout.setOnRefreshListener(this);
 
         myAdapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1);
         getListView().setAdapter(myAdapter);
 
-        onRefresh();
+        if (isNetworkAvailable()) {
+            onRefresh();
+        } else {
+            ((TextView) getListView().getEmptyView()).setText(R.string.network_is_unavailable);
+        }
     }
 
     @Override
@@ -135,6 +143,14 @@ public class BuildInfoFragment extends ListFragment implements SwipeRefreshLayou
         }
     }
 
+    private boolean isNetworkAvailable() {
+        ConnectivityManager manager = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        NetworkInfo networkInfo = manager.getActiveNetworkInfo();
+
+        return networkInfo != null && networkInfo.isConnectedOrConnecting();
+    }
+
     private void setRefreshing(final boolean refreshing) {
         new Handler().postDelayed(
                 new Runnable() {
@@ -142,6 +158,18 @@ public class BuildInfoFragment extends ListFragment implements SwipeRefreshLayou
                     public void run() {
                         if (myLayout.isRefreshing() ^ refreshing) {
                             myLayout.setRefreshing(refreshing);
+
+                            TextView emptyView = (TextView) getListView().getEmptyView();
+
+                            if (refreshing) {
+                                emptyView.setText(R.string.loading);
+                            } else {
+                                if (isNetworkAvailable()) {
+                                    emptyView.setText(R.string.empty);
+                                } else {
+                                    emptyView.setText(R.string.network_is_unavailable);
+                                }
+                            }
                         }
                     }
                 }, 500
