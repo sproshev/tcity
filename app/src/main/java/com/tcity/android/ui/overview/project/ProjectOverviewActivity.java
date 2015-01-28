@@ -226,7 +226,7 @@ public class ProjectOverviewActivity extends ListActivity implements SwipeRefres
 
     void buildConfigurationNameClick(@NotNull String id) {
         Intent intent = new Intent(this, BuildConfigurationOverviewActivity.class);
-        intent.putExtra(BuildConfigurationOverviewActivity.INTENT_KEY, id);
+        intent.putExtra(BuildConfigurationOverviewActivity.ID_INTENT_KEY, id);
 
         startActivity(intent);
     }

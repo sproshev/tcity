@@ -40,14 +40,14 @@ import com.tcity.android.background.web.WebLocator;
 import com.tcity.android.db.DB;
 import com.tcity.android.db.DBUtils;
 import com.tcity.android.ui.PreferenceActivity;
+import com.tcity.android.ui.info.BuildHostActivity;
 
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 public class BuildConfigurationOverviewActivity extends ListActivity implements SwipeRefreshLayout.OnRefreshListener {
 
     @NotNull
-    public static final String INTENT_KEY = "BUILD_CONFIGURATION_ID";
+    public static final String ID_INTENT_KEY = "BUILD_CONFIGURATION_ID";
 
     @NotNull
     private String myBuildConfigurationId;
@@ -67,7 +67,7 @@ public class BuildConfigurationOverviewActivity extends ListActivity implements 
         super.onCreate(savedInstanceState);
 
         myRecreating = false;
-        myBuildConfigurationId = getIntent().getStringExtra(INTENT_KEY);
+        myBuildConfigurationId = getIntent().getStringExtra(ID_INTENT_KEY);
 
         setContentView(R.layout.overview);
 
@@ -203,7 +203,10 @@ public class BuildConfigurationOverviewActivity extends ListActivity implements 
     }
 
     void nameClick(@NotNull String id) {
-        // TODO
+        Intent intent = new Intent(this, BuildHostActivity.class);
+        intent.putExtra(BuildHostActivity.ID_INTENT_KEY, id);
+
+        startActivity(intent);
     }
 
     void optionsClick(@NotNull String id, @NotNull View anchor) {
@@ -227,7 +230,7 @@ public class BuildConfigurationOverviewActivity extends ListActivity implements 
         return db.getBuildConfigurationName(myBuildConfigurationId);
     }
 
-    @Nullable
+    @NotNull
     private String calculateSubtitle() {
         DB db = ((Application) getApplication()).getDB();
 

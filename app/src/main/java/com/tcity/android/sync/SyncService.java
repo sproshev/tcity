@@ -121,7 +121,7 @@ public class SyncService extends IntentService {
             String description = myDB.getProjectName(parentId) + " - " + myDB.getBuildConfigurationName(id);
 
             Intent activityIntent = new Intent(this, BuildConfigurationOverviewActivity.class);
-            activityIntent.putExtra(BuildConfigurationOverviewActivity.INTENT_KEY, id);
+            activityIntent.putExtra(BuildConfigurationOverviewActivity.ID_INTENT_KEY, id);
             activityIntent.setAction(Long.toString(System.currentTimeMillis()));
 
             PendingIntent contentIntent = PendingIntent.getActivity(

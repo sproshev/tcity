@@ -269,6 +269,16 @@ public class DB {
         return isFavourite(Constants.FAVOURITE_BUILD_TABLE, id);
     }
 
+    @NotNull
+    public String getBuildName(@NotNull String id) {
+        return getName(Constants.BUILD_OVERVIEW_TABLE, id);
+    }
+
+    @NotNull
+    public String getBuildParentId(@NotNull String id) {
+        return getParentId(Constants.BUILD_OVERVIEW_TABLE, id);
+    }
+
     public void setBuilds(@NotNull String parentBuildConfigurationId,
                           @NotNull Collection<Build> builds) {
         SQLiteDatabase db = myDBHelper.getWritableDatabase();
