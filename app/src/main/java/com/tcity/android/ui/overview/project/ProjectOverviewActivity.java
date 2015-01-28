@@ -86,6 +86,11 @@ public class ProjectOverviewActivity extends ListActivity implements SwipeRefres
 
         myEngine = calculateEngine();
         setListAdapter(myEngine.getAdapter());
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
 
         if (isNetworkAvailable()) {
             myEngine.refresh(false);

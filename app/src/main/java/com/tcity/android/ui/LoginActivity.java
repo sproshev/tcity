@@ -34,6 +34,7 @@ import com.tcity.android.background.rest.RestClient;
 import com.tcity.android.background.runnable.chain.ExecutableRunnableChain;
 import com.tcity.android.background.runnable.chain.RunnableChain;
 import com.tcity.android.background.runnable.primitive.LoginRunnable;
+import com.tcity.android.sync.SyncUtils;
 import com.tcity.android.ui.LoginChainListener.LoginResult;
 
 import org.jetbrains.annotations.NotNull;
@@ -168,6 +169,8 @@ public class LoginActivity extends Activity {
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
         myRedirecting = true;
+
+        SyncUtils.initSync(this);
 
         startActivity(intent);
     }
