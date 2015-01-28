@@ -74,73 +74,78 @@ public class SyncService extends IntentService {
 
         //noinspection TryFinallyCanBeTryWithResources
         try {
-            while (cursor.moveToNext()) {
-                handleBuildConfiguration(cursor);
-            }
+            syncAll(cursor);
         } finally {
             cursor.close();
         }
     }
 
-    private void handleBuildConfiguration(@NotNull Cursor cursor) {
-        try {
-            String id = DBUtils.getId(cursor);
+    private void syncAll(@NotNull Cursor cursor) {
+        while (cursor.moveToNext()) {
+            try {
+                String id = DBUtils.getId(cursor);
 
-            long syncBound = myDB.getBuildConfigurationSyncBound(id);
-
-            if (syncBound == DBUtils.UNDEFINED_TIME) {
-                return;
+                sync(id, DBUtils.getParentId(cursor), myDB.getBuildConfigurationSyncBound(id));
+            } catch (IOException e) {
+                Log.i(
+                        SyncService.class.getSimpleName(), e.getMessage(), e
+                );
             }
-
-            HttpResponse response = myClient.getBuilds(id, syncBound);
-            StatusLine statusLine = response.getStatusLine();
-
-            if (statusLine.getStatusCode() != HttpStatus.SC_OK) {
-                throw new HttpStatusException(statusLine);
-            } else {
-                handleResponse(id, DBUtils.getParentId(cursor), response);
-            }
-        } catch (IOException e) {
-            Log.i(
-                    SyncService.class.getSimpleName(), e.getMessage(), e
-            );
         }
     }
 
-    private void handleResponse(@NotNull String id,
-                                @NotNull String parentId,
-                                @NotNull HttpResponse response) throws IOException {
-        List<Build> builds = ParserPackage.parseBuilds(response.getEntity().getContent());
-
-        if (!builds.isEmpty()) {
-            myDB.appendBuilds(builds);
-
-            Notification.Builder builder = new Notification.Builder(this);
-
-            String title = builds.size() + " new build" + (builds.size() == 1 ? "" : "s");
-            String description = myDB.getProjectName(parentId) + " - " + myDB.getBuildConfigurationName(id);
-
-            Intent activityIntent = new Intent(this, BuildConfigurationOverviewActivity.class);
-            activityIntent.putExtra(BuildConfigurationOverviewActivity.INTENT_KEY, id);
-            activityIntent.setAction(Long.toString(System.currentTimeMillis()));
-
-            PendingIntent contentIntent = PendingIntent.getActivity(
-                    this,
-                    0,
-                    activityIntent,
-                    0
-            );
-
-            //noinspection deprecation
-            Notification notification = builder
-                    .setSmallIcon(R.drawable.ic_launcher)
-                    .setContentTitle(title)
-                    .setContentText(description)
-                    .setContentIntent(contentIntent)
-                    .setAutoCancel(true)
-                    .getNotification();
-
-            myManager.notify(id.hashCode(), notification);
+    private void sync(@NotNull String buildConfigurationId,
+                      @NotNull String parentProjectId,
+                      long bound) throws IOException {
+        if (bound == DBUtils.UNDEFINED_TIME) {
+            return;
         }
+
+        HttpResponse response = myClient.getBuilds(buildConfigurationId, bound);
+        StatusLine statusLine = response.getStatusLine();
+
+        if (statusLine.getStatusCode() != HttpStatus.SC_OK) {
+            throw new HttpStatusException(statusLine);
+        } else {
+            List<Build> builds = ParserPackage.parseBuilds(response.getEntity().getContent());
+
+            if (!builds.isEmpty()) {
+                myDB.appendBuilds(builds);
+
+                notify(buildConfigurationId, parentProjectId, builds.size());
+            }
+        }
+    }
+
+    private void notify(@NotNull String buildConfigurationId,
+                        @NotNull String parentProjectId,
+                        int size) {
+        Notification.Builder builder = new Notification.Builder(this);
+
+        String title = size + " new build" + (size == 1 ? "" : "s");
+        String projectName = myDB.getProjectName(parentProjectId);
+        String buildConfigurationName = myDB.getBuildConfigurationName(buildConfigurationId);
+
+        Intent activityIntent = new Intent(this, BuildConfigurationOverviewActivity.class);
+        activityIntent.putExtra(BuildConfigurationOverviewActivity.INTENT_KEY, buildConfigurationId);
+        activityIntent.setAction(Long.toString(System.currentTimeMillis()));
+
+        PendingIntent contentIntent = PendingIntent.getActivity(
+                this,
+                0,
+                activityIntent,
+                0
+        );
+
+        //noinspection deprecation
+        Notification notification = builder
+                .setSmallIcon(R.drawable.ic_launcher)
+                .setContentTitle(title)
+                .setContentText(projectName + " - " + buildConfigurationName)
+                .setContentIntent(contentIntent)
+                .setAutoCancel(true)
+                .getNotification();
+
+        myManager.notify(buildConfigurationId.hashCode(), notification);
     }
 }
