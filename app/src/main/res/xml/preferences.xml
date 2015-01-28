@@ -17,16 +17,11 @@
 
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <PreferenceCategory android:title="@string/credentials">
+    <PreferenceCategory android:title="@string/account">
 
         <Preference
-            android:key="@string/url_pref_key"
-            android:title="@string/url"
-            />
-
-        <Preference
-            android:key="@string/login_pref_key"
-            android:title="@string/login"
+            android:key="@string/logout_pref_key"
+            android:title="@string/logout"
             />
 
     </PreferenceCategory>
@@ -54,12 +49,16 @@
 
     </PreferenceCategory>
 
-    <PreferenceCategory android:title="@string/logout">
+    <PreferenceCategory android:title="About">
 
         <Preference
-            android:key="@string/logout_pref_key"
-            android:title="@string/logout"
-            android:summary="@string/remove_all_data_and_open_login_activity"
+            android:key="@string/github_pref_key"
+            android:title="@string/github"
+            />
+
+        <Preference
+            android:key="@string/google_play_pref_key"
+            android:title="@string/google_play"
             />
 
     </PreferenceCategory>

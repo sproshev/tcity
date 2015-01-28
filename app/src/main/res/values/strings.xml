@@ -44,7 +44,7 @@
     <string name="build_was_marked_as_favourite">Build was marked as favourite</string>
     <string name="build_was_not_marked_as_favourite">Build was not marked as favourite</string>
 
-    <string name="credentials">Credentials</string>
+    <string name="account">Account</string>
     <string name="url">Url</string>
     <string name="login">Login</string>
     <string name="logout">Logout</string>
@@ -57,13 +57,14 @@
     <string name="wifi_only">Wi-Fi only</string>
     <string name="sync_wifi_only_pref_summary_off">Synchronization will be running through all network connections</string>
     <string name="sync_wifi_only_pref_summary_on">Synchronization will be running through Wi-Fi only</string>
-    <string name="remove_all_data_and_open_login_activity">Remove all data and open login activity</string>
+    <string name="github">GitHub</string>
+    <string name="google_play">Google Play</string>
 
-    <string name="url_pref_key">url</string>
-    <string name="login_pref_key">login</string>
     <string name="logout_pref_key">logout</string>
     <string name="sync_pref_key">sync</string>
     <string name="sync_wifi_only_pref_key">sync_wifi_only</string>
+    <string name="github_pref_key">github</string>
+    <string name="google_play_pref_key">google_play</string>
 
     <string name="url_is_empty">Url is empty</string>
     <string name="login_is_empty">Login is empty</string>

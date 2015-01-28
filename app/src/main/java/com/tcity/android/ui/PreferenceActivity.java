@@ -18,6 +18,7 @@ package com.tcity.android.ui;
 
 import android.app.ActionBar;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.Preference;
@@ -49,14 +50,9 @@ public class PreferenceActivity extends android.preference.PreferenceActivity {
         Preferences preferences = new Preferences(this);
 
         //noinspection deprecation
-        Preference urlPreference = findPreference(getString(R.string.url_pref_key));
-        urlPreference.setSummary(preferences.getUrl());
-        urlPreference.setSelectable(false);
-
-        //noinspection deprecation
-        Preference loginPreference = findPreference(getResources().getString(R.string.login_pref_key));
-        loginPreference.setSummary(preferences.getLogin());
-        loginPreference.setSelectable(false);
+        Preference logoutPreference = findPreference(getString(R.string.logout_pref_key));
+        logoutPreference.setSummary(preferences.getUrl() + "\n" + preferences.getLogin());
+        logoutPreference.setOnPreferenceClickListener(new LogoutPreferenceListener());
 
         //noinspection deprecation
         CheckBoxPreference syncPreference = (CheckBoxPreference) findPreference(getString(R.string.sync_pref_key));
@@ -67,8 +63,12 @@ public class PreferenceActivity extends android.preference.PreferenceActivity {
         wifiPreference.setOnPreferenceChangeListener(new WifiPreferenceListener());
 
         //noinspection deprecation
-        Preference logoutPreference = findPreference(getString(R.string.logout_pref_key));
-        logoutPreference.setOnPreferenceClickListener(new LogoutPreferenceListener());
+        Preference gitHubPreference = findPreference(getString(R.string.github_pref_key));
+        gitHubPreference.setOnPreferenceClickListener(new GitHubPreferenceListener());
+
+        //noinspection deprecation
+        Preference googlePlayPreference = findPreference(getString(R.string.google_play_pref_key));
+        googlePlayPreference.setOnPreferenceClickListener(new GooglePlayPreferenceListener());
     }
 
     @Override
@@ -80,6 +80,26 @@ public class PreferenceActivity extends android.preference.PreferenceActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private class LogoutPreferenceListener implements Preference.OnPreferenceClickListener {
+
+        @Override
+        public boolean onPreferenceClick(@Nullable Preference preference) {
+            PreferenceActivity context = PreferenceActivity.this;
+
+            SyncUtils.disableSync(context);
+
+            ((Application) getApplication()).getDB().reset();
+            new Preferences(context).reset();
+
+            Intent intent = new Intent(context, SplashActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+
+            return true;
+        }
     }
 
     private class SyncPreferenceListener implements Preference.OnPreferenceChangeListener {
@@ -110,20 +130,26 @@ public class PreferenceActivity extends android.preference.PreferenceActivity {
         }
     }
 
-    private class LogoutPreferenceListener implements Preference.OnPreferenceClickListener {
+    private class GitHubPreferenceListener implements Preference.OnPreferenceClickListener {
 
         @Override
         public boolean onPreferenceClick(@Nullable Preference preference) {
-            PreferenceActivity context = PreferenceActivity.this;
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            intent.setData(Uri.parse("https://github.com/sproshev/tcity"));
 
-            SyncUtils.disableSync(context);
+            startActivity(intent);
 
-            ((Application) getApplication()).getDB().reset();
-            new Preferences(context).reset();
+            return true;
+        }
+    }
 
-            Intent intent = new Intent(context, SplashActivity.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+    private class GooglePlayPreferenceListener implements Preference.OnPreferenceClickListener {
+
+        @Override
+        public boolean onPreferenceClick(@Nullable Preference preference) {
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            intent.setData(Uri.parse("market://details?id=" + getApplicationContext().getPackageName()));
+
             startActivity(intent);
 
             return true;
