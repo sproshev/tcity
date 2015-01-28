@@ -26,6 +26,8 @@
 
     <string name="favourite">Favourite</string>
     <string name="options">Options</string>
+    <string name="info">Info</string>
+    <string name="tests">Tests</string>
 
     <string name="empty">Empty</string>
     <string name="loading">Loading</string>

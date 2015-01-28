@@ -18,16 +18,16 @@ package com.tcity.android.ui.info;
 
 import android.app.ActionBar;
 import android.app.Activity;
-import android.app.FragmentTransaction;
 import android.os.Bundle;
 import android.view.MenuItem;
 
+import com.tcity.android.R;
 import com.tcity.android.app.Application;
 import com.tcity.android.db.DB;
 
 import org.jetbrains.annotations.NotNull;
 
-public class BuildHostActivity extends Activity implements ActionBar.TabListener {
+public class BuildHostActivity extends Activity {
 
     @NotNull
     public static final String ID_INTENT_KEY = "BUILD_ID";
@@ -51,19 +51,33 @@ public class BuildHostActivity extends Activity implements ActionBar.TabListener
         bar.setSubtitle(calculateSubtitle());
         bar.setDisplayHomeAsUpEnabled(true);
 
-        /*
         bar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
 
         ActionBar.Tab tab = bar.newTab();
-        tab.setText("Info");
-        tab.setTabListener(this);
+        tab.setText(R.string.info);
+        tab.setTabListener(
+                new BuildTabListener<>(
+                        this,
+                        BuildInfoFragment.class,
+                        "Info",
+                        myBuildId
+                )
+        );
         bar.addTab(tab);
 
         tab = bar.newTab();
-        tab.setText("Tests");
-        tab.setTabListener(this);
+        tab.setText(R.string.tests);
+        tab.setTabListener(
+                new BuildTabListener<>(
+                        this,
+                        BuildTestsFragment.class,
+                        "Tests",
+                        myBuildId
+                )
+        );
         bar.addTab(tab);
 
+        /*
         tab = bar.newTab();
         tab.setText("Artifacts");
         tab.setTabListener(this);
@@ -82,21 +96,6 @@ public class BuildHostActivity extends Activity implements ActionBar.TabListener
         }
 
         return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public void onTabSelected(ActionBar.Tab tab, FragmentTransaction ft) {
-
-    }
-
-    @Override
-    public void onTabUnselected(ActionBar.Tab tab, FragmentTransaction ft) {
-
-    }
-
-    @Override
-    public void onTabReselected(ActionBar.Tab tab, FragmentTransaction ft) {
-
     }
 
     @NotNull
