@@ -20,16 +20,14 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
 
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="match_parent">
 
-    android:padding="16dp">
-
-    <ScrollView
-        android:id="@+id/tab_container"
+    <ListView
+        android:id="@android:id/list"
 
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content">
 
-    </ScrollView>
+    </ListView>
 
 </android.support.v4.widget.SwipeRefreshLayout>

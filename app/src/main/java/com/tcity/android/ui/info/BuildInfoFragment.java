@@ -16,25 +16,37 @@
 
 package com.tcity.android.ui.info;
 
-import android.app.Fragment;
+import android.app.ListFragment;
+import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
+import android.os.Handler;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.Toast;
 
 import com.tcity.android.R;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-public class BuildInfoFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
+import java.util.Map;
+
+public class BuildInfoFragment extends ListFragment implements SwipeRefreshLayout.OnRefreshListener {
 
     @NotNull
     private String myBuildId;
 
     @NotNull
     private SwipeRefreshLayout myLayout;
+
+    @NotNull
+    private ArrayAdapter<String> myAdapter;
+
+    @Nullable
+    private BuildInfoTask myTask;
 
     // LIFECYCLE - Begin
 
@@ -55,11 +67,84 @@ public class BuildInfoFragment extends Fragment implements SwipeRefreshLayout.On
         myLayout = (SwipeRefreshLayout) getActivity().findViewById(R.id.tab_layout);
         myLayout.setColorSchemeResources(R.color.green, R.color.red);
         myLayout.setOnRefreshListener(this);
+
+        myAdapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1);
+        getListView().setAdapter(myAdapter);
+
+        onRefresh();
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+
+        //noinspection ConstantConditions
+        myBuildId = null;
+
+        //noinspection ConstantConditions
+        myLayout = null;
+
+        if (myTask != null) {
+            myTask.cancel(true);
+            myTask = null;
+        }
     }
 
     // LIFECYCLE - End
 
     @Override
     public void onRefresh() {
+        if (myTask == null) {
+            myTask = new BuildInfoTask(myBuildId, this);
+        }
+
+        if (myTask.getStatus() != AsyncTask.Status.RUNNING) {
+            if (myTask.getStatus() == AsyncTask.Status.FINISHED) {
+                myTask = new BuildInfoTask(myBuildId, this);
+            }
+
+            myTask.execute();
+        }
+    }
+
+    void onRefreshStarted() {
+        setRefreshing(true);
+    }
+
+    void onRefreshFinished() {
+        setRefreshing(false);
+
+        if (myTask == null) {
+            return;
+        }
+
+        //noinspection ThrowableResultOfMethodCallIgnored
+        Exception e = myTask.getException();
+        Map<String, String> result = myTask.getResult();
+
+        if (e != null) {
+            Toast.makeText(getActivity(), e.getMessage(), Toast.LENGTH_LONG).show();
+        } else if (result != null) {
+            myAdapter.clear();
+
+            for (Map.Entry<String, String> kv : result.entrySet()) {
+                myAdapter.add(kv.getKey() + ": " + kv.getValue());
+            }
+
+            myAdapter.notifyDataSetChanged();
+        }
+    }
+
+    private void setRefreshing(final boolean refreshing) {
+        new Handler().postDelayed(
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        if (myLayout.isRefreshing() ^ refreshing) {
+                            myLayout.setRefreshing(refreshing);
+                        }
+                    }
+                }, 500
+        );  // https://code.google.com/p/android/issues/detail?id=77712
     }
 }
