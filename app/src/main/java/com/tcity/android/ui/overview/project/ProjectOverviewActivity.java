@@ -70,7 +70,7 @@ public class ProjectOverviewActivity extends ListActivity implements SwipeRefres
         myRecreating = false;
         myProjectId = calculateProjectId();
 
-        setContentView(R.layout.overview);
+        setContentView(R.layout.overview_activity);
 
         ActionBar bar = getActionBar();
         if (bar != null) {
@@ -82,7 +82,7 @@ public class ProjectOverviewActivity extends ListActivity implements SwipeRefres
             }
         }
 
-        myLayout = (SwipeRefreshLayout) findViewById(R.id.overview);
+        myLayout = (SwipeRefreshLayout) findViewById(R.id.overview_layout);
         myLayout.setColorSchemeResources(R.color.green, R.color.red);
         myLayout.setOnRefreshListener(this);
 

@@ -43,17 +43,17 @@ public class DB {
         myDBHelper = new DBHelper(context);
         myListeners = new HashMap<>();
 
-        myListeners.put(Constants.PROJECT_OVERVIEW_TABLE, new LinkedList<Listener>());
-        myListeners.put(Constants.BUILD_CONFIGURATION_OVERVIEW_TABLE, new LinkedList<Listener>());
-        myListeners.put(Constants.BUILD_OVERVIEW_TABLE, new LinkedList<Listener>());
+        myListeners.put(Table.PROJECT_OVERVIEW_TABLE, new LinkedList<Listener>());
+        myListeners.put(Table.BUILD_CONFIGURATION_OVERVIEW_TABLE, new LinkedList<Listener>());
+        myListeners.put(Table.BUILD_OVERVIEW_TABLE, new LinkedList<Listener>());
     }
 
     // PROJECT - BEGIN
 
     public void setFavouriteProject(@NotNull String id, boolean favourite) {
-        setFavourite(Constants.FAVOURITE_PROJECT_TABLE, id, favourite);
+        setFavourite(Table.FAVOURITE_PROJECT_TABLE, id, favourite);
 
-        notifyListeners(Constants.PROJECT_OVERVIEW_TABLE);
+        notifyListeners(Table.PROJECT_OVERVIEW_TABLE);
     }
 
     public void addFavouriteProjects(@NotNull Collection<String> ids) {
@@ -63,7 +63,7 @@ public class DB {
 
         try {
             for (String id : ids) {
-                setFavourite(Constants.FAVOURITE_PROJECT_TABLE, id, true);
+                setFavourite(Table.FAVOURITE_PROJECT_TABLE, id, true);
             }
 
             db.setTransactionSuccessful();
@@ -71,21 +71,21 @@ public class DB {
             db.endTransaction();
         }
 
-        notifyListeners(Constants.PROJECT_OVERVIEW_TABLE);
+        notifyListeners(Table.PROJECT_OVERVIEW_TABLE);
     }
 
     public boolean isProjectFavourite(@NotNull String id) {
-        return isFavourite(Constants.FAVOURITE_PROJECT_TABLE, id);
+        return isFavourite(Table.FAVOURITE_PROJECT_TABLE, id);
     }
 
     @NotNull
     public String getProjectName(@NotNull String id) {
-        return getName(Constants.PROJECT_OVERVIEW_TABLE, id);
+        return getName(Table.PROJECT_OVERVIEW_TABLE, id);
     }
 
     @NotNull
     public String getProjectParentId(@NotNull String id) {
-        return getParentId(Constants.PROJECT_OVERVIEW_TABLE, id);
+        return getParentId(Table.PROJECT_OVERVIEW_TABLE, id);
     }
 
     public void setProjects(@NotNull Collection<Project> projects) {
@@ -93,7 +93,7 @@ public class DB {
         db.beginTransaction();
 
         try {
-            db.delete(Constants.PROJECT_OVERVIEW_TABLE, null, null);
+            db.delete(Table.PROJECT_OVERVIEW_TABLE, null, null);
 
             for (Project project : projects) {
                 ContentValues values = new ContentValues();
@@ -101,7 +101,7 @@ public class DB {
                 values.put(Column.PARENT_ID.getName(), project.parentProjectId);
                 values.put(Column.NAME.getName(), project.name);
 
-                db.insert(Constants.PROJECT_OVERVIEW_TABLE, null, values);
+                db.insert(Table.PROJECT_OVERVIEW_TABLE, null, values);
             }
 
             setProjectLastUpdate(Project.ROOT_PROJECT_ID, System.currentTimeMillis());
@@ -111,38 +111,38 @@ public class DB {
             db.endTransaction();
         }
 
-        notifyListeners(Constants.PROJECT_OVERVIEW_TABLE);
+        notifyListeners(Table.PROJECT_OVERVIEW_TABLE);
     }
 
     @NotNull
     public Cursor getProjects(@Nullable String parentProjectId, boolean onlyFavourite) {
         return getProjectsOrBuildConfigurations(
-                Constants.PROJECT_OVERVIEW_TABLE,
-                Constants.FAVOURITE_PROJECT_TABLE,
-                Constants.PROJECT_STATUS_TABLE,
+                Table.PROJECT_OVERVIEW_TABLE,
+                Table.FAVOURITE_PROJECT_TABLE,
+                Table.PROJECT_STATUS_TABLE,
                 parentProjectId,
                 onlyFavourite
         );
     }
 
     public void setProjectStatus(@NotNull String id, @Nullable Status status) {
-        setProjectOrBuildConfigurationStatus(Constants.PROJECT_STATUS_TABLE, id, status);
+        setProjectOrBuildConfigurationStatus(Table.PROJECT_STATUS_TABLE, id, status);
 
-        setTime(Constants.PROJECT_TIME_TABLE, Column.STATUS_UPDATE, id, System.currentTimeMillis());
+        setTime(Table.PROJECT_TIME_TABLE, Column.STATUS_UPDATE, id, System.currentTimeMillis());
 
-        notifyListeners(Constants.PROJECT_OVERVIEW_TABLE);
+        notifyListeners(Table.PROJECT_OVERVIEW_TABLE);
     }
 
     public long getProjectStatusLastUpdate(@NotNull String id) {
-        return getTime(Constants.PROJECT_TIME_TABLE, Column.STATUS_UPDATE, id);
+        return getTime(Table.PROJECT_TIME_TABLE, Column.STATUS_UPDATE, id);
     }
 
     public long getProjectLastUpdate(@NotNull String id) {
-        return getTime(Constants.PROJECT_TIME_TABLE, Column.LAST_UPDATE, id);
+        return getTime(Table.PROJECT_TIME_TABLE, Column.LAST_UPDATE, id);
     }
 
     private void setProjectLastUpdate(@NotNull String id, long time) {
-        setTime(Constants.PROJECT_TIME_TABLE, Column.LAST_UPDATE, id, time);
+        setTime(Table.PROJECT_TIME_TABLE, Column.LAST_UPDATE, id, time);
     }
 
     // PROJECT - END
@@ -161,23 +161,23 @@ public class DB {
             }
         }
 
-        setFavourite(Constants.FAVOURITE_BUILD_CONFIGURATION_TABLE, id, favourite);
+        setFavourite(Table.FAVOURITE_BUILD_CONFIGURATION_TABLE, id, favourite);
 
-        notifyListeners(Constants.BUILD_CONFIGURATION_OVERVIEW_TABLE);
+        notifyListeners(Table.BUILD_CONFIGURATION_OVERVIEW_TABLE);
     }
 
     public boolean isBuildConfigurationFavourite(@NotNull String id) {
-        return isFavourite(Constants.FAVOURITE_BUILD_CONFIGURATION_TABLE, id);
+        return isFavourite(Table.FAVOURITE_BUILD_CONFIGURATION_TABLE, id);
     }
 
     @NotNull
     public String getBuildConfigurationName(@NotNull String id) {
-        return getName(Constants.BUILD_CONFIGURATION_OVERVIEW_TABLE, id);
+        return getName(Table.BUILD_CONFIGURATION_OVERVIEW_TABLE, id);
     }
 
     @NotNull
     public String getBuildConfigurationParentId(@NotNull String id) {
-        return getParentId(Constants.BUILD_CONFIGURATION_OVERVIEW_TABLE, id);
+        return getParentId(Table.BUILD_CONFIGURATION_OVERVIEW_TABLE, id);
     }
 
     public void setBuildConfigurations(@NotNull String parentProjectId,
@@ -187,7 +187,7 @@ public class DB {
 
         try {
             db.delete(
-                    Constants.BUILD_CONFIGURATION_OVERVIEW_TABLE,
+                    Table.BUILD_CONFIGURATION_OVERVIEW_TABLE,
                     Column.PARENT_ID.getName() + " = ?",
                     new String[]{parentProjectId}
             );
@@ -198,7 +198,7 @@ public class DB {
                 values.put(Column.PARENT_ID.getName(), buildConfiguration.parentProjectId);
                 values.put(Column.NAME.getName(), buildConfiguration.name);
 
-                db.insert(Constants.BUILD_CONFIGURATION_OVERVIEW_TABLE, null, values);
+                db.insert(Table.BUILD_CONFIGURATION_OVERVIEW_TABLE, null, values);
             }
 
             setProjectLastUpdate(parentProjectId, System.currentTimeMillis());
@@ -208,51 +208,51 @@ public class DB {
             db.endTransaction();
         }
 
-        notifyListeners(Constants.BUILD_CONFIGURATION_OVERVIEW_TABLE);
+        notifyListeners(Table.BUILD_CONFIGURATION_OVERVIEW_TABLE);
     }
 
     @NotNull
     public Cursor getBuildConfigurations(@Nullable String parentProjectId, boolean onlyFavourite) {
         return getProjectsOrBuildConfigurations(
-                Constants.BUILD_CONFIGURATION_OVERVIEW_TABLE,
-                Constants.FAVOURITE_BUILD_CONFIGURATION_TABLE,
-                Constants.BUILD_CONFIGURATION_STATUS_TABLE,
+                Table.BUILD_CONFIGURATION_OVERVIEW_TABLE,
+                Table.FAVOURITE_BUILD_CONFIGURATION_TABLE,
+                Table.BUILD_CONFIGURATION_STATUS_TABLE,
                 parentProjectId,
                 onlyFavourite
         );
     }
 
     public void setBuildConfigurationStatus(@NotNull String id, @Nullable Status status) {
-        setProjectOrBuildConfigurationStatus(Constants.BUILD_CONFIGURATION_STATUS_TABLE, id, status);
+        setProjectOrBuildConfigurationStatus(Table.BUILD_CONFIGURATION_STATUS_TABLE, id, status);
 
         setTime(
-                Constants.BUILD_CONFIGURATION_TIME_TABLE,
+                Table.BUILD_CONFIGURATION_TIME_TABLE,
                 Column.STATUS_UPDATE,
                 id,
                 System.currentTimeMillis()
         );
 
-        notifyListeners(Constants.BUILD_CONFIGURATION_OVERVIEW_TABLE);
+        notifyListeners(Table.BUILD_CONFIGURATION_OVERVIEW_TABLE);
     }
 
     public long getBuildConfigurationStatusLastUpdate(@NotNull String id) {
-        return getTime(Constants.BUILD_CONFIGURATION_TIME_TABLE, Column.STATUS_UPDATE, id);
+        return getTime(Table.BUILD_CONFIGURATION_TIME_TABLE, Column.STATUS_UPDATE, id);
     }
 
     public long getBuildConfigurationLastUpdate(@NotNull String id) {
-        return getTime(Constants.BUILD_CONFIGURATION_TIME_TABLE, Column.LAST_UPDATE, id);
+        return getTime(Table.BUILD_CONFIGURATION_TIME_TABLE, Column.LAST_UPDATE, id);
     }
 
     private void setBuildConfigurationLastUpdate(@NotNull String id, long time) {
-        setTime(Constants.BUILD_CONFIGURATION_TIME_TABLE, Column.LAST_UPDATE, id, time);
+        setTime(Table.BUILD_CONFIGURATION_TIME_TABLE, Column.LAST_UPDATE, id, time);
     }
 
     public long getBuildConfigurationSyncBound(@NotNull String id) {
-        return getTime(Constants.BUILD_CONFIGURATION_TIME_TABLE, Column.SYNC_BOUND, id);
+        return getTime(Table.BUILD_CONFIGURATION_TIME_TABLE, Column.SYNC_BOUND, id);
     }
 
     public void setBuildConfigurationSyncBound(@NotNull String id, long time) {
-        setTime(Constants.BUILD_CONFIGURATION_TIME_TABLE, Column.SYNC_BOUND, id, time);
+        setTime(Table.BUILD_CONFIGURATION_TIME_TABLE, Column.SYNC_BOUND, id, time);
     }
 
     // BUILD CONFIGURATION - END
@@ -260,13 +260,13 @@ public class DB {
     // BUILD - BEGIN
 
     public void setFavouriteBuild(@NotNull String id, boolean favourite) {
-        setFavourite(Constants.FAVOURITE_BUILD_TABLE, id, favourite);
+        setFavourite(Table.FAVOURITE_BUILD_TABLE, id, favourite);
 
-        notifyListeners(Constants.BUILD_OVERVIEW_TABLE);
+        notifyListeners(Table.BUILD_OVERVIEW_TABLE);
     }
 
     public boolean isBuildFavourite(@NotNull String id) {
-        return isFavourite(Constants.FAVOURITE_BUILD_TABLE, id);
+        return isFavourite(Table.FAVOURITE_BUILD_TABLE, id);
     }
 
     public void setBuilds(@NotNull String parentBuildConfigurationId,
@@ -276,7 +276,7 @@ public class DB {
 
         try {
             db.delete(
-                    Constants.BUILD_OVERVIEW_TABLE,
+                    Table.BUILD_OVERVIEW_TABLE,
                     Column.PARENT_ID.getName() + " = ?",
                     new String[]{parentBuildConfigurationId}
             );
@@ -289,7 +289,7 @@ public class DB {
                 values.put(Column.STATUS.getName(), build.status.toString());
                 values.put(Column.BRANCH.getName(), build.branch);
 
-                db.insert(Constants.BUILD_OVERVIEW_TABLE, null, values);
+                db.insert(Table.BUILD_OVERVIEW_TABLE, null, values);
             }
 
             setBuildConfigurationLastUpdate(parentBuildConfigurationId, System.currentTimeMillis());
@@ -299,7 +299,7 @@ public class DB {
             db.endTransaction();
         }
 
-        notifyListeners(Constants.BUILD_OVERVIEW_TABLE);
+        notifyListeners(Table.BUILD_OVERVIEW_TABLE);
     }
 
     public void appendBuilds(@NotNull Collection<Build> builds) {
@@ -316,13 +316,13 @@ public class DB {
             db.endTransaction();
         }
 
-        notifyListeners(Constants.BUILD_OVERVIEW_TABLE);
+        notifyListeners(Table.BUILD_OVERVIEW_TABLE);
     }
 
     @NotNull
     public Cursor getBuilds(@NotNull String parentBuildConfigurationId, boolean onlyFavourite) {
-        String mainTable = Constants.BUILD_OVERVIEW_TABLE;
-        String favouriteTable = Constants.FAVOURITE_BUILD_TABLE;
+        String mainTable = Table.BUILD_OVERVIEW_TABLE;
+        String favouriteTable = Table.FAVOURITE_BUILD_TABLE;
 
         String idColumn = Column.TC_ID.getName();
 
@@ -365,45 +365,45 @@ public class DB {
     // BUILD - END
 
     public synchronized void addProjectsListener(@NotNull Listener listener) {
-        myListeners.get(Constants.PROJECT_OVERVIEW_TABLE).add(listener);
+        myListeners.get(Table.PROJECT_OVERVIEW_TABLE).add(listener);
     }
 
     public synchronized void addBuildConfigurationsListener(@NotNull Listener listener) {
-        myListeners.get(Constants.BUILD_CONFIGURATION_OVERVIEW_TABLE).add(listener);
+        myListeners.get(Table.BUILD_CONFIGURATION_OVERVIEW_TABLE).add(listener);
     }
 
     public synchronized void addBuildsListener(@NotNull Listener listener) {
-        myListeners.get(Constants.BUILD_OVERVIEW_TABLE).add(listener);
+        myListeners.get(Table.BUILD_OVERVIEW_TABLE).add(listener);
     }
 
     public synchronized void removeProjectsListener(@NotNull Listener listener) {
-        myListeners.get(Constants.PROJECT_OVERVIEW_TABLE).remove(listener);
+        myListeners.get(Table.PROJECT_OVERVIEW_TABLE).remove(listener);
     }
 
     public synchronized void removeBuildConfigurationsListener(@NotNull Listener listener) {
-        myListeners.get(Constants.BUILD_CONFIGURATION_OVERVIEW_TABLE).remove(listener);
+        myListeners.get(Table.BUILD_CONFIGURATION_OVERVIEW_TABLE).remove(listener);
     }
 
     public synchronized void removeBuildsListener(@NotNull Listener listener) {
-        myListeners.get(Constants.BUILD_OVERVIEW_TABLE).remove(listener);
+        myListeners.get(Table.BUILD_OVERVIEW_TABLE).remove(listener);
     }
 
     public void reset() {
         SQLiteDatabase db = myDBHelper.getWritableDatabase();
 
-        db.delete(Constants.FAVOURITE_PROJECT_TABLE, null, null);
-        db.delete(Constants.FAVOURITE_BUILD_CONFIGURATION_TABLE, null, null);
-        db.delete(Constants.FAVOURITE_BUILD_TABLE, null, null);
+        db.delete(Table.FAVOURITE_PROJECT_TABLE, null, null);
+        db.delete(Table.FAVOURITE_BUILD_CONFIGURATION_TABLE, null, null);
+        db.delete(Table.FAVOURITE_BUILD_TABLE, null, null);
 
-        db.delete(Constants.PROJECT_OVERVIEW_TABLE, null, null);
-        db.delete(Constants.BUILD_CONFIGURATION_OVERVIEW_TABLE, null, null);
-        db.delete(Constants.BUILD_OVERVIEW_TABLE, null, null);
+        db.delete(Table.PROJECT_OVERVIEW_TABLE, null, null);
+        db.delete(Table.BUILD_CONFIGURATION_OVERVIEW_TABLE, null, null);
+        db.delete(Table.BUILD_OVERVIEW_TABLE, null, null);
 
-        db.delete(Constants.PROJECT_STATUS_TABLE, null, null);
-        db.delete(Constants.BUILD_CONFIGURATION_STATUS_TABLE, null, null);
+        db.delete(Table.PROJECT_STATUS_TABLE, null, null);
+        db.delete(Table.BUILD_CONFIGURATION_STATUS_TABLE, null, null);
 
-        db.delete(Constants.PROJECT_TIME_TABLE, null, null);
-        db.delete(Constants.BUILD_CONFIGURATION_TIME_TABLE, null, null);
+        db.delete(Table.PROJECT_TIME_TABLE, null, null);
+        db.delete(Table.BUILD_CONFIGURATION_TIME_TABLE, null, null);
     }
 
     private void setFavourite(@NotNull String table,
@@ -657,7 +657,7 @@ public class DB {
 
     private void appendBuild(@NotNull Build build) {
         Cursor cursor = myDBHelper.getReadableDatabase().query(
-                Constants.BUILD_OVERVIEW_TABLE,
+                Table.BUILD_OVERVIEW_TABLE,
                 null,
                 Column.TC_ID.getName() + " = ?",
                 new String[]{build.id},
@@ -673,10 +673,10 @@ public class DB {
         if (cursor.getCount() == 0) {
             values.put(Column.TC_ID.getName(), build.id);
 
-            myDBHelper.getWritableDatabase().insert(Constants.BUILD_OVERVIEW_TABLE, null, values);
+            myDBHelper.getWritableDatabase().insert(Table.BUILD_OVERVIEW_TABLE, null, values);
         } else {
             myDBHelper.getWritableDatabase().update(
-                    Constants.BUILD_OVERVIEW_TABLE,
+                    Table.BUILD_OVERVIEW_TABLE,
                     values,
                     Column.TC_ID + " = ?",
                     new String[]{build.id}

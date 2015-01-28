@@ -42,7 +42,7 @@ public class BuildDBEngine {
     @NotNull
     private final Cursor myCursor;
 
-    public BuildDBEngine(@NotNull String parentBuildConfiguration,
+    public BuildDBEngine(@NotNull String parentBuildConfigurationId,
                          boolean onlyFavourite,
                          @NotNull Context context,
                          @NotNull DB db,
@@ -54,7 +54,7 @@ public class BuildDBEngine {
         myHeader = (TextView) inflater.inflate(R.layout.overview_separator, root, false);
         myHeader.setText(title);
 
-        myCursor = db.getBuilds(parentBuildConfiguration, onlyFavourite);
+        myCursor = db.getBuilds(parentBuildConfigurationId, onlyFavourite);
 
         myAdapter = new BuildAdapter(context, clickListener);
         myAdapter.changeCursor(myCursor);

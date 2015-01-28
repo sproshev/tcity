@@ -18,7 +18,7 @@ package com.tcity.android.db;
 
 import org.jetbrains.annotations.NotNull;
 
-class Constants {
+class Table {
 
     @NotNull
     static final String PROJECT_STATUS_TABLE = "project_status";
@@ -50,6 +50,6 @@ class Constants {
     @NotNull
     static final String BUILD_CONFIGURATION_TIME_TABLE = "build_configuration_time";
 
-    private Constants() {
+    private Table() {
     }
 }
