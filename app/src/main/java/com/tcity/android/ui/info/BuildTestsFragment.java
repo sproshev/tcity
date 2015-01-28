@@ -19,6 +19,7 @@ package com.tcity.android.ui.info;
 import android.app.Fragment;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,7 +28,15 @@ import com.tcity.android.R;
 
 import org.jetbrains.annotations.NotNull;
 
-public class BuildTestsFragment extends Fragment {
+public class BuildTestsFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
+
+    @NotNull
+    private String myBuildId;
+
+    @NotNull
+    private SwipeRefreshLayout myLayout;
+
+    // LIFECYCLE - Begin
 
     @Nullable
     @Override
@@ -35,5 +44,22 @@ public class BuildTestsFragment extends Fragment {
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         return inflater.inflate(R.layout.build_tab_fragment, container, false);
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+        myBuildId = getArguments().getString(BuildHostActivity.ID_INTENT_KEY);
+
+        myLayout = (SwipeRefreshLayout) getActivity().findViewById(R.id.tab_layout);
+        myLayout.setColorSchemeResources(R.color.green, R.color.red);
+        myLayout.setOnRefreshListener(this);
+    }
+
+    // LIFECYCLE - End
+
+    @Override
+    public void onRefresh() {
     }
 }

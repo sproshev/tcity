@@ -14,10 +14,22 @@
   ~ limitations under the License.
   -->
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:orientation="vertical"
-              android:padding="16dp">
+<android.support.v4.widget.SwipeRefreshLayout
+    android:id="@+id/tab_layout"
 
-</LinearLayout>
+    xmlns:android="http://schemas.android.com/apk/res/android"
+
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+
+    android:padding="16dp">
+
+    <ScrollView
+        android:id="@+id/tab_container"
+
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+    </ScrollView>
+
+</android.support.v4.widget.SwipeRefreshLayout>
