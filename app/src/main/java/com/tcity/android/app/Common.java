@@ -20,6 +20,9 @@ import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 
+import com.tcity.android.R;
+import com.tcity.android.Status;
+
 import org.jetbrains.annotations.NotNull;
 
 public class Common {
@@ -36,5 +39,28 @@ public class Common {
         NetworkInfo networkInfo = manager.getActiveNetworkInfo();
 
         return networkInfo != null && networkInfo.isConnectedOrConnecting();
+    }
+
+    public static int loadTextColor(@NotNull Status status, @NotNull Context context) {
+        return context.getResources().getColor(loadColorResource(status, android.R.color.black));
+    }
+
+    public static int loadBackgroundColor(@NotNull Status status, @NotNull Context context) {
+        return context.getResources().getColor(loadColorResource(status, android.R.color.transparent));
+    }
+
+    private static int loadColorResource(@NotNull Status status, int defaultValue) {
+        switch (status) {
+            case RUNNING:
+                return R.color.blue;
+            case SUCCESS:
+                return R.color.green;
+            case FAILURE:
+            case ERROR:
+            case WARNING:
+                return R.color.red;
+            default:
+                return defaultValue;
+        }
     }
 }

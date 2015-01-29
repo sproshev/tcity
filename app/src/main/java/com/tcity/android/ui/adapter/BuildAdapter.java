@@ -27,6 +27,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.tcity.android.R;
+import com.tcity.android.app.Common;
 import com.tcity.android.db.DBUtils;
 
 import org.jetbrains.annotations.NotNull;
@@ -86,7 +87,7 @@ public class BuildAdapter extends CursorAdapter {
 
         holder.name.setText(DBUtils.getName(cursor));
         holder.name.setTextColor(
-                AdapterUtils.loadColor(DBUtils.getStatus(cursor), context)
+                Common.loadTextColor(DBUtils.getStatus(cursor), context)
         );
 
         holder.description.setOnClickListener(new DescriptionListener(myClickListener, id));
@@ -108,7 +109,7 @@ public class BuildAdapter extends CursorAdapter {
     }
 
     private void bindBranch(@NotNull TextView branchView,
-                           @Nullable String branch) {
+                            @Nullable String branch) {
         if (branch == null) {
             branchView.setVisibility(View.GONE);
         } else {

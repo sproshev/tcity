@@ -27,6 +27,7 @@ import android.widget.TextView;
 
 import com.tcity.android.R;
 import com.tcity.android.Status;
+import com.tcity.android.app.Common;
 import com.tcity.android.db.DBUtils;
 
 import org.jetbrains.annotations.NotNull;
@@ -119,7 +120,7 @@ class ProjectOrBuildConfigurationAdapter extends CursorAdapter {
                           @NotNull Context context) {
         nameView.setText(name);
         nameView.setOnClickListener(new NameListener(myClickListener, id));
-        nameView.setTextColor(AdapterUtils.loadColor(status, context));
+        nameView.setTextColor(Common.loadTextColor(status, context));
     }
 
     private static class NameListener implements View.OnClickListener {
