@@ -38,15 +38,19 @@ public class Build {
     @Nullable
     public final String branch;
 
+    public final boolean isBranchDefault;
+
     public Build(@NotNull String id,
                  @NotNull String name,
                  @NotNull String parentBuildConfigurationId,
                  @NotNull Status status,
-                 @Nullable String branch) {
+                 @Nullable String branch,
+                 boolean isBranchDefault) {
         this.id = id;
         this.name = name;
         this.parentBuildConfigurationId = parentBuildConfigurationId;
         this.status = status;
         this.branch = branch;
+        this.isBranchDefault = isBranchDefault;
     }
 }

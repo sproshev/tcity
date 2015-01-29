@@ -74,6 +74,7 @@ class DBHelper extends SQLiteOpenHelper {
             case STATUS:
                 return column.getName() + " TEXT NOT NULL";
             case FAVOURITE:
+            case BRANCH_DEFAULT:
                 return column.getName() + " INTEGER NOT NULL";
             case LAST_UPDATE:
             case SYNC_BOUND:
@@ -106,7 +107,8 @@ class DBHelper extends SQLiteOpenHelper {
                         getDescription(Column.NAME) + ", " +
                         getDescription(Column.PARENT_ID) + ", " +
                         getDescription(Column.STATUS) + ", " +
-                        getDescription(Column.BRANCH) +
+                        getDescription(Column.BRANCH) + ", " +
+                        getDescription(Column.BRANCH_DEFAULT) +
                         ");"
         );
     }

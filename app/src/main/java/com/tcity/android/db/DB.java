@@ -298,6 +298,7 @@ public class DB {
                 values.put(Column.NAME.getName(), build.name);
                 values.put(Column.STATUS.getName(), build.status.toString());
                 values.put(Column.BRANCH.getName(), build.branch);
+                values.put(Column.BRANCH_DEFAULT.getName(), build.isBranchDefault);
 
                 db.insert(Table.BUILD_OVERVIEW_TABLE, null, values);
             }
@@ -345,6 +346,7 @@ public class DB {
                             mainTable + "." + Column.PARENT_ID.getName() + ", " +
                             mainTable + "." + Column.STATUS.getName() + ", " +
                             mainTable + "." + Column.BRANCH.getName() + ", " +
+                            mainTable + "." + Column.BRANCH_DEFAULT.getName() + ", " +
                             favouriteTable + "." + Column.FAVOURITE.getName() +
                             " FROM " + mainTable +
                             " INNER JOIN " + favouriteTable +
@@ -362,6 +364,7 @@ public class DB {
                             mainTable + "." + Column.PARENT_ID.getName() + ", " +
                             mainTable + "." + Column.STATUS.getName() + ", " +
                             mainTable + "." + Column.BRANCH.getName() + ", " +
+                            mainTable + "." + Column.BRANCH_DEFAULT.getName() + ", " +
                             favouriteTable + "." + Column.FAVOURITE.getName() +
                             " FROM " + mainTable +
                             " LEFT JOIN " + favouriteTable +
@@ -472,7 +475,7 @@ public class DB {
         } else {
             cursor.moveToNext();
 
-            boolean result = DBUtils.getFavourite(cursor);
+            boolean result = DBUtils.isFavourite(cursor);
 
             cursor.close();
 
@@ -679,6 +682,7 @@ public class DB {
         values.put(Column.NAME.getName(), build.name);
         values.put(Column.STATUS.getName(), build.status.toString());
         values.put(Column.BRANCH.getName(), build.branch);
+        values.put(Column.BRANCH_DEFAULT.getName(), build.isBranchDefault);
 
         if (cursor.getCount() == 0) {
             values.put(Column.TC_ID.getName(), build.id);

@@ -41,7 +41,7 @@ public class DBUtils {
         }
     }
 
-    public static boolean getFavourite(@NotNull Cursor cursor) {
+    public static boolean isFavourite(@NotNull Cursor cursor) {
         int columnIndex = cursor.getColumnIndex(Column.FAVOURITE.getName());
 
         return !cursor.isNull(columnIndex) && cursor.getInt(columnIndex) != 0;
@@ -83,5 +83,9 @@ public class DBUtils {
         } else {
             return cursor.getString(columnIndex);
         }
+    }
+
+    public static boolean isBranchDefault(@NotNull Cursor cursor) {
+        return cursor.getInt(cursor.getColumnIndex(Column.BRANCH_DEFAULT.getName())) != 0;
     }
 }

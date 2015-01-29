@@ -87,7 +87,7 @@ class ProjectOrBuildConfigurationAdapter extends CursorAdapter {
 
         String id = DBUtils.getId(cursor);
 
-        bindImage(holder.image, id, DBUtils.getFavourite(cursor));
+        bindImage(holder.image, id, DBUtils.isFavourite(cursor));
         holder.options.setOnClickListener(new OptionsListener(myClickListener, id));
 
         bindName(
@@ -99,28 +99,28 @@ class ProjectOrBuildConfigurationAdapter extends CursorAdapter {
         );
     }
 
-    private void bindImage(@NotNull ImageButton imageView,
+    private void bindImage(@NotNull ImageButton view,
                            @NotNull String id,
                            boolean favourite) {
-        imageView.setOnClickListener(new ImageListener(myClickListener, id));
+        view.setOnClickListener(new ImageListener(myClickListener, id));
 
         if (favourite) {
-            imageView.setContentDescription(myFavouriteDescription);
-            imageView.setImageResource(FAVOURITE_IMAGE);
+            view.setContentDescription(myFavouriteDescription);
+            view.setImageResource(FAVOURITE_IMAGE);
         } else {
-            imageView.setContentDescription(myNotFavouriteDescription);
-            imageView.setImageResource(NOT_FAVOURITE_IMAGE);
+            view.setContentDescription(myNotFavouriteDescription);
+            view.setImageResource(NOT_FAVOURITE_IMAGE);
         }
     }
 
-    private void bindName(@NotNull TextView nameView,
+    private void bindName(@NotNull TextView view,
                           @NotNull String id,
                           @NotNull String name,
                           @NotNull Status status,
                           @NotNull Context context) {
-        nameView.setText(name);
-        nameView.setOnClickListener(new NameListener(myClickListener, id));
-        nameView.setTextColor(Common.loadTextColor(status, context));
+        view.setText(name);
+        view.setOnClickListener(new NameListener(myClickListener, id));
+        view.setTextColor(Common.loadTextColor(status, context));
     }
 
     private static class NameListener implements View.OnClickListener {

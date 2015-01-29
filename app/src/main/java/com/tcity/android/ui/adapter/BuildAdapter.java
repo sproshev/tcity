@@ -18,6 +18,7 @@ package com.tcity.android.ui.adapter;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.Typeface;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -82,8 +83,8 @@ public class BuildAdapter extends CursorAdapter {
 
         String id = DBUtils.getId(cursor);
 
-        bindImage(holder.image, id, DBUtils.getFavourite(cursor));
-        bindBranch(holder.branch, DBUtils.getBranch(cursor));
+        bindImage(holder.image, id, DBUtils.isFavourite(cursor));
+        bindBranch(holder.branch, DBUtils.getBranch(cursor), DBUtils.isBranchDefault(cursor));
 
         holder.name.setText(DBUtils.getName(cursor));
         holder.name.setTextColor(
@@ -94,27 +95,34 @@ public class BuildAdapter extends CursorAdapter {
         holder.options.setOnClickListener(new OptionsListener(myClickListener, id));
     }
 
-    private void bindImage(@NotNull ImageButton imageView,
+    private void bindImage(@NotNull ImageButton view,
                            @NotNull String id,
                            boolean favourite) {
-        imageView.setOnClickListener(new ImageListener(myClickListener, id));
+        view.setOnClickListener(new ImageListener(myClickListener, id));
 
         if (favourite) {
-            imageView.setContentDescription(myFavouriteDescription);
-            imageView.setImageResource(FAVOURITE_IMAGE);
+            view.setContentDescription(myFavouriteDescription);
+            view.setImageResource(FAVOURITE_IMAGE);
         } else {
-            imageView.setContentDescription(myNotFavouriteDescription);
-            imageView.setImageResource(NOT_FAVOURITE_IMAGE);
+            view.setContentDescription(myNotFavouriteDescription);
+            view.setImageResource(NOT_FAVOURITE_IMAGE);
         }
     }
 
-    private void bindBranch(@NotNull TextView branchView,
-                            @Nullable String branch) {
+    private void bindBranch(@NotNull TextView view,
+                            @Nullable String branch,
+                            boolean isBranchDefault) {
         if (branch == null) {
-            branchView.setVisibility(View.GONE);
+            view.setVisibility(View.GONE);
         } else {
-            branchView.setVisibility(View.VISIBLE);
-            branchView.setText(branch);
+            view.setVisibility(View.VISIBLE);
+            view.setText(branch);
+
+            if (isBranchDefault) {
+                view.setTypeface(null, Typeface.BOLD);
+            } else {
+                view.setTypeface(null, Typeface.NORMAL);
+            }
         }
     }
 
