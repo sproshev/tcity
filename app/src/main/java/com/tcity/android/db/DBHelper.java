@@ -30,16 +30,16 @@ class DBHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(@NotNull SQLiteDatabase db) {
-        onFavouriteCreate(Constants.FAVOURITE_PROJECT_TABLE, db);
-        onFavouriteCreate(Constants.FAVOURITE_BUILD_CONFIGURATION_TABLE, db);
-        onFavouriteCreate(Constants.FAVOURITE_BUILD_TABLE, db);
+        onFavouriteCreate(Table.FAVOURITE_PROJECT_TABLE, db);
+        onFavouriteCreate(Table.FAVOURITE_BUILD_CONFIGURATION_TABLE, db);
+        onFavouriteCreate(Table.FAVOURITE_BUILD_TABLE, db);
 
-        onProjectOrBuildConfigurationOverviewCreate(Constants.PROJECT_OVERVIEW_TABLE, db);
-        onProjectOrBuildConfigurationOverviewCreate(Constants.BUILD_CONFIGURATION_OVERVIEW_TABLE, db);
+        onProjectOrBuildConfigurationOverviewCreate(Table.PROJECT_OVERVIEW_TABLE, db);
+        onProjectOrBuildConfigurationOverviewCreate(Table.BUILD_CONFIGURATION_OVERVIEW_TABLE, db);
         onBuildOverviewCreate(db);
 
-        onProjectOrBuildConfigurationStatusCreate(Constants.PROJECT_STATUS_TABLE, db);
-        onProjectOrBuildConfigurationStatusCreate(Constants.BUILD_CONFIGURATION_STATUS_TABLE, db);
+        onProjectOrBuildConfigurationStatusCreate(Table.PROJECT_STATUS_TABLE, db);
+        onProjectOrBuildConfigurationStatusCreate(Table.BUILD_CONFIGURATION_STATUS_TABLE, db);
 
         onProjectTimeCreate(db);
         onBuildConfigurationTimeCreate(db);
@@ -47,19 +47,19 @@ class DBHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(@NotNull SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL("DROP TABLE IF EXISTS " + Constants.FAVOURITE_PROJECT_TABLE + ";");
-        db.execSQL("DROP TABLE IF EXISTS " + Constants.FAVOURITE_BUILD_CONFIGURATION_TABLE + ";");
-        db.execSQL("DROP TABLE IF EXISTS " + Constants.FAVOURITE_BUILD_TABLE + ";");
+        db.execSQL("DROP TABLE IF EXISTS " + Table.FAVOURITE_PROJECT_TABLE + ";");
+        db.execSQL("DROP TABLE IF EXISTS " + Table.FAVOURITE_BUILD_CONFIGURATION_TABLE + ";");
+        db.execSQL("DROP TABLE IF EXISTS " + Table.FAVOURITE_BUILD_TABLE + ";");
 
-        db.execSQL("DROP TABLE IF EXISTS " + Constants.PROJECT_OVERVIEW_TABLE + ";");
-        db.execSQL("DROP TABLE IF EXISTS " + Constants.BUILD_CONFIGURATION_OVERVIEW_TABLE + ";");
-        db.execSQL("DROP TABLE IF EXISTS " + Constants.BUILD_OVERVIEW_TABLE + ";");
+        db.execSQL("DROP TABLE IF EXISTS " + Table.PROJECT_OVERVIEW_TABLE + ";");
+        db.execSQL("DROP TABLE IF EXISTS " + Table.BUILD_CONFIGURATION_OVERVIEW_TABLE + ";");
+        db.execSQL("DROP TABLE IF EXISTS " + Table.BUILD_OVERVIEW_TABLE + ";");
 
-        db.execSQL("DROP TABLE IF EXISTS " + Constants.PROJECT_STATUS_TABLE + ";");
-        db.execSQL("DROP TABLE IF EXISTS " + Constants.BUILD_CONFIGURATION_STATUS_TABLE + ";");
+        db.execSQL("DROP TABLE IF EXISTS " + Table.PROJECT_STATUS_TABLE + ";");
+        db.execSQL("DROP TABLE IF EXISTS " + Table.BUILD_CONFIGURATION_STATUS_TABLE + ";");
 
-        db.execSQL("DROP TABLE IF EXISTS " + Constants.PROJECT_TIME_TABLE + ";");
-        db.execSQL("DROP TABLE IF EXISTS " + Constants.BUILD_CONFIGURATION_TIME_TABLE + ";");
+        db.execSQL("DROP TABLE IF EXISTS " + Table.PROJECT_TIME_TABLE + ";");
+        db.execSQL("DROP TABLE IF EXISTS " + Table.BUILD_CONFIGURATION_TIME_TABLE + ";");
 
         onCreate(db);
     }
@@ -100,7 +100,7 @@ class DBHelper extends SQLiteOpenHelper {
 
     private void onBuildOverviewCreate(@NotNull SQLiteDatabase db) {
         db.execSQL(
-                "CREATE TABLE " + Constants.BUILD_OVERVIEW_TABLE + " (" +
+                "CREATE TABLE " + Table.BUILD_OVERVIEW_TABLE + " (" +
                         getDescription(Column.ANDROID_ID) + ", " +
                         getDescription(Column.TC_ID) + ", " +
                         getDescription(Column.NAME) + ", " +
@@ -135,7 +135,7 @@ class DBHelper extends SQLiteOpenHelper {
 
     private void onProjectTimeCreate(@NotNull SQLiteDatabase db) {
         db.execSQL(
-                "CREATE TABLE " + Constants.PROJECT_TIME_TABLE + " (" +
+                "CREATE TABLE " + Table.PROJECT_TIME_TABLE + " (" +
                         getDescription(Column.TC_ID) + ", " +
                         getDescription(Column.LAST_UPDATE) + ", " +
                         getDescription(Column.STATUS_UPDATE) +
@@ -145,7 +145,7 @@ class DBHelper extends SQLiteOpenHelper {
 
     private void onBuildConfigurationTimeCreate(@NotNull SQLiteDatabase db) {
         db.execSQL(
-                "CREATE TABLE " + Constants.BUILD_CONFIGURATION_TIME_TABLE + " (" +
+                "CREATE TABLE " + Table.BUILD_CONFIGURATION_TIME_TABLE + " (" +
                         getDescription(Column.TC_ID) + ", " +
                         getDescription(Column.LAST_UPDATE) + ", " +
                         getDescription(Column.SYNC_BOUND) + ", " +

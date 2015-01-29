@@ -69,7 +69,7 @@ class RestLocator {
         return preferences.getUrl() + REST_PREFIX +
                 "buildTypes/id:" + buildConfigurationId + "/builds/" +
                 "?locator=" +
-                "running:any," +
+                "running:false," +
                 "branch:(branched:any)";
     }
 
@@ -84,7 +84,7 @@ class RestLocator {
             return preferences.getUrl() + REST_PREFIX +
                     "buildTypes/id:" + buildConfigurationId + "/builds/" +
                     "?locator=" +
-                    "running:any," +
+                    "running:false," +
                     "branch:(branched:any)," +
                     "sinceDate:" + URLEncoder.encode(sinceDate, "UTF-8");
         } catch (UnsupportedEncodingException e) {
