@@ -19,9 +19,9 @@ package com.tcity.android.ui.overview.buildconfiguration;
 import android.os.AsyncTask;
 
 import com.tcity.android.background.rest.RestClient;
+import com.tcity.android.background.runnable.BuildsRunnable;
 import com.tcity.android.background.runnable.chain.ExecutableRunnableChain;
 import com.tcity.android.background.runnable.chain.RunnableChain;
-import com.tcity.android.background.runnable.primitive.BuildsRunnable;
 import com.tcity.android.db.DB;
 import com.tcity.android.ui.ExpirationUtils;
 

@@ -62,7 +62,7 @@ public class BuildInfoFragment extends ListFragment implements SwipeRefreshLayou
     public View onCreateView(@NotNull LayoutInflater inflater,
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.overview, container, false);
+        return inflater.inflate(R.layout.overview_ui, container, false);
     }
 
     @Override
@@ -71,7 +71,7 @@ public class BuildInfoFragment extends ListFragment implements SwipeRefreshLayou
 
         myBuildId = getArguments().getString(BuildHostActivity.ID_INTENT_KEY);
 
-        myLayout = (SwipeRefreshLayout) getActivity().findViewById(R.id.overview);
+        myLayout = (SwipeRefreshLayout) getActivity().findViewById(R.id.overview_srlayout);
         myLayout.setColorSchemeResources(R.color.green, R.color.red);
         myLayout.setOnRefreshListener(this);
 

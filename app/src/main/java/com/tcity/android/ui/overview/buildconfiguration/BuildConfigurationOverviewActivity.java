@@ -69,7 +69,7 @@ public class BuildConfigurationOverviewActivity extends ListActivity implements 
         myRecreating = false;
         myBuildConfigurationId = getIntent().getStringExtra(ID_INTENT_KEY);
 
-        setContentView(R.layout.overview_activity);
+        setContentView(R.layout.overview_ui);
 
         ActionBar bar = getActionBar();
         if (bar != null) {
@@ -80,7 +80,7 @@ public class BuildConfigurationOverviewActivity extends ListActivity implements 
 
         updateSyncBound();
 
-        myLayout = (SwipeRefreshLayout) findViewById(R.id.overview_layout);
+        myLayout = (SwipeRefreshLayout) findViewById(R.id.overview_srlayout);
         myLayout.setColorSchemeResources(R.color.green, R.color.red);
         myLayout.setOnRefreshListener(this);
 

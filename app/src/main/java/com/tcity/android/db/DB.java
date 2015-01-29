@@ -271,12 +271,12 @@ public class DB {
 
     @NotNull
     public String getBuildName(@NotNull String id) {
-        return getName(Constants.BUILD_OVERVIEW_TABLE, id);
+        return getName(Table.BUILD_OVERVIEW_TABLE, id);
     }
 
     @NotNull
     public String getBuildParentId(@NotNull String id) {
-        return getParentId(Constants.BUILD_OVERVIEW_TABLE, id);
+        return getParentId(Table.BUILD_OVERVIEW_TABLE, id);
     }
 
     public void setBuilds(@NotNull String parentBuildConfigurationId,

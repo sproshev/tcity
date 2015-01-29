@@ -19,8 +19,8 @@ package com.tcity.android.ui.info;
 import android.os.AsyncTask;
 import android.util.JsonReader;
 
+import com.tcity.android.background.HttpStatusException;
 import com.tcity.android.background.rest.RestClient;
-import com.tcity.android.background.runnable.HttpStatusException;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;

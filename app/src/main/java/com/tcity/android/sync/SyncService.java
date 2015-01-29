@@ -27,9 +27,9 @@ import android.util.Log;
 import com.tcity.android.R;
 import com.tcity.android.app.Application;
 import com.tcity.android.app.Preferences;
+import com.tcity.android.background.HttpStatusException;
 import com.tcity.android.background.parser.ParserPackage;
 import com.tcity.android.background.rest.RestClient;
-import com.tcity.android.background.runnable.HttpStatusException;
 import com.tcity.android.db.Build;
 import com.tcity.android.db.DB;
 import com.tcity.android.db.DBUtils;
@@ -127,7 +127,7 @@ public class SyncService extends IntentService {
         String buildConfigurationName = myDB.getBuildConfigurationName(buildConfigurationId);
 
         Intent activityIntent = new Intent(this, BuildConfigurationOverviewActivity.class);
-        activityIntent.putExtra(BuildConfigurationOverviewActivity.INTENT_KEY, buildConfigurationId);
+        activityIntent.putExtra(BuildConfigurationOverviewActivity.ID_INTENT_KEY, buildConfigurationId);
         activityIntent.setAction(Long.toString(System.currentTimeMillis()));
 
         PendingIntent contentIntent = PendingIntent.getActivity(

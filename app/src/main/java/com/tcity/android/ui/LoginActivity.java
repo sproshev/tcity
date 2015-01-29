@@ -31,9 +31,9 @@ import android.widget.Toast;
 import com.tcity.android.R;
 import com.tcity.android.app.Preferences;
 import com.tcity.android.background.rest.RestClient;
+import com.tcity.android.background.runnable.LoginRunnable;
 import com.tcity.android.background.runnable.chain.ExecutableRunnableChain;
 import com.tcity.android.background.runnable.chain.RunnableChain;
-import com.tcity.android.background.runnable.primitive.LoginRunnable;
 import com.tcity.android.sync.SyncUtils;
 import com.tcity.android.ui.LoginChainListener.LoginResult;
 

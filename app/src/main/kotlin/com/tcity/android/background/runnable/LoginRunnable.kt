@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package com.tcity.android.background.runnable.primitive
+package com.tcity.android.background.runnable
 
 import java.io.IOException
 import com.tcity.android.background.rest.RestClient
 import org.apache.http.HttpStatus
-import com.tcity.android.background.runnable.HttpStatusException
+import com.tcity.android.background.HttpStatusException
 
 
 public class LoginRunnable(private val client: RestClient) : Runnable {

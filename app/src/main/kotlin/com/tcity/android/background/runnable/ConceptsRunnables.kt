@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.tcity.android.background.runnable.primitive
+package com.tcity.android.background.runnable
 
 import java.io.IOException
 import org.apache.http.HttpStatus
@@ -22,7 +22,7 @@ import android.database.sqlite.SQLiteException
 import com.tcity.android.db.DB
 import com.tcity.android.background.parser.parseBuildConfigurations
 import com.tcity.android.background.parser.parseBuilds
-import com.tcity.android.background.runnable.HttpStatusException
+import com.tcity.android.background.HttpStatusException
 import com.tcity.android.background.rest.RestClient
 import com.tcity.android.background.parser.parseProjects
 import com.tcity.android.db.Project
