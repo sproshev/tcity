@@ -28,6 +28,12 @@
     <string name="options">Options</string>
     <string name="info">Info</string>
     <string name="tests">Tests</string>
+    <string name="branch">Branch</string>
+    <string name="wait_reason">Wait Reason</string>
+    <string name="queued">Queued</string>
+    <string name="started">Started</string>
+    <string name="finished">Finished</string>
+    <string name="agent">Agent</string>
 
     <string name="empty">Empty</string>
     <string name="loading">Loading</string>

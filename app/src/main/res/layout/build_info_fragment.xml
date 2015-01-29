@@ -36,99 +36,160 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:stretchColumns="1"
+                android:shrinkColumns="1"
                 android:visibility="gone">
 
-                <TableRow android:id="@+id/build_info_result_row">
+                <TableRow
+                    android:id="@+id/build_info_result_row"
+                    android:gravity="center_vertical"
+                    android:minHeight="?android:attr/listPreferredItemHeight">
 
                     <TextView
                         android:id="@+id/build_info_result"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_span="2"/>
+                        android:layout_span="2"
+                        android:textAppearance="?android:attr/textAppearanceListItemSmall"
+                        android:paddingLeft="16dp"
+                        android:paddingRight="16dp"/>
 
                 </TableRow>
 
-                <TableRow android:id="@+id/build_info_branch_row">
+                <TableRow
+                    android:id="@+id/build_info_branch_row"
+                    android:gravity="center_vertical"
+                    android:minHeight="?android:attr/listPreferredItemHeight">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Branch"/>
+                        android:text="@string/branch"
+                        android:textAppearance="?android:attr/textAppearanceListItemSmall"
+                        android:paddingLeft="16dp"
+                        android:paddingRight="8dp"/>
 
                     <TextView
                         android:id="@+id/build_info_branch"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"/>
+                        android:layout_height="wrap_content"
+                        android:textAppearance="?android:attr/textAppearanceListItemSmall"
+                        android:paddingLeft="8dp"
+                        android:paddingRight="16dp"/>
 
                 </TableRow>
 
-                <TableRow android:id="@+id/build_info_wait_reason_row">
+                <TableRow
+                    android:id="@+id/build_info_wait_reason_row"
+                    android:gravity="center_vertical"
+                    android:minHeight="?android:attr/listPreferredItemHeight">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Wait Reason"/>
+                        android:text="@string/wait_reason"
+                        android:textAppearance="?android:attr/textAppearanceListItemSmall"
+                        android:paddingLeft="16dp"
+                        android:paddingRight="8dp"/>
 
                     <TextView
                         android:id="@+id/build_info_wait_reason"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"/>
+                        android:layout_height="wrap_content"
+                        android:textAppearance="?android:attr/textAppearanceListItemSmall"
+                        android:paddingLeft="8dp"
+                        android:paddingRight="16dp"/>
 
                 </TableRow>
 
-                <TableRow android:id="@+id/build_info_queued_row">
+                <TableRow
+                    android:id="@+id/build_info_queued_row"
+                    android:gravity="center_vertical"
+                    android:minHeight="?android:attr/listPreferredItemHeight">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Queued"/>
+                        android:text="@string/queued"
+                        android:textAppearance="?android:attr/textAppearanceListItemSmall"
+                        android:paddingLeft="16dp"
+                        android:paddingRight="8dp"/>
 
                     <TextView
                         android:id="@+id/build_info_queued"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"/>
+                        android:layout_height="wrap_content"
+                        android:textAppearance="?android:attr/textAppearanceListItemSmall"
+                        android:paddingLeft="8dp"
+                        android:paddingRight="16dp"/>
 
                 </TableRow>
 
-                <TableRow android:id="@+id/build_info_started_row">
+                <TableRow
+                    android:id="@+id/build_info_started_row"
+                    android:gravity="center_vertical"
+                    android:minHeight="?android:attr/listPreferredItemHeight">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Started"/>
+                        android:text="@string/started"
+                        android:textAppearance="?android:attr/textAppearanceListItemSmall"
+                        android:paddingLeft="16dp"
+                        android:paddingRight="8dp"/>
 
                     <TextView
                         android:id="@+id/build_info_started"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"/>
+                        android:layout_height="wrap_content"
+                        android:textAppearance="?android:attr/textAppearanceListItemSmall"
+                        android:paddingLeft="8dp"
+                        android:paddingRight="16dp"/>
 
                 </TableRow>
 
-                <TableRow android:id="@+id/build_info_finished_row">
+                <TableRow
+                    android:id="@+id/build_info_finished_row"
+                    android:gravity="center_vertical"
+                    android:minHeight="?android:attr/listPreferredItemHeight">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Finished"/>
+                        android:text="@string/finished"
+                        android:textAppearance="?android:attr/textAppearanceListItemSmall"
+                        android:paddingLeft="16dp"
+                        android:paddingRight="8dp"/>
 
                     <TextView
                         android:id="@+id/build_info_finished"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"/>
+                        android:layout_height="wrap_content"
+                        android:textAppearance="?android:attr/textAppearanceListItemSmall"
+                        android:paddingLeft="8dp"
+                        android:paddingRight="16dp"/>
 
                 </TableRow>
 
-                <TableRow android:id="@+id/build_info_agent_row">
+                <TableRow
+                    android:id="@+id/build_info_agent_row"
+                    android:gravity="center_vertical"
+                    android:minHeight="?android:attr/listPreferredItemHeight">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Agent"/>
+                        android:text="@string/agent"
+                        android:textAppearance="?android:attr/textAppearanceListItemSmall"
+                        android:paddingLeft="16dp"
+                        android:paddingRight="8dp"/>
 
                     <TextView
                         android:id="@+id/build_info_agent"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"/>
+                        android:layout_height="wrap_content"
+                        android:textAppearance="?android:attr/textAppearanceListItemSmall"
+                        android:paddingLeft="8dp"
+                        android:paddingRight="16dp"/>
 
                 </TableRow>
 
