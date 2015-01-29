@@ -78,6 +78,11 @@ public class BuildInfoFragment extends Fragment implements SwipeRefreshLayout.On
         myLayout = (SwipeRefreshLayout) getView().findViewById(R.id.build_info_srlayout);
         myLayout.setColorSchemeResources(R.color.green, R.color.red);
         myLayout.setOnRefreshListener(this);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
 
         if (myTask.getStatus() == AsyncTask.Status.PENDING) {
             if (Common.isNetworkAvailable(getActivity())) {
@@ -96,14 +101,13 @@ public class BuildInfoFragment extends Fragment implements SwipeRefreshLayout.On
     }
 
     @Override
-    public void onDestroyView() {
-        super.onDestroyView();
+    public void onPause() {
+        super.onPause();
 
         myTask.setFragment(null);
     }
 
     // LIFECYCLE - End
-
 
     @NotNull
     @Override

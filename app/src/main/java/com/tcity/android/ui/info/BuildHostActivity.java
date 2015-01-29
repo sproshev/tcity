@@ -18,6 +18,7 @@ package com.tcity.android.ui.info;
 
 import android.app.ActionBar;
 import android.app.Activity;
+import android.app.Fragment;
 import android.os.Bundle;
 import android.view.MenuItem;
 
@@ -26,6 +27,7 @@ import com.tcity.android.app.Application;
 import com.tcity.android.db.DB;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class BuildHostActivity extends Activity {
 
@@ -33,56 +35,30 @@ public class BuildHostActivity extends Activity {
     public static final String ID_INTENT_KEY = "BUILD_ID";
 
     @NotNull
+    private static final String SELECTED_TAB_KEY = "SELECTED_TAB";
+
+    @NotNull
     private String myBuildId;
 
     // LIFECYCLE - Begin
 
-    @SuppressWarnings("deprecation")
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         myBuildId = getIntent().getStringExtra(ID_INTENT_KEY);
 
-        ActionBar bar = getActionBar();
-        assert bar != null;
-
-        bar.setTitle(calculateTitle());
-        bar.setSubtitle(calculateSubtitle());
-        bar.setDisplayHomeAsUpEnabled(true);
-
-        bar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
-
-        ActionBar.Tab tab = bar.newTab();
-        tab.setText(R.string.info);
-        tab.setTabListener(
-                new BuildTabListener<>(
-                        this,
-                        BuildInfoFragment.class,
-                        "Info",
-                        myBuildId
-                )
+        initActionBar(
+                savedInstanceState != null ? savedInstanceState.getInt(SELECTED_TAB_KEY, 0) : 0
         );
-        bar.addTab(tab);
+    }
 
-        tab = bar.newTab();
-        tab.setText(R.string.tests);
-        tab.setTabListener(
-                new BuildTabListener<>(
-                        this,
-                        BuildTestsFragment.class,
-                        "Tests",
-                        myBuildId
-                )
-        );
-        bar.addTab(tab);
+    @Override
+    protected void onSaveInstanceState(@NotNull Bundle outState) {
+        super.onSaveInstanceState(outState);
 
-        /*
-        tab = bar.newTab();
-        tab.setText("Artifacts");
-        tab.setTabListener(this);
-        bar.addTab(tab);
-        */
+        //noinspection deprecation,ConstantConditions
+        outState.putInt(SELECTED_TAB_KEY, getActionBar().getSelectedTab().getPosition());
     }
 
     // LIFECYCLE - End
@@ -98,6 +74,24 @@ public class BuildHostActivity extends Activity {
         return super.onOptionsItemSelected(item);
     }
 
+    @SuppressWarnings("deprecation")
+    private void initActionBar(int selectedTab) {
+        ActionBar bar = getActionBar();
+
+        assert bar != null;
+
+        bar.setTitle(calculateTitle());
+        bar.setSubtitle(calculateSubtitle());
+        bar.setDisplayHomeAsUpEnabled(true);
+
+        bar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+
+        initTab(bar, getString(R.string.info), BuildInfoFragment.class);
+        initTab(bar, getString(R.string.tests), BuildTestsFragment.class);
+
+        bar.setSelectedNavigationItem(selectedTab);
+    }
+
     @NotNull
     private String calculateTitle() {
         DB db = ((Application) getApplication()).getDB();
@@ -110,5 +104,24 @@ public class BuildHostActivity extends Activity {
         DB db = ((Application) getApplication()).getDB();
 
         return db.getBuildConfigurationName(db.getBuildParentId(myBuildId));
+    }
+
+    @SuppressWarnings("deprecation")
+    private <T extends Fragment> void initTab(@NotNull ActionBar bar,
+                                              @NotNull String name,
+                                              @NotNull Class<T> cls) {
+        ActionBar.Tab tab = bar.newTab();
+
+        tab.setText(name);
+        tab.setTabListener(
+                new BuildTabListener<>(
+                        this,
+                        cls,
+                        name,
+                        myBuildId
+                )
+        );
+
+        bar.addTab(tab);
     }
 }

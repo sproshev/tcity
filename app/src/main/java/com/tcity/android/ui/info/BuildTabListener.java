@@ -61,7 +61,7 @@ class BuildTabListener<T extends Fragment> implements ActionBar.TabListener {
             bundle.putString(BuildHostActivity.ID_INTENT_KEY, myBuildId);
 
             myFragment = Fragment.instantiate(myActivity, myClass.getName(), bundle);
-            ft.add(android.R.id.content, myFragment, myTag);
+            ft.replace(android.R.id.content, myFragment, myTag);
         } else {
             ft.attach(myFragment);
         }

@@ -86,6 +86,11 @@ public class BuildTestsFragment extends ListFragment implements SwipeRefreshLayo
         getListView().setAdapter(myAdapter);
         getListView().setDivider(null);
         getListView().setSelector(android.R.color.transparent);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
 
         if (myTask.getStatus() == AsyncTask.Status.PENDING) {
             if (Common.isNetworkAvailable(getActivity())) {
@@ -103,8 +108,8 @@ public class BuildTestsFragment extends ListFragment implements SwipeRefreshLayo
     }
 
     @Override
-    public void onDestroyView() {
-        super.onDestroyView();
+    public void onPause() {
+        super.onPause();
 
         myTask.setFragment(null);
     }
