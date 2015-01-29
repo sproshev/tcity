@@ -17,9 +17,6 @@
 package com.tcity.android.ui.info;
 
 import android.app.ListFragment;
-import android.content.Context;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -32,6 +29,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.tcity.android.R;
+import com.tcity.android.app.Common;
 import com.tcity.android.app.Preferences;
 import com.tcity.android.background.rest.RestClient;
 
@@ -79,7 +77,7 @@ public class BuildTestsFragment extends ListFragment implements SwipeRefreshLayo
         getListView().setDivider(null);
         getListView().setSelector(android.R.color.transparent);
 
-        if (isNetworkAvailable()) {
+        if (Common.isNetworkAvailable(getActivity())) {
             onRefresh();
         } else {
             ((TextView) getListView().getEmptyView()).setText(R.string.network_is_unavailable);
@@ -149,14 +147,6 @@ public class BuildTestsFragment extends ListFragment implements SwipeRefreshLayo
         }
     }
 
-    private boolean isNetworkAvailable() {
-        ConnectivityManager manager = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
-
-        NetworkInfo networkInfo = manager.getActiveNetworkInfo();
-
-        return networkInfo != null && networkInfo.isConnectedOrConnecting();
-    }
-
     private void setRefreshing(final boolean refreshing) {
         new Handler().postDelayed(
                 new Runnable() {
@@ -170,7 +160,7 @@ public class BuildTestsFragment extends ListFragment implements SwipeRefreshLayo
                             if (refreshing) {
                                 emptyView.setText(R.string.loading);
                             } else {
-                                if (isNetworkAvailable()) {
+                                if (Common.isNetworkAvailable(getActivity())) {
                                     emptyView.setText(R.string.empty);
                                 } else {
                                     emptyView.setText(R.string.network_is_unavailable);

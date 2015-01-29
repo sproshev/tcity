@@ -16,6 +16,7 @@
 
 package com.tcity.android.background.rest;
 
+import com.tcity.android.app.Common;
 import com.tcity.android.app.Preferences;
 
 import org.jetbrains.annotations.NotNull;
@@ -78,7 +79,7 @@ class RestLocator {
                                long sinceMillis,
                                @NotNull Preferences preferences) {
         try {
-            SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd'T'HHmmssZ");
+            SimpleDateFormat formatter = new SimpleDateFormat(Common.TEAMCITY_DATE_FORMAT);
             String sinceDate = formatter.format(new Date(sinceMillis));
 
             return preferences.getUrl() + REST_PREFIX +

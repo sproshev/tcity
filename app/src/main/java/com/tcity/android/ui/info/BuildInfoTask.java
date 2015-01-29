@@ -19,6 +19,7 @@ package com.tcity.android.ui.info;
 import android.os.AsyncTask;
 import android.util.JsonReader;
 
+import com.tcity.android.app.Common;
 import com.tcity.android.background.HttpStatusException;
 import com.tcity.android.background.rest.RestClient;
 
@@ -108,7 +109,7 @@ class BuildInfoTask extends AsyncTask<Void, Void, Void> {
             reader.beginObject();
 
             BuildInfoData data = new BuildInfoData();
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd'T'HHmmssZ");
+            SimpleDateFormat dateFormat = new SimpleDateFormat(Common.TEAMCITY_DATE_FORMAT);
 
             while (reader.hasNext()) {
                 switch (reader.nextName()) {
