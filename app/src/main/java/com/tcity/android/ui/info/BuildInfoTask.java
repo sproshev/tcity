@@ -30,8 +30,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 
 class BuildInfoTask extends AsyncTask<Void, Void, Void> {
 
@@ -48,7 +48,7 @@ class BuildInfoTask extends AsyncTask<Void, Void, Void> {
     private Exception myException;
 
     @Nullable
-    private Map<String, String> myResult;
+    private BuildInfoData myResult;
 
     BuildInfoTask(@NotNull String buildId,
                   @NotNull BuildInfoFragment fragment,
@@ -96,127 +96,66 @@ class BuildInfoTask extends AsyncTask<Void, Void, Void> {
     }
 
     @Nullable
-    Map<String, String> getResult() {
+    BuildInfoData getResult() {
         return myResult;
     }
 
-    private void handleResponse(@NotNull HttpResponse response) throws IOException {
+    private void handleResponse(@NotNull HttpResponse response) throws IOException, ParseException {
         JsonReader reader = new JsonReader(new InputStreamReader(response.getEntity().getContent()));
 
-        String status = null;
-        boolean isRunning = false;
-        String branch = null;
-        boolean isBranchDefault = false;
-        String result = null;
-        String waitReason = null;
-        String queued = null;
-        String started = null;
-        String finished = null;
-        String agent = null;
-
+        //noinspection TryFinallyCanBeTryWithResources
         try {
             reader.beginObject();
+
+            BuildInfoData data = new BuildInfoData();
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd'T'HHmmssZ");
 
             while (reader.hasNext()) {
                 switch (reader.nextName()) {
                     case "status":
-                        status = reader.nextString();
+                        if (data.status == null) {
+                            data.status = com.tcity.android.Status.valueOf(reader.nextString());
+                        }
                         break;
                     case "running":
-                        isRunning = reader.nextBoolean();
+                        if (reader.nextBoolean()) {
+                            data.status = com.tcity.android.Status.RUNNING;
+                        }
                         break;
                     case "branchName":
-                        branch = reader.nextString();
+                        data.branch = reader.nextString();
                         break;
                     case "defaultBranch":
-                        isBranchDefault = reader.nextBoolean();
+                        data.isBranchDefault = reader.nextBoolean();
                         break;
                     case "statusText":
-                        result = reader.nextString();
+                        data.result = reader.nextString();
                         break;
                     case "waitReason":
-                        waitReason = reader.nextString();
+                        data.waitReason = reader.nextString();
                         break;
                     case "queuedDate":
-                        queued = reader.nextString();
+                        data.queued = dateFormat.parse(reader.nextString());
                         break;
                     case "startDate":
-                        started = reader.nextString();
+                        data.started = dateFormat.parse(reader.nextString());
                         break;
                     case "finishDate":
-                        finished = reader.nextString();
+                        data.finished = dateFormat.parse(reader.nextString());
                         break;
                     case "agent":
-                        agent = getAgentName(reader);
+                        data.agent = getAgentName(reader);
                         break;
                     default:
                         reader.skipValue();
                 }
             }
 
-            reader.endObject();
+            myResult = data;
 
-            calculateResult(
-                    status,
-                    isRunning,
-                    branch,
-                    isBranchDefault,
-                    result,
-                    waitReason,
-                    queued,
-                    started,
-                    finished,
-                    agent
-            );
+            reader.endObject();
         } finally {
             reader.close();
-        }
-    }
-
-    private void calculateResult(@Nullable String status,
-                                 boolean isRunning,
-                                 @Nullable String branch,
-                                 boolean isBranchDefault,
-                                 @Nullable String result,
-                                 @Nullable String waitReason,
-                                 @Nullable String queued,
-                                 @Nullable String started,
-                                 @Nullable String finished,
-                                 @Nullable String agent) {
-        myResult = new LinkedHashMap<>();
-
-        if (isRunning) {
-            myResult.put("Status", Status.RUNNING.toString());
-        } else if (status != null) {
-            myResult.put("Status", status);
-        }
-
-        if (branch != null) {
-            myResult.put("Branch", branch + (isBranchDefault ? " (default)" : ""));
-        }
-
-        if (result != null) {
-            myResult.put("Result", result);
-        }
-
-        if (waitReason != null) {
-            myResult.put("Wait Reason", waitReason);
-        }
-
-        if (queued != null) {
-            myResult.put("Queued", queued);
-        }
-
-        if (started != null) {
-            myResult.put("Started", started);
-        }
-
-        if (finished != null) {
-            myResult.put("Finished", finished);
-        }
-
-        if (agent != null) {
-            myResult.put("Agent", agent);
         }
     }
 

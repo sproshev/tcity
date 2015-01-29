@@ -38,7 +38,8 @@ import com.tcity.android.background.rest.RestClient;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Map;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 
 public class BuildInfoFragment extends ListFragment implements SwipeRefreshLayout.OnRefreshListener {
 
@@ -134,15 +135,44 @@ public class BuildInfoFragment extends ListFragment implements SwipeRefreshLayou
 
         //noinspection ThrowableResultOfMethodCallIgnored
         Exception e = myTask.getException();
-        Map<String, String> result = myTask.getResult();
 
         if (e != null) {
             Toast.makeText(getActivity(), e.getMessage(), Toast.LENGTH_LONG).show();
-        } else if (result != null) {
+        }
+
+        BuildInfoData result = myTask.getResult();
+        DateFormat dateFormat = new SimpleDateFormat("dd MMM yyyy HH:mm:ss");
+
+
+        if (result != null) {
             myAdapter.clear();
 
-            for (Map.Entry<String, String> kv : result.entrySet()) {
-                myAdapter.add(kv.getKey() + ": " + kv.getValue());
+            if (result.result != null) {
+                myAdapter.add("Status: " + result.result);
+            }
+
+            if (result.branch != null) {
+                myAdapter.add("Branch: " + result.branch);
+            }
+
+            if (result.waitReason != null) {
+                myAdapter.add("Wait Reason: " + result.waitReason);
+            }
+
+            if (result.queued != null) {
+                myAdapter.add("Queued: " + dateFormat.format(result.queued));
+            }
+
+            if (result.started != null) {
+                myAdapter.add("Started: " + dateFormat.format(result.started));
+            }
+
+            if (result.finished != null) {
+                myAdapter.add("Finished: " + dateFormat.format(result.finished));
+            }
+
+            if (result.agent != null) {
+                myAdapter.add("Agent: " + result.agent);
             }
 
             myAdapter.notifyDataSetChanged();
