@@ -55,6 +55,17 @@ public class BuildInfoFragment extends ListFragment implements SwipeRefreshLayou
 
     // LIFECYCLE - Begin
 
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        myBuildId = getArguments().getString(BuildHostActivity.ID_INTENT_KEY);
+        myAdapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1);
+
+        setRetainInstance(true);
+    }
+
     @Nullable
     @Override
     public View onCreateView(@NotNull LayoutInflater inflater,
@@ -67,33 +78,26 @@ public class BuildInfoFragment extends ListFragment implements SwipeRefreshLayou
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        myBuildId = getArguments().getString(BuildHostActivity.ID_INTENT_KEY);
-
         myLayout = (SwipeRefreshLayout) getActivity().findViewById(R.id.overview_srlayout);
         myLayout.setColorSchemeResources(R.color.green, R.color.red);
         myLayout.setOnRefreshListener(this);
 
-        myAdapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1);
         getListView().setAdapter(myAdapter);
         getListView().setDivider(null);
         getListView().setSelector(android.R.color.transparent);
 
-        if (Common.isNetworkAvailable(getActivity())) {
-            onRefresh();
-        } else {
-            ((TextView) getListView().getEmptyView()).setText(R.string.network_is_unavailable);
+        if (myAdapter.isEmpty()) {
+            if (Common.isNetworkAvailable(getActivity())) {
+                onRefresh();
+            } else {
+                ((TextView) getListView().getEmptyView()).setText(R.string.network_is_unavailable);
+            }
         }
     }
 
     @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-
-        //noinspection ConstantConditions
-        myBuildId = null;
-
-        //noinspection ConstantConditions
-        myLayout = null;
+    public void onDetach() {
+        super.onDetach();
 
         if (myTask != null) {
             myTask.cancel(true);

@@ -50,6 +50,8 @@ class BuildTabListener<T extends Fragment> implements ActionBar.TabListener {
         myClass = cls;
         myTag = tag;
         myBuildId = buildId;
+
+        myFragment = myActivity.getFragmentManager().findFragmentByTag(myTag);
     }
 
     @Override
