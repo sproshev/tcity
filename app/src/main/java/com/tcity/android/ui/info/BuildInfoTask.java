@@ -40,10 +40,10 @@ class BuildInfoTask extends AsyncTask<Void, Void, Void> {
     private final String myBuildId;
 
     @NotNull
-    private final BuildInfoFragment myFragment;
-
-    @NotNull
     private final RestClient myClient;
+
+    @Nullable
+    private BuildInfoFragment myFragment;
 
     @Nullable
     private Exception myException;
@@ -52,10 +52,8 @@ class BuildInfoTask extends AsyncTask<Void, Void, Void> {
     private BuildInfoData myResult;
 
     BuildInfoTask(@NotNull String buildId,
-                  @NotNull BuildInfoFragment fragment,
                   @NotNull RestClient client) {
         myBuildId = buildId;
-        myFragment = fragment;
         myClient = client;
     }
 
@@ -81,14 +79,22 @@ class BuildInfoTask extends AsyncTask<Void, Void, Void> {
     protected void onPreExecute() {
         super.onPreExecute();
 
-        myFragment.onRefreshStarted();
+        if (myFragment != null) {
+            myFragment.onRefreshStarted();
+        }
     }
 
     @Override
     protected void onPostExecute(@NotNull Void aVoid) {
         super.onPostExecute(aVoid);
 
-        myFragment.onRefreshFinished();
+        if (myFragment != null) {
+            myFragment.onRefreshFinished();
+        }
+    }
+
+    synchronized void setFragment(@Nullable BuildInfoFragment fragment) {
+        myFragment = fragment;
     }
 
     @Nullable

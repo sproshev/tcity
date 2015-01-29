@@ -45,13 +45,13 @@ public class BuildInfoFragment extends ListFragment implements SwipeRefreshLayou
     private String myBuildId;
 
     @NotNull
-    private SwipeRefreshLayout myLayout;
-
-    @NotNull
     private ArrayAdapter<String> myAdapter;
 
-    @Nullable
+    @NotNull
     private BuildInfoTask myTask;
+
+    @NotNull
+    private SwipeRefreshLayout myLayout;
 
     // LIFECYCLE - Begin
 
@@ -62,6 +62,8 @@ public class BuildInfoFragment extends ListFragment implements SwipeRefreshLayou
 
         myBuildId = getArguments().getString(BuildHostActivity.ID_INTENT_KEY);
         myAdapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1);
+        myTask = new BuildInfoTask(myBuildId, new RestClient(new Preferences(getActivity())));
+        myTask.setFragment(this);
 
         setRetainInstance(true);
     }
@@ -86,37 +88,41 @@ public class BuildInfoFragment extends ListFragment implements SwipeRefreshLayou
         getListView().setDivider(null);
         getListView().setSelector(android.R.color.transparent);
 
-        if (myAdapter.isEmpty()) {
+        if (myTask.getStatus() == AsyncTask.Status.PENDING) {
             if (Common.isNetworkAvailable(getActivity())) {
                 onRefresh();
             } else {
                 ((TextView) getListView().getEmptyView()).setText(R.string.network_is_unavailable);
             }
+        } else if (myTask.getStatus() == AsyncTask.Status.RUNNING) {
+            onRefreshStarted();
+        } else if (myTask.getStatus() == AsyncTask.Status.FINISHED) {
+            onRefreshFinished();
         }
+
+        myTask.setFragment(this);
     }
 
     @Override
-    public void onDetach() {
-        super.onDetach();
+    public void onDestroyView() {
+        super.onDestroyView();
 
-        if (myTask != null) {
-            myTask.cancel(true);
-            myTask = null;
-        }
+        myTask.setFragment(null);
     }
 
     // LIFECYCLE - End
 
     @Override
     public void onRefresh() {
-        if (myTask == null || myTask.getStatus() == AsyncTask.Status.FINISHED) {
+        if (myTask.getStatus() == AsyncTask.Status.FINISHED) {
             myTask = new BuildInfoTask(
                     myBuildId,
-                    this,
                     new RestClient(
                             new Preferences(getActivity())
                     )
             );
+
+            myTask.setFragment(this);
         }
 
         if (myTask.getStatus() != AsyncTask.Status.RUNNING) {
@@ -131,10 +137,6 @@ public class BuildInfoFragment extends ListFragment implements SwipeRefreshLayou
     void onRefreshFinished() {
         setRefreshing(false);
 
-        if (myTask == null) {
-            return;
-        }
-
         //noinspection ThrowableResultOfMethodCallIgnored
         Exception e = myTask.getException();
 
@@ -143,41 +145,9 @@ public class BuildInfoFragment extends ListFragment implements SwipeRefreshLayou
         }
 
         BuildInfoData result = myTask.getResult();
-        DateFormat dateFormat = new SimpleDateFormat("dd MMM yyyy HH:mm:ss");
-
 
         if (result != null) {
-            myAdapter.clear();
-
-            if (result.result != null) {
-                myAdapter.add("Status: " + result.result);
-            }
-
-            if (result.branch != null) {
-                myAdapter.add("Branch: " + result.branch);
-            }
-
-            if (result.waitReason != null) {
-                myAdapter.add("Wait Reason: " + result.waitReason);
-            }
-
-            if (result.queued != null) {
-                myAdapter.add("Queued: " + dateFormat.format(result.queued));
-            }
-
-            if (result.started != null) {
-                myAdapter.add("Started: " + dateFormat.format(result.started));
-            }
-
-            if (result.finished != null) {
-                myAdapter.add("Finished: " + dateFormat.format(result.finished));
-            }
-
-            if (result.agent != null) {
-                myAdapter.add("Agent: " + result.agent);
-            }
-
-            myAdapter.notifyDataSetChanged();
+            updateAdapter(result);
         }
     }
 
@@ -204,5 +174,41 @@ public class BuildInfoFragment extends ListFragment implements SwipeRefreshLayou
                     }
                 }, 500
         );  // https://code.google.com/p/android/issues/detail?id=77712
+    }
+
+    private void updateAdapter(@NotNull BuildInfoData result) {
+        DateFormat dateFormat = new SimpleDateFormat("dd MMM yyyy HH:mm:ss");
+
+        myAdapter.clear();
+
+        if (result.result != null) {
+            myAdapter.add("Status: " + result.result);
+        }
+
+        if (result.branch != null) {
+            myAdapter.add("Branch: " + result.branch);
+        }
+
+        if (result.waitReason != null) {
+            myAdapter.add("Wait Reason: " + result.waitReason);
+        }
+
+        if (result.queued != null) {
+            myAdapter.add("Queued: " + dateFormat.format(result.queued));
+        }
+
+        if (result.started != null) {
+            myAdapter.add("Started: " + dateFormat.format(result.started));
+        }
+
+        if (result.finished != null) {
+            myAdapter.add("Finished: " + dateFormat.format(result.finished));
+        }
+
+        if (result.agent != null) {
+            myAdapter.add("Agent: " + result.agent);
+        }
+
+        myAdapter.notifyDataSetChanged();
     }
 }
