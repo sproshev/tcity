@@ -19,8 +19,8 @@ package com.tcity.android.ui.info;
 import android.os.AsyncTask;
 import android.util.JsonReader;
 
+import com.tcity.android.background.HttpStatusException;
 import com.tcity.android.background.rest.RestClient;
-import com.tcity.android.background.runnable.HttpStatusException;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -39,10 +39,10 @@ class BuildTestsTask extends AsyncTask<Void, Void, Void> {
     private final String myBuildId;
 
     @NotNull
-    private final BuildTestsFragment myFragment;
-
-    @NotNull
     private final RestClient myClient;
+
+    @Nullable
+    private BuildTestsFragment myFragment;
 
     @Nullable
     private Exception myException;
@@ -51,10 +51,8 @@ class BuildTestsTask extends AsyncTask<Void, Void, Void> {
     private Map<String, String> myResult;
 
     BuildTestsTask(@NotNull String buildId,
-                   @NotNull BuildTestsFragment fragment,
                    @NotNull RestClient client) {
         myBuildId = buildId;
-        myFragment = fragment;
         myClient = client;
     }
 
@@ -80,14 +78,22 @@ class BuildTestsTask extends AsyncTask<Void, Void, Void> {
     protected void onPreExecute() {
         super.onPreExecute();
 
-        myFragment.onRefreshStarted();
+        if (myFragment != null) {
+            myFragment.onRefreshStarted();
+        }
     }
 
     @Override
     protected void onPostExecute(@NotNull Void aVoid) {
         super.onPostExecute(aVoid);
 
-        myFragment.onRefreshFinished();
+        if (myFragment != null) {
+            myFragment.onRefreshFinished();
+        }
+    }
+
+    synchronized void setFragment(@Nullable BuildTestsFragment fragment) {
+        myFragment = fragment;
     }
 
     @Nullable
@@ -103,6 +109,7 @@ class BuildTestsTask extends AsyncTask<Void, Void, Void> {
     private void handleResponse(@NotNull HttpResponse response) throws IOException {
         JsonReader reader = new JsonReader(new InputStreamReader(response.getEntity().getContent()));
 
+        //noinspection TryFinallyCanBeTryWithResources
         try {
             reader.beginObject();
 
@@ -148,6 +155,12 @@ class BuildTestsTask extends AsyncTask<Void, Void, Void> {
 
             if (name != null && status != null) {
                 result.put(name, status);
+            } else {
+                if (name == null) {
+                    throw new IOException("Invalid tests json: \"name\" is absent");
+                } else {
+                    throw new IOException("Invalid tests json: \"status\" is absent");
+                }
             }
 
             reader.endObject();

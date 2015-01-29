@@ -44,15 +44,28 @@ public class BuildTestsFragment extends ListFragment implements SwipeRefreshLayo
     private String myBuildId;
 
     @NotNull
-    private SwipeRefreshLayout myLayout;
-
-    @NotNull
     private ArrayAdapter<String> myAdapter;
 
-    @Nullable
+    @NotNull
     private BuildTestsTask myTask;
 
+    @NotNull
+    private SwipeRefreshLayout myLayout;
+
     // LIFECYCLE - Begin
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        myBuildId = getArguments().getString(BuildHostActivity.ID_INTENT_KEY);
+        myAdapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1);
+
+        myTask = new BuildTestsTask(myBuildId, new RestClient(new Preferences(getActivity())));
+        myTask.setFragment(this);
+
+        setRetainInstance(true);
+    }
 
     @Nullable
     @Override
@@ -66,52 +79,49 @@ public class BuildTestsFragment extends ListFragment implements SwipeRefreshLayo
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        myBuildId = getArguments().getString(BuildHostActivity.ID_INTENT_KEY);
-
         myLayout = (SwipeRefreshLayout) getActivity().findViewById(R.id.overview_srlayout);
         myLayout.setColorSchemeResources(R.color.green, R.color.red);
         myLayout.setOnRefreshListener(this);
 
-        myAdapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1);
         getListView().setAdapter(myAdapter);
         getListView().setDivider(null);
         getListView().setSelector(android.R.color.transparent);
 
-        if (Common.isNetworkAvailable(getActivity())) {
-            onRefresh();
-        } else {
-            ((TextView) getListView().getEmptyView()).setText(R.string.network_is_unavailable);
+        if (myTask.getStatus() == AsyncTask.Status.PENDING) {
+            if (Common.isNetworkAvailable(getActivity())) {
+                onRefresh();
+            } else {
+                ((TextView) getListView().getEmptyView()).setText(R.string.network_is_unavailable);
+            }
+        } else if (myTask.getStatus() == AsyncTask.Status.RUNNING) {
+            onRefreshStarted();
+        } else if (myTask.getStatus() == AsyncTask.Status.FINISHED) {
+            onRefreshFinished();
         }
+
+        myTask.setFragment(this);
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
 
-        //noinspection ConstantConditions
-        myBuildId = null;
-
-        //noinspection ConstantConditions
-        myLayout = null;
-
-        if (myTask != null) {
-            myTask.cancel(true);
-            myTask = null;
-        }
+        myTask.setFragment(null);
     }
 
     // LIFECYCLE - End
 
     @Override
     public void onRefresh() {
-        if (myTask == null || myTask.getStatus() == AsyncTask.Status.FINISHED) {
+        if (myTask.getStatus() == AsyncTask.Status.FINISHED) {
             myTask = new BuildTestsTask(
                     myBuildId,
-                    this,
                     new RestClient(
                             new Preferences(getActivity())
                     )
             );
+
+            myTask.setFragment(this);
         }
 
         if (myTask.getStatus() != AsyncTask.Status.RUNNING) {
@@ -126,17 +136,16 @@ public class BuildTestsFragment extends ListFragment implements SwipeRefreshLayo
     void onRefreshFinished() {
         setRefreshing(false);
 
-        if (myTask == null) {
-            return;
-        }
-
         //noinspection ThrowableResultOfMethodCallIgnored
         Exception e = myTask.getException();
-        Map<String, String> result = myTask.getResult();
 
         if (e != null) {
             Toast.makeText(getActivity(), e.getMessage(), Toast.LENGTH_LONG).show();
-        } else if (result != null) {
+        }
+
+        Map<String, String> result = myTask.getResult();
+
+        if (result != null) {
             myAdapter.clear();
 
             for (Map.Entry<String, String> kv : result.entrySet()) {
