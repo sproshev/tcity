@@ -30,7 +30,7 @@ public class BuildConfigurationAdapter extends ProjectOrBuildConfigurationAdapte
                 context,
                 clickListener,
                 R.string.build_configuration_was_marked_as_favourite,
-                R.string.build_configuration_was_not_marked_as_favourite
+                R.string.build_configuration_is_not_marked_as_favourite
         );
     }
 }

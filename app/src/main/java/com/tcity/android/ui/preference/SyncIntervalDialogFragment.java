@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.tcity.android.ui;
+package com.tcity.android.ui.preference;
 
 import android.app.AlertDialog;
 import android.app.Dialog;

@@ -36,11 +36,11 @@
 
         <activity android:name=".ui.overview.project.ProjectOverviewActivity"/>
         <activity android:name=".ui.overview.buildconfiguration.BuildConfigurationOverviewActivity"/>
-        <activity android:name=".ui.PreferenceActivity"/>
+        <activity android:name=".ui.preference.PreferenceActivity"/>
         <activity android:name=".ui.info.BuildHostActivity"/>
 
         <activity
-            android:name=".ui.LoginActivity"
+            android:name=".ui.login.LoginActivity"
             android:theme="@android:style/Theme.Holo.Light.NoActionBar"/>
 
         <activity

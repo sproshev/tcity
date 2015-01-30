@@ -45,13 +45,13 @@
     <string name="log">Log</string>
 
     <string name="project_was_marked_as_favourite">Project was marked as favourite</string>
-    <string name="project_was_not_marked_as_favourite">Project was not marked as favourite</string>
+    <string name="project_is_not_marked_as_favourite">Project is not marked as favourite</string>
 
     <string name="build_configuration_was_marked_as_favourite">Build configuration was marked as favourite</string>
-    <string name="build_configuration_was_not_marked_as_favourite">Build configuration was not marked as favourite</string>
+    <string name="build_configuration_is_not_marked_as_favourite">Build configuration is not marked as favourite</string>
 
     <string name="build_was_marked_as_favourite">Build was marked as favourite</string>
-    <string name="build_was_not_marked_as_favourite">Build was not marked as favourite</string>
+    <string name="build_is_not_marked_as_favourite">Build is not marked as favourite</string>
 
     <string name="url">Url</string>
     <string name="login">Login</string>
@@ -68,17 +68,17 @@
     <string name="account">Account</string>
     <string name="logout_message">All application data will be removed. Do you want to continue?</string>
     <string name="synchronization">Synchronization</string>
-    <string name="sync_pref_summary_off">Enable synchronization to receive notifications about new builds in favourite build configurations</string>
-    <string name="sync_pref_summary_on">Disable synchronization to decrease network and battery usage</string>
+    <string name="sync_pref_summary_off">Sync is disabled</string>
+    <string name="sync_pref_summary_on">You will be notified about new builds in favourite build configurations</string>
     <string name="wifi_only">Wi-Fi only</string>
-    <string name="sync_wifi_only_pref_summary_off">Synchronization will be running through all network connections</string>
-    <string name="sync_wifi_only_pref_summary_on">Synchronization will be running through Wi-Fi only</string>
+    <string name="sync_wifi_only_pref_summary_off">Sync will be running through all network connections</string>
+    <string name="sync_wifi_only_pref_summary_on">Sync will be running through Wi-Fi connection only</string>
     <string name="interval">Interval</string>
     <string name="synchronization_interval">Synchronization interval</string>
     <string name="others">Others</string>
     <string name="archived_build_log">Archived build log</string>
-    <string name="archived_build_log_pref_summary_off">Build log will be downloaded as plain text</string>
-    <string name="archived_build_log_pref_summary_on">Build log will be downloaded as zip</string>
+    <string name="archived_build_log_pref_summary_off">Build log will be downloaded as a .log file</string>
+    <string name="archived_build_log_pref_summary_on">Build log will be downloaded as a .zip file</string>
     <string name="about">About</string>
     <string name="github">GitHub</string>
     <string name="google_play">Google Play</string>

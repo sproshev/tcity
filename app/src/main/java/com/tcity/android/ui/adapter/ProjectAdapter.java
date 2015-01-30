@@ -30,7 +30,7 @@ public class ProjectAdapter extends ProjectOrBuildConfigurationAdapter {
                 context,
                 clickListener,
                 R.string.project_was_marked_as_favourite,
-                R.string.project_was_not_marked_as_favourite
+                R.string.project_is_not_marked_as_favourite
         );
     }
 }

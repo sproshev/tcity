@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.tcity.android.ui;
+package com.tcity.android.ui.preference;
 
 import android.app.ActionBar;
 import android.content.Intent;
@@ -92,7 +92,7 @@ public class PreferenceActivity extends android.preference.PreferenceActivity {
 
         if (hasFocus) {
             myIntervalPreference.setSummary(
-                    "Current value is " + myPreferences.getSyncInterval() + " minutes"
+                    "Sync will be running every " + myPreferences.getSyncInterval() + " minutes"
             );
         }
     }

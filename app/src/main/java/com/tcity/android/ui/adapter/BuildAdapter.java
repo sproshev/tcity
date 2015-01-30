@@ -54,7 +54,7 @@ public class BuildAdapter extends CursorAdapter {
         myClickListener = listener;
 
         myFavouriteDescription = context.getString(R.string.build_was_marked_as_favourite);
-        myNotFavouriteDescription = context.getString(R.string.build_was_not_marked_as_favourite);
+        myNotFavouriteDescription = context.getString(R.string.build_is_not_marked_as_favourite);
     }
 
     @NotNull

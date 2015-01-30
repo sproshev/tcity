@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.tcity.android.ui;
+package com.tcity.android.ui.preference;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -28,6 +28,7 @@ import com.tcity.android.R;
 import com.tcity.android.app.Application;
 import com.tcity.android.app.Preferences;
 import com.tcity.android.sync.SyncUtils;
+import com.tcity.android.ui.SplashActivity;
 
 import org.jetbrains.annotations.NotNull;
 

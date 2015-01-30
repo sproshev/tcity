@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.tcity.android.ui;
+package com.tcity.android.ui.login;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -35,7 +35,8 @@ import com.tcity.android.background.runnable.LoginRunnable;
 import com.tcity.android.background.runnable.chain.ExecutableRunnableChain;
 import com.tcity.android.background.runnable.chain.RunnableChain;
 import com.tcity.android.sync.SyncUtils;
-import com.tcity.android.ui.LoginChainListener.LoginResult;
+import com.tcity.android.ui.SplashActivity;
+import com.tcity.android.ui.login.LoginChainListener.LoginResult;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

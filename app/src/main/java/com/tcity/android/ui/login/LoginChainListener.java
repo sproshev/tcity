@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.tcity.android.ui;
+package com.tcity.android.ui.login;
 
 import com.tcity.android.background.runnable.chain.RunnableChain;
 

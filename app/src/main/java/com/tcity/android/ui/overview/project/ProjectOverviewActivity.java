@@ -37,8 +37,8 @@ import com.tcity.android.app.Preferences;
 import com.tcity.android.background.web.WebLocator;
 import com.tcity.android.db.DB;
 import com.tcity.android.db.Project;
-import com.tcity.android.ui.PreferenceActivity;
 import com.tcity.android.ui.overview.buildconfiguration.BuildConfigurationOverviewActivity;
+import com.tcity.android.ui.preference.PreferenceActivity;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

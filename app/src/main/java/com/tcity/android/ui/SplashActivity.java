@@ -21,6 +21,7 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import com.tcity.android.app.Preferences;
+import com.tcity.android.ui.login.LoginActivity;
 import com.tcity.android.ui.overview.project.ProjectOverviewActivity;
 
 public class SplashActivity extends Activity {
