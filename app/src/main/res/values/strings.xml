@@ -60,6 +60,9 @@
     <string name="password">Password</string>
     <string name="https">Https</string>
 
+    <string name="no">No</string>
+    <string name="yes">Yes</string>
+    <string name="logout_message">All application data will be removed. Do you want to continue?</string>
     <string name="synchronization">Synchronization</string>
     <string name="sync_pref_summary_off">Enable synchronization to receive notifications about new builds in favourite build configurations</string>
     <string name="sync_pref_summary_on">Disable synchronization to decrease network and battery usage</string>

@@ -25,7 +25,6 @@ import android.preference.Preference;
 import android.view.MenuItem;
 
 import com.tcity.android.R;
-import com.tcity.android.app.Application;
 import com.tcity.android.app.Preferences;
 import com.tcity.android.sync.SyncUtils;
 
@@ -84,19 +83,14 @@ public class PreferenceActivity extends android.preference.PreferenceActivity {
 
     private class LogoutPreferenceListener implements Preference.OnPreferenceClickListener {
 
+        @NotNull
+        private static final String DIALOG_TAG = "DIALOG";
+
         @Override
         public boolean onPreferenceClick(@Nullable Preference preference) {
-            PreferenceActivity context = PreferenceActivity.this;
+            LogoutDialogFragment dialog = new LogoutDialogFragment();
 
-            SyncUtils.disableSync(context);
-
-            ((Application) getApplication()).getDB().reset();
-            new Preferences(context).reset();
-
-            Intent intent = new Intent(context, SplashActivity.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(intent);
+            dialog.show(getFragmentManager(), DIALOG_TAG);
 
             return true;
         }
