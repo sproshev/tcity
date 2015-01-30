@@ -116,6 +116,7 @@ public class BuildHostActivity extends Activity {
 
         initTab(bar, getString(R.string.info), BuildInfoFragment.class);
         initTab(bar, getString(R.string.tests), BuildTestsFragment.class);
+        initTab(bar, getString(R.string.artifacts), BuildArtifactsFragment.class);
 
         bar.setSelectedNavigationItem(selectedTab);
     }

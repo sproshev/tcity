@@ -45,6 +45,9 @@ public class BuildInfoFragment extends Fragment implements SwipeRefreshLayout.On
     private String myBuildId;
 
     @NotNull
+    private RestClient myClient;
+
+    @NotNull
     private BuildInfoTask myTask;
 
     @NotNull
@@ -57,8 +60,10 @@ public class BuildInfoFragment extends Fragment implements SwipeRefreshLayout.On
         super.onCreate(savedInstanceState);
 
         myBuildId = getArguments().getString(BuildHostActivity.ID_INTENT_KEY);
-        myTask = new BuildInfoTask(myBuildId, new RestClient(new Preferences(getActivity())));
-        myTask.setFragment(this);
+
+        myClient = new RestClient(new Preferences(getActivity()));
+
+        calculateNewTask();
 
         setRetainInstance(true);
     }
@@ -119,14 +124,7 @@ public class BuildInfoFragment extends Fragment implements SwipeRefreshLayout.On
     @Override
     public void onRefresh() {
         if (myTask.getStatus() == AsyncTask.Status.FINISHED) {
-            myTask = new BuildInfoTask(
-                    myBuildId,
-                    new RestClient(
-                            new Preferences(getActivity())
-                    )
-            );
-
-            myTask.setFragment(this);
+            calculateNewTask();
         }
 
         if (myTask.getStatus() != AsyncTask.Status.RUNNING) {
@@ -153,6 +151,11 @@ public class BuildInfoFragment extends Fragment implements SwipeRefreshLayout.On
         if (result != null) {
             updateView(result);
         }
+    }
+
+    private void calculateNewTask() {
+        myTask = new BuildInfoTask(myBuildId, myClient);
+        myTask.setFragment(this);
     }
 
     private void setRefreshing(final boolean refreshing) {

@@ -28,6 +28,7 @@
     <string name="options">Options</string>
     <string name="info">Info</string>
     <string name="tests">Tests</string>
+    <string name="artifacts">Artifacts</string>
     <string name="branch">Branch</string>
     <string name="wait_reason">Wait Reason</string>
     <string name="queued">Queued</string>
