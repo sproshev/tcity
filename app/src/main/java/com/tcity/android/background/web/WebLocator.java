@@ -40,4 +40,9 @@ public class WebLocator {
     public static String getBuildUrl(@NotNull String id, @NotNull Preferences preferences) {
         return preferences.getUrl() + "/viewLog.html?buildId=" + id;
     }
+
+    @NotNull
+    public static String getBuildLogUrl(@NotNull String id, @NotNull Preferences preferences) {
+        return preferences.getUrl() + "/httpAuth/downloadBuildLog.html?buildId=" + id;
+    }
 }

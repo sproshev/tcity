@@ -18,13 +18,21 @@ package com.tcity.android.ui.info;
 
 import android.app.ActionBar;
 import android.app.Activity;
+import android.app.DownloadManager;
 import android.app.Fragment;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
+import android.view.Menu;
 import android.view.MenuItem;
 
 import com.tcity.android.R;
 import com.tcity.android.app.Application;
+import com.tcity.android.app.Preferences;
+import com.tcity.android.background.web.WebLocator;
 import com.tcity.android.db.DB;
+import com.tcity.android.ui.PreferenceActivity;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -54,6 +62,16 @@ public class BuildHostActivity extends Activity {
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_build_host, menu);
+
+        MenuItem item = menu.findItem(R.id.menu_settings);
+        item.setIntent(new Intent(this, PreferenceActivity.class));
+
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
     protected void onSaveInstanceState(@NotNull Bundle outState) {
         super.onSaveInstanceState(outState);
 
@@ -67,6 +85,16 @@ public class BuildHostActivity extends Activity {
     public boolean onOptionsItemSelected(@NotNull MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
             finish();
+
+            return true;
+        }
+
+        if (item.getItemId() == R.id.menu_dl_log) {
+            //noinspection ResultOfMethodCallIgnored
+            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).mkdirs();
+
+            DownloadManager manager = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
+            manager.enqueue(calculateLogRequest());
 
             return true;
         }
@@ -90,6 +118,26 @@ public class BuildHostActivity extends Activity {
         initTab(bar, getString(R.string.tests), BuildTestsFragment.class);
 
         bar.setSelectedNavigationItem(selectedTab);
+    }
+
+    @NotNull
+    private DownloadManager.Request calculateLogRequest() {
+        Preferences preferences = new Preferences(this);
+
+        Uri src = Uri.parse(WebLocator.getBuildLogUrl(myBuildId, preferences));
+        String dest = calculateLogFilename();
+
+        DownloadManager.Request request = new DownloadManager.Request(src);
+
+        request.addRequestHeader("Authorization", "Basic " + preferences.getAuth());
+        request.setTitle(dest);
+        request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+        request.setDestinationInExternalPublicDir(
+                Environment.DIRECTORY_DOWNLOADS,
+                dest
+        );
+
+        return request;
     }
 
     @NotNull
@@ -123,5 +171,21 @@ public class BuildHostActivity extends Activity {
         );
 
         bar.addTab(tab);
+    }
+
+    @NotNull
+    private String calculateLogFilename() {
+        DB db = ((Application) getApplication()).getDB();
+
+        String buildConfigurationId = db.getBuildParentId(myBuildId);
+        String projectId = db.getBuildConfigurationParentId(buildConfigurationId);
+
+        String projectName = db.getProjectName(projectId);
+        String buildConfigurationName = db.getBuildConfigurationName(buildConfigurationId);
+        String buildName = db.getBuildName(myBuildId);
+
+        String result = projectName + "_" + buildConfigurationName + "_" + buildName + ".log";
+
+        return result.replaceAll("[^a-zA-Z0-9.-]", "_");
     }
 }
