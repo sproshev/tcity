@@ -49,7 +49,22 @@
 
     </PreferenceCategory>
 
-    <PreferenceCategory android:title="About">
+    <PreferenceCategory android:title="@string/others">
+
+        <CheckBoxPreference
+            android:defaultValue="true"
+
+            android:key="@string/archived_build_log_pref_key"
+
+            android:summaryOff="@string/archived_build_log_pref_summary_off"
+            android:summaryOn="@string/archived_build_log_pref_summary_on"
+
+            android:title="@string/archived_build_log"
+            />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/about">
 
         <Preference
             android:key="@string/github_pref_key"

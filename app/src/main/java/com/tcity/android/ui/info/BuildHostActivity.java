@@ -125,7 +125,7 @@ public class BuildHostActivity extends Activity {
         Preferences preferences = new Preferences(this);
 
         Uri src = Uri.parse(WebLocator.getBuildLogUrl(myBuildId, preferences));
-        String dest = calculateLogFilename();
+        String dest = calculateLogFilename(preferences);
 
         DownloadManager.Request request = new DownloadManager.Request(src);
 
@@ -174,7 +174,7 @@ public class BuildHostActivity extends Activity {
     }
 
     @NotNull
-    private String calculateLogFilename() {
+    private String calculateLogFilename(@NotNull Preferences preferences) {
         DB db = ((Application) getApplication()).getDB();
 
         String buildConfigurationId = db.getBuildParentId(myBuildId);
@@ -184,7 +184,8 @@ public class BuildHostActivity extends Activity {
         String buildConfigurationName = db.getBuildConfigurationName(buildConfigurationId);
         String buildName = db.getBuildName(myBuildId);
 
-        String result = projectName + "_" + buildConfigurationName + "_" + buildName + ".log";
+        String result = projectName + "_" + buildConfigurationName + "_" + buildName + "." +
+                (preferences.isBuildLogArchived() ? "zip" : "log");
 
         return result.replaceAll("[^a-zA-Z0-9.-]", "_");
     }

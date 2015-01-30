@@ -43,6 +43,7 @@ public class WebLocator {
 
     @NotNull
     public static String getBuildLogUrl(@NotNull String id, @NotNull Preferences preferences) {
-        return preferences.getUrl() + "/httpAuth/downloadBuildLog.html?buildId=" + id;
+        return preferences.getUrl() + "/httpAuth/downloadBuildLog.html?buildId=" + id +
+                (preferences.isBuildLogArchived() ? "&archived=true" : "");
     }
 }

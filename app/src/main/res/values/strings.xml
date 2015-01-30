@@ -66,12 +66,18 @@
     <string name="wifi_only">Wi-Fi only</string>
     <string name="sync_wifi_only_pref_summary_off">Synchronization will be running through all network connections</string>
     <string name="sync_wifi_only_pref_summary_on">Synchronization will be running through Wi-Fi only</string>
+    <string name="others">Others</string>
+    <string name="archived_build_log">Archived build log</string>
+    <string name="archived_build_log_pref_summary_off">Build log will be downloaded as plain text</string>
+    <string name="archived_build_log_pref_summary_on">Build log will be downloaded as zip</string>
+    <string name="about">About</string>
     <string name="github">GitHub</string>
     <string name="google_play">Google Play</string>
 
     <string name="logout_pref_key">logout</string>
     <string name="sync_pref_key">sync</string>
     <string name="sync_wifi_only_pref_key">sync_wifi_only</string>
+    <string name="archived_build_log_pref_key">archived_build_log</string>
     <string name="github_pref_key">github</string>
     <string name="google_play_pref_key">google_play</string>
 

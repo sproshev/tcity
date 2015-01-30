@@ -30,6 +30,8 @@ public class Preferences(context: Context) {
     private val syncKey = context.getString(R.string.sync_pref_key)
     private val syncWifiOnlyKey = context.getString(R.string.sync_wifi_only_pref_key)
 
+    private val archivedBuildLogKey = context.getString(R.string.archived_build_log_pref_key);
+
     class object {
         private val URL_KEY = "url"
         private val LOGIN_KEY = "login"
@@ -56,6 +58,8 @@ public class Preferences(context: Context) {
     public fun isSyncReceiverEnabled(): Boolean = preferences.getBoolean(SYNC_RECEIVER_KEY, false)
 
     public fun isSyncScheduled(): Boolean = preferences.getBoolean(SYNC_SCHEDULED_KEY, false)
+
+    public fun isBuildLogArchived(): Boolean = preferences.getBoolean(archivedBuildLogKey, true)
 
     public fun getFavouriteProjectsLastUpdate(): Long {
         return preferences.getLong(FAVOURITE_PROJECTS_LAST_UPDATE_KEY, DBUtils.UNDEFINED_TIME)
