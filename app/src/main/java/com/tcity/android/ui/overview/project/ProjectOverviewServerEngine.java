@@ -26,6 +26,7 @@ import com.tcity.android.background.runnable.BuildConfigurationsRunnable;
 import com.tcity.android.background.runnable.FavouriteProjectsRunnable;
 import com.tcity.android.background.runnable.ProjectStatusRunnable;
 import com.tcity.android.background.runnable.ProjectsRunnable;
+import com.tcity.android.background.runnable.ServerVersionRunnable;
 import com.tcity.android.background.runnable.chain.ExecutableRunnableChain;
 import com.tcity.android.background.runnable.chain.RunnableChain;
 import com.tcity.android.db.DB;
@@ -115,7 +116,8 @@ class ProjectOverviewServerEngine {
                 !ExpirationUtils.areBuildConfigurationsExpired(myDb, myProjectId) &&
                 !expiredProjectStatusExists() &&
                 !expiredBuildConfigurationStatusExists() &&
-                !ExpirationUtils.areFavouriteProjectsExpired(myPreferences)) {
+                !ExpirationUtils.areFavouriteProjectsExpired(myPreferences) &&
+                !ExpirationUtils.isServerVersionExpired(myPreferences)) {
             return;
         }
 
@@ -184,6 +186,7 @@ class ProjectOverviewServerEngine {
         );
 
         return RunnableChain.getOrRunnableChain(
+                getServerVersionChain(force),
                 getFavouriteProjectsChain(force),
                 fullProjectsChain,
                 fullBuildConfigurationChain
@@ -209,6 +212,17 @@ class ProjectOverviewServerEngine {
 
         return RunnableChain.getSingleRunnableChain(
                 new BuildConfigurationsRunnable(myProjectId, myDb, myRestClient)
+        );
+    }
+
+    @NotNull
+    private RunnableChain getServerVersionChain(boolean force) {
+        if (!force && !ExpirationUtils.isServerVersionExpired(myPreferences)) {
+            return RunnableChain.getSingleRunnableChain(new EmptyRunnable());
+        }
+
+        return RunnableChain.getSingleRunnableChain(
+                new ServerVersionRunnable(myRestClient, myPreferences)
         );
     }
 

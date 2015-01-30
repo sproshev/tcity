@@ -29,6 +29,11 @@ public class ExpirationUtils {
     private ExpirationUtils() {
     }
 
+    public static boolean isServerVersionExpired(@NotNull Preferences preferences) {
+        return preferences.getServerVersionLastUpdate() <
+                System.currentTimeMillis() - AlarmManager.INTERVAL_DAY * 7;
+    }
+
     public static boolean areProjectsExpired(@NotNull DB db) {
         return isEarlierThan3DaysAgo(db.getProjectLastUpdate(Project.ROOT_PROJECT_ID));
     }

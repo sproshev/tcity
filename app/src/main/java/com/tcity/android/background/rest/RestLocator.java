@@ -40,6 +40,11 @@ class RestLocator {
     }
 
     @NotNull
+    static String getServer(@NotNull Preferences preferences) {
+        return preferences.getUrl() + REST_PREFIX + "server";
+    }
+
+    @NotNull
     static String getOverviewProjects(@NotNull String login,
                                       @NotNull Preferences preferences) {
         return preferences.getUrl() + REST_PREFIX +

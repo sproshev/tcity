@@ -41,6 +41,8 @@ public class Preferences(context: Context) {
         private val SYNC_RECEIVER_KEY = "sync_receiver"
         private val SYNC_SCHEDULED_KEY = "sync_scheduled"
         private val FAVOURITE_PROJECTS_LAST_UPDATE_KEY = "favourite_projects_last_update"
+        private val SERVER_VERSION_KEY = "server_version"
+        private val SERVER_VERSION_LAST_UPDATE_KEY = "server_version_last_update"
     }
 
     public fun isValid(): Boolean {
@@ -69,6 +71,12 @@ public class Preferences(context: Context) {
 
     public fun getSyncInterval(): Int {
         return preferences.getInt(syncIntervalKey, SyncUtils.DEFAULT_INTERVAL)
+    }
+
+    public fun getServerVersion(): String? = preferences.getString(SERVER_VERSION_KEY, null)
+
+    public fun getServerVersionLastUpdate(): Long {
+        return preferences.getLong(SERVER_VERSION_LAST_UPDATE_KEY, DBUtils.UNDEFINED_TIME)
     }
 
     public fun setUrl(url: String) {
@@ -139,6 +147,15 @@ public class Preferences(context: Context) {
         } else {
             editor.putInt(syncIntervalKey, interval)
         }
+
+        editor.apply()
+    }
+
+    public fun setServerVersion(version: String) {
+        val editor = preferences.edit();
+
+        editor.putString(SERVER_VERSION_KEY, version)
+        editor.putLong(SERVER_VERSION_LAST_UPDATE_KEY, System.currentTimeMillis())
 
         editor.apply()
     }

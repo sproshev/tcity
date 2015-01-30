@@ -55,8 +55,14 @@ public class PreferenceActivity extends android.preference.PreferenceActivity {
         myPreferences = new Preferences(this);
 
         //noinspection deprecation
+        Preference serverPreference = findPreference(getString(R.string.server_pref_key));
+        serverPreference.setTitle(myPreferences.getUrl());
+        serverPreference.setSummary(myPreferences.getServerVersion());
+        serverPreference.setOnPreferenceClickListener(new ServerListener());
+
+        //noinspection deprecation
         Preference logoutPreference = findPreference(getString(R.string.logout_pref_key));
-        logoutPreference.setSummary(myPreferences.getUrl() + "\n" + myPreferences.getLogin());
+        logoutPreference.setSummary(myPreferences.getLogin());
         logoutPreference.setOnPreferenceClickListener(new LogoutPreferenceListener());
 
         //noinspection deprecation
@@ -100,6 +106,19 @@ public class PreferenceActivity extends android.preference.PreferenceActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private class ServerListener implements Preference.OnPreferenceClickListener {
+
+        @Override
+        public boolean onPreferenceClick(@Nullable Preference preference) {
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            intent.setData(Uri.parse(myPreferences.getUrl()));
+
+            startActivity(intent);
+
+            return true;
+        }
     }
 
     private class LogoutPreferenceListener implements Preference.OnPreferenceClickListener {

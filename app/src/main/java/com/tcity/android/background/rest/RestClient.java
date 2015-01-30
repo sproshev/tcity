@@ -54,6 +54,13 @@ public class RestClient {
     }
 
     @NotNull
+    public HttpResponse getServer() throws IOException {
+        return getJson(
+                RestLocator.getServer(myPreferences)
+        );
+    }
+
+    @NotNull
     public HttpResponse getOverviewProjects(@NotNull String login) throws IOException {
         return getPlain(
                 RestLocator.getOverviewProjects(login, myPreferences)
