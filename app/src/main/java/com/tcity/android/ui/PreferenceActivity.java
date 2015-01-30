@@ -33,6 +33,12 @@ import org.jetbrains.annotations.Nullable;
 
 public class PreferenceActivity extends android.preference.PreferenceActivity {
 
+    @NotNull
+    private Preferences myPreferences;
+
+    @NotNull
+    private Preference myIntervalPreference;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -46,11 +52,11 @@ public class PreferenceActivity extends android.preference.PreferenceActivity {
         //noinspection deprecation
         addPreferencesFromResource(R.xml.preferences);
 
-        Preferences preferences = new Preferences(this);
+        myPreferences = new Preferences(this);
 
         //noinspection deprecation
         Preference logoutPreference = findPreference(getString(R.string.logout_pref_key));
-        logoutPreference.setSummary(preferences.getUrl() + "\n" + preferences.getLogin());
+        logoutPreference.setSummary(myPreferences.getUrl() + "\n" + myPreferences.getLogin());
         logoutPreference.setOnPreferenceClickListener(new LogoutPreferenceListener());
 
         //noinspection deprecation
@@ -62,12 +68,27 @@ public class PreferenceActivity extends android.preference.PreferenceActivity {
         wifiPreference.setOnPreferenceChangeListener(new WifiPreferenceListener());
 
         //noinspection deprecation
+        myIntervalPreference = findPreference(getString(R.string.sync_interval_pref_key));
+        myIntervalPreference.setOnPreferenceClickListener(new IntervalPreferenceListener());
+
+        //noinspection deprecation
         Preference gitHubPreference = findPreference(getString(R.string.github_pref_key));
         gitHubPreference.setOnPreferenceClickListener(new GitHubPreferenceListener());
 
         //noinspection deprecation
         Preference googlePlayPreference = findPreference(getString(R.string.google_play_pref_key));
         googlePlayPreference.setOnPreferenceClickListener(new GooglePlayPreferenceListener());
+    }
+
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+
+        if (hasFocus) {
+            myIntervalPreference.setSummary(
+                    "Current value is " + myPreferences.getSyncInterval() + " minutes"
+            );
+        }
     }
 
     @Override
@@ -84,7 +105,7 @@ public class PreferenceActivity extends android.preference.PreferenceActivity {
     private class LogoutPreferenceListener implements Preference.OnPreferenceClickListener {
 
         @NotNull
-        private static final String DIALOG_TAG = "DIALOG";
+        private static final String DIALOG_TAG = "LOGOUT";
 
         @Override
         public boolean onPreferenceClick(@Nullable Preference preference) {
@@ -104,7 +125,7 @@ public class PreferenceActivity extends android.preference.PreferenceActivity {
             PreferenceActivity context = PreferenceActivity.this;
 
             if ((boolean) newValue) {
-                SyncUtils.enableSync(context, new Preferences(context).isSyncWifiOnly());
+                SyncUtils.enableSync(context, myPreferences.getSyncInterval(), myPreferences.isSyncWifiOnly());
             } else {
                 SyncUtils.disableSync(context);
             }
@@ -118,7 +139,26 @@ public class PreferenceActivity extends android.preference.PreferenceActivity {
         @Override
         public boolean onPreferenceChange(@Nullable Preference preference,
                                           @NotNull Object newValue) {
-            SyncUtils.updateSync(PreferenceActivity.this, (boolean) newValue);
+            SyncUtils.updateSyncConnection(
+                    PreferenceActivity.this,
+                    myPreferences.getSyncInterval(),
+                    (boolean) newValue
+            );
+
+            return true;
+        }
+    }
+
+    private class IntervalPreferenceListener implements Preference.OnPreferenceClickListener {
+
+        @NotNull
+        private static final String DIALOG_TAG = "INTERVAL";
+
+        @Override
+        public boolean onPreferenceClick(Preference preference) {
+            SyncIntervalDialogFragment fragment = new SyncIntervalDialogFragment();
+
+            fragment.show(getFragmentManager(), DIALOG_TAG);
 
             return true;
         }

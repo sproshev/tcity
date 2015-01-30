@@ -32,20 +32,24 @@ import org.jetbrains.annotations.Nullable;
 
 public class SyncUtils {
 
+    public static final int MIN_INTERVAL = 15;
+    public static final int MAX_INTERVAL = 720;
+    public static final int DEFAULT_INTERVAL = 30;
+
     private SyncUtils() {
     }
 
-    public static void initSync(@NotNull Context context) {
-        enableSync(context, true);
+    public static void initSync(@NotNull Context context, int intervalMinutes) {
+        enableSync(context, intervalMinutes, true);
 
         Preferences preferences = new Preferences(context);
         preferences.setSyncEnabled(true);
         preferences.setSyncWifiOnly(true);
     }
 
-    public static void enableSync(@NotNull Context context, boolean wifiOnly) {
+    public static void enableSync(@NotNull Context context, int intervalMinutes, boolean wifiOnly) {
         enableReceiver(context);
-        scheduleAlarm(context, wifiOnly);
+        scheduleAlarm(context, intervalMinutes, wifiOnly);
     }
 
     public static void disableSync(@NotNull Context context) {
@@ -53,7 +57,9 @@ public class SyncUtils {
         disableReceiver(context);
     }
 
-    public static void updateSync(@NotNull Context context, boolean wifiOnly) {
+    public static void updateSyncConnection(@NotNull Context context,
+                                            int intervalMinutes,
+                                            boolean wifiOnly) {
         NetworkInfo networkInfo = getNetworkInfo(context);
         Preferences preferences = new Preferences(context);
 
@@ -63,11 +69,20 @@ public class SyncUtils {
                 unscheduleAlarm(context);
             }
         } else {
-            scheduleAlarm(context, wifiOnly);
+            scheduleAlarm(context, intervalMinutes, wifiOnly);
         }
     }
 
-    private static void scheduleAlarm(@NotNull Context context, boolean wifiOnly) {
+    public static void updateSyncInterval(@NotNull Context context,
+                                          int intervalMinutes,
+                                          boolean wifiOnly) {
+        unscheduleAlarm(context);
+        scheduleAlarm(context, intervalMinutes, wifiOnly);
+    }
+
+    private static void scheduleAlarm(@NotNull Context context,
+                                      int intervalMinutes,
+                                      boolean wifiOnly) {
         NetworkInfo networkInfo = getNetworkInfo(context);
         Preferences preferences = new Preferences(context);
 
@@ -79,7 +94,7 @@ public class SyncUtils {
             manager.setInexactRepeating(
                     AlarmManager.RTC,
                     System.currentTimeMillis() + AlarmManager.INTERVAL_FIFTEEN_MINUTES / 3,
-                    AlarmManager.INTERVAL_HALF_HOUR,
+                    intervalMinutes * 60 * 1000,
                     getPendingIntent(context)
             );
 

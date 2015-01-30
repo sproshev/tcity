@@ -33,10 +33,17 @@ public class SyncReceiver extends BroadcastReceiver {
         if (action != null) {
             Preferences preferences = new Preferences(context);
 
+            int interval = preferences.getSyncInterval();
+            boolean wifiOnly = preferences.isSyncWifiOnly();
+
             if (action.equals("android.intent.action.BOOT_COMPLETED") && preferences.isSyncEnabled()) {
-                SyncUtils.enableSync(context, preferences.isSyncWifiOnly());
+                SyncUtils.enableSync(
+                        context, interval, wifiOnly
+                );
             } else if (action.equals("android.net.conn.CONNECTIVITY_CHANGE")) {
-                SyncUtils.updateSync(context, preferences.isSyncWifiOnly());
+                SyncUtils.updateSyncConnection(
+                        context, interval, wifiOnly
+                );
             }
         } else {
             context.startService(

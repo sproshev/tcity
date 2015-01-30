@@ -21,6 +21,7 @@ import android.preference.PreferenceManager
 import android.util.Base64
 import com.tcity.android.R
 import com.tcity.android.db.DBUtils
+import com.tcity.android.sync.SyncUtils
 
 
 public class Preferences(context: Context) {
@@ -29,8 +30,9 @@ public class Preferences(context: Context) {
 
     private val syncKey = context.getString(R.string.sync_pref_key)
     private val syncWifiOnlyKey = context.getString(R.string.sync_wifi_only_pref_key)
+    private val syncIntervalKey = context.getString(R.string.sync_interval_pref_key)
 
-    private val archivedBuildLogKey = context.getString(R.string.archived_build_log_pref_key);
+    private val archivedBuildLogKey = context.getString(R.string.archived_build_log_pref_key)
 
     class object {
         private val URL_KEY = "url"
@@ -63,6 +65,10 @@ public class Preferences(context: Context) {
 
     public fun getFavouriteProjectsLastUpdate(): Long {
         return preferences.getLong(FAVOURITE_PROJECTS_LAST_UPDATE_KEY, DBUtils.UNDEFINED_TIME)
+    }
+
+    public fun getSyncInterval(): Int {
+        return preferences.getInt(syncIntervalKey, SyncUtils.DEFAULT_INTERVAL)
     }
 
     public fun setUrl(url: String) {
@@ -119,6 +125,20 @@ public class Preferences(context: Context) {
         val editor = preferences.edit()
 
         editor.putLong(FAVOURITE_PROJECTS_LAST_UPDATE_KEY, time)
+
+        editor.apply()
+    }
+
+    public fun setSyncInterval(interval: Int) {
+        val editor = preferences.edit()
+
+        if (interval < SyncUtils.MIN_INTERVAL) {
+            editor.putInt(syncIntervalKey, SyncUtils.MIN_INTERVAL)
+        } else if (interval > SyncUtils.MAX_INTERVAL) {
+            editor.putInt(syncIntervalKey, SyncUtils.MAX_INTERVAL)
+        } else {
+            editor.putInt(syncIntervalKey, interval)
+        }
 
         editor.apply()
     }

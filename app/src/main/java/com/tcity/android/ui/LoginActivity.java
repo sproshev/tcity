@@ -78,6 +78,9 @@ public class LoginActivity extends Activity {
     @NotNull
     private SharedPreferences mySharedPreferences;
 
+    @NotNull
+    private Preferences myPreferences;
+
     private boolean myRedirecting;
 
     /* LIFECYCLE - BEGIN */
@@ -104,6 +107,8 @@ public class LoginActivity extends Activity {
         mySharedPreferences = getSharedPreferences(TEMP_PREFERENCES_NAME, MODE_PRIVATE);
         myUrlEditText.setText(mySharedPreferences.getString(URL_PREFERENCES_KEY, null));
         myLoginEditText.setText(mySharedPreferences.getString(LOGIN_PREFERENCES_KEY, null));
+
+        myPreferences = new Preferences(this);
 
         myRedirecting = false;
     }
@@ -170,7 +175,7 @@ public class LoginActivity extends Activity {
 
         myRedirecting = true;
 
-        SyncUtils.initSync(this);
+        SyncUtils.initSync(this, SyncUtils.DEFAULT_INTERVAL);
 
         startActivity(intent);
     }
@@ -178,7 +183,7 @@ public class LoginActivity extends Activity {
     void onFailedLogin() {
         setRefreshing(false);
 
-        new Preferences(this).reset();
+        myPreferences.reset();
 
         //noinspection ThrowableResultOfMethodCallIgnored
         Exception e = myChainListener.getException();
@@ -240,15 +245,13 @@ public class LoginActivity extends Activity {
         editor.putString(LOGIN_PREFERENCES_KEY, login);
         editor.apply();
 
-        Preferences preferences = new Preferences(LoginActivity.this);
-
         if (myHttpsCheckBox.isChecked()) {
-            preferences.setUrl("https://" + url);
+            myPreferences.setUrl("https://" + url);
         } else {
-            preferences.setUrl("http://" + url);
+            myPreferences.setUrl("http://" + url);
         }
 
-        preferences.setAuth(login, password);
+        myPreferences.setAuth(login, password);
     }
 
     @NotNull
@@ -256,7 +259,7 @@ public class LoginActivity extends Activity {
         return RunnableChain.getSingleRunnableChain(
                 new LoginRunnable(
                         new RestClient(
-                                new Preferences(this)
+                                myPreferences
                         )
                 )
         ).toAsyncTask(myChainListener);
