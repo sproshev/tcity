@@ -54,6 +54,8 @@
     <string name="build_was_marked_as_favourite">Build was marked as favourite</string>
     <string name="build_is_not_marked_as_favourite">Build is not marked as favourite</string>
 
+    <string name="dl_build_artifact">Download build artifact</string>
+
     <string name="url">Url</string>
     <string name="login">Login</string>
     <string name="logout">Logout</string>

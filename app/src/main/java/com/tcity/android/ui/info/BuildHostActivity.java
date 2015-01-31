@@ -37,6 +37,9 @@ import com.tcity.android.ui.preference.PreferenceActivity;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class BuildHostActivity extends Activity {
 
     @NotNull
@@ -48,6 +51,9 @@ public class BuildHostActivity extends Activity {
     @NotNull
     private String myBuildId;
 
+    @NotNull
+    private List<BuildTabListener<?>> myTabListeners;
+
     // LIFECYCLE - Begin
 
     @Override
@@ -55,6 +61,7 @@ public class BuildHostActivity extends Activity {
         super.onCreate(savedInstanceState);
 
         myBuildId = getIntent().getStringExtra(ID_INTENT_KEY);
+        myTabListeners = new ArrayList<>();
 
         initActionBar(
                 savedInstanceState != null ? savedInstanceState.getInt(SELECTED_TAB_KEY, 0) : 0
@@ -75,8 +82,7 @@ public class BuildHostActivity extends Activity {
     protected void onSaveInstanceState(@NotNull Bundle outState) {
         super.onSaveInstanceState(outState);
 
-        //noinspection deprecation,ConstantConditions
-        outState.putInt(SELECTED_TAB_KEY, getActionBar().getSelectedTab().getPosition());
+        outState.putInt(SELECTED_TAB_KEY, getSelectedPosition());
     }
 
     // LIFECYCLE - End
@@ -100,6 +106,20 @@ public class BuildHostActivity extends Activity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (myTabListeners.get(getSelectedPosition()).onBackPressed()) {
+            return;
+        }
+
+        super.onBackPressed();
+    }
+
+    private int getSelectedPosition() {
+        //noinspection deprecation,ConstantConditions
+        return getActionBar().getSelectedTab().getPosition();
     }
 
     @SuppressWarnings("deprecation")
@@ -160,18 +180,20 @@ public class BuildHostActivity extends Activity {
                                               @NotNull String name,
                                               @NotNull Class<T> cls) {
         ActionBar.Tab tab = bar.newTab();
+        BuildTabListener<T> listener = new BuildTabListener<>(
+                this,
+                cls,
+                name,
+                myBuildId
+        );
 
         tab.setText(name);
         tab.setTabListener(
-                new BuildTabListener<>(
-                        this,
-                        cls,
-                        name,
-                        myBuildId
-                )
+                listener
         );
 
         bar.addTab(tab);
+        myTabListeners.add(listener);
     }
 
     @NotNull

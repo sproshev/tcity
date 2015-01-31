@@ -16,13 +16,25 @@
   -->
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:orientation="vertical"
+
               android:layout_width="match_parent"
-              android:layout_height="match_parent">
+              android:layout_height="wrap_content"
+
+              android:minHeight="?android:attr/listPreferredItemHeight">
 
     <TextView
+        android:id="@+id/build_artifact_name"
+
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/build_artifact_name"/>
+        android:layout_height="match_parent"
+
+        android:gravity="center_vertical"
+
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+
+        android:text="ABC"
+
+        android:textAppearance="?android:attr/textAppearanceListItemSmall"/>
 
 </LinearLayout>

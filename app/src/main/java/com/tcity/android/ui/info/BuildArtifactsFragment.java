@@ -24,7 +24,6 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -97,9 +96,8 @@ public class BuildArtifactsFragment extends ListFragment implements SwipeRefresh
         myLayout.setColorSchemeResources(R.color.green, R.color.red);
         myLayout.setOnRefreshListener(this);
 
-        addHeaderView();
-
         getListView().setAdapter(myAdapter);
+        getListView().setSelector(android.R.color.transparent);
     }
 
     @Override
@@ -171,14 +169,6 @@ public class BuildArtifactsFragment extends ListFragment implements SwipeRefresh
                 myClient
         );
         myTask.setFragment(this);
-    }
-
-    private void addHeaderView() {
-        ListView listView = getListView();
-
-        LayoutInflater inflater = getActivity().getLayoutInflater();
-
-        listView.addHeaderView(inflater.inflate(R.layout.build_artifact_up_item, listView, false));
     }
 
     private void setRefreshing(final boolean refreshing) {
