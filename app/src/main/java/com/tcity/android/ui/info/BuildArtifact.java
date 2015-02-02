@@ -21,7 +21,7 @@ import org.jetbrains.annotations.Nullable;
 
 class BuildArtifact {
 
-    public final int size;
+    public final long size;
 
     @NotNull
     public final String name;
@@ -32,7 +32,7 @@ class BuildArtifact {
     @Nullable
     public final String childrenHref;
 
-    BuildArtifact(int size,
+    BuildArtifact(long size,
                   @NotNull String name,
                   @Nullable String contentHref,
                   @Nullable String childrenHref) {

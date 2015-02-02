@@ -22,19 +22,35 @@
 
               android:minHeight="?android:attr/listPreferredItemHeight">
 
-    <TextView
-        android:id="@+id/build_artifact_name"
-
+    <LinearLayout
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="1"
 
         android:gravity="center_vertical"
+        android:orientation="vertical"
 
         android:paddingLeft="16dp"
-        android:paddingRight="8dp"
+        android:paddingRight="8dp">
 
-        android:textAppearance="?android:attr/textAppearanceListItemSmall"/>
+        <TextView
+            android:id="@+id/build_artifact_name"
+
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+
+            android:textAppearance="?android:attr/textAppearanceListItemSmall"/>
+
+        <TextView
+            android:id="@+id/build_artifact_size"
+
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+
+            android:textColor="#323232"
+            android:textSize="14sp"/>
+
+    </LinearLayout>
 
     <ImageButton
         android:id="@+id/build_artifact_dl"

@@ -17,11 +17,13 @@
 package com.tcity.android.ui.info;
 
 import android.content.Context;
+import android.text.format.Formatter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.tcity.android.R;
@@ -35,6 +37,9 @@ import java.util.List;
 class BuildArtifactsAdapter extends BaseAdapter {
 
     @NotNull
+    private final Context myContext;
+
+    @NotNull
     private final LayoutInflater myInflater;
 
     @NotNull
@@ -46,6 +51,7 @@ class BuildArtifactsAdapter extends BaseAdapter {
     BuildArtifactsAdapter(@NotNull Context context, @NotNull BuildArtifactListener listener) {
         super();
 
+        myContext = context;
         myInflater = LayoutInflater.from(context);
         myListener = listener;
     }
@@ -116,14 +122,19 @@ class BuildArtifactsAdapter extends BaseAdapter {
     private View getDirView(int position, @Nullable View convertView, @NotNull ViewGroup parent) {
         if (convertView == null) {
             convertView = myInflater.inflate(R.layout.build_artifact_dir_item, parent, false);
+
+            convertView.setTag(
+                    new DirViewHolder(
+                            (TextView) convertView.findViewById(R.id.build_artifact_name)
+                    )
+            );
         }
 
         final BuildArtifact artifact = getItem(position);
+        DirViewHolder holder = (DirViewHolder) convertView.getTag();
 
-        TextView textView = (TextView) convertView.findViewById(R.id.build_artifact_name);
-        textView.setText(artifact.name);
-
-        textView.setOnClickListener(
+        holder.name.setText(artifact.name);
+        holder.name.setOnClickListener(
                 new View.OnClickListener() {
                     @Override
                     public void onClick(@NotNull View v) {
@@ -141,14 +152,24 @@ class BuildArtifactsAdapter extends BaseAdapter {
                                 @NotNull ViewGroup parent) {
         if (convertView == null) {
             convertView = myInflater.inflate(R.layout.build_artifact_archive_item, parent, false);
+
+            convertView.setTag(
+                    new ArchiveOrFileViewHolder(
+                            (LinearLayout) convertView.findViewById(R.id.build_artifact_description),
+                            (TextView) convertView.findViewById(R.id.build_artifact_name),
+                            (TextView) convertView.findViewById(R.id.build_artifact_size),
+                            (ImageButton) convertView.findViewById(R.id.build_artifact_dl)
+                    )
+            );
         }
 
         final BuildArtifact artifact = getItem(position);
+        ArchiveOrFileViewHolder holder = (ArchiveOrFileViewHolder) convertView.getTag();
 
-        TextView textView = (TextView) convertView.findViewById(R.id.build_artifact_name);
-        textView.setText(artifact.name);
+        holder.name.setText(artifact.name);
+        holder.size.setText(Formatter.formatShortFileSize(myContext, artifact.size));
 
-        textView.setOnClickListener(
+        holder.description.setOnClickListener(
                 new View.OnClickListener() {
                     @Override
                     public void onClick(@NotNull View v) {
@@ -157,8 +178,7 @@ class BuildArtifactsAdapter extends BaseAdapter {
                 }
         );
 
-        ImageButton imageButton = (ImageButton) convertView.findViewById(R.id.build_artifact_dl);
-        imageButton.setOnClickListener(
+        holder.dl.setOnClickListener(
                 new View.OnClickListener() {
                     @Override
                     public void onClick(@NotNull View v) {
@@ -174,15 +194,24 @@ class BuildArtifactsAdapter extends BaseAdapter {
     private View getFileView(int position, @Nullable View convertView, @NotNull ViewGroup parent) {
         if (convertView == null) {
             convertView = myInflater.inflate(R.layout.build_artifact_file_item, parent, false);
+
+            convertView.setTag(
+                    new ArchiveOrFileViewHolder(
+                            (LinearLayout) convertView.findViewById(R.id.build_artifact_description),
+                            (TextView) convertView.findViewById(R.id.build_artifact_name),
+                            (TextView) convertView.findViewById(R.id.build_artifact_size),
+                            (ImageButton) convertView.findViewById(R.id.build_artifact_dl)
+                    )
+            );
         }
 
         final BuildArtifact artifact = getItem(position);
+        ArchiveOrFileViewHolder holder = (ArchiveOrFileViewHolder) convertView.getTag();
 
-        TextView textView = (TextView) convertView.findViewById(R.id.build_artifact_name);
-        textView.setText(artifact.name);
+        holder.name.setText(artifact.name);
+        holder.size.setText(Formatter.formatShortFileSize(myContext, artifact.size));
 
-        ImageButton imageButton = (ImageButton) convertView.findViewById(R.id.build_artifact_dl);
-        imageButton.setOnClickListener(
+        holder.dl.setOnClickListener(
                 new View.OnClickListener() {
                     @Override
                     public void onClick(@NotNull View v) {
@@ -192,5 +221,40 @@ class BuildArtifactsAdapter extends BaseAdapter {
         );
 
         return convertView;
+    }
+
+    private static class DirViewHolder {
+
+        @NotNull
+        public final TextView name;
+
+        private DirViewHolder(@NotNull TextView name) {
+            this.name = name;
+        }
+    }
+
+    private static class ArchiveOrFileViewHolder {
+
+        @NotNull
+        public final LinearLayout description;
+
+        @NotNull
+        public final TextView name;
+
+        @NotNull
+        public final TextView size;
+
+        @NotNull
+        public final ImageButton dl;
+
+        private ArchiveOrFileViewHolder(@NotNull LinearLayout description,
+                                        @NotNull TextView name,
+                                        @NotNull TextView size,
+                                        @NotNull ImageButton dl) {
+            this.description = description;
+            this.name = name;
+            this.size = size;
+            this.dl = dl;
+        }
     }
 }

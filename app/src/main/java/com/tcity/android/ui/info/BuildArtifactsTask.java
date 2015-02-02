@@ -149,7 +149,7 @@ class BuildArtifactsTask extends AsyncTask<Void, Void, Void> {
         while (reader.hasNext()) {
             reader.beginObject();
 
-            int size = -1;
+            long size = -1;
             String name = null;
             String contentHref = null;
             String childrenHref = null;
@@ -157,7 +157,7 @@ class BuildArtifactsTask extends AsyncTask<Void, Void, Void> {
             while (reader.hasNext()) {
                 switch (reader.nextName()) {
                     case "size":
-                        size = reader.nextInt();
+                        size = reader.nextLong();
                         break;
                     case "name":
                         name = reader.nextString();
