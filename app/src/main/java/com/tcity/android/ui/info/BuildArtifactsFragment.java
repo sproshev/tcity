@@ -152,7 +152,39 @@ public class BuildArtifactsFragment
 
     @Override
     public void onDescriptionClick(@NotNull BuildArtifact artifact) {
-        // TODO
+        if (artifact.childrenHref == null) {
+            throw new IllegalArgumentException("Build artifact hasn't children");
+        }
+
+        if (myTask.getStatus() == AsyncTask.Status.RUNNING) {
+            myTask.setFragment(null);
+            myTask.cancel(true);
+        }
+
+        myPathStack.addLast(artifact.childrenHref);
+
+        calculateNewTask();
+
+        myTask.execute();
+    }
+
+    boolean onBackPressed() {
+        if (myPathStack.isEmpty()) {
+            return false;
+        }
+
+        if (myTask.getStatus() == AsyncTask.Status.RUNNING) {
+            myTask.setFragment(null);
+            myTask.cancel(true);
+        }
+
+        myPathStack.pollLast();
+
+        calculateNewTask();
+
+        myTask.execute();
+
+        return true;
     }
 
     void onRefreshStarted() {
@@ -188,6 +220,10 @@ public class BuildArtifactsFragment
 
     @NotNull
     private DownloadManager.Request calculateArtifactRequest(@NotNull BuildArtifact artifact) {
+        if (artifact.contentHref == null) {
+            throw new IllegalStateException("Build artifact hasn't content");
+        }
+
         Preferences preferences = new Preferences(getActivity());
 
         Uri src = Uri.parse(preferences.getUrl() + artifact.contentHref);

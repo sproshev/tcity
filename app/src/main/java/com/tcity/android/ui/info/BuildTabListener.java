@@ -79,8 +79,7 @@ class BuildTabListener<T extends Fragment> implements ActionBar.TabListener {
     }
 
     boolean onBackPressed() {
-        // TODO
-
-        return false;
+        return myFragment instanceof BuildArtifactsFragment &&
+                ((BuildArtifactsFragment) myFragment).onBackPressed();
     }
 }
