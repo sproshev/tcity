@@ -39,6 +39,7 @@ import com.tcity.android.background.rest.RestClient;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -54,6 +55,9 @@ public class BuildArtifactsFragment
 
     @NotNull
     private LinkedList<String> myPathStack;
+
+    @NotNull
+    private BuildArtifactsCache myCache;
 
     @NotNull
     private RestClient myClient;
@@ -74,6 +78,7 @@ public class BuildArtifactsFragment
         myAdapter = new BuildArtifactsAdapter(getActivity(), this);
 
         myPathStack = new LinkedList<>();
+        myCache = new BuildArtifactsCache();
 
         myClient = new RestClient(new Preferences(getActivity()));
 
@@ -163,9 +168,17 @@ public class BuildArtifactsFragment
 
         myPathStack.addLast(artifact.childrenHref);
 
-        calculateNewTask();
+        if (myCache.containsKey(artifact.childrenHref)) {
+            myAdapter.setData(
+                    myCache.get(artifact.childrenHref)
+            );
 
-        myTask.execute();
+            myAdapter.notifyDataSetChanged();
+        } else {
+            calculateNewTask();
+
+            myTask.execute();
+        }
     }
 
     boolean onBackPressed() {
@@ -180,9 +193,17 @@ public class BuildArtifactsFragment
 
         myPathStack.pollLast();
 
-        calculateNewTask();
+        if (myCache.containsKey(myPathStack.peekLast())) {
+            myAdapter.setData(
+                    myCache.get(myPathStack.peekLast())
+            );
 
-        myTask.execute();
+            myAdapter.notifyDataSetChanged();
+        } else {
+            calculateNewTask();
+
+            myTask.execute();
+        }
 
         return true;
     }
@@ -204,6 +225,8 @@ public class BuildArtifactsFragment
         List<BuildArtifact> result = myTask.getResult();
 
         if (result != null) {
+            myCache.put(myPathStack.peekLast(), result);
+
             myAdapter.setData(result);
             myAdapter.notifyDataSetChanged();
         }
@@ -265,5 +288,19 @@ public class BuildArtifactsFragment
                     }
                 }, 500
         );  // https://code.google.com/p/android/issues/detail?id=77712
+    }
+
+    private static class BuildArtifactsCache extends LinkedHashMap<String, List<BuildArtifact>> {
+
+        private static final int SIZE = 3;
+
+        public BuildArtifactsCache() {
+            super(SIZE);
+        }
+
+        @Override
+        protected boolean removeEldestEntry(@Nullable Entry<String, List<BuildArtifact>> eldest) {
+            return size() > SIZE;
+        }
     }
 }
