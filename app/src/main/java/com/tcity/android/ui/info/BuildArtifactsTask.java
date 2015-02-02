@@ -17,12 +17,19 @@
 package com.tcity.android.ui.info;
 
 import android.os.AsyncTask;
+import android.util.JsonReader;
 
+import com.tcity.android.background.HttpStatusException;
 import com.tcity.android.background.rest.RestClient;
 
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
+import org.apache.http.StatusLine;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,9 +37,6 @@ class BuildArtifactsTask extends AsyncTask<Void, Void, Void> {
 
     @NotNull
     private final String myBuildId;
-
-    @Nullable
-    private final BuildArtifact.Type myType;
 
     @Nullable
     private final String myPath;
@@ -50,26 +54,36 @@ class BuildArtifactsTask extends AsyncTask<Void, Void, Void> {
     private List<BuildArtifact> myResult;
 
     BuildArtifactsTask(@NotNull String buildId,
-                       @Nullable BuildArtifact.Type type,
                        @Nullable String path,
                        @NotNull RestClient client) {
         myBuildId = buildId;
-        myType = type;
         myPath = path;
         myClient = client;
     }
 
     @Override
     protected Void doInBackground(@NotNull Void... params) {
-        myResult = new ArrayList<>();
+        try {
+            HttpResponse response = getHttpResponse();
+            StatusLine statusLine = response.getStatusLine();
 
-        myResult.add(new BuildArtifact(100, "abc", BuildArtifact.Type.DIR));
-        myResult.add(new BuildArtifact(200, "def", BuildArtifact.Type.ARCHIVE));
-        myResult.add(new BuildArtifact(300, "ghi", BuildArtifact.Type.FILE));
-
-        // TODO
+            if (statusLine.getStatusCode() != HttpStatus.SC_OK) {
+                throw new HttpStatusException(statusLine);
+            } else {
+                handleResponse(response);
+            }
+        } catch (Exception e) {
+            myException = null;
+        }
 
         return null;
+    }
+
+    @NotNull
+    private HttpResponse getHttpResponse() throws IOException {
+        return myPath == null
+                ? myClient.getBuildArtifacts(myBuildId)
+                : myClient.getBuildArtifactChildren(myPath);
     }
 
     @Override
@@ -102,5 +116,101 @@ class BuildArtifactsTask extends AsyncTask<Void, Void, Void> {
     @Nullable
     List<BuildArtifact> getResult() {
         return myResult;
+    }
+
+    private void handleResponse(@NotNull HttpResponse response) throws IOException {
+        JsonReader reader = new JsonReader(new InputStreamReader(response.getEntity().getContent()));
+
+        //noinspection TryFinallyCanBeTryWithResources
+        try {
+            reader.beginObject();
+
+            while (reader.hasNext()) {
+                switch (reader.nextName()) {
+                    case "file":
+                        handleFiles(reader);
+                        break;
+                    default:
+                        reader.skipValue();
+                }
+            }
+
+            reader.endObject();
+        } finally {
+            reader.close();
+        }
+    }
+
+    private void handleFiles(@NotNull JsonReader reader) throws IOException {
+        reader.beginArray();
+
+        List<BuildArtifact> result = new ArrayList<>();
+
+        while (reader.hasNext()) {
+            reader.beginObject();
+
+            int size = -1;
+            String name = null;
+            String contentHref = null;
+            String childrenHref = null;
+
+            while (reader.hasNext()) {
+                switch (reader.nextName()) {
+                    case "size":
+                        size = reader.nextInt();
+                        break;
+                    case "name":
+                        name = reader.nextString();
+                        break;
+                    case "children":
+                        childrenHref = getHref(reader);
+                        break;
+                    case "content":
+                        contentHref = getHref(reader);
+                        break;
+                    default:
+                        reader.skipValue();
+                }
+            }
+
+            if (name == null) {
+                throw new IllegalStateException("Invalid artifacts json: \"name\" is absent");
+            }
+
+            if (contentHref == null && childrenHref == null) {
+                throw new IllegalStateException(
+                        "Invalid artifacts json: \"content\" and \"children\" are absent"
+                );
+            }
+
+            result.add(new BuildArtifact(size, name, contentHref, childrenHref));
+
+            reader.endObject();
+        }
+
+        reader.endArray();
+
+        myResult = result;
+    }
+
+    @Nullable
+    private String getHref(@NotNull JsonReader reader) throws IOException {
+        reader.beginObject();
+
+        String result = null;
+
+        while (reader.hasNext()) {
+            switch (reader.nextName()) {
+                case "href":
+                    result = reader.nextString();
+                    break;
+                default:
+                    reader.skipValue();
+            }
+        }
+
+        reader.endObject();
+
+        return result;
     }
 }

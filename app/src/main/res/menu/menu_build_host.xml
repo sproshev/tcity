@@ -24,7 +24,7 @@
 
     <item
         android:id="@+id/menu_dl_log"
-        android:icon="@android:drawable/ic_menu_save"
+        android:icon="@drawable/ic_action_download_light"
         android:showAsAction="ifRoom|withText"
         android:title="@string/log"/>
 

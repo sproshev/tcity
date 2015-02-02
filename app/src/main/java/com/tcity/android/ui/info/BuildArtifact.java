@@ -17,6 +17,7 @@
 package com.tcity.android.ui.info;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 class BuildArtifact {
 
@@ -25,16 +26,19 @@ class BuildArtifact {
     @NotNull
     public final String name;
 
-    @NotNull
-    public final Type type;
+    @Nullable
+    public final String contentHref;
 
-    BuildArtifact(int size, @NotNull String name, @NotNull Type type) {
+    @Nullable
+    public final String childrenHref;
+
+    BuildArtifact(int size,
+                  @NotNull String name,
+                  @Nullable String contentHref,
+                  @Nullable String childrenHref) {
         this.size = size;
         this.name = name;
-        this.type = type;
-    }
-
-    static enum Type {
-        DIR, FILE, ARCHIVE
+        this.contentHref = contentHref;
+        this.childrenHref = childrenHref;
     }
 }

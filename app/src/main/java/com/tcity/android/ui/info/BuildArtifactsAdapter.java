@@ -66,34 +66,44 @@ class BuildArtifactsAdapter extends BaseAdapter {
 
     @Override
     public int getItemViewType(int position) {
-        switch (getItem(position).type) {
-            case DIR:
-                return 0;
-            case ARCHIVE:
-                return 1;
-            case FILE:
-                return 2;
-            default:
-                throw new IllegalStateException(); // TODO
+        BuildArtifact artifact = getItem(position);
+
+        if (artifact.childrenHref != null) {
+            if (artifact.contentHref == null) {
+                return 0; // dir
+            } else {
+                return 1; // archive
+            }
+        } else {
+            if (artifact.contentHref == null) {
+                throw new IllegalStateException(
+                        "Invalid build artifact: " +
+                                "content href and children href can't be null at the same time"
+                );
+            } else {
+                return 2; // file
+            }
         }
     }
 
     @Override
     public int getViewTypeCount() {
-        return BuildArtifact.Type.values().length;
+        return 3;
     }
 
     @Override
     public View getView(int position, @Nullable View convertView, @NotNull ViewGroup parent) {
-        switch (getItem(position).type) {
-            case DIR:
+        switch (getItemViewType(position)) {
+            case 0:
                 return getDirView(position, convertView, parent);
-            case ARCHIVE:
+            case 1:
                 return getArchiveView(position, convertView, parent);
-            case FILE:
+            case 2:
                 return getFileView(position, convertView, parent);
             default:
-                throw new IllegalStateException(); // TODO
+                throw new IllegalStateException(
+                        "Unexpected item view type: " + getItemViewType(position)
+                );
         }
     }
 
@@ -106,7 +116,7 @@ class BuildArtifactsAdapter extends BaseAdapter {
         BuildArtifact artifact = getItem(position);
 
         TextView textView = (TextView) convertView.findViewById(R.id.build_artifact_name);
-        textView.setText("DIR: " + artifact.name);
+        textView.setText(artifact.name);
 
         return convertView;
     }
@@ -122,7 +132,7 @@ class BuildArtifactsAdapter extends BaseAdapter {
         BuildArtifact artifact = getItem(position);
 
         TextView textView = (TextView) convertView.findViewById(R.id.build_artifact_name);
-        textView.setText("ARCHIVE: " + artifact.name);
+        textView.setText(artifact.name);
 
         return convertView;
     }
@@ -136,7 +146,7 @@ class BuildArtifactsAdapter extends BaseAdapter {
         BuildArtifact artifact = getItem(position);
 
         TextView textView = (TextView) convertView.findViewById(R.id.build_artifact_name);
-        textView.setText("FILE: " + artifact.name);
+        textView.setText(artifact.name);
 
         return convertView;
     }

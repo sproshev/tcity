@@ -132,6 +132,20 @@ public class RestClient {
     }
 
     @NotNull
+    public HttpResponse getBuildArtifacts(@NotNull String id) throws IOException {
+        return getJson(
+                RestLocator.getBuildArtifactsUrl(id, myPreferences)
+        );
+    }
+
+    @NotNull
+    public HttpResponse getBuildArtifactChildren(@NotNull String childrenHref) throws IOException {
+        return getJson(
+                myPreferences.getUrl() + childrenHref
+        );
+    }
+
+    @NotNull
     private HttpResponse getJson(@NotNull String path) throws IOException {
         return get(path, "application/json");
     }

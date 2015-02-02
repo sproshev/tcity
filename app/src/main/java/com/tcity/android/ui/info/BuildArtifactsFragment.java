@@ -47,9 +47,6 @@ public class BuildArtifactsFragment extends ListFragment implements SwipeRefresh
     private BuildArtifactsAdapter myAdapter;
 
     @NotNull
-    private LinkedList<BuildArtifact.Type> myTypeStack;
-
-    @NotNull
     private LinkedList<String> myPathStack;
 
     @NotNull
@@ -70,7 +67,6 @@ public class BuildArtifactsFragment extends ListFragment implements SwipeRefresh
         myBuildId = getArguments().getString(BuildHostActivity.ID_INTENT_KEY);
         myAdapter = new BuildArtifactsAdapter(getActivity());
 
-        myTypeStack = new LinkedList<>();
         myPathStack = new LinkedList<>();
 
         myClient = new RestClient(new Preferences(getActivity()));
@@ -164,8 +160,7 @@ public class BuildArtifactsFragment extends ListFragment implements SwipeRefresh
     private void calculateNewTask() {
         myTask = new BuildArtifactsTask(
                 myBuildId,
-                myTypeStack.peekFirst(),
-                myPathStack.peekFirst(),
+                myPathStack.peekLast(),
                 myClient
         );
         myTask.setFragment(this);
