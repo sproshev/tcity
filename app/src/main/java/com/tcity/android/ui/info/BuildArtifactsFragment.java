@@ -16,9 +16,13 @@
 
 package com.tcity.android.ui.info;
 
+import android.app.DownloadManager;
 import android.app.ListFragment;
+import android.content.Context;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.LayoutInflater;
@@ -38,7 +42,9 @@ import org.jetbrains.annotations.Nullable;
 import java.util.LinkedList;
 import java.util.List;
 
-public class BuildArtifactsFragment extends ListFragment implements SwipeRefreshLayout.OnRefreshListener {
+public class BuildArtifactsFragment
+        extends ListFragment
+        implements SwipeRefreshLayout.OnRefreshListener, BuildArtifactListener {
 
     @NotNull
     private String myBuildId;
@@ -65,7 +71,7 @@ public class BuildArtifactsFragment extends ListFragment implements SwipeRefresh
         super.onCreate(savedInstanceState);
 
         myBuildId = getArguments().getString(BuildHostActivity.ID_INTENT_KEY);
-        myAdapter = new BuildArtifactsAdapter(getActivity());
+        myAdapter = new BuildArtifactsAdapter(getActivity(), this);
 
         myPathStack = new LinkedList<>();
 
@@ -135,6 +141,20 @@ public class BuildArtifactsFragment extends ListFragment implements SwipeRefresh
         }
     }
 
+    @Override
+    public void onDownloadClick(@NotNull BuildArtifact artifact) {
+        //noinspection ResultOfMethodCallIgnored
+        Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).mkdirs();
+
+        DownloadManager manager = (DownloadManager) getActivity().getSystemService(Context.DOWNLOAD_SERVICE);
+        manager.enqueue(calculateArtifactRequest(artifact));
+    }
+
+    @Override
+    public void onDescriptionClick(@NotNull BuildArtifact artifact) {
+        // TODO
+    }
+
     void onRefreshStarted() {
         setRefreshing(true);
     }
@@ -164,6 +184,26 @@ public class BuildArtifactsFragment extends ListFragment implements SwipeRefresh
                 myClient
         );
         myTask.setFragment(this);
+    }
+
+    @NotNull
+    private DownloadManager.Request calculateArtifactRequest(@NotNull BuildArtifact artifact) {
+        Preferences preferences = new Preferences(getActivity());
+
+        Uri src = Uri.parse(preferences.getUrl() + artifact.contentHref);
+        String dest = artifact.name;
+
+        DownloadManager.Request request = new DownloadManager.Request(src);
+
+        request.addRequestHeader("Authorization", "Basic " + preferences.getAuth());
+        request.setTitle(dest);
+        request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+        request.setDestinationInExternalPublicDir(
+                Environment.DIRECTORY_DOWNLOADS,
+                dest
+        );
+
+        return request;
     }
 
     private void setRefreshing(final boolean refreshing) {

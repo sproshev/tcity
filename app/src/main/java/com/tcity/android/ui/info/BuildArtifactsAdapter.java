@@ -21,6 +21,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.tcity.android.R;
@@ -37,12 +38,16 @@ class BuildArtifactsAdapter extends BaseAdapter {
     private final LayoutInflater myInflater;
 
     @NotNull
+    private final BuildArtifactListener myListener;
+
+    @NotNull
     private List<BuildArtifact> myData = Collections.emptyList();
 
-    BuildArtifactsAdapter(@NotNull Context context) {
+    BuildArtifactsAdapter(@NotNull Context context, @NotNull BuildArtifactListener listener) {
         super();
 
         myInflater = LayoutInflater.from(context);
+        myListener = listener;
     }
 
     void setData(@NotNull List<BuildArtifact> data) {
@@ -113,10 +118,19 @@ class BuildArtifactsAdapter extends BaseAdapter {
             convertView = myInflater.inflate(R.layout.build_artifact_dir_item, parent, false);
         }
 
-        BuildArtifact artifact = getItem(position);
+        final BuildArtifact artifact = getItem(position);
 
         TextView textView = (TextView) convertView.findViewById(R.id.build_artifact_name);
         textView.setText(artifact.name);
+
+        textView.setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(@NotNull View v) {
+                        myListener.onDescriptionClick(artifact);
+                    }
+                }
+        );
 
         return convertView;
     }
@@ -129,10 +143,29 @@ class BuildArtifactsAdapter extends BaseAdapter {
             convertView = myInflater.inflate(R.layout.build_artifact_archive_item, parent, false);
         }
 
-        BuildArtifact artifact = getItem(position);
+        final BuildArtifact artifact = getItem(position);
 
         TextView textView = (TextView) convertView.findViewById(R.id.build_artifact_name);
         textView.setText(artifact.name);
+
+        textView.setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(@NotNull View v) {
+                        myListener.onDescriptionClick(artifact);
+                    }
+                }
+        );
+
+        ImageButton imageButton = (ImageButton) convertView.findViewById(R.id.build_artifact_dl);
+        imageButton.setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(@NotNull View v) {
+                        myListener.onDownloadClick(artifact);
+                    }
+                }
+        );
 
         return convertView;
     }
@@ -143,10 +176,20 @@ class BuildArtifactsAdapter extends BaseAdapter {
             convertView = myInflater.inflate(R.layout.build_artifact_file_item, parent, false);
         }
 
-        BuildArtifact artifact = getItem(position);
+        final BuildArtifact artifact = getItem(position);
 
         TextView textView = (TextView) convertView.findViewById(R.id.build_artifact_name);
         textView.setText(artifact.name);
+
+        ImageButton imageButton = (ImageButton) convertView.findViewById(R.id.build_artifact_dl);
+        imageButton.setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(@NotNull View v) {
+                        myListener.onDownloadClick(artifact);
+                    }
+                }
+        );
 
         return convertView;
     }
