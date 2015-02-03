@@ -62,7 +62,7 @@ public class BuildArtifactsFragment
     @NotNull
     private RestClient myClient;
 
-    @NotNull
+    @Nullable
     private BuildArtifactsTask myTask;
 
     @NotNull
@@ -111,33 +111,41 @@ public class BuildArtifactsFragment
     public void onResume() {
         super.onResume();
 
-        if (myTask.getStatus() == AsyncTask.Status.PENDING) {
-            if (Common.isNetworkAvailable(getActivity())) {
-                onRefresh();
-            } else {
-                ((TextView) getListView().getEmptyView()).setText(R.string.network_is_unavailable);
+        if (myTask != null) {
+            if (myTask.getStatus() == AsyncTask.Status.PENDING) {
+                if (Common.isNetworkAvailable(getActivity())) {
+                    onRefresh();
+                } else {
+                    ((TextView) getListView().getEmptyView()).setText(R.string.network_is_unavailable);
+                }
+            } else if (myTask.getStatus() == AsyncTask.Status.RUNNING) {
+                if (myTask.isCancelled()) {
+                    onRefreshFinished();
+                } else {
+                    onRefreshStarted();
+                }
+            } else if (myTask.getStatus() == AsyncTask.Status.FINISHED) {
+                onRefreshFinished();
             }
-        } else if (myTask.getStatus() == AsyncTask.Status.RUNNING) {
-            onRefreshStarted();
-        } else if (myTask.getStatus() == AsyncTask.Status.FINISHED) {
-            onRefreshFinished();
-        }
 
-        myTask.setFragment(this);
+            myTask.setFragment(this);
+        }
     }
 
     @Override
     public void onPause() {
         super.onPause();
 
-        myTask.setFragment(null);
+        if (myTask != null) {
+            myTask.setFragment(null);
+        }
     }
 
     // LIFECYCLE - End
 
     @Override
     public void onRefresh() {
-        if (myTask.getStatus() == AsyncTask.Status.FINISHED) {
+        if (myTask == null || myTask.getStatus() == AsyncTask.Status.FINISHED || myTask.isCancelled()) {
             calculateNewTask();
         }
 
@@ -161,7 +169,7 @@ public class BuildArtifactsFragment
             throw new IllegalArgumentException("Build artifact hasn't children");
         }
 
-        if (myTask.getStatus() == AsyncTask.Status.RUNNING) {
+        if (myTask != null && myTask.getStatus() == AsyncTask.Status.RUNNING) {
             myTask.setFragment(null);
             myTask.cancel(true);
         }
@@ -169,6 +177,8 @@ public class BuildArtifactsFragment
         myPathStack.addLast(artifact.childrenHref);
 
         if (myCache.containsKey(artifact.childrenHref)) {
+            myTask = null;
+
             myAdapter.setData(
                     myCache.get(artifact.childrenHref)
             );
@@ -186,7 +196,7 @@ public class BuildArtifactsFragment
             return false;
         }
 
-        if (myTask.getStatus() == AsyncTask.Status.RUNNING) {
+        if (myTask != null && myTask.getStatus() == AsyncTask.Status.RUNNING) {
             myTask.setFragment(null);
             myTask.cancel(true);
         }
@@ -194,6 +204,8 @@ public class BuildArtifactsFragment
         myPathStack.pollLast();
 
         if (myCache.containsKey(myPathStack.peekLast())) {
+            myTask = null;
+
             myAdapter.setData(
                     myCache.get(myPathStack.peekLast())
             );
@@ -215,20 +227,22 @@ public class BuildArtifactsFragment
     void onRefreshFinished() {
         setRefreshing(false);
 
-        //noinspection ThrowableResultOfMethodCallIgnored
-        Exception e = myTask.getException();
+        if (myTask != null) {
+            //noinspection ThrowableResultOfMethodCallIgnored
+            Exception e = myTask.getException();
 
-        if (e != null) {
-            Toast.makeText(getActivity(), e.getMessage(), Toast.LENGTH_LONG).show();
-        }
+            if (e != null) {
+                Toast.makeText(getActivity(), e.getMessage(), Toast.LENGTH_LONG).show();
+            }
 
-        List<BuildArtifact> result = myTask.getResult();
+            List<BuildArtifact> result = myTask.getResult();
 
-        if (result != null) {
-            myCache.put(myPathStack.peekLast(), result);
+            if (result != null) {
+                myCache.put(myPathStack.peekLast(), result);
 
-            myAdapter.setData(result);
-            myAdapter.notifyDataSetChanged();
+                myAdapter.setData(result);
+                myAdapter.notifyDataSetChanged();
+            }
         }
     }
 
