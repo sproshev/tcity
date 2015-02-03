@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <!--
   ~ Copyright 2014 Semyon Proshev
   ~
@@ -16,16 +15,17 @@
   ~ limitations under the License.
   -->
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              xmlns:tools="http://schemas.android.com/tools"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
 
-              android:layout_width="match_parent"
-              android:layout_height="wrap_content"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
 
-              android:minHeight="?android:attr/listPreferredItemHeight">
+    android:minHeight="?android:attr/listPreferredItemHeight">
 
     <ImageButton
-        android:id="@+id/project_or_build_configuration_favourite"
+        android:id="@+id/concept_favourite"
 
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
@@ -38,21 +38,40 @@
         tools:ignore="ContentDescription"/>
     <!-- content description will be set dynamically -->
 
-    <TextView
-        android:id="@+id/project_or_build_configuration_name"
+    <LinearLayout
+        android:id="@+id/concept_description_layout"
 
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="1"
 
-        android:paddingLeft="4dp"
-        android:paddingRight="4dp"
-
+        android:orientation="vertical"
         android:gravity="center_vertical"
-        android:textAppearance="?android:attr/textAppearanceListItemSmall"/>
+
+        android:paddingLeft="4dp"
+        android:paddingRight="4dp">
+
+        <TextView
+            android:id="@+id/concept_name"
+
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+
+            android:textAppearance="?android:attr/textAppearanceListItemSmall"/>
+
+        <TextView
+            android:id="@+id/concept_sub"
+
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+
+            android:textColor="#323232"
+            android:textSize="14sp"/>
+
+    </LinearLayout>
 
     <ImageButton
-        android:id="@+id/project_or_build_configuration_options"
+        android:id="@+id/concept_options"
 
         android:layout_width="wrap_content"
         android:layout_height="match_parent"

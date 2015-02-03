@@ -204,7 +204,7 @@ class ProjectOverviewDBEngine {
         }
 
         @Override
-        public void onNameClick(@NotNull String id) {
+        public void onDescriptionClick(@NotNull String id) {
             if (myActivity != null) {
                 myActivity.buildConfigurationNameClick(id);
             }
@@ -231,7 +231,7 @@ class ProjectOverviewDBEngine {
         }
 
         @Override
-        public void onNameClick(@NotNull String id) {
+        public void onDescriptionClick(@NotNull String id) {
             if (myActivity != null) {
                 myActivity.projectNameClick(id);
             }

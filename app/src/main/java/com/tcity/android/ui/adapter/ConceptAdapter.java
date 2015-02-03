@@ -23,23 +23,23 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CursorAdapter;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.tcity.android.R;
-import com.tcity.android.Status;
 import com.tcity.android.app.Common;
 import com.tcity.android.db.DBUtils;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-class ProjectOrBuildConfigurationAdapter extends CursorAdapter {
+abstract class ConceptAdapter extends CursorAdapter {
 
     private static final int FAVOURITE_IMAGE = android.R.drawable.btn_star_big_on;
     private static final int NOT_FAVOURITE_IMAGE = android.R.drawable.btn_star_big_off;
 
     @NotNull
-    private final ProjectOrBuildConfigurationClickListener myClickListener;
+    private final ConceptClickListener myClickListener;
 
     @NotNull
     private final String myFavouriteDescription;
@@ -47,10 +47,10 @@ class ProjectOrBuildConfigurationAdapter extends CursorAdapter {
     @NotNull
     private final String myNotFavouriteDescription;
 
-    ProjectOrBuildConfigurationAdapter(@NotNull Context context,
-                                       @NotNull ProjectOrBuildConfigurationClickListener clickListener,
-                                       int favouriteDescriptionId,
-                                       int notFavouriteDescriptionId) {
+    ConceptAdapter(@NotNull Context context,
+                   @NotNull ConceptClickListener clickListener,
+                   int favouriteDescriptionId,
+                   int notFavouriteDescriptionId) {
         super(context, null, true);
 
         myClickListener = clickListener;
@@ -64,17 +64,15 @@ class ProjectOrBuildConfigurationAdapter extends CursorAdapter {
     public View newView(@NotNull Context context,
                         @Nullable Cursor cursor,
                         @Nullable ViewGroup parent) {
-        View result = LayoutInflater.from(context).inflate(
-                R.layout.project_or_build_configuration_item,
-                parent,
-                false
-        );
+        View result = LayoutInflater.from(context).inflate(R.layout.concept_item, parent, false);
 
         result.setTag(
                 new ViewHolder(
-                        (ImageButton) result.findViewById(R.id.project_or_build_configuration_favourite),
-                        (TextView) result.findViewById(R.id.project_or_build_configuration_name),
-                        result.findViewById(R.id.project_or_build_configuration_options)
+                        (ImageButton) result.findViewById(R.id.concept_favourite),
+                        (LinearLayout) result.findViewById(R.id.concept_description_layout),
+                        (TextView) result.findViewById(R.id.concept_name),
+                        (TextView) result.findViewById(R.id.concept_sub),
+                        result.findViewById(R.id.concept_options)
                 )
         );
 
@@ -87,71 +85,59 @@ class ProjectOrBuildConfigurationAdapter extends CursorAdapter {
 
         String id = DBUtils.getId(cursor);
 
-        bindImage(holder.image, id, DBUtils.isFavourite(cursor));
+        holder.name.setText(DBUtils.getName(cursor));
+        holder.name.setTextColor(
+                Common.loadTextColor(DBUtils.getStatus(cursor), context)
+        );
+
+        holder.image.setOnClickListener(new ImageListener(myClickListener, id));
+        holder.description.setOnClickListener(new DescriptionListener(myClickListener, id));
         holder.options.setOnClickListener(new OptionsListener(myClickListener, id));
 
-        bindName(
-                holder.name,
-                id,
-                DBUtils.getName(cursor),
-                DBUtils.getStatus(cursor),
-                context
-        );
-    }
-
-    private void bindImage(@NotNull ImageButton view,
-                           @NotNull String id,
-                           boolean favourite) {
-        view.setOnClickListener(new ImageListener(myClickListener, id));
-
-        if (favourite) {
-            view.setContentDescription(myFavouriteDescription);
-            view.setImageResource(FAVOURITE_IMAGE);
+        if (DBUtils.isFavourite(cursor)) {
+            holder.image.setContentDescription(myFavouriteDescription);
+            holder.image.setImageResource(FAVOURITE_IMAGE);
         } else {
-            view.setContentDescription(myNotFavouriteDescription);
-            view.setImageResource(NOT_FAVOURITE_IMAGE);
+            holder.image.setContentDescription(myNotFavouriteDescription);
+            holder.image.setImageResource(NOT_FAVOURITE_IMAGE);
         }
+
+        bindViewHolder(holder, context, cursor);
     }
 
-    private void bindName(@NotNull TextView view,
-                          @NotNull String id,
-                          @NotNull String name,
-                          @NotNull Status status,
-                          @NotNull Context context) {
-        view.setText(name);
-        view.setOnClickListener(new NameListener(myClickListener, id));
-        view.setTextColor(Common.loadTextColor(status, context));
-    }
+    abstract void bindViewHolder(@NotNull ViewHolder holder,
+                                 @NotNull Context context,
+                                 @NotNull Cursor cursor);
 
-    private static class NameListener implements View.OnClickListener {
+    private static class DescriptionListener implements View.OnClickListener {
 
         @NotNull
-        private final ProjectOrBuildConfigurationClickListener myClickListener;
+        private final ConceptClickListener myClickListener;
 
         @NotNull
         private final String myId;
 
-        private NameListener(@NotNull ProjectOrBuildConfigurationClickListener clickListener,
-                             @NotNull String id) {
+        private DescriptionListener(@NotNull ConceptClickListener clickListener,
+                                    @NotNull String id) {
             myClickListener = clickListener;
             myId = id;
         }
 
         @Override
         public void onClick(@NotNull View v) {
-            myClickListener.onNameClick(myId);
+            myClickListener.onDescriptionClick(myId);
         }
     }
 
     private static class ImageListener implements View.OnClickListener {
 
         @NotNull
-        private final ProjectOrBuildConfigurationClickListener myClickListener;
+        private final ConceptClickListener myClickListener;
 
         @NotNull
         private final String myId;
 
-        private ImageListener(@NotNull ProjectOrBuildConfigurationClickListener clickListener,
+        private ImageListener(@NotNull ConceptClickListener clickListener,
                               @NotNull String id) {
             myClickListener = clickListener;
             myId = id;
@@ -166,12 +152,12 @@ class ProjectOrBuildConfigurationAdapter extends CursorAdapter {
     private static class OptionsListener implements View.OnClickListener {
 
         @NotNull
-        private final ProjectOrBuildConfigurationClickListener myClickListener;
+        private final ConceptClickListener myClickListener;
 
         @NotNull
         private final String myId;
 
-        private OptionsListener(@NotNull ProjectOrBuildConfigurationClickListener clickListener,
+        private OptionsListener(@NotNull ConceptClickListener clickListener,
                                 @NotNull String id) {
             myClickListener = clickListener;
             myId = id;
@@ -183,22 +169,32 @@ class ProjectOrBuildConfigurationAdapter extends CursorAdapter {
         }
     }
 
-    private static class ViewHolder {
+    static class ViewHolder {
 
         @NotNull
-        public final ImageButton image;
+        final ImageButton image;
 
         @NotNull
-        public final TextView name;
+        final LinearLayout description;
 
         @NotNull
-        public final View options;
+        final TextView name;
+
+        @NotNull
+        final TextView sub;
+
+        @NotNull
+        final View options;
 
         private ViewHolder(@NotNull ImageButton image,
+                           @NotNull LinearLayout description,
                            @NotNull TextView name,
+                           @NotNull TextView sub,
                            @NotNull View options) {
             this.image = image;
+            this.description = description;
             this.name = name;
+            this.sub = sub;
             this.options = options;
         }
     }

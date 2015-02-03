@@ -17,12 +17,14 @@
 package com.tcity.android.ui.adapter;
 
 import android.content.Context;
+import android.database.Cursor;
+import android.view.View;
 
 import com.tcity.android.R;
 
 import org.jetbrains.annotations.NotNull;
 
-public class BuildConfigurationAdapter extends ProjectOrBuildConfigurationAdapter {
+public class BuildConfigurationAdapter extends ConceptAdapter {
 
     public BuildConfigurationAdapter(@NotNull Context context,
                                      @NotNull BuildConfigurationClickListener clickListener) {
@@ -32,5 +34,12 @@ public class BuildConfigurationAdapter extends ProjectOrBuildConfigurationAdapte
                 R.string.build_configuration_was_marked_as_favourite,
                 R.string.build_configuration_is_not_marked_as_favourite
         );
+    }
+
+    @Override
+    void bindViewHolder(@NotNull ViewHolder holder,
+                        @NotNull Context context,
+                        @NotNull Cursor cursor) {
+        holder.sub.setVisibility(View.GONE);
     }
 }

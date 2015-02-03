@@ -16,15 +16,5 @@
 
 package com.tcity.android.ui.adapter;
 
-import android.view.View;
-
-import org.jetbrains.annotations.NotNull;
-
-public interface BuildClickListener {
-
-    public void onImageClick(@NotNull String id);
-
-    public void onDescriptionClick(@NotNull String id);
-
-    public void onOptionsClick(@NotNull String id, @NotNull View anchor);
+public interface BuildClickListener extends ConceptClickListener {
 }

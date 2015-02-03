@@ -16,5 +16,5 @@
 
 package com.tcity.android.ui.adapter;
 
-public interface ProjectClickListener extends ProjectOrBuildConfigurationClickListener {
+public interface ProjectClickListener extends ConceptClickListener {
 }

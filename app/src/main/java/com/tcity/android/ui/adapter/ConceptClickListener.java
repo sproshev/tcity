@@ -20,11 +20,11 @@ import android.view.View;
 
 import org.jetbrains.annotations.NotNull;
 
-interface ProjectOrBuildConfigurationClickListener {
+interface ConceptClickListener {
 
     public void onImageClick(@NotNull String id);
 
-    public void onNameClick(@NotNull String id);
+    public void onDescriptionClick(@NotNull String id);
 
     public void onOptionsClick(@NotNull String id, @NotNull View anchor);
 }
