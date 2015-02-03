@@ -33,12 +33,14 @@ private fun parseProject(reader: JsonReader): Project {
     var id: String? = null
     var name: String? = null
     var parentId: String? = null
+    var archived = false
 
     while (reader.hasNext()) {
         when (reader.nextName()) {
             "id" -> id = reader.nextString()
             "name" -> name = reader.nextString()
             "parentProjectId" -> parentId = reader.nextString()
+            "archived" -> archived = reader.nextBoolean()
             else -> reader.skipValue()
         }
     }
@@ -61,5 +63,5 @@ private fun parseProject(reader: JsonReader): Project {
         throw IOException("Invalid project json: \"parentProjectId\" is absent")
     }
 
-    return Project(id!!, name!!, parentId!!)
+    return Project(id!!, name!!, parentId!!, archived)
 }

@@ -96,4 +96,10 @@ public class DBUtils {
                 cursor.getColumnIndex(Column.PAUSED.getName())
         ) != 0;
     }
+
+    public static boolean isArchived(@NotNull Cursor cursor) {
+        return cursor.getInt(
+                cursor.getColumnIndex(Column.ARCHIVED.getName())
+        ) != 0;
+    }
 }

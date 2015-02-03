@@ -32,9 +32,15 @@ public class Project {
     @NotNull
     public final String parentProjectId;
 
-    public Project(@NotNull String id, @NotNull String name, @NotNull String parentProjectId) {
+    public final boolean archived;
+
+    public Project(@NotNull String id,
+                   @NotNull String name,
+                   @NotNull String parentProjectId,
+                   boolean archived) {
         this.id = id;
         this.name = name;
         this.parentProjectId = parentProjectId;
+        this.archived = archived;
     }
 }

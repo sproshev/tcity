@@ -100,6 +100,7 @@ public class DB {
                 values.put(Column.TC_ID.getName(), project.id);
                 values.put(Column.PARENT_ID.getName(), project.parentProjectId);
                 values.put(Column.NAME.getName(), project.name);
+                values.put(Column.ARCHIVED.getName(), project.archived);
 
                 db.insert(Table.PROJECT_OVERVIEW_TABLE, null, values);
             }
@@ -126,6 +127,7 @@ public class DB {
                 mainTable + "." + Column.TC_ID.getName() + ", " +
                 mainTable + "." + Column.NAME.getName() + ", " +
                 mainTable + "." + Column.PARENT_ID.getName() + ", " +
+                mainTable + "." + Column.ARCHIVED.getName() + ", " +
                 favouriteTable + "." + Column.FAVOURITE.getName() + ", " +
                 statusTable + "." + Column.STATUS.getName() +
                 " FROM " + mainTable + " " +

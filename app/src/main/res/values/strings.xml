@@ -27,6 +27,7 @@
     <string name="favourite">Favourite</string>
     <string name="options">Options</string>
     <string name="paused">paused</string>
+    <string name="archived">archived</string>
     <string name="info">Info</string>
     <string name="artifacts">Artifacts</string>
     <string name="branch">Branch</string>
