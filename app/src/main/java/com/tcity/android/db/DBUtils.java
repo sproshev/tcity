@@ -86,6 +86,14 @@ public class DBUtils {
     }
 
     public static boolean isBranchDefault(@NotNull Cursor cursor) {
-        return cursor.getInt(cursor.getColumnIndex(Column.BRANCH_DEFAULT.getName())) != 0;
+        return cursor.getInt(
+                cursor.getColumnIndex(Column.BRANCH_DEFAULT.getName())
+        ) != 0;
+    }
+
+    public static boolean isPaused(@NotNull Cursor cursor) {
+        return cursor.getInt(
+                cursor.getColumnIndex(Column.PAUSED.getName())
+        ) != 0;
     }
 }

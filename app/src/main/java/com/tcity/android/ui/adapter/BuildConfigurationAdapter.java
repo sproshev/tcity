@@ -21,6 +21,7 @@ import android.database.Cursor;
 import android.view.View;
 
 import com.tcity.android.R;
+import com.tcity.android.db.DBUtils;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -40,6 +41,11 @@ public class BuildConfigurationAdapter extends ConceptAdapter {
     void bindViewHolder(@NotNull ViewHolder holder,
                         @NotNull Context context,
                         @NotNull Cursor cursor) {
-        holder.sub.setVisibility(View.GONE);
+        if (!DBUtils.isPaused(cursor)) {
+            holder.sub.setVisibility(View.GONE);
+        } else {
+            holder.sub.setVisibility(View.VISIBLE);
+            holder.sub.setText(R.string.paused);
+        }
     }
 }

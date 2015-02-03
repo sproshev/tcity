@@ -33,12 +33,14 @@ private fun parseBuildConfiguration(reader: JsonReader): BuildConfiguration {
     var id: String? = null
     var name: String? = null
     var parentId: String? = null
+    var paused = false
 
     while (reader.hasNext()) {
         when (reader.nextName()) {
             "id" -> id = reader.nextString()
             "name" -> name = reader.nextString()
             "projectId" -> parentId = reader.nextString()
+            "paused" -> paused = reader.nextBoolean()
             else -> reader.skipValue()
         }
     }
@@ -57,5 +59,5 @@ private fun parseBuildConfiguration(reader: JsonReader): BuildConfiguration {
         throw IOException("Invalid build configuration json: \"projectId\" is absent")
     }
 
-    return BuildConfiguration(id!!, name!!, parentId!!)
+    return BuildConfiguration(id!!, name!!, parentId!!, paused)
 }

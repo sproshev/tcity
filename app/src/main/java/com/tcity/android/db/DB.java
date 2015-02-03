@@ -116,13 +116,45 @@ public class DB {
 
     @NotNull
     public Cursor getProjects(@Nullable String parentProjectId, boolean onlyFavourite) {
-        return getProjectsOrBuildConfigurations(
-                Table.PROJECT_OVERVIEW_TABLE,
-                Table.FAVOURITE_PROJECT_TABLE,
-                Table.PROJECT_STATUS_TABLE,
-                parentProjectId,
-                onlyFavourite
-        );
+        String mainTable = Table.PROJECT_OVERVIEW_TABLE;
+        String favouriteTable = Table.FAVOURITE_PROJECT_TABLE;
+        String statusTable = Table.PROJECT_STATUS_TABLE;
+
+        String idColumn = Column.TC_ID.getName();
+        String query = "SELECT " +
+                mainTable + "." + Column.ANDROID_ID.getName() + ", " +
+                mainTable + "." + Column.TC_ID.getName() + ", " +
+                mainTable + "." + Column.NAME.getName() + ", " +
+                mainTable + "." + Column.PARENT_ID.getName() + ", " +
+                favouriteTable + "." + Column.FAVOURITE.getName() + ", " +
+                statusTable + "." + Column.STATUS.getName() +
+                " FROM " + mainTable + " " +
+                (
+                        onlyFavourite
+                                ?
+                                "INNER"
+                                :
+                                "LEFT"
+                ) + " JOIN " + favouriteTable +
+                " ON " + mainTable + "." + idColumn + " = " + favouriteTable + "." + idColumn +
+                (
+                        onlyFavourite
+                                ?
+                                " AND " + favouriteTable + "." + Column.FAVOURITE.getName()
+                                :
+                                ""
+                ) +
+                " LEFT JOIN " + statusTable +
+                " ON " + mainTable + "." + idColumn + " = " + statusTable + "." + idColumn +
+                (
+                        parentProjectId != null
+                                ?
+                                " WHERE " + mainTable + "." + Column.PARENT_ID.getName() + " = '" + parentProjectId + "'"
+                                :
+                                ""
+                );
+
+        return myDBHelper.getReadableDatabase().rawQuery(query, null);
     }
 
     public void setProjectStatus(@NotNull String id, @Nullable Status status) {
@@ -197,6 +229,7 @@ public class DB {
                 values.put(Column.TC_ID.getName(), buildConfiguration.id);
                 values.put(Column.PARENT_ID.getName(), buildConfiguration.parentProjectId);
                 values.put(Column.NAME.getName(), buildConfiguration.name);
+                values.put(Column.PAUSED.getName(), buildConfiguration.paused);
 
                 db.insert(Table.BUILD_CONFIGURATION_OVERVIEW_TABLE, null, values);
             }
@@ -213,13 +246,46 @@ public class DB {
 
     @NotNull
     public Cursor getBuildConfigurations(@Nullable String parentProjectId, boolean onlyFavourite) {
-        return getProjectsOrBuildConfigurations(
-                Table.BUILD_CONFIGURATION_OVERVIEW_TABLE,
-                Table.FAVOURITE_BUILD_CONFIGURATION_TABLE,
-                Table.BUILD_CONFIGURATION_STATUS_TABLE,
-                parentProjectId,
-                onlyFavourite
-        );
+        String mainTable = Table.BUILD_CONFIGURATION_OVERVIEW_TABLE;
+        String favouriteTable = Table.FAVOURITE_BUILD_CONFIGURATION_TABLE;
+        String statusTable = Table.BUILD_CONFIGURATION_STATUS_TABLE;
+
+        String idColumn = Column.TC_ID.getName();
+        String query = "SELECT " +
+                mainTable + "." + Column.ANDROID_ID.getName() + ", " +
+                mainTable + "." + Column.TC_ID.getName() + ", " +
+                mainTable + "." + Column.NAME.getName() + ", " +
+                mainTable + "." + Column.PARENT_ID.getName() + ", " +
+                mainTable + "." + Column.PAUSED.getName() + ", " +
+                favouriteTable + "." + Column.FAVOURITE.getName() + ", " +
+                statusTable + "." + Column.STATUS.getName() +
+                " FROM " + mainTable + " " +
+                (
+                        onlyFavourite
+                                ?
+                                "INNER"
+                                :
+                                "LEFT"
+                ) + " JOIN " + favouriteTable +
+                " ON " + mainTable + "." + idColumn + " = " + favouriteTable + "." + idColumn +
+                (
+                        onlyFavourite
+                                ?
+                                " AND " + favouriteTable + "." + Column.FAVOURITE.getName()
+                                :
+                                ""
+                ) +
+                " LEFT JOIN " + statusTable +
+                " ON " + mainTable + "." + idColumn + " = " + statusTable + "." + idColumn +
+                (
+                        parentProjectId != null
+                                ?
+                                " WHERE " + mainTable + "." + Column.PARENT_ID.getName() + " = '" + parentProjectId + "'"
+                                :
+                                ""
+                );
+
+        return myDBHelper.getReadableDatabase().rawQuery(query, null);
     }
 
     public void setBuildConfigurationStatus(@NotNull String id, @Nullable Status status) {
@@ -519,49 +585,6 @@ public class DB {
         cursor.close();
 
         return result;
-    }
-
-    @NotNull
-    private Cursor getProjectsOrBuildConfigurations(@NotNull String mainTable,
-                                                    @NotNull String favouriteTable,
-                                                    @NotNull String statusTable,
-                                                    @Nullable String parentProjectId,
-                                                    boolean onlyFavourite) {
-        String idColumn = Column.TC_ID.getName();
-        String query = "SELECT " +
-                mainTable + "." + Column.ANDROID_ID.getName() + ", " +
-                mainTable + "." + Column.TC_ID.getName() + ", " +
-                mainTable + "." + Column.NAME.getName() + ", " +
-                mainTable + "." + Column.PARENT_ID.getName() + ", " +
-                favouriteTable + "." + Column.FAVOURITE.getName() + ", " +
-                statusTable + "." + Column.STATUS.getName() +
-                " FROM " + mainTable + " " +
-                (
-                        onlyFavourite
-                                ?
-                                "INNER"
-                                :
-                                "LEFT"
-                ) + " JOIN " + favouriteTable +
-                " ON " + mainTable + "." + idColumn + " = " + favouriteTable + "." + idColumn +
-                (
-                        onlyFavourite
-                                ?
-                                " AND " + favouriteTable + "." + Column.FAVOURITE.getName()
-                                :
-                                ""
-                ) +
-                " LEFT JOIN " + statusTable +
-                " ON " + mainTable + "." + idColumn + " = " + statusTable + "." + idColumn +
-                (
-                        parentProjectId != null
-                                ?
-                                " WHERE " + mainTable + "." + Column.PARENT_ID.getName() + " = '" + parentProjectId + "'"
-                                :
-                                ""
-                );
-
-        return myDBHelper.getReadableDatabase().rawQuery(query, null);
     }
 
     private void setProjectOrBuildConfigurationStatus(@NotNull String table,

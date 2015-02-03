@@ -21,7 +21,7 @@ import org.jetbrains.annotations.NotNull;
 enum Column {
     TC_ID, NAME, PARENT_ID, STATUS, FAVOURITE,
     ANDROID_ID, BRANCH, LAST_UPDATE, SYNC_BOUND, STATUS_UPDATE,
-    BRANCH_DEFAULT;
+    BRANCH_DEFAULT, PAUSED;
 
     @NotNull
     String getName() {
@@ -48,6 +48,8 @@ enum Column {
                 return "status_update";
             case BRANCH_DEFAULT:
                 return "branch_default";
+            case PAUSED:
+                return "paused";
             default:
                 throw new IllegalArgumentException();
         }

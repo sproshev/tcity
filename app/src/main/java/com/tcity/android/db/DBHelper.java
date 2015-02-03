@@ -34,8 +34,8 @@ class DBHelper extends SQLiteOpenHelper {
         onFavouriteCreate(Table.FAVOURITE_BUILD_CONFIGURATION_TABLE, db);
         onFavouriteCreate(Table.FAVOURITE_BUILD_TABLE, db);
 
-        onProjectOrBuildConfigurationOverviewCreate(Table.PROJECT_OVERVIEW_TABLE, db);
-        onProjectOrBuildConfigurationOverviewCreate(Table.BUILD_CONFIGURATION_OVERVIEW_TABLE, db);
+        onProjectOverviewCreate(Table.PROJECT_OVERVIEW_TABLE, db);
+        onBuildConfigurationOverviewCreate(Table.BUILD_CONFIGURATION_OVERVIEW_TABLE, db);
         onBuildOverviewCreate(db);
 
         onProjectOrBuildConfigurationStatusCreate(Table.PROJECT_STATUS_TABLE, db);
@@ -75,6 +75,7 @@ class DBHelper extends SQLiteOpenHelper {
                 return column.getName() + " TEXT NOT NULL";
             case FAVOURITE:
             case BRANCH_DEFAULT:
+            case PAUSED:
                 return column.getName() + " INTEGER NOT NULL";
             case LAST_UPDATE:
             case SYNC_BOUND:
@@ -113,14 +114,27 @@ class DBHelper extends SQLiteOpenHelper {
         );
     }
 
-    private void onProjectOrBuildConfigurationOverviewCreate(@NotNull String table,
-                                                             @NotNull SQLiteDatabase db) {
+    private void onProjectOverviewCreate(@NotNull String table,
+                                         @NotNull SQLiteDatabase db) {
         db.execSQL(
                 "CREATE TABLE " + table + " (" +
                         getDescription(Column.ANDROID_ID) + ", " +
                         getDescription(Column.TC_ID) + ", " +
                         getDescription(Column.NAME) + ", " +
                         getDescription(Column.PARENT_ID) +
+                        ");"
+        );
+    }
+
+    private void onBuildConfigurationOverviewCreate(@NotNull String table,
+                                                    @NotNull SQLiteDatabase db) {
+        db.execSQL(
+                "CREATE TABLE " + table + " (" +
+                        getDescription(Column.ANDROID_ID) + ", " +
+                        getDescription(Column.TC_ID) + ", " +
+                        getDescription(Column.NAME) + ", " +
+                        getDescription(Column.PARENT_ID) + ", " +
+                        getDescription(Column.PAUSED) +
                         ");"
         );
     }

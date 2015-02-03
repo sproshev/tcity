@@ -29,11 +29,15 @@ public class BuildConfiguration {
     @NotNull
     public final String parentProjectId;
 
+    public final boolean paused;
+
     public BuildConfiguration(@NotNull String id,
                               @NotNull String name,
-                              @NotNull String parentProjectId) {
+                              @NotNull String parentProjectId,
+                              boolean paused) {
         this.id = id;
         this.name = name;
         this.parentProjectId = parentProjectId;
+        this.paused = paused;
     }
 }
