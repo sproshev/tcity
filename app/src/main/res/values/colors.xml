@@ -16,7 +16,13 @@
   -->
 
 <resources>
-    <color name="overview_separator_background">#888888</color>
+    <color name="overview_separator_background">#979797</color>
+
+    <color name="drawerlist_background">#80000000</color>
+    <color name="drawerlist_divider">#979797</color>
+    <color name="drawerlist_text">#C0ffffff</color>
+
+    <color name="sub_text">#979797</color>
 
     <color name="green">#20710A</color>
     <color name="red">#FD1C00</color>

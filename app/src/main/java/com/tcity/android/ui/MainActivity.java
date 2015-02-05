@@ -45,7 +45,7 @@ public class MainActivity extends Activity {
     private String[] myTitles;
 
     @NotNull
-    private DrawerListener myListener;
+    private DrawerListener myDrawerListener;
 
     @NotNull
     private DrawerLayout myDrawerLayout;
@@ -65,10 +65,9 @@ public class MainActivity extends Activity {
 
         myDrawerLayout = (DrawerLayout) findViewById(R.id.main_drawerlayout);
         myDrawerList = (ListView) findViewById(R.id.main_drawerlist);
+        myDrawerListener = new DrawerListener();
 
-        myListener = new DrawerListener();
-
-        myDrawerLayout.setDrawerListener(myListener);
+        myDrawerLayout.setDrawerListener(myDrawerListener);
         myDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
 
         myDrawerList.setOnItemClickListener(new DrawerItemClickListener());
@@ -94,21 +93,21 @@ public class MainActivity extends Activity {
     protected void onPostCreate(@Nullable Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
 
-        myListener.syncState();
+        myDrawerListener.syncState();
     }
 
     @Override
     public void onConfigurationChanged(@NotNull Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
 
-        myListener.onConfigurationChanged(newConfig);
+        myDrawerListener.onConfigurationChanged(newConfig);
     }
 
     // LIFECYCLE - End
 
     @Override
     public boolean onOptionsItemSelected(@NotNull MenuItem item) {
-        return myListener.onOptionsItemSelected(item) || super.onOptionsItemSelected(item);
+        return myDrawerListener.onOptionsItemSelected(item) || super.onOptionsItemSelected(item);
     }
 
     private void selectItem(int position) {
@@ -130,6 +129,7 @@ public class MainActivity extends Activity {
 
         myDrawerList.setItemChecked(position, true);
         setTitle(myTitles[position]);
+
         myDrawerLayout.closeDrawer(myDrawerList);
     }
 
@@ -175,17 +175,23 @@ public class MainActivity extends Activity {
         }
 
         @Override
-        public void onDrawerClosed(View drawerView) {
+        public void onDrawerClosed(@Nullable View drawerView) {
             super.onDrawerClosed(drawerView);
 
-            // TODO title, menu
+            ActionBar bar = getActionBar();
+            if (bar != null) {
+                bar.setTitle(myTitles[myDrawerList.getCheckedItemPosition()]);
+            }
         }
 
         @Override
-        public void onDrawerOpened(View drawerView) {
+        public void onDrawerOpened(@Nullable View drawerView) {
             super.onDrawerOpened(drawerView);
 
-            // TODO title, menu
+            ActionBar bar = getActionBar();
+            if (bar != null) {
+                bar.setTitle(R.string.tcity);
+            }
         }
     }
 }

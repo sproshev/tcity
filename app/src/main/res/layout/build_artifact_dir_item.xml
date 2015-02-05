@@ -33,8 +33,6 @@
         android:paddingLeft="16dp"
         android:paddingRight="16dp"
 
-        android:text="ABC"
-
         android:textAppearance="?android:attr/textAppearanceListItemSmall"/>
 
 </LinearLayout>
