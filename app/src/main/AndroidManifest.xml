@@ -38,6 +38,7 @@
         <activity android:name=".ui.overview.buildconfiguration.BuildConfigurationOverviewActivity"/>
         <activity android:name=".ui.preference.PreferenceActivity"/>
         <activity android:name=".ui.info.BuildHostActivity"/>
+        <activity android:name=".ui.MainActivity"/>
 
         <activity
             android:name=".ui.login.LoginActivity"

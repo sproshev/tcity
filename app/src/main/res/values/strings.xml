@@ -28,6 +28,16 @@
     <string name="options">Options</string>
     <string name="paused">paused</string>
     <string name="archived">archived</string>
+
+    <string-array name="main_drawerlist">
+        <item>Projects</item>
+        <item>Favourite build configurations</item>
+        <item>Current builds</item>
+    </string-array>
+
+    <string name="open_drawer">Open drawer</string>
+    <string name="close_drawer">Close drawer</string>
+
     <string name="info">Info</string>
     <string name="artifacts">Artifacts</string>
     <string name="branch">Branch</string>

@@ -22,7 +22,6 @@ import android.os.Bundle;
 
 import com.tcity.android.app.Preferences;
 import com.tcity.android.ui.login.LoginActivity;
-import com.tcity.android.ui.overview.project.ProjectOverviewActivity;
 
 public class SplashActivity extends Activity {
 
@@ -33,7 +32,7 @@ public class SplashActivity extends Activity {
         if (!new Preferences(this).isValid()) {
             startActivity(new Intent(this, LoginActivity.class));
         } else {
-            startActivity(new Intent(this, ProjectOverviewActivity.class));
+            startActivity(new Intent(this, MainActivity.class));
         }
 
         finish();
