@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.tcity.android.ui.engine;
+package com.tcity.android.ui.buildconfiguration.overview;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -26,12 +26,11 @@ import android.widget.TextView;
 
 import com.tcity.android.R;
 import com.tcity.android.db.DB;
-import com.tcity.android.ui.adapter.ProjectAdapter;
-import com.tcity.android.ui.adapter.ProjectClickListener;
+import com.tcity.android.ui.common.overview.ConceptClickListener;
 
 import org.jetbrains.annotations.NotNull;
 
-public class ProjectDBEngine {
+class BuildDBEngine {
 
     @NotNull
     private final TextView myHeader;
@@ -42,44 +41,44 @@ public class ProjectDBEngine {
     @NotNull
     private final Cursor myCursor;
 
-    public ProjectDBEngine(@NotNull String parentProjectId,
-                           boolean onlyFavourite,
-                           @NotNull Context context,
-                           @NotNull DB db,
-                           @NotNull ViewGroup root,
-                           @NotNull ProjectClickListener clickListener,
-                           @NotNull String title) {
+    BuildDBEngine(@NotNull String parentBuildConfigurationId,
+                  boolean onlyFavourite,
+                  @NotNull Context context,
+                  @NotNull DB db,
+                  @NotNull ViewGroup root,
+                  @NotNull ConceptClickListener clickListener,
+                  @NotNull String title) {
         LayoutInflater inflater = LayoutInflater.from(context);
 
         myHeader = (TextView) inflater.inflate(R.layout.overview_separator, root, false);
         myHeader.setText(title);
 
-        myCursor = db.getProjects(parentProjectId, onlyFavourite);
+        myCursor = db.getBuilds(parentBuildConfigurationId, onlyFavourite);
 
-        myAdapter = new ProjectAdapter(context, clickListener);
+        myAdapter = new BuildAdapter(context, clickListener);
         myAdapter.changeCursor(myCursor);
     }
 
     @NotNull
-    public TextView getHeader() {
+    TextView getHeader() {
         return myHeader;
     }
 
     @NotNull
-    public ListAdapter getAdapter() {
+    ListAdapter getAdapter() {
         return myAdapter;
     }
 
-    public boolean empty() {
+    boolean empty() {
         return myCursor.getCount() == 0;
     }
 
-    public void requery() {
+    void requery() {
         //noinspection deprecation
         myCursor.requery();
     }
 
-    public void close() {
+    void close() {
         myAdapter.changeCursor(null);
     }
 }

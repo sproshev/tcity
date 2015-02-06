@@ -35,8 +35,8 @@
         android:theme="@style/android:Theme.Holo.Light.DarkActionBar"
         android:supportsRtl="false">
 
-        <activity android:name=".ui.overview.project.ProjectOverviewActivity"/>
-        <activity android:name=".ui.overview.buildconfiguration.BuildConfigurationOverviewActivity"/>
+        <activity android:name=".ui.project.overview.ProjectOverviewActivity"/>
+        <activity android:name=".ui.buildconfiguration.overview.BuildConfigurationOverviewActivity"/>
         <activity android:name=".ui.build.BuildActivity"/>
         <activity android:name=".ui.MainActivity"/>
 

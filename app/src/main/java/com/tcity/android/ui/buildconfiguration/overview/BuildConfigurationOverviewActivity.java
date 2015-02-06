@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.tcity.android.ui.overview.buildconfiguration;
+package com.tcity.android.ui.buildconfiguration.overview;
 
 import android.app.ActionBar;
 import android.app.ListActivity;

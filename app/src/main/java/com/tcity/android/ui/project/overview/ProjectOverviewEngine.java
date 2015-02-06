@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.tcity.android.ui.overview.buildconfiguration;
+package com.tcity.android.ui.project.overview;
 
 import android.content.Context;
 import android.view.ViewGroup;
@@ -27,24 +27,26 @@ import com.tcity.android.db.DB;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-class BuildConfigurationOverviewEngine {
+class ProjectOverviewEngine {
 
     @NotNull
-    private final BuildConfigurationOverviewDBEngine myDBEngine;
+    private final ProjectOverviewDBEngine myDBEngine;
 
     @NotNull
-    private final BuildConfigurationOverviewServerEngine myServerEngine;
+    private final ProjectOverviewServerEngine myServerEngine;
 
-    BuildConfigurationOverviewEngine(@NotNull String buildConfigurationId,
-                                     @NotNull Context context,
-                                     @NotNull DB db,
-                                     @NotNull ViewGroup root) {
-        myDBEngine = new BuildConfigurationOverviewDBEngine(buildConfigurationId, context, db, root);
+    ProjectOverviewEngine(@NotNull String projectId,
+                          @NotNull Context context,
+                          @NotNull DB db,
+                          @NotNull ViewGroup root) {
+        myDBEngine = new ProjectOverviewDBEngine(projectId, context, db, root);
 
-        myServerEngine = new BuildConfigurationOverviewServerEngine(
-                buildConfigurationId,
+        Preferences preferences = new Preferences(context);
+        myServerEngine = new ProjectOverviewServerEngine(
+                projectId,
                 db,
-                new RestClient(new Preferences(context))
+                new RestClient(preferences),
+                preferences
         );
     }
 
@@ -53,7 +55,7 @@ class BuildConfigurationOverviewEngine {
         return myDBEngine.getAdapter();
     }
 
-    void setActivity(@Nullable BuildConfigurationOverviewActivity activity) {
+    void setActivity(@Nullable ProjectOverviewActivity activity) {
         myDBEngine.setActivity(activity);
         myServerEngine.setActivity(activity);
     }
@@ -71,8 +73,14 @@ class BuildConfigurationOverviewEngine {
         myServerEngine.resetException();
     }
 
-    void imageClick(@NotNull String id) {
-        myDBEngine.imageClick(id);
+    void projectImageClick(@NotNull String id) {
+        myDBEngine.projectImageClick(id);
+        myServerEngine.projectImageClick(id);
+    }
+
+    void buildConfigurationImageClick(@NotNull String id) {
+        myDBEngine.buildConfigurationImageClick(id);
+        myServerEngine.buildConfigurationImageClick(id);
     }
 
     void refresh(boolean force) {

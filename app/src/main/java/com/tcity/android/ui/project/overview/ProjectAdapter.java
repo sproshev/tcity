@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.tcity.android.ui.adapter;
+package com.tcity.android.ui.project.overview;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -22,13 +22,15 @@ import android.view.View;
 
 import com.tcity.android.R;
 import com.tcity.android.db.DBUtils;
+import com.tcity.android.ui.common.overview.ConceptAdapter;
+import com.tcity.android.ui.common.overview.ConceptClickListener;
 
 import org.jetbrains.annotations.NotNull;
 
-public class ProjectAdapter extends ConceptAdapter {
+class ProjectAdapter extends ConceptAdapter {
 
-    public ProjectAdapter(@NotNull Context context,
-                          @NotNull ProjectClickListener clickListener) {
+    ProjectAdapter(@NotNull Context context,
+                   @NotNull ConceptClickListener clickListener) {
         super(
                 context,
                 clickListener,
@@ -38,7 +40,7 @@ public class ProjectAdapter extends ConceptAdapter {
     }
 
     @Override
-    void bindViewHolder(@NotNull ViewHolder holder,
+    protected void bindViewHolder(@NotNull ViewHolder holder,
                         @NotNull Cursor cursor) {
         if (!DBUtils.isArchived(cursor)) {
             holder.sub.setVisibility(View.GONE);

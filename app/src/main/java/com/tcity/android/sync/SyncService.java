@@ -33,7 +33,7 @@ import com.tcity.android.background.rest.RestClient;
 import com.tcity.android.db.Build;
 import com.tcity.android.db.DB;
 import com.tcity.android.db.DBUtils;
-import com.tcity.android.ui.overview.buildconfiguration.BuildConfigurationOverviewActivity;
+import com.tcity.android.ui.buildconfiguration.overview.BuildConfigurationOverviewActivity;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;

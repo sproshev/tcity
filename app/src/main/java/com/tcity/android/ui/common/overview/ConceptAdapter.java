@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.tcity.android.ui.adapter;
+package com.tcity.android.ui.common.overview;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -33,7 +33,7 @@ import com.tcity.android.db.DBUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-abstract class ConceptAdapter extends CursorAdapter {
+public abstract class ConceptAdapter extends CursorAdapter {
 
     private static final int FAVOURITE_IMAGE = android.R.drawable.btn_star_big_on;
     private static final int NOT_FAVOURITE_IMAGE = android.R.drawable.btn_star_big_off;
@@ -47,10 +47,10 @@ abstract class ConceptAdapter extends CursorAdapter {
     @NotNull
     private final String myNotFavouriteDescription;
 
-    ConceptAdapter(@NotNull Context context,
-                   @NotNull ConceptClickListener clickListener,
-                   int favouriteDescriptionId,
-                   int notFavouriteDescriptionId) {
+    public ConceptAdapter(@NotNull Context context,
+                          @NotNull ConceptClickListener clickListener,
+                          int favouriteDescriptionId,
+                          int notFavouriteDescriptionId) {
         super(context, null, true);
 
         myClickListener = clickListener;
@@ -105,8 +105,8 @@ abstract class ConceptAdapter extends CursorAdapter {
         bindViewHolder(holder, cursor);
     }
 
-    abstract void bindViewHolder(@NotNull ViewHolder holder,
-                                 @NotNull Cursor cursor);
+    protected abstract void bindViewHolder(@NotNull ViewHolder holder,
+                                           @NotNull Cursor cursor);
 
     private static class DescriptionListener implements View.OnClickListener {
 
@@ -168,22 +168,22 @@ abstract class ConceptAdapter extends CursorAdapter {
         }
     }
 
-    static class ViewHolder {
+    public static class ViewHolder {
 
         @NotNull
-        final ImageButton image;
+        public final ImageButton image;
 
         @NotNull
-        final LinearLayout description;
+        public final LinearLayout description;
 
         @NotNull
-        final TextView name;
+        public final TextView name;
 
         @NotNull
-        final TextView sub;
+        public final TextView sub;
 
         @NotNull
-        final View options;
+        public final View options;
 
         private ViewHolder(@NotNull ImageButton image,
                            @NotNull LinearLayout description,

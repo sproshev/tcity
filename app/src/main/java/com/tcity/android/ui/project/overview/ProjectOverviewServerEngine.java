@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.tcity.android.ui.overview.project;
+package com.tcity.android.ui.project.overview;
 
 import android.database.Cursor;
 import android.os.AsyncTask;

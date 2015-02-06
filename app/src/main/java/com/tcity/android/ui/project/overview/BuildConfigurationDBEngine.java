@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.tcity.android.ui.engine;
+package com.tcity.android.ui.project.overview;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -26,12 +26,11 @@ import android.widget.TextView;
 
 import com.tcity.android.R;
 import com.tcity.android.db.DB;
-import com.tcity.android.ui.adapter.BuildAdapter;
-import com.tcity.android.ui.adapter.BuildClickListener;
+import com.tcity.android.ui.common.overview.ConceptClickListener;
 
 import org.jetbrains.annotations.NotNull;
 
-public class BuildDBEngine {
+class BuildConfigurationDBEngine {
 
     @NotNull
     private final TextView myHeader;
@@ -42,44 +41,44 @@ public class BuildDBEngine {
     @NotNull
     private final Cursor myCursor;
 
-    public BuildDBEngine(@NotNull String parentBuildConfigurationId,
-                         boolean onlyFavourite,
-                         @NotNull Context context,
-                         @NotNull DB db,
-                         @NotNull ViewGroup root,
-                         @NotNull BuildClickListener clickListener,
-                         @NotNull String title) {
+    BuildConfigurationDBEngine(@NotNull String parentProjectId,
+                                      boolean onlyFavourite,
+                                      @NotNull Context context,
+                                      @NotNull DB db,
+                                      @NotNull ViewGroup root,
+                                      @NotNull ConceptClickListener clickListener,
+                                      @NotNull String title) {
         LayoutInflater inflater = LayoutInflater.from(context);
 
         myHeader = (TextView) inflater.inflate(R.layout.overview_separator, root, false);
         myHeader.setText(title);
 
-        myCursor = db.getBuilds(parentBuildConfigurationId, onlyFavourite);
+        myCursor = db.getBuildConfigurations(parentProjectId, onlyFavourite);
 
-        myAdapter = new BuildAdapter(context, clickListener);
+        myAdapter = new BuildConfigurationAdapter(context, clickListener);
         myAdapter.changeCursor(myCursor);
     }
 
     @NotNull
-    public TextView getHeader() {
+    TextView getHeader() {
         return myHeader;
     }
 
     @NotNull
-    public ListAdapter getAdapter() {
+    ListAdapter getAdapter() {
         return myAdapter;
     }
 
-    public boolean empty() {
+    boolean empty() {
         return myCursor.getCount() == 0;
     }
 
-    public void requery() {
+    void requery() {
         //noinspection deprecation
         myCursor.requery();
     }
 
-    public void close() {
+    void close() {
         myAdapter.changeCursor(null);
     }
 }

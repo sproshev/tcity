@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.tcity.android.ui.overview.project;
+package com.tcity.android.ui.project.overview;
 
 import android.app.ActionBar;
 import android.app.ListActivity;
@@ -36,7 +36,7 @@ import com.tcity.android.app.Preferences;
 import com.tcity.android.background.web.WebLocator;
 import com.tcity.android.db.DB;
 import com.tcity.android.db.Project;
-import com.tcity.android.ui.overview.buildconfiguration.BuildConfigurationOverviewActivity;
+import com.tcity.android.ui.buildconfiguration.overview.BuildConfigurationOverviewActivity;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

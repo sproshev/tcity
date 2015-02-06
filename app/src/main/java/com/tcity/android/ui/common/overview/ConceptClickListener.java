@@ -14,7 +14,17 @@
  * limitations under the License.
  */
 
-package com.tcity.android.ui.adapter;
+package com.tcity.android.ui.common.overview;
 
-public interface BuildConfigurationClickListener extends ConceptClickListener {
+import android.view.View;
+
+import org.jetbrains.annotations.NotNull;
+
+public interface ConceptClickListener {
+
+    public void onImageClick(@NotNull String id);
+
+    public void onDescriptionClick(@NotNull String id);
+
+    public void onOptionsClick(@NotNull String id, @NotNull View anchor);
 }

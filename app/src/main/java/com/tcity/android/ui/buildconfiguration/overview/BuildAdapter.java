@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.tcity.android.ui.adapter;
+package com.tcity.android.ui.buildconfiguration.overview;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -24,13 +24,15 @@ import android.widget.TextView;
 
 import com.tcity.android.R;
 import com.tcity.android.db.DBUtils;
+import com.tcity.android.ui.common.overview.ConceptAdapter;
+import com.tcity.android.ui.common.overview.ConceptClickListener;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class BuildAdapter extends ConceptAdapter {
+class BuildAdapter extends ConceptAdapter {
 
-    public BuildAdapter(@NotNull Context context, @NotNull BuildClickListener listener) {
+    BuildAdapter(@NotNull Context context, @NotNull ConceptClickListener listener) {
         super(
                 context,
                 listener,
@@ -40,8 +42,8 @@ public class BuildAdapter extends ConceptAdapter {
     }
 
     @Override
-    void bindViewHolder(@NotNull ViewHolder holder,
-                        @NotNull Cursor cursor) {
+    protected void bindViewHolder(@NotNull ViewHolder holder,
+                                  @NotNull Cursor cursor) {
         bindBranch(holder.sub, DBUtils.getBranch(cursor), DBUtils.isBranchDefault(cursor));
     }
 

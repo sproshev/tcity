@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.tcity.android.ui.overview.buildconfiguration;
+package com.tcity.android.ui.buildconfiguration.overview;
 
 import android.content.Context;
 import android.os.Handler;
@@ -26,8 +26,7 @@ import android.widget.ListAdapter;
 import com.commonsware.cwac.merge.MergeAdapter;
 import com.tcity.android.R;
 import com.tcity.android.db.DB;
-import com.tcity.android.ui.adapter.BuildClickListener;
-import com.tcity.android.ui.engine.BuildDBEngine;
+import com.tcity.android.ui.common.overview.ConceptClickListener;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -41,7 +40,7 @@ class BuildConfigurationOverviewDBEngine {
     private final MergeAdapter myMainAdapter;
 
     @NotNull
-    private final MyBuildClickListener myClickListener;
+    private final BuildClickListener myClickListener;
 
     @NotNull
     private final BuildDBEngine myFavouriteEngine;
@@ -58,7 +57,7 @@ class BuildConfigurationOverviewDBEngine {
                                        @NotNull ViewGroup root) {
         myDB = db;
         myMainAdapter = new MergeAdapter();
-        myClickListener = new MyBuildClickListener();
+        myClickListener = new BuildClickListener();
 
         myFavouriteEngine = new BuildDBEngine(
                 buildConfigurationId,
@@ -118,7 +117,7 @@ class BuildConfigurationOverviewDBEngine {
         myMainAdapter.setActive(myAllEngine.getHeader(), !myAllEngine.empty());
     }
 
-    private static class MyBuildClickListener implements BuildClickListener {
+    private static class BuildClickListener implements ConceptClickListener {
 
         @Nullable
         private BuildConfigurationOverviewActivity myActivity;

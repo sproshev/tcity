@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.tcity.android.ui.overview.project;
+package com.tcity.android.ui.project.overview;
 
 import android.content.Context;
 import android.os.Handler;
@@ -28,10 +28,7 @@ import com.tcity.android.R;
 import com.tcity.android.Status;
 import com.tcity.android.db.DB;
 import com.tcity.android.db.Project;
-import com.tcity.android.ui.adapter.BuildConfigurationClickListener;
-import com.tcity.android.ui.adapter.ProjectClickListener;
-import com.tcity.android.ui.engine.BuildConfigurationDBEngine;
-import com.tcity.android.ui.engine.ProjectDBEngine;
+import com.tcity.android.ui.common.overview.ConceptClickListener;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -45,10 +42,10 @@ class ProjectOverviewDBEngine {
     private final MergeAdapter myMainAdapter;
 
     @NotNull
-    private final MyBuildConfigurationClickListener myBuildConfigurationClickListener;
+    private final BuildConfigurationClickListener myBuildConfigurationClickListener;
 
     @NotNull
-    private final MyProjectClickListener myProjectClickListener;
+    private final ProjectClickListener myProjectClickListener;
 
     @NotNull
     private final BuildConfigurationDBEngine myFavouriteBuildConfigurationsEngine;
@@ -74,8 +71,8 @@ class ProjectOverviewDBEngine {
                             @NotNull ViewGroup root) {
         myDB = db;
         myMainAdapter = new MergeAdapter();
-        myProjectClickListener = new MyProjectClickListener();
-        myBuildConfigurationClickListener = new MyBuildConfigurationClickListener();
+        myProjectClickListener = new ProjectClickListener();
+        myBuildConfigurationClickListener = new BuildConfigurationClickListener();
 
         myFavouriteBuildConfigurationsEngine = new BuildConfigurationDBEngine(
                 projectId,
@@ -191,7 +188,7 @@ class ProjectOverviewDBEngine {
         myMainAdapter.setActive(engine.getHeader(), !engine.empty());
     }
 
-    private static class MyBuildConfigurationClickListener implements BuildConfigurationClickListener {
+    private static class BuildConfigurationClickListener implements ConceptClickListener {
 
         @Nullable
         private ProjectOverviewActivity myActivity;
@@ -218,7 +215,7 @@ class ProjectOverviewDBEngine {
         }
     }
 
-    private static class MyProjectClickListener implements ProjectClickListener {
+    private static class ProjectClickListener implements ConceptClickListener {
 
         @Nullable
         private ProjectOverviewActivity myActivity;
