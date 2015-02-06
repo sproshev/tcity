@@ -23,7 +23,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.PopupMenu;
@@ -38,7 +37,6 @@ import com.tcity.android.background.web.WebLocator;
 import com.tcity.android.db.DB;
 import com.tcity.android.db.DBUtils;
 import com.tcity.android.ui.info.BuildHostActivity;
-import com.tcity.android.ui.preference.PreferenceActivity;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -117,16 +115,6 @@ public class BuildConfigurationOverviewActivity extends ListActivity implements 
         myRecreating = true;
 
         return myEngine;
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-
-        MenuItem item = menu.findItem(R.id.menu_settings);
-        item.setIntent(new Intent(this, PreferenceActivity.class));
-
-        return super.onCreateOptionsMenu(menu);
     }
 
     @Override

@@ -30,6 +30,7 @@ import com.tcity.android.app.Preferences;
 import com.tcity.android.sync.SyncUtils;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class SyncIntervalDialogFragment extends DialogFragment implements DialogInterface.OnClickListener {
 
@@ -41,7 +42,7 @@ public class SyncIntervalDialogFragment extends DialogFragment implements Dialog
 
     @NotNull
     @Override
-    public Dialog onCreateDialog(Bundle savedInstanceState) {
+    public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
         View view = getActivity().getLayoutInflater().inflate(R.layout.sync_interval_fragment, null);
 
         myPreferences = new Preferences(getActivity());
@@ -78,6 +79,12 @@ public class SyncIntervalDialogFragment extends DialogFragment implements Dialog
                     SyncUtils.updateSyncInterval(
                             getActivity(), value, myPreferences.isSyncWifiOnly()
                     );
+
+                    PreferenceFragment fragment = (PreferenceFragment) getTargetFragment();
+
+                    if (fragment != null) {
+                        fragment.reloadSyncInterval();
+                    }
                 }
             default:
                 dismiss();

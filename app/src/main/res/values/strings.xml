@@ -33,6 +33,7 @@
         <item>Projects</item>
         <item>Favourite build configurations</item>
         <item>Current builds</item>
+        <item>@string/settings</item>
     </string-array>
 
     <string name="open_drawer">Open drawer</string>

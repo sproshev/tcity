@@ -35,6 +35,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.tcity.android.R;
+import com.tcity.android.ui.preference.PreferenceFragment;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -111,9 +112,38 @@ public class MainActivity extends Activity {
     }
 
     private void selectItem(int position) {
+        FragmentTransaction ft = getFragmentManager().beginTransaction();
+
+        switch (position) {
+            case 3:
+                selectSettingsItem(ft);
+                break;
+            default:
+                selectStubItem(position, ft);
+        }
+
+        ft.commit();
+
+        myDrawerList.setItemChecked(position, true);
+        setTitle(myTitles[position]);
+
+        myDrawerLayout.closeDrawer(myDrawerList);
+    }
+
+    private void selectSettingsItem(@NotNull FragmentTransaction ft) {
+        Fragment fragment = getFragmentManager().findFragmentByTag("Settings");
+
+        if (fragment == null) {
+            fragment = Fragment.instantiate(this, PreferenceFragment.class.getName());
+            ft.replace(R.id.main_content, fragment, "Settings");
+        } else {
+            ft.attach(fragment);
+        }
+    }
+
+    private void selectStubItem(int position, @NotNull FragmentTransaction ft) {
         String tag = Integer.toString(position);
         Fragment fragment = getFragmentManager().findFragmentByTag(tag);
-        FragmentTransaction ft = getFragmentManager().beginTransaction();
 
         if (fragment == null) {
             Bundle bundle = new Bundle();
@@ -124,13 +154,6 @@ public class MainActivity extends Activity {
         } else {
             ft.attach(fragment);
         }
-
-        ft.commit();
-
-        myDrawerList.setItemChecked(position, true);
-        setTitle(myTitles[position]);
-
-        myDrawerLayout.closeDrawer(myDrawerList);
     }
 
     public static class MyFragment extends Fragment {

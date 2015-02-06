@@ -20,7 +20,6 @@ import android.app.ActionBar;
 import android.app.Activity;
 import android.app.DownloadManager;
 import android.app.Fragment;
-import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -32,7 +31,6 @@ import com.tcity.android.app.Application;
 import com.tcity.android.app.Preferences;
 import com.tcity.android.background.web.WebLocator;
 import com.tcity.android.db.DB;
-import com.tcity.android.ui.preference.PreferenceActivity;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -71,9 +69,6 @@ public class BuildHostActivity extends Activity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_build_host, menu);
-
-        MenuItem item = menu.findItem(R.id.menu_settings);
-        item.setIntent(new Intent(this, PreferenceActivity.class));
 
         return super.onCreateOptionsMenu(menu);
     }
