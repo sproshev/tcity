@@ -32,7 +32,7 @@ import org.jetbrains.annotations.Nullable;
 class FavBuildConfigurationsOverviewDBEngine {
 
     @NotNull
-    private final DB myDB;
+    private final DB myDb;
 
     @NotNull
     private final BuildConfigurationClickListener myClickListener;
@@ -45,7 +45,7 @@ class FavBuildConfigurationsOverviewDBEngine {
 
     FavBuildConfigurationsOverviewDBEngine(@NotNull Context context,
                                            @NotNull DB db) {
-        myDB = db;
+        myDb = db;
         myClickListener = new BuildConfigurationClickListener();
 
         myEngine = new FavBuildConfigurationDBEngine(
@@ -56,7 +56,7 @@ class FavBuildConfigurationsOverviewDBEngine {
 
         myDBListener = new BuildConfigurationsListener();
 
-        myDB.addBuildConfigurationsListener(myDBListener);
+        myDb.addBuildConfigurationsListener(myDBListener);
     }
 
     @NotNull
@@ -69,12 +69,12 @@ class FavBuildConfigurationsOverviewDBEngine {
     }
 
     void imageClick(@NotNull String id) {
-        myDB.setBuildConfigurationStatus(id, Status.DEFAULT);
-        myDB.setFavouriteBuildConfiguration(id, !myDB.isBuildConfigurationFavourite(id));
+        myDb.setBuildConfigurationStatus(id, Status.DEFAULT);
+        myDb.setFavouriteBuildConfiguration(id, !myDb.isBuildConfigurationFavourite(id));
     }
 
     void close() {
-        myDB.removeBuildConfigurationsListener(myDBListener);
+        myDb.removeBuildConfigurationsListener(myDBListener);
 
         myEngine.close();
     }

@@ -47,7 +47,7 @@ import java.util.List;
 public class SyncService extends IntentService {
 
     @NotNull
-    private DB myDB;
+    private DB myDb;
 
     @NotNull
     private RestClient myClient;
@@ -63,14 +63,14 @@ public class SyncService extends IntentService {
     public void onCreate() {
         super.onCreate();
 
-        myDB = ((Application) getApplication()).getDB();
+        myDb = ((Application) getApplication()).getDb();
         myClient = new RestClient(new Preferences(this));
         myManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
     }
 
     @Override
     protected void onHandleIntent(@Nullable Intent intent) {
-        Cursor cursor = myDB.getBuildConfigurations(null, true);
+        Cursor cursor = myDb.getBuildConfigurations(null, true);
 
         //noinspection TryFinallyCanBeTryWithResources
         try {
@@ -85,7 +85,7 @@ public class SyncService extends IntentService {
             try {
                 String id = DBUtils.getId(cursor);
 
-                sync(id, DBUtils.getParentId(cursor), myDB.getBuildConfigurationSyncBound(id));
+                sync(id, DBUtils.getParentId(cursor), myDb.getBuildConfigurationSyncBound(id));
             } catch (IOException e) {
                 Log.i(
                         SyncService.class.getSimpleName(), e.getMessage(), e
@@ -110,7 +110,7 @@ public class SyncService extends IntentService {
             List<Build> builds = ParserPackage.parseBuilds(response.getEntity().getContent());
 
             if (!builds.isEmpty()) {
-                myDB.appendBuilds(builds);
+                myDb.appendBuilds(builds);
 
                 notify(buildConfigurationId, parentProjectId, builds.size());
             }
@@ -123,8 +123,8 @@ public class SyncService extends IntentService {
         Notification.Builder builder = new Notification.Builder(this);
 
         String title = size + " new build" + (size == 1 ? "" : "s");
-        String projectName = myDB.getProjectName(parentProjectId);
-        String buildConfigurationName = myDB.getBuildConfigurationName(buildConfigurationId);
+        String projectName = myDb.getProjectName(parentProjectId);
+        String buildConfigurationName = myDb.getBuildConfigurationName(buildConfigurationId);
 
         Intent activityIntent = new Intent(this, BuildConfigurationOverviewActivity.class);
         activityIntent.putExtra(BuildConfigurationOverviewActivity.ID_INTENT_KEY, buildConfigurationId);

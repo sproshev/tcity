@@ -159,14 +159,14 @@ public class BuildActivity extends Activity {
 
     @NotNull
     private String calculateTitle() {
-        DB db = ((Application) getApplication()).getDB();
+        DB db = ((Application) getApplication()).getDb();
 
         return db.getBuildName(myBuildId);
     }
 
     @NotNull
     private String calculateSubtitle() {
-        DB db = ((Application) getApplication()).getDB();
+        DB db = ((Application) getApplication()).getDb();
 
         return db.getBuildConfigurationName(db.getBuildParentId(myBuildId));
     }
@@ -195,7 +195,7 @@ public class BuildActivity extends Activity {
 
     @NotNull
     private String calculateLogFilename(@NotNull Preferences preferences) {
-        DB db = ((Application) getApplication()).getDB();
+        DB db = ((Application) getApplication()).getDb();
 
         String buildConfigurationId = db.getBuildParentId(myBuildId);
         String projectId = db.getBuildConfigurationParentId(buildConfigurationId);

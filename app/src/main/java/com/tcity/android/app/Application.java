@@ -24,14 +24,14 @@ import org.jetbrains.annotations.Nullable;
 public class Application extends android.app.Application {
 
     @Nullable
-    private DB myDB;
+    private DB myDb;
 
     @NotNull
-    public DB getDB() {
-        if (myDB == null) {
-            myDB = new DB(this);
+    public DB getDb() {
+        if (myDb == null) {
+            myDb = new DB(this);
         }
 
-        return myDB;
+        return myDb;
     }
 }

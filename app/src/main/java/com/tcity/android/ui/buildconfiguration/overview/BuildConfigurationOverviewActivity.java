@@ -19,7 +19,6 @@ package com.tcity.android.ui.buildconfiguration.overview;
 import android.app.ActionBar;
 import android.app.ListActivity;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.MenuItem;
@@ -201,7 +200,8 @@ public class BuildConfigurationOverviewActivity extends ListActivity implements 
         menu.inflate(R.menu.menu_concept);
 
         menu.setOnMenuItemClickListener(
-                new PopupMenuListener(
+                new Common.PopupMenuListener(
+                        this,
                         WebLocator.getBuildUrl(id, new Preferences(this))
                 )
         );
@@ -211,20 +211,20 @@ public class BuildConfigurationOverviewActivity extends ListActivity implements 
 
     @NotNull
     private String calculateTitle() {
-        DB db = ((Application) getApplication()).getDB();
+        DB db = ((Application) getApplication()).getDb();
 
         return db.getBuildConfigurationName(myBuildConfigurationId);
     }
 
     @NotNull
     private String calculateSubtitle() {
-        DB db = ((Application) getApplication()).getDB();
+        DB db = ((Application) getApplication()).getDb();
 
         return db.getProjectName(db.getBuildConfigurationParentId(myBuildConfigurationId));
     }
 
     private void updateSyncBound() {
-        DB db = ((Application) getApplication()).getDB();
+        DB db = ((Application) getApplication()).getDb();
         long lastUpdate = db.getBuildConfigurationLastUpdate(myBuildConfigurationId);
 
         if (db.isBuildConfigurationFavourite(myBuildConfigurationId) && lastUpdate != DBUtils.UNDEFINED_TIME) {
@@ -244,7 +244,7 @@ public class BuildConfigurationOverviewActivity extends ListActivity implements 
             result = new BuildConfigurationOverviewEngine(
                     myBuildConfigurationId,
                     this,
-                    ((Application) getApplication()).getDB(),
+                    ((Application) getApplication()).getDb(),
                     getListView()
             );
         }
@@ -259,50 +259,5 @@ public class BuildConfigurationOverviewActivity extends ListActivity implements 
                 (TextView) getListView().getEmptyView(),
                 refreshing
         );
-    }
-
-    private class PopupMenuListener implements PopupMenu.OnMenuItemClickListener {
-
-        @NotNull
-        private final String myUrl;
-
-        private PopupMenuListener(@NotNull String url) {
-            myUrl = url;
-        }
-
-        @Override
-        public boolean onMenuItemClick(@NotNull MenuItem item) {
-            switch (item.getItemId()) {
-                case R.id.menu_share_link:
-                    onShareClick();
-
-                    return true;
-                case R.id.menu_open_in_browser:
-                    onOpenClick();
-
-                    return true;
-                default:
-                    return false;
-            }
-        }
-
-        private void onShareClick() {
-            Intent intent = new Intent(Intent.ACTION_SEND);
-
-            intent.setType("text/plain");
-            intent.putExtra(
-                    Intent.EXTRA_TEXT,
-                    myUrl
-            );
-
-            startActivity(Intent.createChooser(intent, getResources().getString(R.string.share_link)));
-        }
-
-        private void onOpenClick() {
-            Intent intent = new Intent(Intent.ACTION_VIEW);
-            intent.setData(Uri.parse(myUrl));
-
-            startActivity(intent);
-        }
     }
 }

@@ -36,7 +36,7 @@ import java.util.List;
 class FavBuildConfigurationsOverviewServerEngine {
 
     @NotNull
-    private final DB myDB;
+    private final DB myDb;
 
     @NotNull
     private final RestClient myClient;
@@ -49,7 +49,7 @@ class FavBuildConfigurationsOverviewServerEngine {
 
     FavBuildConfigurationsOverviewServerEngine(@NotNull DB db,
                                                @NotNull RestClient client) {
-        myDB = db;
+        myDb = db;
         myClient = client;
 
         myChainListener = new ChainListener();
@@ -92,14 +92,14 @@ class FavBuildConfigurationsOverviewServerEngine {
     }
 
     private boolean expiredStatusExists() {
-        Cursor cursor = myDB.getBuildConfigurations(null, true);
+        Cursor cursor = myDb.getBuildConfigurations(null, true);
 
         //noinspection TryFinallyCanBeTryWithResources
         try {
             while (cursor.moveToNext()) {
                 String id = DBUtils.getId(cursor);
 
-                if (ExpirationUtils.isBuildConfigurationStatusExpired(myDB, id)) {
+                if (ExpirationUtils.isBuildConfigurationStatusExpired(myDb, id)) {
                     return true;
                 }
             }
@@ -118,17 +118,17 @@ class FavBuildConfigurationsOverviewServerEngine {
             ).toAsyncTask(myChainListener);
         }
 
-        Cursor cursor = myDB.getBuildConfigurations(null, true);
+        Cursor cursor = myDb.getBuildConfigurations(null, true);
 
         List<Runnable> runnables = new ArrayList<>();
 
         while (cursor.moveToNext()) {
             String id = DBUtils.getId(cursor);
 
-            if (force || ExpirationUtils.isBuildConfigurationStatusExpired(myDB, id)) {
+            if (force || ExpirationUtils.isBuildConfigurationStatusExpired(myDb, id)) {
                 runnables.add(
                         new BuildConfigurationStatusRunnable(
-                                id, myDB, myClient
+                                id, myDb, myClient
                         )
                 );
             }

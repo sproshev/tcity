@@ -17,10 +17,14 @@
 package com.tcity.android.app;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.Handler;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.view.MenuItem;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 
 import com.tcity.android.R;
@@ -90,6 +94,60 @@ public class Common {
                 return R.color.red;
             default:
                 return defaultValue;
+        }
+    }
+
+    public static class PopupMenuListener implements PopupMenu.OnMenuItemClickListener {
+
+        @NotNull
+        private final Context myContext;
+
+        @NotNull
+        private final String myUrl;
+
+        public PopupMenuListener(@NotNull Context context, @NotNull String url) {
+            myContext = context;
+            myUrl = url;
+        }
+
+        @Override
+        public boolean onMenuItemClick(@NotNull MenuItem item) {
+            switch (item.getItemId()) {
+                case R.id.menu_share_link:
+                    onShareClick();
+
+                    return true;
+                case R.id.menu_open_in_browser:
+                    onOpenClick();
+
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
+        private void onShareClick() {
+            Intent intent = new Intent(Intent.ACTION_SEND);
+
+            intent.setType("text/plain");
+            intent.putExtra(
+                    Intent.EXTRA_TEXT,
+                    myUrl
+            );
+
+            myContext.startActivity(
+                    Intent.createChooser(
+                            intent,
+                            myContext.getResources().getString(R.string.share_link)
+                    )
+            );
+        }
+
+        private void onOpenClick() {
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            intent.setData(Uri.parse(myUrl));
+
+            myContext.startActivity(intent);
         }
     }
 }

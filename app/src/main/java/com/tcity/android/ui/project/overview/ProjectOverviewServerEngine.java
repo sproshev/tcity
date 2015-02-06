@@ -307,7 +307,7 @@ class ProjectOverviewServerEngine {
         @Nullable
         private Exception myException;
 
-        void onStarted() {
+        private void onStarted() {
             if (myCount == 0) {
                 myException = null;
             }

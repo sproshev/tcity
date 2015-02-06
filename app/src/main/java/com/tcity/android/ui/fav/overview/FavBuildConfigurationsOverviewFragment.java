@@ -18,11 +18,9 @@ package com.tcity.android.ui.fav.overview;
 
 import android.app.ListFragment;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.PopupMenu;
@@ -60,7 +58,7 @@ public class FavBuildConfigurationsOverviewFragment
 
         myEngine = new FavBuildConfigurationsOverviewEngine(
                 getActivity(),
-                ((Application) getActivity().getApplication()).getDB()
+                ((Application) getActivity().getApplication()).getDb()
         );
 
         setRetainInstance(true);
@@ -172,7 +170,8 @@ public class FavBuildConfigurationsOverviewFragment
         menu.inflate(R.menu.menu_concept);
 
         menu.setOnMenuItemClickListener(
-                new PopupMenuListener(
+                new Common.PopupMenuListener(
+                        getActivity(),
                         WebLocator.getBuildConfigurationUrl(id, new Preferences(getActivity()))
                 )
         );
@@ -187,50 +186,5 @@ public class FavBuildConfigurationsOverviewFragment
                 (TextView) getListView().getEmptyView(),
                 refreshing
         );
-    }
-
-    private class PopupMenuListener implements PopupMenu.OnMenuItemClickListener {
-
-        @NotNull
-        private final String myUrl;
-
-        private PopupMenuListener(@NotNull String url) {
-            myUrl = url;
-        }
-
-        @Override
-        public boolean onMenuItemClick(@NotNull MenuItem item) {
-            switch (item.getItemId()) {
-                case R.id.menu_share_link:
-                    onShareClick();
-
-                    return true;
-                case R.id.menu_open_in_browser:
-                    onOpenClick();
-
-                    return true;
-                default:
-                    return false;
-            }
-        }
-
-        private void onShareClick() {
-            Intent intent = new Intent(Intent.ACTION_SEND);
-
-            intent.setType("text/plain");
-            intent.putExtra(
-                    Intent.EXTRA_TEXT,
-                    myUrl
-            );
-
-            startActivity(Intent.createChooser(intent, getResources().getString(R.string.share_link)));
-        }
-
-        private void onOpenClick() {
-            Intent intent = new Intent(Intent.ACTION_VIEW);
-            intent.setData(Uri.parse(myUrl));
-
-            startActivity(intent);
-        }
     }
 }

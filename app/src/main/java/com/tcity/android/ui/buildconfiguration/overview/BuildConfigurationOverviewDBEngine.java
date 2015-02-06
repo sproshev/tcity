@@ -34,7 +34,7 @@ import org.jetbrains.annotations.Nullable;
 class BuildConfigurationOverviewDBEngine {
 
     @NotNull
-    private final DB myDB;
+    private final DB myDb;
 
     @NotNull
     private final MergeAdapter myMainAdapter;
@@ -55,7 +55,7 @@ class BuildConfigurationOverviewDBEngine {
                                        @NotNull Context context,
                                        @NotNull DB db,
                                        @NotNull ViewGroup root) {
-        myDB = db;
+        myDb = db;
         myMainAdapter = new MergeAdapter();
         myClickListener = new BuildClickListener();
 
@@ -89,7 +89,7 @@ class BuildConfigurationOverviewDBEngine {
 
         myDBListener = new MySchemaListener();
 
-        myDB.addBuildsListener(myDBListener);
+        myDb.addBuildsListener(myDBListener);
     }
 
     @NotNull
@@ -102,11 +102,11 @@ class BuildConfigurationOverviewDBEngine {
     }
 
     void imageClick(@NotNull String id) {
-        myDB.setFavouriteBuild(id, !myDB.isBuildFavourite(id));
+        myDb.setFavouriteBuild(id, !myDb.isBuildFavourite(id));
     }
 
     void close() {
-        myDB.removeBuildsListener(myDBListener);
+        myDb.removeBuildsListener(myDBListener);
 
         myFavouriteEngine.close();
         myAllEngine.close();

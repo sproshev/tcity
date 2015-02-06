@@ -57,7 +57,7 @@ public class LogoutDialogFragment extends DialogFragment implements DialogInterf
 
                 SyncUtils.disableSync(activity);
 
-                ((Application) activity.getApplication()).getDB().reset();
+                ((Application) activity.getApplication()).getDb().reset();
                 new Preferences(activity).reset();
 
                 Intent intent = new Intent(activity, SplashActivity.class);

@@ -36,7 +36,7 @@ import org.jetbrains.annotations.Nullable;
 class ProjectOverviewDBEngine {
 
     @NotNull
-    private final DB myDB;
+    private final DB myDb;
 
     @NotNull
     private final MergeAdapter myMainAdapter;
@@ -69,7 +69,7 @@ class ProjectOverviewDBEngine {
                             @NotNull Context context,
                             @NotNull DB db,
                             @NotNull ViewGroup root) {
-        myDB = db;
+        myDb = db;
         myMainAdapter = new MergeAdapter();
         myProjectClickListener = new ProjectClickListener();
         myBuildConfigurationClickListener = new BuildConfigurationClickListener();
@@ -136,8 +136,8 @@ class ProjectOverviewDBEngine {
         myBuildConfigurationsListener = new BuildConfigurationsListener();
         myProjectsListener = new ProjectsListener();
 
-        myDB.addProjectsListener(myProjectsListener);
-        myDB.addBuildConfigurationsListener(myBuildConfigurationsListener);
+        myDb.addProjectsListener(myProjectsListener);
+        myDb.addBuildConfigurationsListener(myBuildConfigurationsListener);
     }
 
     @NotNull
@@ -151,18 +151,18 @@ class ProjectOverviewDBEngine {
     }
 
     void projectImageClick(@NotNull String id) {
-        myDB.setProjectStatus(id, Status.DEFAULT);
-        myDB.setFavouriteProject(id, !myDB.isProjectFavourite(id));
+        myDb.setProjectStatus(id, Status.DEFAULT);
+        myDb.setFavouriteProject(id, !myDb.isProjectFavourite(id));
     }
 
     void buildConfigurationImageClick(@NotNull String id) {
-        myDB.setBuildConfigurationStatus(id, Status.DEFAULT);
-        myDB.setFavouriteBuildConfiguration(id, !myDB.isBuildConfigurationFavourite(id));
+        myDb.setBuildConfigurationStatus(id, Status.DEFAULT);
+        myDb.setFavouriteBuildConfiguration(id, !myDb.isBuildConfigurationFavourite(id));
     }
 
     void close() {
-        myDB.removeProjectsListener(myProjectsListener);
-        myDB.removeBuildConfigurationsListener(myBuildConfigurationsListener);
+        myDb.removeProjectsListener(myProjectsListener);
+        myDb.removeBuildConfigurationsListener(myBuildConfigurationsListener);
 
         myFavouriteBuildConfigurationsEngine.close();
         myFavouriteProjectsEngine.close();
