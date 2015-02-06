@@ -39,7 +39,6 @@ public class BuildConfigurationAdapter extends ConceptAdapter {
 
     @Override
     void bindViewHolder(@NotNull ViewHolder holder,
-                        @NotNull Context context,
                         @NotNull Cursor cursor) {
         if (!DBUtils.isPaused(cursor)) {
             holder.sub.setVisibility(View.GONE);

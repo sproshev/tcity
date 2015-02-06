@@ -33,9 +33,9 @@
         android:orientation="vertical"
 
         android:paddingLeft="16dp"
-        android:paddingRight="8dp">
+        android:paddingRight="4dp">
 
-        <TextView
+    <TextView
             android:id="@+id/build_artifact_name"
 
             android:layout_width="match_parent"
@@ -63,7 +63,7 @@
         android:background="@null"
         android:contentDescription="@string/dl_build_artifact"
 
-        android:paddingLeft="8dp"
+        android:paddingLeft="4dp"
         android:paddingRight="16dp"
 
         android:src="@drawable/ic_action_download_dark"/>

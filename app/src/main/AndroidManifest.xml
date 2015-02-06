@@ -32,7 +32,8 @@
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/tcity"
-        android:theme="@style/android:Theme.Holo.Light.DarkActionBar">
+        android:theme="@style/android:Theme.Holo.Light.DarkActionBar"
+        android:supportsRtl="false">
 
         <activity android:name=".ui.overview.project.ProjectOverviewActivity"/>
         <activity android:name=".ui.overview.buildconfiguration.BuildConfigurationOverviewActivity"/>

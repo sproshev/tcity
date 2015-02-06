@@ -39,7 +39,6 @@ public class ProjectAdapter extends ConceptAdapter {
 
     @Override
     void bindViewHolder(@NotNull ViewHolder holder,
-                        @NotNull Context context,
                         @NotNull Cursor cursor) {
         if (!DBUtils.isArchived(cursor)) {
             holder.sub.setVisibility(View.GONE);

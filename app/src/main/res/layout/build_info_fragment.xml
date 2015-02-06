@@ -66,14 +66,14 @@
                         android:text="@string/branch"
                         android:textAppearance="?android:attr/textAppearanceListItemSmall"
                         android:paddingLeft="16dp"
-                        android:paddingRight="8dp"/>
+                        android:paddingRight="4dp"/>
 
                     <TextView
                         android:id="@+id/build_info_branch"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textAppearance="?android:attr/textAppearanceListItemSmall"
-                        android:paddingLeft="8dp"
+                        android:paddingLeft="4dp"
                         android:paddingRight="16dp"/>
 
                 </TableRow>
@@ -89,14 +89,14 @@
                         android:text="@string/wait_reason"
                         android:textAppearance="?android:attr/textAppearanceListItemSmall"
                         android:paddingLeft="16dp"
-                        android:paddingRight="8dp"/>
+                        android:paddingRight="4dp"/>
 
                     <TextView
                         android:id="@+id/build_info_wait_reason"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textAppearance="?android:attr/textAppearanceListItemSmall"
-                        android:paddingLeft="8dp"
+                        android:paddingLeft="4dp"
                         android:paddingRight="16dp"/>
 
                 </TableRow>
@@ -112,14 +112,14 @@
                         android:text="@string/queued"
                         android:textAppearance="?android:attr/textAppearanceListItemSmall"
                         android:paddingLeft="16dp"
-                        android:paddingRight="8dp"/>
+                        android:paddingRight="4dp"/>
 
                     <TextView
                         android:id="@+id/build_info_queued"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textAppearance="?android:attr/textAppearanceListItemSmall"
-                        android:paddingLeft="8dp"
+                        android:paddingLeft="4dp"
                         android:paddingRight="16dp"/>
 
                 </TableRow>
@@ -135,14 +135,14 @@
                         android:text="@string/started"
                         android:textAppearance="?android:attr/textAppearanceListItemSmall"
                         android:paddingLeft="16dp"
-                        android:paddingRight="8dp"/>
+                        android:paddingRight="4dp"/>
 
                     <TextView
                         android:id="@+id/build_info_started"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textAppearance="?android:attr/textAppearanceListItemSmall"
-                        android:paddingLeft="8dp"
+                        android:paddingLeft="4dp"
                         android:paddingRight="16dp"/>
 
                 </TableRow>
@@ -158,14 +158,14 @@
                         android:text="@string/finished"
                         android:textAppearance="?android:attr/textAppearanceListItemSmall"
                         android:paddingLeft="16dp"
-                        android:paddingRight="8dp"/>
+                        android:paddingRight="4dp"/>
 
                     <TextView
                         android:id="@+id/build_info_finished"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textAppearance="?android:attr/textAppearanceListItemSmall"
-                        android:paddingLeft="8dp"
+                        android:paddingLeft="4dp"
                         android:paddingRight="16dp"/>
 
                 </TableRow>
@@ -181,14 +181,14 @@
                         android:text="@string/agent"
                         android:textAppearance="?android:attr/textAppearanceListItemSmall"
                         android:paddingLeft="16dp"
-                        android:paddingRight="8dp"/>
+                        android:paddingRight="4dp"/>
 
                     <TextView
                         android:id="@+id/build_info_agent"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textAppearance="?android:attr/textAppearanceListItemSmall"
-                        android:paddingLeft="8dp"
+                        android:paddingLeft="4dp"
                         android:paddingRight="16dp"/>
 
                 </TableRow>

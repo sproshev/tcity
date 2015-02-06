@@ -102,11 +102,10 @@ abstract class ConceptAdapter extends CursorAdapter {
             holder.image.setImageResource(NOT_FAVOURITE_IMAGE);
         }
 
-        bindViewHolder(holder, context, cursor);
+        bindViewHolder(holder, cursor);
     }
 
     abstract void bindViewHolder(@NotNull ViewHolder holder,
-                                 @NotNull Context context,
                                  @NotNull Cursor cursor);
 
     private static class DescriptionListener implements View.OnClickListener {

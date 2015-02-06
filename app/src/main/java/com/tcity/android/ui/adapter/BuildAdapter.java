@@ -41,7 +41,6 @@ public class BuildAdapter extends ConceptAdapter {
 
     @Override
     void bindViewHolder(@NotNull ViewHolder holder,
-                        @NotNull Context context,
                         @NotNull Cursor cursor) {
         bindBranch(holder.sub, DBUtils.getBranch(cursor), DBUtils.isBranchDefault(cursor));
     }
