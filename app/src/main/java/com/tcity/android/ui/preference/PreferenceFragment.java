@@ -21,6 +21,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
+import android.preference.ListPreference;
 import android.preference.Preference;
 
 import com.tcity.android.R;
@@ -40,6 +41,9 @@ public class PreferenceFragment extends android.preference.PreferenceFragment {
 
     @NotNull
     private Preference mySyncInterval;
+
+    @NotNull
+    private ListPreference myDefaultScreen;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -67,18 +71,28 @@ public class PreferenceFragment extends android.preference.PreferenceFragment {
         mySyncInterval = findPreference(getString(R.string.sync_interval_pref_key));
         mySyncInterval.setOnPreferenceClickListener(new SyncIntervalListener());
 
+        myDefaultScreen = (ListPreference) findPreference(getString(R.string.default_screen_pref_key));
+        myDefaultScreen.setOnPreferenceChangeListener(new DefaultScreenListener());
+
         Preference gitHub = findPreference(getString(R.string.github_pref_key));
         gitHub.setOnPreferenceClickListener(new GitHubListener());
 
         Preference googlePlay = findPreference(getString(R.string.google_play_pref_key));
         googlePlay.setOnPreferenceClickListener(new GooglePlayListener());
 
-        reloadSyncInterval();
+        updateSyncIntervalSummary(myPreferences.getSyncInterval());
+        updateDefaultScreenSummary(myPreferences.getDefaultScreen());
     }
 
-    void reloadSyncInterval() {
+    void updateSyncIntervalSummary(int value) {
         mySyncInterval.setSummary(
-                "Sync will be running every " + myPreferences.getSyncInterval() + " minutes"
+                "Sync will be running every " + value + " minutes"
+        );
+    }
+
+    void updateDefaultScreenSummary(@NotNull String value) {
+        myDefaultScreen.setSummary(
+                value + " will be opened at startup"
         );
     }
 
@@ -146,11 +160,22 @@ public class PreferenceFragment extends android.preference.PreferenceFragment {
     private class SyncIntervalListener implements Preference.OnPreferenceClickListener {
 
         @Override
-        public boolean onPreferenceClick(Preference preference) {
+        public boolean onPreferenceClick(@Nullable Preference preference) {
             SyncIntervalDialogFragment fragment = new SyncIntervalDialogFragment();
 
             fragment.setTargetFragment(PreferenceFragment.this, 0);
             fragment.show(getFragmentManager(), SyncIntervalDialogFragment.TAG);
+
+            return true;
+        }
+    }
+
+    private class DefaultScreenListener implements Preference.OnPreferenceChangeListener {
+
+        @Override
+        public boolean onPreferenceChange(@Nullable Preference preference,
+                                          @NotNull Object newValue) {
+            updateDefaultScreenSummary((String) newValue);
 
             return true;
         }

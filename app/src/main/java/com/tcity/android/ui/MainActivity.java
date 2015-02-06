@@ -35,6 +35,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.tcity.android.R;
+import com.tcity.android.app.Preferences;
 import com.tcity.android.ui.fav.overview.FavBuildConfigurationsOverviewFragment;
 import com.tcity.android.ui.preference.PreferenceFragment;
 import com.tcity.android.ui.project.overview.RootOverviewFragment;
@@ -88,7 +89,18 @@ public class MainActivity extends Activity {
         }
 
         if (savedInstanceState == null) {
-            selectItem(0);
+            int position = -1;
+
+            String[] defaultScreens = getResources().getStringArray(R.array.default_screens);
+            String defaultScreen = new Preferences(this).getDefaultScreen();
+
+            for (int i = 0; i < defaultScreens.length && position == -1; i++) {
+                if (defaultScreen.equals(defaultScreens[i])) {
+                    position = i;
+                }
+            }
+
+            selectItem(Math.max(position, 0));
         }
     }
 

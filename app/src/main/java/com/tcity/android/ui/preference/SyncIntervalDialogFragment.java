@@ -86,7 +86,7 @@ public class SyncIntervalDialogFragment extends DialogFragment implements Dialog
                     PreferenceFragment fragment = (PreferenceFragment) getTargetFragment();
 
                     if (fragment != null) {
-                        fragment.reloadSyncInterval();
+                        fragment.updateSyncIntervalSummary(value);
                     }
                 }
             default:

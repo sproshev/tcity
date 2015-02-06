@@ -75,6 +75,16 @@
             android:title="@string/archived_build_log"
             />
 
+        <ListPreference
+            android:key="@string/default_screen_pref_key"
+
+            android:title="@string/default_screen"
+
+            android:entries="@array/default_screens"
+            android:entryValues="@array/default_screens"
+            android:defaultValue="@string/projects"
+            />
+
     </PreferenceCategory>
 
     <PreferenceCategory android:title="@string/about">

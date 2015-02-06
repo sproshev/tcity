@@ -24,7 +24,7 @@ import com.tcity.android.db.DBUtils
 import com.tcity.android.sync.SyncUtils
 
 
-public class Preferences(context: Context) {
+public class Preferences(private val context: Context) {
 
     private val preferences = PreferenceManager.getDefaultSharedPreferences(context)
 
@@ -33,6 +33,8 @@ public class Preferences(context: Context) {
     private val syncIntervalKey = context.getString(R.string.sync_interval_pref_key)
 
     private val archivedBuildLogKey = context.getString(R.string.archived_build_log_pref_key)
+
+    private val defaultScreenKey = context.getString(R.string.default_screen_pref_key)
 
     class object {
         private val URL_KEY = "url"
@@ -88,6 +90,10 @@ public class Preferences(context: Context) {
     public fun getServerMajorVersion(): Int = preferences.getInt(SERVER_MAJOR_VERSION_KEY, -1)
 
     public fun getServerMinorVersion(): Int = preferences.getInt(SERVER_MINOR_VERSION_KEY, -1)
+
+    public fun getDefaultScreen(): String {
+        return preferences.getString(defaultScreenKey, context.getString(R.string.projects))
+    }
 
     public fun setUrl(url: String) {
         val editor = preferences.edit()
