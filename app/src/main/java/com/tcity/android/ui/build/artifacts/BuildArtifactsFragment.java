@@ -25,15 +25,20 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.tcity.android.R;
+import com.tcity.android.app.Application;
 import com.tcity.android.app.Common;
 import com.tcity.android.app.Preferences;
 import com.tcity.android.background.rest.RestClient;
+import com.tcity.android.db.DB;
 import com.tcity.android.ui.build.BuildActivity;
 
 import org.jetbrains.annotations.NotNull;
@@ -74,7 +79,10 @@ public class BuildArtifactsFragment
     // LIFECYCLE - Begin
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        Preferences preferences = new Preferences(getActivity());
+        setHasOptionsMenu(preferences.getServerMajorVersion() >= 9);
+
         super.onCreate(savedInstanceState);
 
         myBuildId = getArguments().getString(BuildActivity.ID_INTENT_KEY);
@@ -108,6 +116,13 @@ public class BuildArtifactsFragment
 
         getListView().setAdapter(myAdapter);
         getListView().setSelector(android.R.color.transparent);
+    }
+
+    @Override
+    public void onCreateOptionsMenu(@NotNull Menu menu, @NotNull MenuInflater inflater) {
+        inflater.inflate(R.menu.menu_build_artifacts, menu);
+
+        super.onCreateOptionsMenu(menu, inflater);
     }
 
     @Override
@@ -145,6 +160,21 @@ public class BuildArtifactsFragment
     }
 
     // LIFECYCLE - End
+
+    @Override
+    public boolean onOptionsItemSelected(@NotNull MenuItem item) {
+        if (item.getItemId() == R.id.menu_dl_artifacts) {
+            //noinspection ResultOfMethodCallIgnored
+            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).mkdirs();
+
+            DownloadManager manager = (DownloadManager) getActivity().getSystemService(Context.DOWNLOAD_SERVICE);
+            manager.enqueue(calculateArtifactsRequest());
+
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
 
     @Override
     public void onRefresh() {
@@ -259,6 +289,26 @@ public class BuildArtifactsFragment
     }
 
     @NotNull
+    private DownloadManager.Request calculateArtifactsRequest() {
+        Preferences preferences = new Preferences(getActivity());
+
+        Uri src = Uri.parse(preferences.getUrl() + "/app/rest/builds/id:" + myBuildId + "/artifacts/archived");
+        String dest = calculateArtifactsFilename();
+
+        DownloadManager.Request request = new DownloadManager.Request(src);
+
+        request.addRequestHeader("Authorization", "Basic " + preferences.getAuth());
+        request.setTitle(dest);
+        request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+        request.setDestinationInExternalPublicDir(
+                Environment.DIRECTORY_DOWNLOADS,
+                dest
+        );
+
+        return request;
+    }
+
+    @NotNull
     private DownloadManager.Request calculateArtifactRequest(@NotNull BuildArtifact artifact) {
         if (artifact.contentHref == null) {
             throw new IllegalStateException("Build artifact hasn't content");
@@ -289,6 +339,22 @@ public class BuildArtifactsFragment
                 (TextView) getListView().getEmptyView(),
                 refreshing
         );
+    }
+
+    @NotNull
+    private String calculateArtifactsFilename() {
+        DB db = ((Application) getActivity().getApplication()).getDb();
+
+        String buildConfigurationId = db.getBuildParentId(myBuildId);
+        String projectId = db.getBuildConfigurationParentId(buildConfigurationId);
+
+        String projectName = db.getProjectName(projectId);
+        String buildConfigurationName = db.getBuildConfigurationName(buildConfigurationId);
+        String buildName = db.getBuildName(myBuildId);
+
+        String result = projectName + "_" + buildConfigurationName + "_" + buildName + ".artifacts.zip";
+
+        return result.replaceAll("[^a-zA-Z0-9.-]", "_");
     }
 
     private static class BuildArtifactsCache extends LinkedHashMap<String, List<BuildArtifact>> {

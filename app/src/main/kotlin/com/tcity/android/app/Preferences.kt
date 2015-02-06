@@ -38,11 +38,17 @@ public class Preferences(context: Context) {
         private val URL_KEY = "url"
         private val LOGIN_KEY = "login"
         private val AUTH_KEY = "auth"
+
         private val SYNC_RECEIVER_KEY = "sync_receiver"
         private val SYNC_SCHEDULED_KEY = "sync_scheduled"
+
         private val FAVOURITE_PROJECTS_LAST_UPDATE_KEY = "favourite_projects_last_update"
+
         private val SERVER_VERSION_KEY = "server_version"
         private val SERVER_VERSION_LAST_UPDATE_KEY = "server_version_last_update"
+
+        private val SERVER_MAJOR_VERSION_KEY = "server_major_version"
+        private val SERVER_MINOR_VERSION_KEY = "server_minor_version"
     }
 
     public fun isValid(): Boolean {
@@ -78,6 +84,10 @@ public class Preferences(context: Context) {
     public fun getServerVersionLastUpdate(): Long {
         return preferences.getLong(SERVER_VERSION_LAST_UPDATE_KEY, DBUtils.UNDEFINED_TIME)
     }
+
+    public fun getServerMajorVersion(): Int = preferences.getInt(SERVER_MAJOR_VERSION_KEY, -1)
+
+    public fun getServerMinorVersion(): Int = preferences.getInt(SERVER_MINOR_VERSION_KEY, -1)
 
     public fun setUrl(url: String) {
         val editor = preferences.edit()
@@ -151,11 +161,14 @@ public class Preferences(context: Context) {
         editor.apply()
     }
 
-    public fun setServerVersion(version: String) {
+    public fun setServerInfo(version: String, majorVersion: Int, minorVersion: Int) {
         val editor = preferences.edit();
 
         editor.putString(SERVER_VERSION_KEY, version)
         editor.putLong(SERVER_VERSION_LAST_UPDATE_KEY, System.currentTimeMillis())
+
+        editor.putInt(SERVER_MAJOR_VERSION_KEY, majorVersion)
+        editor.putInt(SERVER_MINOR_VERSION_KEY, minorVersion)
 
         editor.apply()
     }

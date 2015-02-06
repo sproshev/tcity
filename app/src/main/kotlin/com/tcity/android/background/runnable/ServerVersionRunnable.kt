@@ -50,11 +50,23 @@ public class ServerVersionRunnable(
         try {
             reader.beginObject()
 
+            var version: String? = null
+            var majorVersion = -1
+            var minorVersion = -1
+
             while (reader.hasNext()) {
                 when (reader.nextName()) {
-                    "version" -> preferences.setServerVersion(reader.nextString())
+                    "version" -> version = reader.nextString()
+                    "versionMajor" -> majorVersion = reader.nextInt()
+                    "versionMinor" -> minorVersion = reader.nextInt()
                     else -> reader.skipValue()
                 }
+            }
+
+            if (version != null) {
+                preferences.setServerInfo(version!!, majorVersion, minorVersion)
+            } else {
+                throw IOException("Invalid server json: \"version\" is absent")
             }
 
             reader.endObject()

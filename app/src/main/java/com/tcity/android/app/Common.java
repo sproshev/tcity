@@ -48,18 +48,18 @@ public class Common {
                 new Runnable() {
                     @Override
                     public void run() {
+                        if (refreshing) {
+                            emptyView.setText(R.string.loading);
+                        } else {
+                            if (Common.isNetworkAvailable(context)) {
+                                emptyView.setText(R.string.empty);
+                            } else {
+                                emptyView.setText(R.string.network_is_unavailable);
+                            }
+                        }
+
                         if (layout.isRefreshing() ^ refreshing) {
                             layout.setRefreshing(refreshing);
-
-                            if (refreshing) {
-                                emptyView.setText(R.string.loading);
-                            } else {
-                                if (Common.isNetworkAvailable(context)) {
-                                    emptyView.setText(R.string.empty);
-                                } else {
-                                    emptyView.setText(R.string.network_is_unavailable);
-                                }
-                            }
                         }
                     }
                 }, 500

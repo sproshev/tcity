@@ -204,8 +204,8 @@ public class BuildActivity extends Activity {
         String buildConfigurationName = db.getBuildConfigurationName(buildConfigurationId);
         String buildName = db.getBuildName(myBuildId);
 
-        String result = projectName + "_" + buildConfigurationName + "_" + buildName + "." +
-                (preferences.isBuildLogArchived() ? "zip" : "log");
+        String result = projectName + "_" + buildConfigurationName + "_" + buildName + ".log" +
+                (preferences.isBuildLogArchived() ? ".zip" : "");
 
         return result.replaceAll("[^a-zA-Z0-9.-]", "_");
     }
