@@ -20,8 +20,7 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.Message;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ListAdapter;
+import android.widget.BaseAdapter;
 
 import com.tcity.android.Status;
 import com.tcity.android.db.DB;
@@ -45,8 +44,7 @@ class FavBuildConfigurationsOverviewDBEngine {
     private final BuildConfigurationsListener myDBListener;
 
     FavBuildConfigurationsOverviewDBEngine(@NotNull Context context,
-                                           @NotNull DB db,
-                                           @NotNull ViewGroup root) {
+                                           @NotNull DB db) {
         myDB = db;
         myClickListener = new BuildConfigurationClickListener();
 
@@ -62,7 +60,7 @@ class FavBuildConfigurationsOverviewDBEngine {
     }
 
     @NotNull
-    ListAdapter getAdapter() {
+    BaseAdapter getAdapter() {
         return myEngine.getAdapter();
     }
 

@@ -20,8 +20,8 @@ import android.content.Context;
 import android.database.Cursor;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
+import android.widget.BaseAdapter;
 import android.widget.CursorAdapter;
-import android.widget.ListAdapter;
 import android.widget.TextView;
 
 import com.tcity.android.R;
@@ -66,7 +66,7 @@ class BuildConfigurationDBEngine {
     }
 
     @NotNull
-    ListAdapter getAdapter() {
+    BaseAdapter getAdapter() {
         return myAdapter;
     }
 

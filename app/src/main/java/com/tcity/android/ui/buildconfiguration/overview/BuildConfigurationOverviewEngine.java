@@ -18,7 +18,7 @@ package com.tcity.android.ui.buildconfiguration.overview;
 
 import android.content.Context;
 import android.view.ViewGroup;
-import android.widget.ListAdapter;
+import android.widget.BaseAdapter;
 
 import com.tcity.android.app.Preferences;
 import com.tcity.android.background.rest.RestClient;
@@ -49,7 +49,7 @@ class BuildConfigurationOverviewEngine {
     }
 
     @NotNull
-    ListAdapter getAdapter() {
+    BaseAdapter getAdapter() {
         return myDBEngine.getAdapter();
     }
 

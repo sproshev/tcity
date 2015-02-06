@@ -17,7 +17,6 @@
 package com.tcity.android.ui.fav.overview;
 
 import android.content.Context;
-import android.view.ViewGroup;
 import android.widget.ListAdapter;
 
 import com.tcity.android.app.Preferences;
@@ -36,9 +35,8 @@ class FavBuildConfigurationsOverviewEngine {
     private final FavBuildConfigurationsOverviewServerEngine myServerEngine;
 
     FavBuildConfigurationsOverviewEngine(@NotNull Context context,
-                                         @NotNull DB db,
-                                         @NotNull ViewGroup root) {
-        myDBEngine = new FavBuildConfigurationsOverviewDBEngine(context, db, root);
+                                         @NotNull DB db) {
+        myDBEngine = new FavBuildConfigurationsOverviewDBEngine(context, db);
 
         myServerEngine = new FavBuildConfigurationsOverviewServerEngine(
                 db,

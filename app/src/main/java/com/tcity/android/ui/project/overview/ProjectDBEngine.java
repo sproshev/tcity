@@ -20,8 +20,8 @@ import android.content.Context;
 import android.database.Cursor;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
+import android.widget.BaseAdapter;
 import android.widget.CursorAdapter;
-import android.widget.ListAdapter;
 import android.widget.TextView;
 
 import com.tcity.android.R;
@@ -47,11 +47,11 @@ class ProjectDBEngine {
                            @NotNull DB db,
                            @NotNull ViewGroup root,
                            @NotNull ConceptClickListener clickListener,
-                           @NotNull String title) {
+                           int titleResId) {
         LayoutInflater inflater = LayoutInflater.from(context);
 
         myHeader = (TextView) inflater.inflate(R.layout.overview_separator, root, false);
-        myHeader.setText(title);
+        myHeader.setText(titleResId);
 
         myCursor = db.getProjects(parentProjectId, onlyFavourite);
 
@@ -65,7 +65,7 @@ class ProjectDBEngine {
     }
 
     @NotNull
-    ListAdapter getAdapter() {
+    BaseAdapter getAdapter() {
         return myAdapter;
     }
 

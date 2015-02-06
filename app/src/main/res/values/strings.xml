@@ -22,10 +22,13 @@
     <string name="projects">Projects</string>
     <string name="subprojects">Subprojects</string>
     <string name="build_configurations">Build configurations</string>
-    <string name="fav_build_configurations">Favourite build configurations</string>
     <string name="builds">Builds</string>
 
-    <string name="favourite">Favourite</string>
+    <string name="fav_projects">Favourite projects</string>
+    <string name="fav_subprojects">Favourite subprojects</string>
+    <string name="fav_build_configurations">Favourite build configurations</string>
+    <string name="fav_builds">Favourite builds</string>
+
     <string name="options">Options</string>
     <string name="paused">paused</string>
     <string name="archived">archived</string>

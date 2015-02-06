@@ -38,6 +38,7 @@ import com.tcity.android.db.DBUtils;
 import com.tcity.android.ui.build.BuildActivity;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class BuildConfigurationOverviewActivity extends ListActivity implements SwipeRefreshLayout.OnRefreshListener {
 
@@ -58,7 +59,7 @@ public class BuildConfigurationOverviewActivity extends ListActivity implements 
     // LIFECYCLE - Begin
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         myRecreating = false;
@@ -187,7 +188,7 @@ public class BuildConfigurationOverviewActivity extends ListActivity implements 
         myEngine.imageClick(id);
     }
 
-    void nameClick(@NotNull String id) {
+    void descriptionClick(@NotNull String id) {
         Intent intent = new Intent(this, BuildActivity.class);
         intent.putExtra(BuildActivity.ID_INTENT_KEY, id);
 

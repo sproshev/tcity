@@ -295,7 +295,7 @@ public class BuildArtifactsFragment
 
         private static final int SIZE = 5;
 
-        public BuildArtifactsCache() {
+        private BuildArtifactsCache() {
             super(SIZE);
         }
 

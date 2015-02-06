@@ -47,11 +47,11 @@ class BuildDBEngine {
                   @NotNull DB db,
                   @NotNull ViewGroup root,
                   @NotNull ConceptClickListener clickListener,
-                  @NotNull String title) {
+                  int titleResId) {
         LayoutInflater inflater = LayoutInflater.from(context);
 
         myHeader = (TextView) inflater.inflate(R.layout.overview_separator, root, false);
-        myHeader.setText(title);
+        myHeader.setText(titleResId);
 
         myCursor = db.getBuilds(parentBuildConfigurationId, onlyFavourite);
 

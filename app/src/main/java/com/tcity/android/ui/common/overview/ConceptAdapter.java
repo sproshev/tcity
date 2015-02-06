@@ -80,19 +80,44 @@ public abstract class ConceptAdapter extends CursorAdapter {
     }
 
     @Override
-    public void bindView(@NotNull View view, @NotNull Context context, @NotNull Cursor cursor) {
+    public void bindView(@NotNull final View view,
+                         @NotNull Context context,
+                         @NotNull Cursor cursor) {
         ViewHolder holder = (ViewHolder) view.getTag();
 
-        String id = DBUtils.getId(cursor);
+        final String id = DBUtils.getId(cursor);
 
         holder.name.setText(DBUtils.getName(cursor));
         holder.name.setTextColor(
                 Common.loadTextColor(DBUtils.getStatus(cursor), context)
         );
 
-        holder.image.setOnClickListener(new ImageListener(myClickListener, id));
-        holder.description.setOnClickListener(new DescriptionListener(myClickListener, id));
-        holder.options.setOnClickListener(new OptionsListener(myClickListener, id));
+        holder.image.setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(@NotNull View v) {
+                        myClickListener.onImageClick(id);
+                    }
+                }
+        );
+
+        holder.description.setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(@NotNull View v) {
+                        myClickListener.onDescriptionClick(id);
+                    }
+                }
+        );
+
+        holder.options.setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(@NotNull View v) {
+                        myClickListener.onOptionsClick(id, view);
+                    }
+                }
+        );
 
         if (DBUtils.isFavourite(cursor)) {
             holder.image.setContentDescription(myFavouriteDescription);
@@ -107,66 +132,6 @@ public abstract class ConceptAdapter extends CursorAdapter {
 
     protected abstract void bindViewHolder(@NotNull ViewHolder holder,
                                            @NotNull Cursor cursor);
-
-    private static class DescriptionListener implements View.OnClickListener {
-
-        @NotNull
-        private final ConceptClickListener myClickListener;
-
-        @NotNull
-        private final String myId;
-
-        private DescriptionListener(@NotNull ConceptClickListener clickListener,
-                                    @NotNull String id) {
-            myClickListener = clickListener;
-            myId = id;
-        }
-
-        @Override
-        public void onClick(@NotNull View v) {
-            myClickListener.onDescriptionClick(myId);
-        }
-    }
-
-    private static class ImageListener implements View.OnClickListener {
-
-        @NotNull
-        private final ConceptClickListener myClickListener;
-
-        @NotNull
-        private final String myId;
-
-        private ImageListener(@NotNull ConceptClickListener clickListener,
-                              @NotNull String id) {
-            myClickListener = clickListener;
-            myId = id;
-        }
-
-        @Override
-        public void onClick(@NotNull View v) {
-            myClickListener.onImageClick(myId);
-        }
-    }
-
-    private static class OptionsListener implements View.OnClickListener {
-
-        @NotNull
-        private final ConceptClickListener myClickListener;
-
-        @NotNull
-        private final String myId;
-
-        private OptionsListener(@NotNull ConceptClickListener clickListener,
-                                @NotNull String id) {
-            myClickListener = clickListener;
-            myId = id;
-        }
-
-        @Override
-        public void onClick(@NotNull View v) {
-            myClickListener.onOptionsClick(myId, v);
-        }
-    }
 
     public static class ViewHolder {
 

@@ -108,7 +108,7 @@ class BuildConfigurationOverviewServerEngine {
         @Nullable
         private Exception myException;
 
-        void onStarted() {
+        private void onStarted() {
             myRunning = true;
             myException = null;
 

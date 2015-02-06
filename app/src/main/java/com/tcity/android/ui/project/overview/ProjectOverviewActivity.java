@@ -184,7 +184,7 @@ public class ProjectOverviewActivity extends ListActivity implements SwipeRefres
         myEngine.projectImageClick(id);
     }
 
-    void projectNameClick(@NotNull String id) {
+    void projectDescriptionClick(@NotNull String id) {
         Intent intent = new Intent(this, ProjectOverviewActivity.class);
         intent.putExtra(ID_INTENT_KEY, id);
 
@@ -209,7 +209,7 @@ public class ProjectOverviewActivity extends ListActivity implements SwipeRefres
         myEngine.buildConfigurationImageClick(id);
     }
 
-    void buildConfigurationNameClick(@NotNull String id) {
+    void buildConfigurationDescriptionClick(@NotNull String id) {
         Intent intent = new Intent(this, BuildConfigurationOverviewActivity.class);
         intent.putExtra(BuildConfigurationOverviewActivity.ID_INTENT_KEY, id);
 

@@ -58,6 +58,11 @@ public class FavBuildConfigurationsOverviewFragment
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        myEngine = new FavBuildConfigurationsOverviewEngine(
+                getActivity(),
+                ((Application) getActivity().getApplication()).getDB()
+        );
+
         setRetainInstance(true);
     }
 
@@ -75,14 +80,6 @@ public class FavBuildConfigurationsOverviewFragment
         myLayout = (SwipeRefreshLayout) getActivity().findViewById(R.id.overview_srlayout);
         myLayout.setColorSchemeResources(R.color.green, R.color.red);
         myLayout.setOnRefreshListener(this);
-
-        if (myEngine == null) {
-            myEngine = new FavBuildConfigurationsOverviewEngine(
-                    getActivity(),
-                    ((Application) getActivity().getApplication()).getDB(),
-                    getListView()
-            );
-        }
 
         getListView().setAdapter(myEngine.getAdapter());
     }

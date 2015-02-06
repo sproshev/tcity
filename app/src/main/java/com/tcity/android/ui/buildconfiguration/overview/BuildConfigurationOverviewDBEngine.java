@@ -21,7 +21,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ListAdapter;
+import android.widget.BaseAdapter;
 
 import com.commonsware.cwac.merge.MergeAdapter;
 import com.tcity.android.R;
@@ -66,7 +66,7 @@ class BuildConfigurationOverviewDBEngine {
                 db,
                 root,
                 myClickListener,
-                context.getString(R.string.favourite) + " " + context.getString(R.string.builds)
+                R.string.fav_builds
         );
 
         myAllEngine = new BuildDBEngine(
@@ -76,7 +76,7 @@ class BuildConfigurationOverviewDBEngine {
                 db,
                 root,
                 myClickListener,
-                context.getString(R.string.builds)
+                R.string.builds
         );
 
         myMainAdapter.addView(myFavouriteEngine.getHeader());
@@ -93,7 +93,7 @@ class BuildConfigurationOverviewDBEngine {
     }
 
     @NotNull
-    ListAdapter getAdapter() {
+    BaseAdapter getAdapter() {
         return myMainAdapter;
     }
 
@@ -132,7 +132,7 @@ class BuildConfigurationOverviewDBEngine {
         @Override
         public void onDescriptionClick(@NotNull String id) {
             if (myActivity != null) {
-                myActivity.nameClick(id);
+                myActivity.descriptionClick(id);
             }
         }
 

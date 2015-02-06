@@ -226,7 +226,7 @@ class BuildArtifactsAdapter extends BaseAdapter {
     private static class DirViewHolder {
 
         @NotNull
-        public final TextView name;
+        final TextView name;
 
         private DirViewHolder(@NotNull TextView name) {
             this.name = name;
@@ -236,16 +236,16 @@ class BuildArtifactsAdapter extends BaseAdapter {
     private static class ArchiveOrFileViewHolder {
 
         @NotNull
-        public final LinearLayout description;
+        final LinearLayout description;
 
         @NotNull
-        public final TextView name;
+        final TextView name;
 
         @NotNull
-        public final TextView size;
+        final TextView size;
 
         @NotNull
-        public final ImageButton dl;
+        final ImageButton dl;
 
         private ArchiveOrFileViewHolder(@NotNull LinearLayout description,
                                         @NotNull TextView name,

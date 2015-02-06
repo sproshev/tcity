@@ -21,7 +21,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ListAdapter;
+import android.widget.BaseAdapter;
 
 import com.commonsware.cwac.merge.MergeAdapter;
 import com.tcity.android.R;
@@ -94,7 +94,7 @@ class ProjectOverviewDBEngine {
                 R.string.build_configurations
         );
 
-        String projectSectionName = calculateProjectSectionName(projectId, context);
+        boolean isRootProject = projectId.equals(Project.ROOT_PROJECT_ID);
 
         myFavouriteProjectsEngine = new ProjectDBEngine(
                 projectId,
@@ -103,7 +103,7 @@ class ProjectOverviewDBEngine {
                 db,
                 root,
                 myProjectClickListener,
-                context.getString(R.string.favourite) + " " + projectSectionName
+                (isRootProject ? R.string.fav_projects : R.string.fav_subprojects)
         );
 
         myAllProjectsEngine = new ProjectDBEngine(
@@ -113,7 +113,7 @@ class ProjectOverviewDBEngine {
                 db,
                 root,
                 myProjectClickListener,
-                projectSectionName
+                (isRootProject ? R.string.projects : R.string.subprojects)
         );
 
         myMainAdapter.addView(myFavouriteBuildConfigurationsEngine.getHeader());
@@ -141,7 +141,7 @@ class ProjectOverviewDBEngine {
     }
 
     @NotNull
-    ListAdapter getAdapter() {
+    BaseAdapter getAdapter() {
         return myMainAdapter;
     }
 
@@ -170,16 +170,6 @@ class ProjectOverviewDBEngine {
         myAllBuildConfigurationsEngine.close();
     }
 
-    @NotNull
-    private String calculateProjectSectionName(@NotNull String projectId,
-                                               @NotNull Context context) {
-        if (projectId.equals(Project.ROOT_PROJECT_ID)) {
-            return context.getString(R.string.projects);
-        } else {
-            return context.getString(R.string.subprojects);
-        }
-    }
-
     private void handleHeader(@NotNull ProjectDBEngine engine) {
         myMainAdapter.setActive(engine.getHeader(), !engine.empty());
     }
@@ -203,7 +193,7 @@ class ProjectOverviewDBEngine {
         @Override
         public void onDescriptionClick(@NotNull String id) {
             if (myActivity != null) {
-                myActivity.buildConfigurationNameClick(id);
+                myActivity.buildConfigurationDescriptionClick(id);
             }
         }
 
@@ -230,7 +220,7 @@ class ProjectOverviewDBEngine {
         @Override
         public void onDescriptionClick(@NotNull String id) {
             if (myActivity != null) {
-                myActivity.projectNameClick(id);
+                myActivity.projectDescriptionClick(id);
             }
         }
 

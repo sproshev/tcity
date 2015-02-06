@@ -34,8 +34,8 @@ class DBHelper extends SQLiteOpenHelper {
         onFavouriteCreate(Table.FAVOURITE_BUILD_CONFIGURATION_TABLE, db);
         onFavouriteCreate(Table.FAVOURITE_BUILD_TABLE, db);
 
-        onProjectOverviewCreate(Table.PROJECT_OVERVIEW_TABLE, db);
-        onBuildConfigurationOverviewCreate(Table.BUILD_CONFIGURATION_OVERVIEW_TABLE, db);
+        onProjectOverviewCreate(db);
+        onBuildConfigurationOverviewCreate(db);
         onBuildOverviewCreate(db);
 
         onProjectOrBuildConfigurationStatusCreate(Table.PROJECT_STATUS_TABLE, db);
@@ -115,10 +115,9 @@ class DBHelper extends SQLiteOpenHelper {
         );
     }
 
-    private void onProjectOverviewCreate(@NotNull String table,
-                                         @NotNull SQLiteDatabase db) {
+    private void onProjectOverviewCreate(@NotNull SQLiteDatabase db) {
         db.execSQL(
-                "CREATE TABLE " + table + " (" +
+                "CREATE TABLE " + Table.PROJECT_OVERVIEW_TABLE + " (" +
                         getDescription(Column.ANDROID_ID) + ", " +
                         getDescription(Column.TC_ID) + ", " +
                         getDescription(Column.NAME) + ", " +
@@ -128,10 +127,9 @@ class DBHelper extends SQLiteOpenHelper {
         );
     }
 
-    private void onBuildConfigurationOverviewCreate(@NotNull String table,
-                                                    @NotNull SQLiteDatabase db) {
+    private void onBuildConfigurationOverviewCreate(@NotNull SQLiteDatabase db) {
         db.execSQL(
-                "CREATE TABLE " + table + " (" +
+                "CREATE TABLE " + Table.BUILD_CONFIGURATION_OVERVIEW_TABLE + " (" +
                         getDescription(Column.ANDROID_ID) + ", " +
                         getDescription(Column.TC_ID) + ", " +
                         getDescription(Column.NAME) + ", " +

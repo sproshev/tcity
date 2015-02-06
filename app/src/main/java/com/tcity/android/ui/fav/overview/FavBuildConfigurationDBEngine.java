@@ -18,6 +18,7 @@ package com.tcity.android.ui.fav.overview;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.widget.BaseAdapter;
 
 import com.tcity.android.db.DB;
 import com.tcity.android.ui.common.overview.ConceptAdapter;
@@ -33,9 +34,9 @@ class FavBuildConfigurationDBEngine {
     @NotNull
     private final Cursor myCursor;
 
-    public FavBuildConfigurationDBEngine(@NotNull Context context,
-                                         @NotNull DB db,
-                                         @NotNull ConceptClickListener clickListener) {
+    FavBuildConfigurationDBEngine(@NotNull Context context,
+                                  @NotNull DB db,
+                                  @NotNull ConceptClickListener clickListener) {
         myCursor = db.getBuildConfigurations(null, true);
 
         myAdapter = new FavBuildConfigurationAdapter(context, clickListener, db);
@@ -43,20 +44,16 @@ class FavBuildConfigurationDBEngine {
     }
 
     @NotNull
-    public ConceptAdapter getAdapter() {
+    BaseAdapter getAdapter() {
         return myAdapter;
     }
 
-    public boolean empty() {
-        return myCursor.getCount() == 0;
-    }
-
-    public void requery() {
+    void requery() {
         //noinspection deprecation
         myCursor.requery();
     }
 
-    public void close() {
+    void close() {
         myAdapter.changeCursor(null);
     }
 }
