@@ -23,11 +23,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListAdapter;
 
-import com.commonsware.cwac.merge.MergeAdapter;
-import com.tcity.android.R;
 import com.tcity.android.Status;
 import com.tcity.android.db.DB;
-import com.tcity.android.ui.common.overview.BuildConfigurationDBEngine;
 import com.tcity.android.ui.common.overview.ConceptClickListener;
 
 import org.jetbrains.annotations.NotNull;
@@ -39,13 +36,10 @@ class FavBuildConfigurationsOverviewDBEngine {
     private final DB myDB;
 
     @NotNull
-    private final MergeAdapter myMainAdapter;
-
-    @NotNull
     private final BuildConfigurationClickListener myClickListener;
 
     @NotNull
-    private final BuildConfigurationDBEngine myEngine;
+    private final FavBuildConfigurationDBEngine myEngine;
 
     @NotNull
     private final BuildConfigurationsListener myDBListener;
@@ -54,21 +48,13 @@ class FavBuildConfigurationsOverviewDBEngine {
                                            @NotNull DB db,
                                            @NotNull ViewGroup root) {
         myDB = db;
-        myMainAdapter = new MergeAdapter();
         myClickListener = new BuildConfigurationClickListener();
 
-        myEngine = new BuildConfigurationDBEngine(
-                null,
-                true,
+        myEngine = new FavBuildConfigurationDBEngine(
                 context,
                 db,
-                root,
-                myClickListener,
-                R.string.fav_build_configurations
+                myClickListener
         );
-
-        myMainAdapter.addView(myEngine.getHeader());
-        myMainAdapter.addAdapter(myEngine.getAdapter());
 
         myDBListener = new BuildConfigurationsListener();
 
@@ -77,7 +63,7 @@ class FavBuildConfigurationsOverviewDBEngine {
 
     @NotNull
     ListAdapter getAdapter() {
-        return myMainAdapter;
+        return myEngine.getAdapter();
     }
 
     void setFragment(@Nullable FavBuildConfigurationsOverviewFragment fragment) {
@@ -132,7 +118,7 @@ class FavBuildConfigurationsOverviewDBEngine {
 
                 myEngine.requery();
 
-                myMainAdapter.notifyDataSetChanged();
+                myEngine.getAdapter().notifyDataSetChanged();
             }
         };
 

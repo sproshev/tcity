@@ -28,7 +28,6 @@ import com.tcity.android.R;
 import com.tcity.android.Status;
 import com.tcity.android.db.DB;
 import com.tcity.android.db.Project;
-import com.tcity.android.ui.common.overview.BuildConfigurationDBEngine;
 import com.tcity.android.ui.common.overview.ConceptClickListener;
 
 import org.jetbrains.annotations.NotNull;

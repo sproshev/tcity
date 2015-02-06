@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.tcity.android.ui.common.overview;
+package com.tcity.android.ui.project.overview;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -26,11 +26,12 @@ import android.widget.TextView;
 
 import com.tcity.android.R;
 import com.tcity.android.db.DB;
+import com.tcity.android.ui.common.overview.ConceptClickListener;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class BuildConfigurationDBEngine {
+class BuildConfigurationDBEngine {
 
     @NotNull
     private final TextView myHeader;
@@ -41,13 +42,13 @@ public class BuildConfigurationDBEngine {
     @NotNull
     private final Cursor myCursor;
 
-    public BuildConfigurationDBEngine(@Nullable String parentProjectId,
-                                      boolean onlyFavourite,
-                                      @NotNull Context context,
-                                      @NotNull DB db,
-                                      @NotNull ViewGroup root,
-                                      @NotNull ConceptClickListener clickListener,
-                                      int titleResId) {
+    BuildConfigurationDBEngine(@Nullable String parentProjectId,
+                               boolean onlyFavourite,
+                               @NotNull Context context,
+                               @NotNull DB db,
+                               @NotNull ViewGroup root,
+                               @NotNull ConceptClickListener clickListener,
+                               int titleResId) {
         LayoutInflater inflater = LayoutInflater.from(context);
 
         myHeader = (TextView) inflater.inflate(R.layout.overview_separator, root, false);
@@ -60,25 +61,25 @@ public class BuildConfigurationDBEngine {
     }
 
     @NotNull
-    public TextView getHeader() {
+    TextView getHeader() {
         return myHeader;
     }
 
     @NotNull
-    public ListAdapter getAdapter() {
+    ListAdapter getAdapter() {
         return myAdapter;
     }
 
-    public boolean empty() {
+    boolean empty() {
         return myCursor.getCount() == 0;
     }
 
-    public void requery() {
+    void requery() {
         //noinspection deprecation
         myCursor.requery();
     }
 
-    public void close() {
+    void close() {
         myAdapter.changeCursor(null);
     }
 }
