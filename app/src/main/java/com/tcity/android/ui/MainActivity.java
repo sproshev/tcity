@@ -35,6 +35,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.tcity.android.R;
+import com.tcity.android.ui.fav.overview.FavBuildConfigurationsOverviewFragment;
 import com.tcity.android.ui.preference.PreferenceFragment;
 
 import org.jetbrains.annotations.NotNull;
@@ -115,6 +116,9 @@ public class MainActivity extends Activity {
         FragmentTransaction ft = getFragmentManager().beginTransaction();
 
         switch (position) {
+            case 1:
+                selectFavItem(ft);
+                break;
             case 3:
                 selectSettingsItem(ft);
                 break;
@@ -128,6 +132,17 @@ public class MainActivity extends Activity {
         setTitle(myTitles[position]);
 
         myDrawerLayout.closeDrawer(myDrawerList);
+    }
+
+    private void selectFavItem(@NotNull FragmentTransaction ft) {
+        Fragment fragment = getFragmentManager().findFragmentByTag(FavBuildConfigurationsOverviewFragment.TAG);
+
+        if (fragment == null) {
+            fragment = Fragment.instantiate(this, FavBuildConfigurationsOverviewFragment.class.getName());
+            ft.replace(R.id.main_content, fragment, FavBuildConfigurationsOverviewFragment.TAG);
+        } else {
+            ft.attach(fragment);
+        }
     }
 
     private void selectSettingsItem(@NotNull FragmentTransaction ft) {

@@ -31,6 +31,7 @@ import com.tcity.android.ui.common.overview.BuildConfigurationDBEngine;
 import com.tcity.android.ui.common.overview.ConceptClickListener;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 class FavBuildConfigurationsOverviewDBEngine {
 
@@ -79,11 +80,11 @@ class FavBuildConfigurationsOverviewDBEngine {
         return myMainAdapter;
     }
 
-    void setFragment() {
-        // TODO
+    void setFragment(@Nullable FavBuildConfigurationsOverviewFragment fragment) {
+        myClickListener.myFragment = fragment;
     }
 
-    void buildConfigurationImageClick(@NotNull String id) {
+    void imageClick(@NotNull String id) {
         myDB.setBuildConfigurationStatus(id, Status.DEFAULT);
         myDB.setFavouriteBuildConfiguration(id, !myDB.isBuildConfigurationFavourite(id));
     }
@@ -96,19 +97,28 @@ class FavBuildConfigurationsOverviewDBEngine {
 
     private class BuildConfigurationClickListener implements ConceptClickListener {
 
+        @Nullable
+        private FavBuildConfigurationsOverviewFragment myFragment;
+
         @Override
         public void onImageClick(@NotNull String id) {
-            // TODO
+            if (myFragment != null) {
+                myFragment.imageClick(id);
+            }
         }
 
         @Override
         public void onDescriptionClick(@NotNull String id) {
-            // TODO
+            if (myFragment != null) {
+                myFragment.descriptionClick(id);
+            }
         }
 
         @Override
         public void onOptionsClick(@NotNull String id, @NotNull View anchor) {
-            // TODO
+            if (myFragment != null) {
+                myFragment.optionsClick(id, anchor);
+            }
         }
     }
 

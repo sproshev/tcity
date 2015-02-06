@@ -55,8 +55,8 @@ class FavBuildConfigurationsOverviewServerEngine {
         myChainListener = new ChainListener();
     }
 
-    void setFragment() {
-        // TODO
+    void setFragment(@Nullable FavBuildConfigurationsOverviewFragment fragment) {
+        myChainListener.myFragment = fragment;
     }
 
     boolean isRefreshing() {
@@ -73,7 +73,7 @@ class FavBuildConfigurationsOverviewServerEngine {
     }
 
     void refresh(boolean force) {
-        if (!force && !expiredBuildConfigurationStatusExists()) {
+        if (!force && !expiredStatusExists()) {
             return;
         }
 
@@ -91,7 +91,7 @@ class FavBuildConfigurationsOverviewServerEngine {
         }
     }
 
-    private boolean expiredBuildConfigurationStatusExists() {
+    private boolean expiredStatusExists() {
         Cursor cursor = myDB.getBuildConfigurations(null, true);
 
         //noinspection TryFinallyCanBeTryWithResources
@@ -112,7 +112,7 @@ class FavBuildConfigurationsOverviewServerEngine {
 
     @NotNull
     private ExecutableRunnableChain calculateExecutableChain(boolean force) {
-        if (!force && !expiredBuildConfigurationStatusExists()) {
+        if (!force && !expiredStatusExists()) {
             return RunnableChain.getSingleRunnableChain(
                     new EmptyRunnable()
             ).toAsyncTask(myChainListener);
@@ -145,6 +145,9 @@ class FavBuildConfigurationsOverviewServerEngine {
 
     private static class ChainListener implements RunnableChain.Listener {
 
+        @Nullable
+        private FavBuildConfigurationsOverviewFragment myFragment;
+
         private boolean myRunning;
 
         @Nullable
@@ -154,21 +157,27 @@ class FavBuildConfigurationsOverviewServerEngine {
             myRunning = true;
             myException = null;
 
-            // TODO
+            if (myFragment != null) {
+                myFragment.onRefreshRunning();
+            }
         }
 
         @Override
         public void onFinished() {
             myRunning = false;
 
-            // TODO
+            if (myFragment != null) {
+                myFragment.onRefreshFinished();
+            }
         }
 
         @Override
         public void onException(@NotNull Exception e) {
             myException = e;
 
-            // TODO
+            if (myFragment != null) {
+                myFragment.onRefreshException();
+            }
         }
     }
 

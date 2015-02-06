@@ -51,9 +51,9 @@ class FavBuildConfigurationsOverviewEngine {
         return myDBEngine.getAdapter();
     }
 
-    void setFragment() {
-        myDBEngine.setFragment();
-        myServerEngine.setFragment();
+    void setFragment(@Nullable FavBuildConfigurationsOverviewFragment fragment) {
+        myDBEngine.setFragment(fragment);
+        myServerEngine.setFragment(fragment);
     }
 
     boolean isRefreshing() {
@@ -69,8 +69,8 @@ class FavBuildConfigurationsOverviewEngine {
         myServerEngine.resetException();
     }
 
-    void buildConfigurationImageClick(@NotNull String id) {
-        myDBEngine.buildConfigurationImageClick(id);
+    void imageClick(@NotNull String id) {
+        myDBEngine.imageClick(id);
     }
 
     void refresh(boolean force) {
