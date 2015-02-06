@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.tcity.android.ui.project.overview;
+package com.tcity.android.ui.common.overview;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -26,11 +26,11 @@ import android.widget.TextView;
 
 import com.tcity.android.R;
 import com.tcity.android.db.DB;
-import com.tcity.android.ui.common.overview.ConceptClickListener;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-class BuildConfigurationDBEngine {
+public class BuildConfigurationDBEngine {
 
     @NotNull
     private final TextView myHeader;
@@ -41,17 +41,17 @@ class BuildConfigurationDBEngine {
     @NotNull
     private final Cursor myCursor;
 
-    BuildConfigurationDBEngine(@NotNull String parentProjectId,
+    public BuildConfigurationDBEngine(@Nullable String parentProjectId,
                                       boolean onlyFavourite,
                                       @NotNull Context context,
                                       @NotNull DB db,
                                       @NotNull ViewGroup root,
                                       @NotNull ConceptClickListener clickListener,
-                                      @NotNull String title) {
+                                      int titleResId) {
         LayoutInflater inflater = LayoutInflater.from(context);
 
         myHeader = (TextView) inflater.inflate(R.layout.overview_separator, root, false);
-        myHeader.setText(title);
+        myHeader.setText(titleResId);
 
         myCursor = db.getBuildConfigurations(parentProjectId, onlyFavourite);
 
@@ -60,25 +60,25 @@ class BuildConfigurationDBEngine {
     }
 
     @NotNull
-    TextView getHeader() {
+    public TextView getHeader() {
         return myHeader;
     }
 
     @NotNull
-    ListAdapter getAdapter() {
+    public ListAdapter getAdapter() {
         return myAdapter;
     }
 
-    boolean empty() {
+    public boolean empty() {
         return myCursor.getCount() == 0;
     }
 
-    void requery() {
+    public void requery() {
         //noinspection deprecation
         myCursor.requery();
     }
 
-    void close() {
+    public void close() {
         myAdapter.changeCursor(null);
     }
 }

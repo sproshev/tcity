@@ -21,7 +21,8 @@
 
     <string name="projects">Projects</string>
     <string name="subprojects">Subprojects</string>
-    <string name="build_configurations">Build Configurations</string>
+    <string name="build_configurations">Build configurations</string>
+    <string name="fav_build_configurations">Favourite build configurations</string>
     <string name="builds">Builds</string>
 
     <string name="favourite">Favourite</string>
@@ -31,7 +32,7 @@
 
     <string-array name="main_drawerlist">
         <item>Projects</item>
-        <item>Favourite build configurations</item>
+        <item>@string/fav_build_configurations</item>
         <item>Current builds</item>
         <item>@string/settings</item>
     </string-array>

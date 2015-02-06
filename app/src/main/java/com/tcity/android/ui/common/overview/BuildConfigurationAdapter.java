@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.tcity.android.ui.project.overview;
+package com.tcity.android.ui.common.overview;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -22,8 +22,6 @@ import android.view.View;
 
 import com.tcity.android.R;
 import com.tcity.android.db.DBUtils;
-import com.tcity.android.ui.common.overview.ConceptAdapter;
-import com.tcity.android.ui.common.overview.ConceptClickListener;
 
 import org.jetbrains.annotations.NotNull;
 
