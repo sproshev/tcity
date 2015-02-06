@@ -48,6 +48,9 @@ public class BuildArtifactsFragment
         implements SwipeRefreshLayout.OnRefreshListener, BuildArtifactListener {
 
     @NotNull
+    public static final String TAG = BuildArtifactsFragment.class.getName();
+
+    @NotNull
     private String myBuildId;
 
     @NotNull

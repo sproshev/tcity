@@ -129,8 +129,8 @@ public class BuildHostActivity extends Activity {
 
         bar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
 
-        initTab(bar, getString(R.string.info), BuildInfoFragment.class);
-        initTab(bar, getString(R.string.artifacts), BuildArtifactsFragment.class);
+        initTab(bar, getString(R.string.info), BuildInfoFragment.class, BuildInfoFragment.TAG);
+        initTab(bar, getString(R.string.artifacts), BuildArtifactsFragment.class, BuildArtifactsFragment.TAG);
 
         bar.setSelectedNavigationItem(selectedTab);
     }
@@ -172,12 +172,13 @@ public class BuildHostActivity extends Activity {
     @SuppressWarnings("deprecation")
     private <T extends Fragment> void initTab(@NotNull ActionBar bar,
                                               @NotNull String name,
-                                              @NotNull Class<T> cls) {
+                                              @NotNull Class<T> cls,
+                                              @NotNull String tag) {
         ActionBar.Tab tab = bar.newTab();
         BuildTabListener<T> listener = new BuildTabListener<>(
                 this,
                 cls,
-                name,
+                tag,
                 myBuildId
         );
 

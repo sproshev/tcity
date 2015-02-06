@@ -42,6 +42,9 @@ import java.text.SimpleDateFormat;
 public class BuildInfoFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
 
     @NotNull
+    public static final String TAG = BuildInfoFragment.class.getName();
+
+    @NotNull
     private String myBuildId;
 
     @NotNull

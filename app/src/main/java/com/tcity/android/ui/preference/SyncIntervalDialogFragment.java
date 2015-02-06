@@ -35,6 +35,9 @@ import org.jetbrains.annotations.Nullable;
 public class SyncIntervalDialogFragment extends DialogFragment implements DialogInterface.OnClickListener {
 
     @NotNull
+    public static final String TAG = SyncIntervalDialogFragment.class.getName();
+
+    @NotNull
     private Preferences myPreferences;
 
     @NotNull

@@ -131,11 +131,11 @@ public class MainActivity extends Activity {
     }
 
     private void selectSettingsItem(@NotNull FragmentTransaction ft) {
-        Fragment fragment = getFragmentManager().findFragmentByTag("Settings");
+        Fragment fragment = getFragmentManager().findFragmentByTag(PreferenceFragment.TAG);
 
         if (fragment == null) {
             fragment = Fragment.instantiate(this, PreferenceFragment.class.getName());
-            ft.replace(R.id.main_content, fragment, "Settings");
+            ft.replace(R.id.main_content, fragment, PreferenceFragment.TAG);
         } else {
             ft.attach(fragment);
         }

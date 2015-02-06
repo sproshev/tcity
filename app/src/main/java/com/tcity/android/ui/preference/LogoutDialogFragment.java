@@ -35,6 +35,9 @@ import org.jetbrains.annotations.NotNull;
 public class LogoutDialogFragment extends DialogFragment implements DialogInterface.OnClickListener {
 
     @NotNull
+    public static final String TAG = LogoutDialogFragment.class.getName();
+
+    @NotNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())

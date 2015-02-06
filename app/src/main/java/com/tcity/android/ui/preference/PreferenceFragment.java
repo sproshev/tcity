@@ -33,6 +33,9 @@ import org.jetbrains.annotations.Nullable;
 public class PreferenceFragment extends android.preference.PreferenceFragment {
 
     @NotNull
+    public static final String TAG = PreferenceFragment.class.getName();
+
+    @NotNull
     private Preferences myPreferences;
 
     @NotNull
@@ -94,14 +97,11 @@ public class PreferenceFragment extends android.preference.PreferenceFragment {
 
     private class LogoutListener implements Preference.OnPreferenceClickListener {
 
-        @NotNull
-        private static final String DIALOG_TAG = "LOGOUT";
-
         @Override
         public boolean onPreferenceClick(@Nullable Preference preference) {
             LogoutDialogFragment dialog = new LogoutDialogFragment();
 
-            dialog.show(getFragmentManager(), DIALOG_TAG);
+            dialog.show(getFragmentManager(), LogoutDialogFragment.TAG);
 
             return true;
         }
@@ -145,15 +145,12 @@ public class PreferenceFragment extends android.preference.PreferenceFragment {
 
     private class SyncIntervalListener implements Preference.OnPreferenceClickListener {
 
-        @NotNull
-        private static final String DIALOG_TAG = "INTERVAL";
-
         @Override
         public boolean onPreferenceClick(Preference preference) {
             SyncIntervalDialogFragment fragment = new SyncIntervalDialogFragment();
 
             fragment.setTargetFragment(PreferenceFragment.this, 0);
-            fragment.show(getFragmentManager(), DIALOG_TAG);
+            fragment.show(getFragmentManager(), SyncIntervalDialogFragment.TAG);
 
             return true;
         }
