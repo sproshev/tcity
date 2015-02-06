@@ -39,7 +39,9 @@ import com.tcity.android.ui.buildconfiguration.overview.BuildConfigurationOvervi
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class ProjectOverviewActivity extends ListActivity implements SwipeRefreshLayout.OnRefreshListener {
+public class ProjectOverviewActivity
+        extends ListActivity
+        implements SwipeRefreshLayout.OnRefreshListener, ProjectOverviewListener {
 
     @NotNull
     public static final String ID_INTENT_KEY = "PROJECT_ID";
@@ -106,7 +108,7 @@ public class ProjectOverviewActivity extends ListActivity implements SwipeRefres
             onRefreshFinished();
         }
 
-        myEngine.setActivity(this);
+        myEngine.setListener(this);
     }
 
     @SuppressWarnings("deprecation")
@@ -121,7 +123,7 @@ public class ProjectOverviewActivity extends ListActivity implements SwipeRefres
     protected void onPause() {
         super.onPause();
 
-        myEngine.setActivity(null);
+        myEngine.setListener(null);
     }
 
     @Override
@@ -160,15 +162,18 @@ public class ProjectOverviewActivity extends ListActivity implements SwipeRefres
         myEngine.refresh(true);
     }
 
-    void onRefreshRunning() {
+    @Override
+    public void onRefreshRunning() {
         setRefreshing(true);
     }
 
-    void onRefreshFinished() {
+    @Override
+    public void onRefreshFinished() {
         setRefreshing(false);
     }
 
-    void onRefreshException() {
+    @Override
+    public void onRefreshException() {
         //noinspection ThrowableResultOfMethodCallIgnored
         Exception e = myEngine.getException();
 
@@ -179,18 +184,21 @@ public class ProjectOverviewActivity extends ListActivity implements SwipeRefres
         }
     }
 
-    void projectImageClick(@NotNull String id) {
+    @Override
+    public void projectImageClick(@NotNull String id) {
         myEngine.projectImageClick(id);
     }
 
-    void projectDescriptionClick(@NotNull String id) {
+    @Override
+    public void projectDescriptionClick(@NotNull String id) {
         Intent intent = new Intent(this, ProjectOverviewActivity.class);
         intent.putExtra(ID_INTENT_KEY, id);
 
         startActivity(intent);
     }
 
-    void projectOptionsClick(@NotNull String id, @NotNull View anchor) {
+    @Override
+    public void projectOptionsClick(@NotNull String id, @NotNull View anchor) {
         PopupMenu menu = new PopupMenu(this, anchor);
 
         menu.inflate(R.menu.menu_concept);
@@ -205,18 +213,21 @@ public class ProjectOverviewActivity extends ListActivity implements SwipeRefres
         menu.show();
     }
 
-    void buildConfigurationImageClick(@NotNull String id) {
+    @Override
+    public void buildConfigurationImageClick(@NotNull String id) {
         myEngine.buildConfigurationImageClick(id);
     }
 
-    void buildConfigurationDescriptionClick(@NotNull String id) {
+    @Override
+    public void buildConfigurationDescriptionClick(@NotNull String id) {
         Intent intent = new Intent(this, BuildConfigurationOverviewActivity.class);
         intent.putExtra(BuildConfigurationOverviewActivity.ID_INTENT_KEY, id);
 
         startActivity(intent);
     }
 
-    void buildConfigurationOptionsClick(@NotNull String id, @NotNull View anchor) {
+    @Override
+    public void buildConfigurationOptionsClick(@NotNull String id, @NotNull View anchor) {
         PopupMenu menu = new PopupMenu(this, anchor);
 
         menu.inflate(R.menu.menu_concept);

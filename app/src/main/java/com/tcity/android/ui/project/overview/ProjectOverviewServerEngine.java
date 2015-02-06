@@ -71,8 +71,8 @@ class ProjectOverviewServerEngine {
         myChainListener = new ChainListener();
     }
 
-    void setActivity(@Nullable ProjectOverviewActivity activity) {
-        myChainListener.myActivity = activity;
+    void setListener(@Nullable ProjectOverviewListener listener) {
+        myChainListener.myListener = listener;
     }
 
     boolean isRefreshing() {
@@ -300,7 +300,7 @@ class ProjectOverviewServerEngine {
     private static class ChainListener implements RunnableChain.Listener {
 
         @Nullable
-        private ProjectOverviewActivity myActivity;
+        private ProjectOverviewListener myListener;
 
         private int myCount;
 
@@ -312,8 +312,8 @@ class ProjectOverviewServerEngine {
                 myException = null;
             }
 
-            if (myActivity != null && myCount == 0) {
-                myActivity.onRefreshRunning();
+            if (myListener != null && myCount == 0) {
+                myListener.onRefreshRunning();
             }
 
             myCount++;
@@ -325,8 +325,8 @@ class ProjectOverviewServerEngine {
                 myCount--;
             }
 
-            if (myActivity != null && myCount == 0) {
-                myActivity.onRefreshFinished();
+            if (myListener != null && myCount == 0) {
+                myListener.onRefreshFinished();
             }
         }
 
@@ -334,8 +334,8 @@ class ProjectOverviewServerEngine {
         public void onException(@NotNull Exception e) {
             myException = e;
 
-            if (myActivity != null) {
-                myActivity.onRefreshException();
+            if (myListener != null) {
+                myListener.onRefreshException();
             }
         }
     }

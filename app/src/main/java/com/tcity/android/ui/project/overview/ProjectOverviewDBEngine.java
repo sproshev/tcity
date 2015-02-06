@@ -145,9 +145,9 @@ class ProjectOverviewDBEngine {
         return myMainAdapter;
     }
 
-    void setActivity(@Nullable ProjectOverviewActivity activity) {
-        myProjectClickListener.myActivity = activity;
-        myBuildConfigurationClickListener.myActivity = activity;
+    void setListener(@Nullable ProjectOverviewListener listener) {
+        myProjectClickListener.myListener = listener;
+        myBuildConfigurationClickListener.myListener = listener;
     }
 
     void projectImageClick(@NotNull String id) {
@@ -181,26 +181,26 @@ class ProjectOverviewDBEngine {
     private static class BuildConfigurationClickListener implements ConceptClickListener {
 
         @Nullable
-        private ProjectOverviewActivity myActivity;
+        private ProjectOverviewListener myListener;
 
         @Override
         public void onImageClick(@NotNull String id) {
-            if (myActivity != null) {
-                myActivity.buildConfigurationImageClick(id);
+            if (myListener != null) {
+                myListener.buildConfigurationImageClick(id);
             }
         }
 
         @Override
         public void onDescriptionClick(@NotNull String id) {
-            if (myActivity != null) {
-                myActivity.buildConfigurationDescriptionClick(id);
+            if (myListener != null) {
+                myListener.buildConfigurationDescriptionClick(id);
             }
         }
 
         @Override
         public void onOptionsClick(@NotNull String id, @NotNull View anchor) {
-            if (myActivity != null) {
-                myActivity.buildConfigurationOptionsClick(id, anchor);
+            if (myListener != null) {
+                myListener.buildConfigurationOptionsClick(id, anchor);
             }
         }
     }
@@ -208,26 +208,26 @@ class ProjectOverviewDBEngine {
     private static class ProjectClickListener implements ConceptClickListener {
 
         @Nullable
-        private ProjectOverviewActivity myActivity;
+        private ProjectOverviewListener myListener;
 
         @Override
         public void onImageClick(@NotNull String id) {
-            if (myActivity != null) {
-                myActivity.projectImageClick(id);
+            if (myListener != null) {
+                myListener.projectImageClick(id);
             }
         }
 
         @Override
         public void onDescriptionClick(@NotNull String id) {
-            if (myActivity != null) {
-                myActivity.projectDescriptionClick(id);
+            if (myListener != null) {
+                myListener.projectDescriptionClick(id);
             }
         }
 
         @Override
         public void onOptionsClick(@NotNull String id, @NotNull View anchor) {
-            if (myActivity != null) {
-                myActivity.projectOptionsClick(id, anchor);
+            if (myListener != null) {
+                myListener.projectOptionsClick(id, anchor);
             }
         }
     }

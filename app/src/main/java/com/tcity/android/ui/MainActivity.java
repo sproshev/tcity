@@ -37,6 +37,7 @@ import android.widget.TextView;
 import com.tcity.android.R;
 import com.tcity.android.ui.fav.overview.FavBuildConfigurationsOverviewFragment;
 import com.tcity.android.ui.preference.PreferenceFragment;
+import com.tcity.android.ui.project.overview.RootOverviewFragment;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -116,6 +117,9 @@ public class MainActivity extends Activity {
         FragmentTransaction ft = getFragmentManager().beginTransaction();
 
         switch (position) {
+            case 0:
+                selectFragment(ft, RootOverviewFragment.class, RootOverviewFragment.TAG);
+                break;
             case 1:
                 selectFragment(
                         ft,

@@ -18,7 +18,7 @@ package com.tcity.android.ui.project.overview;
 
 import android.content.Context;
 import android.view.ViewGroup;
-import android.widget.ListAdapter;
+import android.widget.BaseAdapter;
 
 import com.tcity.android.app.Preferences;
 import com.tcity.android.background.rest.RestClient;
@@ -51,13 +51,13 @@ class ProjectOverviewEngine {
     }
 
     @NotNull
-    ListAdapter getAdapter() {
+    BaseAdapter getAdapter() {
         return myDBEngine.getAdapter();
     }
 
-    void setActivity(@Nullable ProjectOverviewActivity activity) {
-        myDBEngine.setActivity(activity);
-        myServerEngine.setActivity(activity);
+    void setListener(@Nullable ProjectOverviewListener listener) {
+        myDBEngine.setListener(listener);
+        myServerEngine.setListener(listener);
     }
 
     boolean isRefreshing() {
