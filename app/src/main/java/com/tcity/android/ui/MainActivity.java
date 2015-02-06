@@ -117,10 +117,14 @@ public class MainActivity extends Activity {
 
         switch (position) {
             case 1:
-                selectFavItem(ft);
+                selectFragment(
+                        ft,
+                        FavBuildConfigurationsOverviewFragment.class,
+                        FavBuildConfigurationsOverviewFragment.TAG
+                );
                 break;
             case 3:
-                selectSettingsItem(ft);
+                selectFragment(ft, PreferenceFragment.class, PreferenceFragment.TAG);
                 break;
             default:
                 selectStubItem(position, ft);
@@ -134,23 +138,14 @@ public class MainActivity extends Activity {
         myDrawerLayout.closeDrawer(myDrawerList);
     }
 
-    private void selectFavItem(@NotNull FragmentTransaction ft) {
-        Fragment fragment = getFragmentManager().findFragmentByTag(FavBuildConfigurationsOverviewFragment.TAG);
+    private <T extends Fragment> void selectFragment(@NotNull FragmentTransaction ft,
+                                                     @NotNull Class<T> cls,
+                                                     @NotNull String tag) {
+        Fragment fragment = getFragmentManager().findFragmentByTag(tag);
 
         if (fragment == null) {
-            fragment = Fragment.instantiate(this, FavBuildConfigurationsOverviewFragment.class.getName());
-            ft.replace(R.id.main_content, fragment, FavBuildConfigurationsOverviewFragment.TAG);
-        } else {
-            ft.attach(fragment);
-        }
-    }
-
-    private void selectSettingsItem(@NotNull FragmentTransaction ft) {
-        Fragment fragment = getFragmentManager().findFragmentByTag(PreferenceFragment.TAG);
-
-        if (fragment == null) {
-            fragment = Fragment.instantiate(this, PreferenceFragment.class.getName());
-            ft.replace(R.id.main_content, fragment, PreferenceFragment.TAG);
+            fragment = Fragment.instantiate(this, cls.getName());
+            ft.replace(R.id.main_content, fragment, tag);
         } else {
             ft.attach(fragment);
         }

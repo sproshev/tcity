@@ -23,7 +23,6 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.Handler;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -91,7 +90,7 @@ public class BuildArtifactsFragment
         setRetainInstance(true);
     }
 
-    @Nullable
+    @NotNull
     @Override
     public View onCreateView(@NotNull LayoutInflater inflater,
                              @Nullable ViewGroup container,
@@ -126,7 +125,7 @@ public class BuildArtifactsFragment
                 if (myTask.isCancelled()) {
                     onRefreshFinished();
                 } else {
-                    onRefreshStarted();
+                    onRefreshRunning();
                 }
             } else if (myTask.getStatus() == AsyncTask.Status.FINISHED) {
                 onRefreshFinished();
@@ -224,7 +223,7 @@ public class BuildArtifactsFragment
         return true;
     }
 
-    void onRefreshStarted() {
+    void onRefreshRunning() {
         setRefreshing(true);
     }
 
@@ -283,34 +282,18 @@ public class BuildArtifactsFragment
         return request;
     }
 
-    private void setRefreshing(final boolean refreshing) {
-        new Handler().postDelayed(
-                new Runnable() {
-                    @Override
-                    public void run() {
-                        if (myLayout.isRefreshing() ^ refreshing) {
-                            myLayout.setRefreshing(refreshing);
-
-                            TextView emptyView = (TextView) getListView().getEmptyView();
-
-                            if (refreshing) {
-                                emptyView.setText(R.string.loading);
-                            } else {
-                                if (Common.isNetworkAvailable(getActivity())) {
-                                    emptyView.setText(R.string.empty);
-                                } else {
-                                    emptyView.setText(R.string.network_is_unavailable);
-                                }
-                            }
-                        }
-                    }
-                }, 500
-        );  // https://code.google.com/p/android/issues/detail?id=77712
+    private void setRefreshing(boolean refreshing) {
+        Common.setRefreshing(
+                getActivity(),
+                myLayout,
+                (TextView) getListView().getEmptyView(),
+                refreshing
+        );
     }
 
     private static class BuildArtifactsCache extends LinkedHashMap<String, List<BuildArtifact>> {
 
-        private static final int SIZE = 3;
+        private static final int SIZE = 5;
 
         public BuildArtifactsCache() {
             super(SIZE);

@@ -80,7 +80,7 @@ class BuildInfoTask extends AsyncTask<Void, Void, Void> {
         super.onPreExecute();
 
         if (myFragment != null) {
-            myFragment.onRefreshStarted();
+            myFragment.onRefreshRunning();
         }
     }
 

@@ -19,6 +19,9 @@ package com.tcity.android.app;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.Handler;
+import android.support.v4.widget.SwipeRefreshLayout;
+import android.widget.TextView;
 
 import com.tcity.android.R;
 import com.tcity.android.Status;
@@ -31,6 +34,32 @@ public class Common {
     public static final String TEAMCITY_DATE_FORMAT = "yyyyMMdd'T'HHmmssZ";
 
     private Common() {
+    }
+
+    public static void setRefreshing(@NotNull final Context context,
+                                     @NotNull final SwipeRefreshLayout layout,
+                                     @NotNull final TextView emptyView,
+                                     final boolean refreshing) {
+        new Handler().postDelayed(
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        if (layout.isRefreshing() ^ refreshing) {
+                            layout.setRefreshing(refreshing);
+
+                            if (refreshing) {
+                                emptyView.setText(R.string.loading);
+                            } else {
+                                if (Common.isNetworkAvailable(context)) {
+                                    emptyView.setText(R.string.empty);
+                                } else {
+                                    emptyView.setText(R.string.network_is_unavailable);
+                                }
+                            }
+                        }
+                    }
+                }, 500
+        );  // https://code.google.com/p/android/issues/detail?id=77712
     }
 
     public static boolean isNetworkAvailable(@NotNull Context context) {

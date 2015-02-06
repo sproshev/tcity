@@ -21,7 +21,6 @@ import android.app.ListActivity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.MenuItem;
 import android.view.View;
@@ -252,29 +251,13 @@ public class BuildConfigurationOverviewActivity extends ListActivity implements 
         return result;
     }
 
-    private void setRefreshing(final boolean refreshing) {
-        new Handler().postDelayed(
-                new Runnable() {
-                    @Override
-                    public void run() {
-                        if (myLayout.isRefreshing() ^ refreshing) {
-                            myLayout.setRefreshing(refreshing);
-
-                            TextView emptyView = (TextView) getListView().getEmptyView();
-
-                            if (refreshing) {
-                                emptyView.setText(R.string.loading);
-                            } else {
-                                if (Common.isNetworkAvailable(BuildConfigurationOverviewActivity.this)) {
-                                    emptyView.setText(R.string.empty);
-                                } else {
-                                    emptyView.setText(R.string.network_is_unavailable);
-                                }
-                            }
-                        }
-                    }
-                }, 500
-        );  // https://code.google.com/p/android/issues/detail?id=77712
+    private void setRefreshing(boolean refreshing) {
+        Common.setRefreshing(
+                this,
+                myLayout,
+                (TextView) getListView().getEmptyView(),
+                refreshing
+        );
     }
 
     private class PopupMenuListener implements PopupMenu.OnMenuItemClickListener {

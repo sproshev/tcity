@@ -48,7 +48,7 @@ class ProjectOverviewServerEngine {
     private final DB myDb;
 
     @NotNull
-    private final RestClient myRestClient;
+    private final RestClient myClient;
 
     @NotNull
     private final Preferences myPreferences;
@@ -61,11 +61,11 @@ class ProjectOverviewServerEngine {
 
     ProjectOverviewServerEngine(@NotNull String projectId,
                                 @NotNull DB db,
-                                @NotNull RestClient restClient,
+                                @NotNull RestClient client,
                                 @NotNull Preferences preferences) {
         myProjectId = projectId;
         myDb = db;
-        myRestClient = restClient;
+        myClient = client;
         myPreferences = preferences;
 
         myChainListener = new ChainListener();
@@ -91,7 +91,7 @@ class ProjectOverviewServerEngine {
     void projectImageClick(@NotNull String id) {
         if (myDb.isProjectFavourite(id)) {
             ExecutableRunnableChain statusTask = RunnableChain.getSingleRunnableChain(
-                    new ProjectStatusRunnable(id, myDb, myRestClient)
+                    new ProjectStatusRunnable(id, myDb, myClient)
             ).toAsyncTask(myChainListener);
 
             myChainListener.onStarted();
@@ -102,7 +102,7 @@ class ProjectOverviewServerEngine {
     void buildConfigurationImageClick(@NotNull String id) {
         if (myDb.isBuildConfigurationFavourite(id)) {
             ExecutableRunnableChain statusTask = RunnableChain.getSingleRunnableChain(
-                    new BuildConfigurationStatusRunnable(id, myDb, myRestClient)
+                    new BuildConfigurationStatusRunnable(id, myDb, myClient)
             ).toAsyncTask(myChainListener);
 
             myChainListener.onStarted();
@@ -200,7 +200,7 @@ class ProjectOverviewServerEngine {
         }
 
         return RunnableChain.getSingleRunnableChain(
-                new ProjectsRunnable(myDb, myRestClient)
+                new ProjectsRunnable(myDb, myClient)
         );
     }
 
@@ -211,7 +211,7 @@ class ProjectOverviewServerEngine {
         }
 
         return RunnableChain.getSingleRunnableChain(
-                new BuildConfigurationsRunnable(myProjectId, myDb, myRestClient)
+                new BuildConfigurationsRunnable(myProjectId, myDb, myClient)
         );
     }
 
@@ -222,7 +222,7 @@ class ProjectOverviewServerEngine {
         }
 
         return RunnableChain.getSingleRunnableChain(
-                new ServerVersionRunnable(myRestClient, myPreferences)
+                new ServerVersionRunnable(myClient, myPreferences)
         );
     }
 
@@ -234,7 +234,7 @@ class ProjectOverviewServerEngine {
 
         return RunnableChain.getSingleRunnableChain(
                 new FavouriteProjectsRunnable(
-                        myDb, myRestClient, myPreferences
+                        myDb, myClient, myPreferences
                 )
         );
     }
@@ -255,7 +255,7 @@ class ProjectOverviewServerEngine {
             if (force || ExpirationUtils.isProjectStatusExpired(myDb, id)) {
                 runnables.add(
                         new ProjectStatusRunnable(
-                                id, myDb, myRestClient
+                                id, myDb, myClient
                         )
                 );
             }
@@ -284,7 +284,7 @@ class ProjectOverviewServerEngine {
             if (force || ExpirationUtils.isBuildConfigurationStatusExpired(myDb, id)) {
                 runnables.add(
                         new BuildConfigurationStatusRunnable(
-                                id, myDb, myRestClient
+                                id, myDb, myClient
                         )
                 );
             }
