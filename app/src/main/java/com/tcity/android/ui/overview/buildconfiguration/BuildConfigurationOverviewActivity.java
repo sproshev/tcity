@@ -36,7 +36,7 @@ import com.tcity.android.app.Preferences;
 import com.tcity.android.background.web.WebLocator;
 import com.tcity.android.db.DB;
 import com.tcity.android.db.DBUtils;
-import com.tcity.android.ui.info.BuildHostActivity;
+import com.tcity.android.ui.build.BuildActivity;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -189,8 +189,8 @@ public class BuildConfigurationOverviewActivity extends ListActivity implements 
     }
 
     void nameClick(@NotNull String id) {
-        Intent intent = new Intent(this, BuildHostActivity.class);
-        intent.putExtra(BuildHostActivity.ID_INTENT_KEY, id);
+        Intent intent = new Intent(this, BuildActivity.class);
+        intent.putExtra(BuildActivity.ID_INTENT_KEY, id);
 
         startActivity(intent);
     }

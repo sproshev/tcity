@@ -14,39 +14,31 @@
  * limitations under the License.
  */
 
-package com.tcity.android.ui.info;
+package com.tcity.android.ui.build.artifacts;
 
-import com.tcity.android.Status;
-
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Date;
+class BuildArtifact {
 
-class BuildInfoData {
+    final long size;
 
-    @Nullable
-    Status status;
-
-    @Nullable
-    String result;
+    @NotNull
+    final String name;
 
     @Nullable
-    String branch;
-
-    boolean isBranchDefault;
+    final String contentHref;
 
     @Nullable
-    String waitReason;
+    final String childrenHref;
 
-    @Nullable
-    Date queued;
-
-    @Nullable
-    Date started;
-
-    @Nullable
-    Date finished;
-
-    @Nullable
-    String agent;
+    BuildArtifact(long size,
+                  @NotNull String name,
+                  @Nullable String contentHref,
+                  @Nullable String childrenHref) {
+        this.size = size;
+        this.name = name;
+        this.contentHref = contentHref;
+        this.childrenHref = childrenHref;
+    }
 }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.tcity.android.ui.info;
+package com.tcity.android.ui.build.info;
 
 import android.app.Fragment;
 import android.graphics.Typeface;
@@ -32,6 +32,7 @@ import com.tcity.android.R;
 import com.tcity.android.app.Common;
 import com.tcity.android.app.Preferences;
 import com.tcity.android.background.rest.RestClient;
+import com.tcity.android.ui.build.BuildActivity;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -62,7 +63,7 @@ public class BuildInfoFragment extends Fragment implements SwipeRefreshLayout.On
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        myBuildId = getArguments().getString(BuildHostActivity.ID_INTENT_KEY);
+        myBuildId = getArguments().getString(BuildActivity.ID_INTENT_KEY);
 
         myClient = new RestClient(new Preferences(getActivity()));
 

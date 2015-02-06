@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.tcity.android.ui.info;
+package com.tcity.android.ui.build.artifacts;
 
 import android.app.DownloadManager;
 import android.app.ListFragment;
@@ -35,6 +35,7 @@ import com.tcity.android.R;
 import com.tcity.android.app.Common;
 import com.tcity.android.app.Preferences;
 import com.tcity.android.background.rest.RestClient;
+import com.tcity.android.ui.build.BuildActivity;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -77,7 +78,7 @@ public class BuildArtifactsFragment
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        myBuildId = getArguments().getString(BuildHostActivity.ID_INTENT_KEY);
+        myBuildId = getArguments().getString(BuildActivity.ID_INTENT_KEY);
         myAdapter = new BuildArtifactsAdapter(getActivity(), this);
 
         myPathStack = new LinkedList<>();
@@ -194,7 +195,7 @@ public class BuildArtifactsFragment
         }
     }
 
-    boolean onBackPressed() {
+    public boolean onBackPressed() {
         if (myPathStack.isEmpty()) {
             return false;
         }

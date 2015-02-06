@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.tcity.android.ui.info;
+package com.tcity.android.ui.build;
 
 import android.app.ActionBar;
 import android.app.Activity;
@@ -31,6 +31,8 @@ import com.tcity.android.app.Application;
 import com.tcity.android.app.Preferences;
 import com.tcity.android.background.web.WebLocator;
 import com.tcity.android.db.DB;
+import com.tcity.android.ui.build.artifacts.BuildArtifactsFragment;
+import com.tcity.android.ui.build.info.BuildInfoFragment;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -38,7 +40,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BuildHostActivity extends Activity {
+public class BuildActivity extends Activity {
 
     @NotNull
     public static final String ID_INTENT_KEY = "BUILD_ID";

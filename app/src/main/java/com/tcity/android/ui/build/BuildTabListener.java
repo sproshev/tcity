@@ -14,13 +14,15 @@
  * limitations under the License.
  */
 
-package com.tcity.android.ui.info;
+package com.tcity.android.ui.build;
 
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.os.Bundle;
+
+import com.tcity.android.ui.build.artifacts.BuildArtifactsFragment;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -58,7 +60,7 @@ class BuildTabListener<T extends Fragment> implements ActionBar.TabListener {
     public void onTabSelected(@Nullable ActionBar.Tab tab, @NotNull FragmentTransaction ft) {
         if (myFragment == null) {
             Bundle bundle = new Bundle();
-            bundle.putString(BuildHostActivity.ID_INTENT_KEY, myBuildId);
+            bundle.putString(BuildActivity.ID_INTENT_KEY, myBuildId);
 
             myFragment = Fragment.instantiate(myActivity, myClass.getName(), bundle);
             ft.replace(android.R.id.content, myFragment, myTag);

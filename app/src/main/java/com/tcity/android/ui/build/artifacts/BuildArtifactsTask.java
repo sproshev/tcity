@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 
-package com.tcity.android.ui.info;
+package com.tcity.android.ui.build.artifacts;
 
 import android.os.AsyncTask;
 import android.util.JsonReader;
 
-import com.tcity.android.app.Common;
 import com.tcity.android.background.HttpStatusException;
 import com.tcity.android.background.rest.RestClient;
 
@@ -31,36 +30,41 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.List;
 
-class BuildInfoTask extends AsyncTask<Void, Void, Void> {
+class BuildArtifactsTask extends AsyncTask<Void, Void, Void> {
 
     @NotNull
     private final String myBuildId;
+
+    @Nullable
+    private final String myPath;
 
     @NotNull
     private final RestClient myClient;
 
     @Nullable
-    private BuildInfoFragment myFragment;
+    private BuildArtifactsFragment myFragment;
 
     @Nullable
     private Exception myException;
 
     @Nullable
-    private BuildInfoData myResult;
+    private List<BuildArtifact> myResult;
 
-    BuildInfoTask(@NotNull String buildId,
-                  @NotNull RestClient client) {
+    BuildArtifactsTask(@NotNull String buildId,
+                       @Nullable String path,
+                       @NotNull RestClient client) {
         myBuildId = buildId;
+        myPath = path;
         myClient = client;
     }
 
     @Override
     protected Void doInBackground(@NotNull Void... params) {
         try {
-            HttpResponse response = myClient.getBuildInfo(myBuildId);
+            HttpResponse response = getHttpResponse();
             StatusLine statusLine = response.getStatusLine();
 
             if (statusLine.getStatusCode() != HttpStatus.SC_OK) {
@@ -69,10 +73,17 @@ class BuildInfoTask extends AsyncTask<Void, Void, Void> {
                 handleResponse(response);
             }
         } catch (Exception e) {
-            myException = e;
+            myException = null;
         }
 
         return null;
+    }
+
+    @NotNull
+    private HttpResponse getHttpResponse() throws IOException {
+        return myPath == null
+                ? myClient.getBuildArtifacts(myBuildId)
+                : myClient.getBuildArtifactChildren(myPath);
     }
 
     @Override
@@ -93,7 +104,7 @@ class BuildInfoTask extends AsyncTask<Void, Void, Void> {
         }
     }
 
-    synchronized void setFragment(@Nullable BuildInfoFragment fragment) {
+    synchronized void setFragment(@Nullable BuildArtifactsFragment fragment) {
         myFragment = fragment;
     }
 
@@ -103,62 +114,26 @@ class BuildInfoTask extends AsyncTask<Void, Void, Void> {
     }
 
     @Nullable
-    BuildInfoData getResult() {
+    List<BuildArtifact> getResult() {
         return myResult;
     }
 
-    private void handleResponse(@NotNull HttpResponse response) throws IOException, ParseException {
+    private void handleResponse(@NotNull HttpResponse response) throws IOException {
         JsonReader reader = new JsonReader(new InputStreamReader(response.getEntity().getContent()));
 
         //noinspection TryFinallyCanBeTryWithResources
         try {
             reader.beginObject();
 
-            BuildInfoData data = new BuildInfoData();
-            SimpleDateFormat dateFormat = new SimpleDateFormat(Common.TEAMCITY_DATE_FORMAT);
-
             while (reader.hasNext()) {
                 switch (reader.nextName()) {
-                    case "status":
-                        if (data.status == null) {
-                            data.status = com.tcity.android.Status.valueOf(reader.nextString());
-                        }
-                        break;
-                    case "running":
-                        if (reader.nextBoolean()) {
-                            data.status = com.tcity.android.Status.RUNNING;
-                        }
-                        break;
-                    case "branchName":
-                        data.branch = reader.nextString();
-                        break;
-                    case "defaultBranch":
-                        data.isBranchDefault = reader.nextBoolean();
-                        break;
-                    case "statusText":
-                        data.result = reader.nextString();
-                        break;
-                    case "waitReason":
-                        data.waitReason = reader.nextString();
-                        break;
-                    case "queuedDate":
-                        data.queued = dateFormat.parse(reader.nextString());
-                        break;
-                    case "startDate":
-                        data.started = dateFormat.parse(reader.nextString());
-                        break;
-                    case "finishDate":
-                        data.finished = dateFormat.parse(reader.nextString());
-                        break;
-                    case "agent":
-                        data.agent = getAgentName(reader);
+                    case "file":
+                        handleFiles(reader);
                         break;
                     default:
                         reader.skipValue();
                 }
             }
-
-            myResult = data;
 
             reader.endObject();
         } finally {
@@ -166,15 +141,67 @@ class BuildInfoTask extends AsyncTask<Void, Void, Void> {
         }
     }
 
+    private void handleFiles(@NotNull JsonReader reader) throws IOException {
+        reader.beginArray();
+
+        List<BuildArtifact> result = new ArrayList<>();
+
+        while (reader.hasNext()) {
+            reader.beginObject();
+
+            long size = -1;
+            String name = null;
+            String contentHref = null;
+            String childrenHref = null;
+
+            while (reader.hasNext()) {
+                switch (reader.nextName()) {
+                    case "size":
+                        size = reader.nextLong();
+                        break;
+                    case "name":
+                        name = reader.nextString();
+                        break;
+                    case "children":
+                        childrenHref = getHref(reader);
+                        break;
+                    case "content":
+                        contentHref = getHref(reader);
+                        break;
+                    default:
+                        reader.skipValue();
+                }
+            }
+
+            if (name == null) {
+                throw new IllegalStateException("Invalid artifacts json: \"name\" is absent");
+            }
+
+            if (contentHref == null && childrenHref == null) {
+                throw new IllegalStateException(
+                        "Invalid artifacts json: \"content\" and \"children\" are absent"
+                );
+            }
+
+            result.add(new BuildArtifact(size, name, contentHref, childrenHref));
+
+            reader.endObject();
+        }
+
+        reader.endArray();
+
+        myResult = result;
+    }
+
     @Nullable
-    private String getAgentName(@NotNull JsonReader reader) throws IOException {
+    private String getHref(@NotNull JsonReader reader) throws IOException {
         reader.beginObject();
 
         String result = null;
 
         while (reader.hasNext()) {
             switch (reader.nextName()) {
-                case "name":
+                case "href":
                     result = reader.nextString();
                     break;
                 default:

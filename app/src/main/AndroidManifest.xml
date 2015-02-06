@@ -37,7 +37,7 @@
 
         <activity android:name=".ui.overview.project.ProjectOverviewActivity"/>
         <activity android:name=".ui.overview.buildconfiguration.BuildConfigurationOverviewActivity"/>
-        <activity android:name=".ui.info.BuildHostActivity"/>
+        <activity android:name=".ui.build.BuildActivity"/>
         <activity android:name=".ui.MainActivity"/>
 
         <activity

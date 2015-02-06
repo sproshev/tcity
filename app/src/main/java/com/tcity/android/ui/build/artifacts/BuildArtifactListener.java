@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.tcity.android.ui.info;
+package com.tcity.android.ui.build.artifacts;
 
 import org.jetbrains.annotations.NotNull;
 
