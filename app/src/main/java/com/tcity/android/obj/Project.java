@@ -14,11 +14,14 @@
  * limitations under the License.
  */
 
-package com.tcity.android.db;
+package com.tcity.android.obj;
 
 import org.jetbrains.annotations.NotNull;
 
-public class BuildConfiguration {
+public class Project {
+
+    @NotNull
+    public static final String ROOT_PROJECT_ID = "_Root";
 
     @NotNull
     public final String id;
@@ -29,15 +32,15 @@ public class BuildConfiguration {
     @NotNull
     public final String parentProjectId;
 
-    public final boolean paused;
+    public final boolean archived;
 
-    public BuildConfiguration(@NotNull String id,
-                              @NotNull String name,
-                              @NotNull String parentProjectId,
-                              boolean paused) {
+    public Project(@NotNull String id,
+                   @NotNull String name,
+                   @NotNull String parentProjectId,
+                   boolean archived) {
         this.id = id;
         this.name = name;
         this.parentProjectId = parentProjectId;
-        this.paused = paused;
+        this.archived = archived;
     }
 }

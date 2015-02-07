@@ -20,7 +20,7 @@ import android.app.AlarmManager;
 
 import com.tcity.android.app.Preferences;
 import com.tcity.android.db.DB;
-import com.tcity.android.db.Project;
+import com.tcity.android.obj.Project;
 
 import org.jetbrains.annotations.NotNull;
 

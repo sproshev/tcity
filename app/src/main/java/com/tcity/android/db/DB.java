@@ -22,6 +22,9 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.tcity.android.Status;
+import com.tcity.android.obj.Build;
+import com.tcity.android.obj.BuildConfiguration;
+import com.tcity.android.obj.Project;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

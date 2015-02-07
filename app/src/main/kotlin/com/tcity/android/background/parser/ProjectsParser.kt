@@ -19,7 +19,7 @@ package com.tcity.android.background.parser
 import java.io.IOException
 import java.io.InputStream
 import android.util.JsonReader
-import com.tcity.android.db.Project
+import com.tcity.android.obj.Project
 
 throws(javaClass<IOException>())
 public fun parseProjects(stream: InputStream): List<Project> {

@@ -33,7 +33,7 @@ import com.tcity.android.app.Common;
 import com.tcity.android.app.Preferences;
 import com.tcity.android.background.web.WebLocator;
 import com.tcity.android.db.DB;
-import com.tcity.android.db.Project;
+import com.tcity.android.obj.Project;
 import com.tcity.android.ui.buildconfiguration.overview.BuildConfigurationOverviewActivity;
 
 import org.jetbrains.annotations.NotNull;

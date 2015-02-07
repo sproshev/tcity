@@ -30,9 +30,9 @@ import com.tcity.android.app.Preferences;
 import com.tcity.android.background.HttpStatusException;
 import com.tcity.android.background.parser.ParserPackage;
 import com.tcity.android.background.rest.RestClient;
-import com.tcity.android.db.Build;
 import com.tcity.android.db.DB;
 import com.tcity.android.db.DBUtils;
+import com.tcity.android.obj.Build;
 import com.tcity.android.ui.buildconfiguration.overview.BuildConfigurationOverviewActivity;
 
 import org.apache.http.HttpResponse;

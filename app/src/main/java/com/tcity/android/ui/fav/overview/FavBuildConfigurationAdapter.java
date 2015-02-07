@@ -22,7 +22,7 @@ import android.database.Cursor;
 import com.tcity.android.R;
 import com.tcity.android.db.DB;
 import com.tcity.android.db.DBUtils;
-import com.tcity.android.db.Project;
+import com.tcity.android.obj.Project;
 import com.tcity.android.ui.common.overview.ConceptAdapter;
 import com.tcity.android.ui.common.overview.ConceptClickListener;
 

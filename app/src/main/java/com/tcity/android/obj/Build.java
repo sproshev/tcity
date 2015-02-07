@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.tcity.android.db;
+package com.tcity.android.obj;
 
 import com.tcity.android.Status;
 
