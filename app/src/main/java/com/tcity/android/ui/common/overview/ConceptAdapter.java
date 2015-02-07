@@ -83,7 +83,7 @@ public abstract class ConceptAdapter extends CursorAdapter {
     public void bindView(@NotNull final View view,
                          @NotNull Context context,
                          @NotNull Cursor cursor) {
-        ViewHolder holder = (ViewHolder) view.getTag();
+        final ViewHolder holder = (ViewHolder) view.getTag();
 
         final String id = DBUtils.getId(cursor);
 
@@ -114,7 +114,7 @@ public abstract class ConceptAdapter extends CursorAdapter {
                 new View.OnClickListener() {
                     @Override
                     public void onClick(@NotNull View v) {
-                        myClickListener.onOptionsClick(id, view);
+                        myClickListener.onOptionsClick(id, holder.options);
                     }
                 }
         );

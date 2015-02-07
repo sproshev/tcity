@@ -21,6 +21,7 @@
     <color name="drawerlist_background">#303030</color>
     <color name="drawerlist_divider">#979797</color>
     <color name="drawerlist_text">#C0C0C0</color>
+    <color name="drawerlist_selector">#30979797</color>
 
     <color name="sub_text">#979797</color>
 

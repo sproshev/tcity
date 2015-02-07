@@ -28,6 +28,8 @@ import com.tcity.android.ui.common.overview.ConceptClickListener;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.LinkedList;
+
 class FavBuildConfigurationAdapter extends ConceptAdapter {
 
     @NotNull
@@ -49,15 +51,31 @@ class FavBuildConfigurationAdapter extends ConceptAdapter {
     @Override
     protected void bindViewHolder(@NotNull ViewHolder holder,
                                   @NotNull Cursor cursor) {
-        String projectId = DBUtils.getParentId(cursor);
+        StringBuilder sb = new StringBuilder();
+
+        for (String name : calculateProjectNames(DBUtils.getParentId(cursor))) {
+            sb.append(name).append(" :: ");
+        }
+
+        sb.setLength(sb.length() - 4);
+
+        holder.sub.setText(sb.toString());
+    }
+
+    @NotNull
+    private LinkedList<String> calculateProjectNames(@NotNull String projectId) {
+        LinkedList<String> names = new LinkedList<>();
+
+        names.addFirst(myDb.getProjectName(projectId));
+
         String grandProjectId = myDb.getProjectParentId(projectId);
 
-        if (grandProjectId.equals(Project.ROOT_PROJECT_ID)) {
-            holder.sub.setText(myDb.getProjectName(projectId));
-        } else {
-            holder.sub.setText(
-                    myDb.getProjectName(grandProjectId) + " :: " + myDb.getProjectName(projectId)
-            );
+        while (!grandProjectId.equals(Project.ROOT_PROJECT_ID)) {
+            names.addFirst(myDb.getProjectName(grandProjectId));
+
+            grandProjectId = myDb.getProjectParentId(grandProjectId);
         }
+
+        return names;
     }
 }

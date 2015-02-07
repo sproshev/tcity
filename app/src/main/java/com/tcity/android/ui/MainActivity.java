@@ -74,6 +74,7 @@ public class MainActivity extends Activity {
         myDrawerLayout.setDrawerListener(myDrawerListener);
         myDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
 
+        myDrawerList.setSelector(R.color.drawerlist_selector);
         myDrawerList.setOnItemClickListener(new DrawerItemClickListener());
         myDrawerList.setAdapter(
                 new ArrayAdapter<>(

@@ -164,11 +164,7 @@ public class BuildArtifactsFragment
     @Override
     public boolean onOptionsItemSelected(@NotNull MenuItem item) {
         if (item.getItemId() == R.id.menu_dl_artifacts) {
-            //noinspection ResultOfMethodCallIgnored
-            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).mkdirs();
-
-            DownloadManager manager = (DownloadManager) getActivity().getSystemService(Context.DOWNLOAD_SERVICE);
-            manager.enqueue(calculateArtifactsRequest());
+            onDownloadAllClick();
 
             return true;
         }
@@ -288,12 +284,30 @@ public class BuildArtifactsFragment
         myTask.setFragment(this);
     }
 
+    private void onDownloadAllClick() {
+        List<BuildArtifact> artifacts = myCache.get(myPathStack.peekLast());
+
+        if (artifacts != null && artifacts.size() == 1 && isArchive(artifacts.get(0))) {
+            onDownloadClick(artifacts.get(0));
+        } else {
+            //noinspection ResultOfMethodCallIgnored
+            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).mkdirs();
+
+            DownloadManager manager = (DownloadManager) getActivity().getSystemService(Context.DOWNLOAD_SERVICE);
+            manager.enqueue(calculateArtifactsRequest());
+        }
+    }
+
     @NotNull
-    private DownloadManager.Request calculateArtifactsRequest() {
+    private DownloadManager.Request calculateArtifactRequest(@NotNull BuildArtifact artifact) {
+        if (artifact.contentHref == null) {
+            throw new IllegalStateException("Build artifact hasn't content");
+        }
+
         Preferences preferences = new Preferences(getActivity());
 
-        Uri src = Uri.parse(preferences.getUrl() + "/app/rest/builds/id:" + myBuildId + "/artifacts/archived");
-        String dest = calculateArtifactsFilename();
+        Uri src = Uri.parse(preferences.getUrl() + artifact.contentHref);
+        String dest = artifact.name;
 
         DownloadManager.Request request = new DownloadManager.Request(src);
 
@@ -308,16 +322,16 @@ public class BuildArtifactsFragment
         return request;
     }
 
-    @NotNull
-    private DownloadManager.Request calculateArtifactRequest(@NotNull BuildArtifact artifact) {
-        if (artifact.contentHref == null) {
-            throw new IllegalStateException("Build artifact hasn't content");
-        }
+    private boolean isArchive(@NotNull BuildArtifact artifact) {
+        return artifact.childrenHref != null && artifact.contentHref != null;
+    }
 
+    @NotNull
+    private DownloadManager.Request calculateArtifactsRequest() {
         Preferences preferences = new Preferences(getActivity());
 
-        Uri src = Uri.parse(preferences.getUrl() + artifact.contentHref);
-        String dest = artifact.name;
+        Uri src = Uri.parse(preferences.getUrl() + "/app/rest/builds/id:" + myBuildId + "/artifacts/archived");
+        String dest = calculateArtifactsFilename();
 
         DownloadManager.Request request = new DownloadManager.Request(src);
 
