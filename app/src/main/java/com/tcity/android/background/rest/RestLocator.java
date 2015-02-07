@@ -99,6 +99,16 @@ class RestLocator {
     }
 
     @NotNull
+    static String getRunningBuildsUrl(@NotNull Preferences preferences) {
+        return preferences.getUrl() + REST_PREFIX + "builds/?locator=running:true,branch:(branched:any)";
+    }
+
+    @NotNull
+    static String getQueuedBuildsUrl(@NotNull Preferences preferences) {
+        return preferences.getUrl() + REST_PREFIX + "buildQueue";
+    }
+
+    @NotNull
     static String getProjectStatusUrl(@NotNull String id, @NotNull Preferences preferences) {
         return preferences.getUrl() + REST_PREFIX + "projects/id:" + id + "/status";
     }
@@ -112,11 +122,6 @@ class RestLocator {
     @NotNull
     static String getBuildInfoUrl(@NotNull String id, @NotNull Preferences preferences) {
         return preferences.getUrl() + REST_PREFIX + "builds/id:" + id;
-    }
-
-    @NotNull
-    static String getBuildTestsUrl(@NotNull String id, @NotNull Preferences preferences) {
-        return preferences.getUrl() + REST_PREFIX + "testOccurrences?locator=build:" + id;
     }
 
     @NotNull

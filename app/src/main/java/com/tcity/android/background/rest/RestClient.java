@@ -104,6 +104,20 @@ public class RestClient {
     }
 
     @NotNull
+    public HttpResponse getRunningBuilds() throws IOException {
+        return getJson(
+                RestLocator.getRunningBuildsUrl(myPreferences)
+        );
+    }
+
+    @NotNull
+    public HttpResponse getQueuedBuilds() throws IOException {
+        return getJson(
+                RestLocator.getQueuedBuildsUrl(myPreferences)
+        );
+    }
+
+    @NotNull
     public HttpResponse getProjectStatus(@NotNull String id) throws IOException {
         return getPlain(
                 RestLocator.getProjectStatusUrl(id, myPreferences)
@@ -121,13 +135,6 @@ public class RestClient {
     public HttpResponse getBuildInfo(@NotNull String id) throws IOException {
         return getJson(
                 RestLocator.getBuildInfoUrl(id, myPreferences)
-        );
-    }
-
-    @NotNull
-    public HttpResponse getBuildTests(@NotNull String id) throws IOException {
-        return getJson(
-                RestLocator.getBuildTestsUrl(id, myPreferences)
         );
     }
 
