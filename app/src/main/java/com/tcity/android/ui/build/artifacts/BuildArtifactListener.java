@@ -16,6 +16,8 @@
 
 package com.tcity.android.ui.build.artifacts;
 
+import com.tcity.android.obj.BuildArtifact;
+
 import org.jetbrains.annotations.NotNull;
 
 interface BuildArtifactListener {

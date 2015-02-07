@@ -32,11 +32,11 @@ private fun <T> parse(
 ): List<T> {
     val reader = JsonReader(InputStreamReader(stream))
 
-    var result: MutableList<T>? = null
-    var capacity = 10
-
     try {
         reader.beginObject()
+
+        var result: MutableList<T>? = null
+        var capacity = 10
 
         while (reader.hasNext()) {
             when (reader.nextName()) {
@@ -63,15 +63,15 @@ private fun <T> parse(
         }
 
         reader.endObject()
+
+        if (result != null) {
+            return result!!
+        } else if (capacity == 0) {
+            return Collections.emptyList()
+        } else {
+            throw IOException("Invalid json: \"$key\" is absent")
+        }
     } finally {
         reader.close()
-    }
-
-    if (result != null) {
-        return result!!
-    } else if (capacity == 0) {
-        return Collections.emptyList()
-    } else {
-        throw IOException("Invalid json: \"$key\" is absent")
     }
 }

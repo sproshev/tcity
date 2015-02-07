@@ -27,6 +27,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.tcity.android.R;
+import com.tcity.android.obj.BuildArtifact;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

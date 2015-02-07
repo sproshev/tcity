@@ -17,10 +17,11 @@
 package com.tcity.android.ui.build.artifacts;
 
 import android.os.AsyncTask;
-import android.util.JsonReader;
 
 import com.tcity.android.background.HttpStatusException;
+import com.tcity.android.background.parser.ParserPackage;
 import com.tcity.android.background.rest.RestClient;
+import com.tcity.android.obj.BuildArtifact;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -29,8 +30,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
 import java.util.List;
 
 class BuildArtifactsTask extends AsyncTask<Void, Void, Void> {
@@ -70,7 +69,7 @@ class BuildArtifactsTask extends AsyncTask<Void, Void, Void> {
             if (statusLine.getStatusCode() != HttpStatus.SC_OK) {
                 throw new HttpStatusException(statusLine);
             } else {
-                handleResponse(response);
+                myResult = ParserPackage.parseBuildArtifacts(response.getEntity().getContent());
             }
         } catch (Exception e) {
             myException = null;
@@ -116,101 +115,5 @@ class BuildArtifactsTask extends AsyncTask<Void, Void, Void> {
     @Nullable
     List<BuildArtifact> getResult() {
         return myResult;
-    }
-
-    private void handleResponse(@NotNull HttpResponse response) throws IOException {
-        JsonReader reader = new JsonReader(new InputStreamReader(response.getEntity().getContent()));
-
-        //noinspection TryFinallyCanBeTryWithResources
-        try {
-            reader.beginObject();
-
-            while (reader.hasNext()) {
-                switch (reader.nextName()) {
-                    case "file":
-                        handleFiles(reader);
-                        break;
-                    default:
-                        reader.skipValue();
-                }
-            }
-
-            reader.endObject();
-        } finally {
-            reader.close();
-        }
-    }
-
-    private void handleFiles(@NotNull JsonReader reader) throws IOException {
-        reader.beginArray();
-
-        List<BuildArtifact> result = new ArrayList<>();
-
-        while (reader.hasNext()) {
-            reader.beginObject();
-
-            long size = -1;
-            String name = null;
-            String contentHref = null;
-            String childrenHref = null;
-
-            while (reader.hasNext()) {
-                switch (reader.nextName()) {
-                    case "size":
-                        size = reader.nextLong();
-                        break;
-                    case "name":
-                        name = reader.nextString();
-                        break;
-                    case "children":
-                        childrenHref = getHref(reader);
-                        break;
-                    case "content":
-                        contentHref = getHref(reader);
-                        break;
-                    default:
-                        reader.skipValue();
-                }
-            }
-
-            if (name == null) {
-                throw new IllegalStateException("Invalid artifacts json: \"name\" is absent");
-            }
-
-            if (contentHref == null && childrenHref == null) {
-                throw new IllegalStateException(
-                        "Invalid artifacts json: \"content\" and \"children\" are absent"
-                );
-            }
-
-            result.add(new BuildArtifact(size, name, contentHref, childrenHref));
-
-            reader.endObject();
-        }
-
-        reader.endArray();
-
-        myResult = result;
-    }
-
-    @Nullable
-    private String getHref(@NotNull JsonReader reader) throws IOException {
-        reader.beginObject();
-
-        String result = null;
-
-        while (reader.hasNext()) {
-            switch (reader.nextName()) {
-                case "href":
-                    result = reader.nextString();
-                    break;
-                default:
-                    reader.skipValue();
-            }
-        }
-
-        reader.endObject();
-
-        return result;
     }
 }

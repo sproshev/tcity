@@ -17,22 +17,17 @@
 package com.tcity.android.ui.build.info;
 
 import android.os.AsyncTask;
-import android.util.JsonReader;
 
-import com.tcity.android.app.Common;
 import com.tcity.android.background.HttpStatusException;
+import com.tcity.android.background.parser.ParserPackage;
 import com.tcity.android.background.rest.RestClient;
+import com.tcity.android.obj.BuildInfo;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.StatusLine;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 
 class BuildInfoTask extends AsyncTask<Void, Void, Void> {
 
@@ -49,7 +44,7 @@ class BuildInfoTask extends AsyncTask<Void, Void, Void> {
     private Exception myException;
 
     @Nullable
-    private BuildInfoData myResult;
+    private BuildInfo myResult;
 
     BuildInfoTask(@NotNull String buildId,
                   @NotNull RestClient client) {
@@ -66,7 +61,7 @@ class BuildInfoTask extends AsyncTask<Void, Void, Void> {
             if (statusLine.getStatusCode() != HttpStatus.SC_OK) {
                 throw new HttpStatusException(statusLine);
             } else {
-                handleResponse(response);
+                myResult = ParserPackage.parseBuildInfo(response.getEntity().getContent());
             }
         } catch (Exception e) {
             myException = e;
@@ -103,87 +98,7 @@ class BuildInfoTask extends AsyncTask<Void, Void, Void> {
     }
 
     @Nullable
-    BuildInfoData getResult() {
+    BuildInfo getResult() {
         return myResult;
-    }
-
-    private void handleResponse(@NotNull HttpResponse response) throws IOException, ParseException {
-        JsonReader reader = new JsonReader(new InputStreamReader(response.getEntity().getContent()));
-
-        //noinspection TryFinallyCanBeTryWithResources
-        try {
-            reader.beginObject();
-
-            BuildInfoData data = new BuildInfoData();
-            SimpleDateFormat dateFormat = new SimpleDateFormat(Common.TEAMCITY_DATE_FORMAT);
-
-            while (reader.hasNext()) {
-                switch (reader.nextName()) {
-                    case "status":
-                        if (data.status == null) {
-                            data.status = com.tcity.android.Status.valueOf(reader.nextString());
-                        }
-                        break;
-                    case "running":
-                        if (reader.nextBoolean()) {
-                            data.status = com.tcity.android.Status.RUNNING;
-                        }
-                        break;
-                    case "branchName":
-                        data.branch = reader.nextString();
-                        break;
-                    case "defaultBranch":
-                        data.isBranchDefault = reader.nextBoolean();
-                        break;
-                    case "statusText":
-                        data.result = reader.nextString();
-                        break;
-                    case "waitReason":
-                        data.waitReason = reader.nextString();
-                        break;
-                    case "queuedDate":
-                        data.queued = dateFormat.parse(reader.nextString());
-                        break;
-                    case "startDate":
-                        data.started = dateFormat.parse(reader.nextString());
-                        break;
-                    case "finishDate":
-                        data.finished = dateFormat.parse(reader.nextString());
-                        break;
-                    case "agent":
-                        data.agent = getAgentName(reader);
-                        break;
-                    default:
-                        reader.skipValue();
-                }
-            }
-
-            myResult = data;
-
-            reader.endObject();
-        } finally {
-            reader.close();
-        }
-    }
-
-    @Nullable
-    private String getAgentName(@NotNull JsonReader reader) throws IOException {
-        reader.beginObject();
-
-        String result = null;
-
-        while (reader.hasNext()) {
-            switch (reader.nextName()) {
-                case "name":
-                    result = reader.nextString();
-                    break;
-                default:
-                    reader.skipValue();
-            }
-        }
-
-        reader.endObject();
-
-        return result;
     }
 }

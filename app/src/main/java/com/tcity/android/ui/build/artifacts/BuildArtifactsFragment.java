@@ -39,6 +39,7 @@ import com.tcity.android.app.Common;
 import com.tcity.android.app.Preferences;
 import com.tcity.android.background.rest.RestClient;
 import com.tcity.android.db.DB;
+import com.tcity.android.obj.BuildArtifact;
 import com.tcity.android.ui.build.BuildActivity;
 
 import org.jetbrains.annotations.NotNull;

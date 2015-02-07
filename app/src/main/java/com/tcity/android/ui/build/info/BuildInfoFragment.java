@@ -31,6 +31,7 @@ import com.tcity.android.R;
 import com.tcity.android.app.Common;
 import com.tcity.android.app.Preferences;
 import com.tcity.android.background.rest.RestClient;
+import com.tcity.android.obj.BuildInfo;
 import com.tcity.android.ui.build.BuildActivity;
 
 import org.jetbrains.annotations.NotNull;
@@ -149,7 +150,7 @@ public class BuildInfoFragment extends Fragment implements SwipeRefreshLayout.On
             Toast.makeText(getActivity(), e.getMessage(), Toast.LENGTH_LONG).show();
         }
 
-        BuildInfoData result = myTask.getResult();
+        BuildInfo result = myTask.getResult();
 
         if (result != null) {
             updateView(result);
@@ -170,50 +171,50 @@ public class BuildInfoFragment extends Fragment implements SwipeRefreshLayout.On
         );
     }
 
-    private void updateView(@NotNull BuildInfoData result) {
-        updateResultView(result);
-        updateBranchView(result);
-        updateWaitReasonView(result);
+    private void updateView(@NotNull BuildInfo info) {
+        updateResultView(info);
+        updateBranchView(info);
+        updateWaitReasonView(info);
 
         DateFormat dateFormat = new SimpleDateFormat("dd MMM yyyy HH:mm:ss");
 
-        updateQueuedView(result, dateFormat);
-        updateStartedView(result, dateFormat);
-        updateFinishedView(result, dateFormat);
+        updateQueuedView(info, dateFormat);
+        updateStartedView(info, dateFormat);
+        updateFinishedView(info, dateFormat);
 
-        updateAgentView(result);
+        updateAgentView(info);
 
-        updateVisibility(result);
+        updateVisibility(info);
     }
 
-    private void updateResultView(@NotNull BuildInfoData data) {
+    private void updateResultView(@NotNull BuildInfo info) {
         View row = getView().findViewById(R.id.build_info_result_row);
 
-        if (data.result != null) {
+        if (info.result != null) {
             row.setVisibility(View.VISIBLE);
 
             TextView view = (TextView) row.findViewById(R.id.build_info_result);
-            view.setText(data.result);
+            view.setText(info.result);
         } else {
             row.setVisibility(View.GONE);
         }
 
-        if (data.status != null) {
-            row.setBackgroundColor(Common.loadBackgroundColor(data.status, getActivity()));
+        if (info.status != null) {
+            row.setBackgroundColor(Common.loadBackgroundColor(info.status, getActivity()));
             row.getBackground().setAlpha(50);
         }
     }
 
-    private void updateBranchView(@NotNull BuildInfoData data) {
+    private void updateBranchView(@NotNull BuildInfo info) {
         View row = getView().findViewById(R.id.build_info_branch_row);
 
-        if (data.branch != null) {
+        if (info.branch != null) {
             row.setVisibility(View.VISIBLE);
 
             TextView view = (TextView) row.findViewById(R.id.build_info_branch);
-            view.setText(data.branch);
+            view.setText(info.branch);
 
-            if (data.isBranchDefault) {
+            if (info.isBranchDefault) {
                 view.setTypeface(null, Typeface.BOLD);
             } else {
                 view.setTypeface(null, Typeface.NORMAL);
@@ -223,79 +224,79 @@ public class BuildInfoFragment extends Fragment implements SwipeRefreshLayout.On
         }
     }
 
-    private void updateWaitReasonView(@NotNull BuildInfoData data) {
+    private void updateWaitReasonView(@NotNull BuildInfo info) {
         View row = getView().findViewById(R.id.build_info_wait_reason_row);
 
-        if (data.waitReason != null) {
+        if (info.waitReason != null) {
             row.setVisibility(View.VISIBLE);
 
             TextView view = (TextView) row.findViewById(R.id.build_info_wait_reason);
-            view.setText(data.waitReason);
+            view.setText(info.waitReason);
         } else {
             row.setVisibility(View.GONE);
         }
     }
 
-    private void updateQueuedView(@NotNull BuildInfoData data, @NotNull DateFormat dateFormat) {
+    private void updateQueuedView(@NotNull BuildInfo info, @NotNull DateFormat dateFormat) {
         View row = getView().findViewById(R.id.build_info_queued_row);
 
-        if (data.queued != null) {
+        if (info.queued != null) {
             row.setVisibility(View.VISIBLE);
 
             TextView view = (TextView) row.findViewById(R.id.build_info_queued);
-            view.setText(dateFormat.format(data.queued));
+            view.setText(dateFormat.format(info.queued));
         } else {
             row.setVisibility(View.GONE);
         }
     }
 
-    private void updateStartedView(@NotNull BuildInfoData data, @NotNull DateFormat dateFormat) {
+    private void updateStartedView(@NotNull BuildInfo info, @NotNull DateFormat dateFormat) {
         View row = getView().findViewById(R.id.build_info_started_row);
 
-        if (data.started != null) {
+        if (info.started != null) {
             row.setVisibility(View.VISIBLE);
 
             TextView view = (TextView) row.findViewById(R.id.build_info_started);
-            view.setText(dateFormat.format(data.started));
+            view.setText(dateFormat.format(info.started));
         } else {
             row.setVisibility(View.GONE);
         }
     }
 
-    private void updateFinishedView(@NotNull BuildInfoData data, @NotNull DateFormat dateFormat) {
+    private void updateFinishedView(@NotNull BuildInfo info, @NotNull DateFormat dateFormat) {
         View row = getView().findViewById(R.id.build_info_finished_row);
 
-        if (data.finished != null) {
+        if (info.finished != null) {
             row.setVisibility(View.VISIBLE);
 
             TextView view = (TextView) row.findViewById(R.id.build_info_finished);
-            view.setText(dateFormat.format(data.finished));
+            view.setText(dateFormat.format(info.finished));
         } else {
             row.setVisibility(View.GONE);
         }
     }
 
-    private void updateAgentView(@NotNull BuildInfoData data) {
+    private void updateAgentView(@NotNull BuildInfo info) {
         View row = getView().findViewById(R.id.build_info_agent_row);
 
-        if (data.agent != null) {
+        if (info.agent != null) {
             row.setVisibility(View.VISIBLE);
 
             TextView view = (TextView) row.findViewById(R.id.build_info_agent);
-            view.setText(data.agent);
+            view.setText(info.agent);
         } else {
             row.setVisibility(View.GONE);
         }
     }
 
-    private void updateVisibility(@NotNull BuildInfoData result) {
-        if (result.result != null ||
-                result.branch != null ||
-                result.waitReason != null ||
-                result.queued != null ||
-                result.started != null ||
-                result.finished != null ||
-                result.agent != null) {
+    private void updateVisibility(@NotNull BuildInfo info) {
+        if (info.result != null ||
+                info.branch != null ||
+                info.waitReason != null ||
+                info.queued != null ||
+                info.started != null ||
+                info.finished != null ||
+                info.agent != null) {
             getView().findViewById(android.R.id.empty).setVisibility(View.GONE);
             getView().findViewById(R.id.build_info_tablelayout).setVisibility(View.VISIBLE);
         } else {
