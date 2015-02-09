@@ -39,6 +39,9 @@ public abstract class ConceptAdapter extends CursorAdapter {
     private static final int NOT_FAVOURITE_IMAGE = android.R.drawable.btn_star_big_off;
 
     @NotNull
+    private final Context myContext;
+
+    @NotNull
     private final ConceptClickListener myClickListener;
 
     @NotNull
@@ -53,6 +56,7 @@ public abstract class ConceptAdapter extends CursorAdapter {
                           int notFavouriteDescriptionId) {
         super(context, null, true);
 
+        myContext = context;
         myClickListener = clickListener;
 
         myFavouriteDescription = context.getString(favouriteDescriptionId);
@@ -80,19 +84,24 @@ public abstract class ConceptAdapter extends CursorAdapter {
     }
 
     @Override
-    public void bindView(@NotNull final View view,
+    public void bindView(@NotNull View view,
                          @NotNull Context context,
                          @NotNull Cursor cursor) {
-        final ViewHolder holder = (ViewHolder) view.getTag();
+        ViewHolder holder = (ViewHolder) view.getTag();
 
+        bindImage(holder.image, cursor);
+
+        bindDescription(holder.description, cursor);
+        bindName(holder.name, cursor);
+        bindSub(holder.sub, cursor);
+
+        bindOptions(holder.options, cursor);
+    }
+
+    protected void bindImage(@NotNull ImageButton view, @NotNull Cursor cursor) {
         final String id = DBUtils.getId(cursor);
 
-        holder.name.setText(DBUtils.getName(cursor));
-        holder.name.setTextColor(
-                Common.loadTextColor(DBUtils.getStatus(cursor), context)
-        );
-
-        holder.image.setOnClickListener(
+        view.setOnClickListener(
                 new View.OnClickListener() {
                     @Override
                     public void onClick(@NotNull View v) {
@@ -101,7 +110,19 @@ public abstract class ConceptAdapter extends CursorAdapter {
                 }
         );
 
-        holder.description.setOnClickListener(
+        if (DBUtils.isFavourite(cursor)) {
+            view.setContentDescription(myFavouriteDescription);
+            view.setImageResource(FAVOURITE_IMAGE);
+        } else {
+            view.setContentDescription(myNotFavouriteDescription);
+            view.setImageResource(NOT_FAVOURITE_IMAGE);
+        }
+    }
+
+    protected void bindDescription(@NotNull LinearLayout view, @NotNull Cursor cursor) {
+        final String id = DBUtils.getId(cursor);
+
+        view.setOnClickListener(
                 new View.OnClickListener() {
                     @Override
                     public void onClick(@NotNull View v) {
@@ -109,46 +130,48 @@ public abstract class ConceptAdapter extends CursorAdapter {
                     }
                 }
         );
+    }
 
-        holder.options.setOnClickListener(
+    protected void bindName(@NotNull TextView view, @NotNull Cursor cursor) {
+        view.setText(DBUtils.getName(cursor));
+        view.setTextColor(
+                Common.loadTextColor(DBUtils.getStatus(cursor), myContext)
+        );
+    }
+
+    protected void bindSub(@NotNull TextView view, @NotNull Cursor cursor) {
+    }
+
+    private void bindOptions(@NotNull View view, @NotNull Cursor cursor) {
+        final String id = DBUtils.getId(cursor);
+        final View options = view;
+
+        options.setOnClickListener(
                 new View.OnClickListener() {
                     @Override
                     public void onClick(@NotNull View v) {
-                        myClickListener.onOptionsClick(id, holder.options);
+                        myClickListener.onOptionsClick(id, options);
                     }
                 }
         );
-
-        if (DBUtils.isFavourite(cursor)) {
-            holder.image.setContentDescription(myFavouriteDescription);
-            holder.image.setImageResource(FAVOURITE_IMAGE);
-        } else {
-            holder.image.setContentDescription(myNotFavouriteDescription);
-            holder.image.setImageResource(NOT_FAVOURITE_IMAGE);
-        }
-
-        bindViewHolder(holder, cursor);
     }
 
-    protected abstract void bindViewHolder(@NotNull ViewHolder holder,
-                                           @NotNull Cursor cursor);
-
-    public static class ViewHolder {
+    private static class ViewHolder {
 
         @NotNull
-        public final ImageButton image;
+        private final ImageButton image;
 
         @NotNull
-        public final LinearLayout description;
+        private final LinearLayout description;
 
         @NotNull
-        public final TextView name;
+        private final TextView name;
 
         @NotNull
-        public final TextView sub;
+        private final TextView sub;
 
         @NotNull
-        public final View options;
+        private final View options;
 
         private ViewHolder(@NotNull ImageButton image,
                            @NotNull LinearLayout description,

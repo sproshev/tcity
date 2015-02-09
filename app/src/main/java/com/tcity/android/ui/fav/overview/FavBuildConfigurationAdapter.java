@@ -18,6 +18,7 @@ package com.tcity.android.ui.fav.overview;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.widget.TextView;
 
 import com.tcity.android.R;
 import com.tcity.android.db.DB;
@@ -49,8 +50,7 @@ class FavBuildConfigurationAdapter extends ConceptAdapter {
     }
 
     @Override
-    protected void bindViewHolder(@NotNull ViewHolder holder,
-                                  @NotNull Cursor cursor) {
+    protected void bindName(@NotNull TextView view, @NotNull Cursor cursor) {
         StringBuilder sb = new StringBuilder();
 
         for (String name : calculateProjectNames(DBUtils.getParentId(cursor))) {
@@ -59,7 +59,12 @@ class FavBuildConfigurationAdapter extends ConceptAdapter {
 
         sb.setLength(sb.length() - 4);
 
-        holder.sub.setText(sb.toString());
+        view.setText(sb.toString());
+    }
+
+    @Override
+    protected void bindSub(@NotNull TextView view, @NotNull Cursor cursor) {
+        super.bindName(view, cursor);
     }
 
     @NotNull

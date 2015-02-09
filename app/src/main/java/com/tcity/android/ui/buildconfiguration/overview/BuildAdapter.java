@@ -42,9 +42,8 @@ class BuildAdapter extends ConceptAdapter {
     }
 
     @Override
-    protected void bindViewHolder(@NotNull ViewHolder holder,
-                                  @NotNull Cursor cursor) {
-        bindBranch(holder.sub, DBUtils.getBranch(cursor), DBUtils.isBranchDefault(cursor));
+    protected void bindSub(@NotNull TextView view, @NotNull Cursor cursor) {
+        bindBranch(view, DBUtils.getBranch(cursor), DBUtils.isBranchDefault(cursor));
     }
 
     private void bindBranch(@NotNull TextView view,

@@ -19,6 +19,7 @@ package com.tcity.android.ui.project.overview;
 import android.content.Context;
 import android.database.Cursor;
 import android.view.View;
+import android.widget.TextView;
 
 import com.tcity.android.R;
 import com.tcity.android.db.DBUtils;
@@ -40,13 +41,13 @@ class BuildConfigurationAdapter extends ConceptAdapter {
     }
 
     @Override
-    protected void bindViewHolder(@NotNull ViewHolder holder,
-                                  @NotNull Cursor cursor) {
+    protected void bindSub(@NotNull TextView view,
+                           @NotNull Cursor cursor) {
         if (!DBUtils.isPaused(cursor)) {
-            holder.sub.setVisibility(View.GONE);
+            view.setVisibility(View.GONE);
         } else {
-            holder.sub.setVisibility(View.VISIBLE);
-            holder.sub.setText(R.string.paused);
+            view.setVisibility(View.VISIBLE);
+            view.setText(R.string.paused);
         }
     }
 }
