@@ -20,10 +20,16 @@ import java.io.IOException
 import java.io.InputStream
 import android.util.JsonReader
 import com.tcity.android.obj.QueuedBuild
+import com.tcity.android.db.DB
 
 throws(javaClass<IOException>())
-public fun parseQueuedBuilds(stream: InputStream): List<QueuedBuild> {
-    return parse(stream, "build", ::parseQueuedBuild)
+public fun parseQueuedBuilds(stream: InputStream, db: DB): List<QueuedBuild> {
+    return parse(
+            stream,
+            "build",
+            ::parseQueuedBuild,
+            { db.isBuildConfigurationFavourite(it.parentBuildConfigurationId) }
+    )
 }
 
 throws(javaClass<IOException>())
