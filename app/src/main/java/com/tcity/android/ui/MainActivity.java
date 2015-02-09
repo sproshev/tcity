@@ -25,17 +25,15 @@ import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
-import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.TextView;
 
 import com.tcity.android.R;
 import com.tcity.android.app.Preferences;
+import com.tcity.android.ui.current.overview.CurrentBuildsFragment;
 import com.tcity.android.ui.fav.overview.FavBuildConfigurationsOverviewFragment;
 import com.tcity.android.ui.preference.PreferenceFragment;
 import com.tcity.android.ui.project.overview.RootOverviewFragment;
@@ -140,11 +138,18 @@ public class MainActivity extends Activity {
                         FavBuildConfigurationsOverviewFragment.TAG
                 );
                 break;
+            case 2:
+                selectFragment(
+                        ft,
+                        CurrentBuildsFragment.class,
+                        CurrentBuildsFragment.TAG
+                );
+                break;
             case 3:
                 selectFragment(ft, PreferenceFragment.class, PreferenceFragment.TAG);
                 break;
             default:
-                selectStubItem(position, ft);
+                throw new IllegalArgumentException("Unexpected drawer position");
         }
 
         ft.commit();
@@ -165,39 +170,6 @@ public class MainActivity extends Activity {
             ft.replace(R.id.main_content, fragment, tag);
         } else {
             ft.attach(fragment);
-        }
-    }
-
-    private void selectStubItem(int position, @NotNull FragmentTransaction ft) {
-        String tag = Integer.toString(position);
-        Fragment fragment = getFragmentManager().findFragmentByTag(tag);
-
-        if (fragment == null) {
-            Bundle bundle = new Bundle();
-            bundle.putString(MyFragment.INTENT_KEY, tag);
-
-            fragment = Fragment.instantiate(this, MyFragment.class.getName(), bundle);
-            ft.replace(R.id.main_content, fragment, tag);
-        } else {
-            ft.attach(fragment);
-        }
-    }
-
-    public static class MyFragment extends Fragment {
-
-        @NotNull
-        public static final String INTENT_KEY = "intent_key";
-
-        @Nullable
-        @Override
-        public View onCreateView(@NotNull LayoutInflater inflater,
-                                 @Nullable ViewGroup container,
-                                 @Nullable Bundle savedInstanceState) {
-            TextView view = new TextView(getActivity());
-
-            view.setText(getArguments().getString(INTENT_KEY));
-
-            return view;
         }
     }
 
